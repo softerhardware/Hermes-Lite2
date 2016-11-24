@@ -1,0 +1,28 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP DIODESCH
+D Diode schottky
+K DEV DIODE
+$ENDCMP
+#
+$CMP DIODESCH2
+D Diode schottky
+K DEV DIODE
+$ENDCMP
+#
+$CMP DIODESCH3
+D Diode schottky
+K DEV DIODE
+$ENDCMP
+#
+$CMP JNC
+D Resistor
+K R DEV
+$ENDCMP
+#
+$CMP JNO
+D Resistor
+K R DEV
+$ENDCMP
+#
+#End Doc Library
