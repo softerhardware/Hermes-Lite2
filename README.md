@@ -5,9 +5,8 @@ This is a work in progress to create a low-cost software defined radio HF transc
 
  * [Wiki](https://github.com/softerhardware/Hermes-Lite2/wiki) for documentation.
  * [Google Groups](https://groups.google.com/forum/#!forum/hermes-lite) for discussion.
- * [Tindie](https://www.tindie.com/products/SofterHardware/hermes-lite-sdr-amateur-radio-printed-circuit-board-set-pcb/) to purchase bare board sets and kits.
  * [GitHub](https://github.com/softerhardware/Hermes-Lite2) for all open source hardware, software and firmware.
-  * Hermes-Lite [schematic](https://github.com/softerhardware/Hermes-Lite2/raw/master/hardware/hl/hermeslite.pdf), [BOM](https://github.com/softerhardware/Hermes-Lite2/raw/master/hardware/hl/bom/bom.standard.pdf) and [PCB](https://github.com/softerhardware/Hermes-Lite2/master/hardware/hl/gerber).
+  * Hermes-Lite [schematic](https://github.com/softerhardware/Hermes-Lite2/raw/master/hardware/hl/hermeslite.pdf), [BOM](https://github.com/softerhardware/Hermes-Lite2/raw/master/hardware/hl/bom/bom.standard.pdf) and [PCB](https://github.com/softerhardware/Hermes-Lite2/tree/master/hardware/hl/gerber).
  * [Predecessor Hermes-Lite 1.0 Project](https://github.com/softerhardware/Hermes-Lite)
  * External Hermes-Lite Hardware Links
   * [W9JSW's Hermes-Lite Power Amplifiers and Filters](https://github.com/W9JSW/Hermes-Lite/tree/Amplifiers).
