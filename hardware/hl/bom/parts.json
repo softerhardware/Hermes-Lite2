@@ -148,7 +148,7 @@
 	},
 
 "U EEPROM": {
-	"mpn":["S25FL116K0XMFI011","W25Q16DVSSIG"],
+	"mpn":["S25FL116K0XMFI043","S25FL116K0XMFI041"],
 	"spec":"EEPROM 2Mx8bit >40MHz",
 	"assembly":"SMT",
 	"pins":8
