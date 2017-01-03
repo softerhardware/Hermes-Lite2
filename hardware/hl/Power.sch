@@ -2720,7 +2720,7 @@ Connection ~ 3925 6600
 Wire Wire Line
 	3000 6600 3600 6600
 Text Notes 6925 6075 0    60   ~ 0
-<=1.5A
+9.44V\n<=1.5A
 $Comp
 L +VPA #PWR056
 U 1 1 5803DED5
