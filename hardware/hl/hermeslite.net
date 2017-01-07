@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source /home/jim/pub/Hermes-Lite2/hardware/hl/hermeslite.sch)
-    (date "Tue 03 Jan 2017 11:25:05 AM EST")
+    (date "Thu 05 Jan 2017 12:40:42 PM EST")
     (tool "Eeschema 4.0.2+dfsg1-stable")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -4815,14 +4815,14 @@
         (pin (num 3) (name OUT) (type output))
         (pin (num 4) (name VDD) (type power_in)))))
   (libraries
-    (library (logical device)
-      (uri /usr/share/kicad/library/device.lib))
-    (library (logical conn)
-      (uri /usr/share/kicad/library/conn.lib))
     (library (logical linear)
       (uri /usr/share/kicad/library/linear.lib))
+    (library (logical conn)
+      (uri /usr/share/kicad/library/conn.lib))
     (library (logical hermeslite)
-      (uri /home/jim/pub/Hermes-Lite2/hardware/hl/libs/hermeslite.lib)))
+      (uri /home/jim/pub/Hermes-Lite2/hardware/hl/libs/hermeslite.lib))
+    (library (logical device)
+      (uri /usr/share/kicad/library/device.lib)))
   (nets
     (net (code 1) (name "Net-(PB1-Pad2)")
       (node (ref PB1) (pin 2)))
