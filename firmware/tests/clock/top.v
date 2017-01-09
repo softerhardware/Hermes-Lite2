@@ -1,5 +1,5 @@
 
-module leds (
+module top (
 
     // Power
     output          pwr_clk3p3,
@@ -21,8 +21,8 @@ module leds (
 
     // Clock
     output          clk_recovered,
-    input           clk_sda1,
-    input	 		clk_scl1,
+    inout           clk_sda1,
+    inout	 		clk_scl1,
 
     // RF Frontend
     output          rffe_ad9866_rst_n,
@@ -71,7 +71,7 @@ module leds (
     output          pa_en);
 
 
-    reg [31:0]  counter = 32'b10101010101010101010101010101010;
+    reg [31:0]  counter = 32'h0000;
 
     always @(posedge phy_clk125) counter <= counter + 1;
 
@@ -93,8 +93,6 @@ module leds (
     assign phy_mdc = 1'b0;
 
     assign clk_recovered = 1'b0;
-    //assign clk_sda1 = counter[29] ? counter[28] : 1'bZ;
-    //assign clk_scl1 = 1'b0;
 
     assign rffe_ad9866_rst_n = 1'b0;
     assign rffe_ad9866_tx = 6'b000000;
@@ -114,8 +112,106 @@ module leds (
     assign pa_tr = 1'b0;
     assign pa_en = 1'b0;
 
-endmodule
+    reg rst = 1'b1;
+    reg start = 1'b0;
 
+    wire [6:0]  cmd_address;
+    wire        cmd_start, cmd_read, cmd_write, cmd_write_multiple, cmd_stop, cmd_valid, cmd_ready;
+    wire [7:0]  data;
+    wire        data_valid, data_ready, data_last;
+    wire        scl_i, scl_o, scl_t, sda_i, sda_o, sda_t;
+
+    always @(posedge phy_clk125) begin
+        if (counter[24]) rst <= 1'b0;
+        if (counter[25]) start <= 1'b1;
+    end
+
+    assign scl_i = clk_scl1;
+    assign clk_scl1 = scl_t ? 1'bz : scl_o;
+    assign sda_i = clk_sda1;
+    assign clk_sda1 = sda_t ? 1'bz : sda_o;
+
+i2c_init i2c_init_i (
+    .clk(phy_clk125),
+    .rst(rst),
+    /*
+     * I2C master interface
+     */
+    .cmd_address(cmd_address),
+    .cmd_start(cmd_start),
+    .cmd_read(cmd_read),
+    .cmd_write(cmd_write),
+    .cmd_write_multiple(cmd_write_multiple),
+    .cmd_stop(cmd_stop),
+    .cmd_valid(cmd_valid),
+    .cmd_ready(cmd_ready),
+
+    .data_out(data),
+    .data_out_valid(data_valid),
+    .data_out_ready(data_ready),
+    .data_out_last(data_last),
+    /*
+     * Status
+     */
+    .busy(),
+    /*
+     * Configuration
+     */
+    .start(start)
+);
+
+i2c_master i2c_master_i (
+    .clk(phy_clk125),
+    .rst(rst),
+    /*
+     * Host interface
+     */
+    .cmd_address(cmd_address),
+    .cmd_start(cmd_start),
+    .cmd_read(cmd_read),
+    .cmd_write(cmd_write),
+    .cmd_write_multiple(cmd_write_multiple),
+    .cmd_stop(cmd_stop),
+    .cmd_valid(cmd_valid),
+    .cmd_ready(cmd_ready),
+
+    .data_in(data),
+    .data_in_valid(data_valid),
+    .data_in_ready(data_ready),
+    .data_in_last(data_last),
+
+    .data_out(),
+    .data_out_valid(),
+    .data_out_ready(1'b1),
+    .data_out_last(),
+
+    /*
+     * I2C interface
+     */
+    .scl_i(scl_i),
+    .scl_o(scl_o),
+    .scl_t(scl_t),
+    .sda_i(sda_i),
+    .sda_o(sda_o),
+    .sda_t(sda_t),
+
+    /*
+     * Status
+     */
+    .busy(),
+    .bus_control(),
+    .bus_active(),
+    .missed_ack(),
+
+    /*
+     * Configuration
+     */
+    .prescale(16'h0050),
+    .stop_on_idle(1'b0)
+);
+
+
+endmodule
 
 
 
