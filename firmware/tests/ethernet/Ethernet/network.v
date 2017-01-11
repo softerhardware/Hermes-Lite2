@@ -20,6 +20,7 @@
 
 //  Metis code copyright 2010, 2011, 2012, 2013 Phil Harman VK6APH, Alex Shovkoplyas, VE3NEA.
 //  April 2016, N2ADR: Added dhcp_seconds_timer
+//  January 2017, N2ADR: Added remote_mac_sync to the dhcp module
 
 
 module network (
@@ -557,6 +558,7 @@ dhcp dhcp_inst(
   .udp_tx_enable(udp_tx_enable),
   .tx_enable(dhcp_tx_enable),
   .udp_tx_active(udp_tx_active), 
+  .remote_mac(remote_mac_sync),				// MAC address of DHCP server
   .remote_ip(remote_ip_sync),				// IP address of DHCP server 
   .dhcp_seconds_timer(dhcp_seconds_timer),
 
