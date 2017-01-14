@@ -29,7 +29,6 @@ LIBS:atmel
 LIBS:contrib
 LIBS:valves
 LIBS:hermeslite
-LIBS:hermeslite-cache
 EELAYER 25 0
 EELAYER END
 $Descr USLetter 11000 8500

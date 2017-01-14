@@ -143,10 +143,10 @@ UDP2:
 					 11'd3: tx_data <= sequence_number[31:24];
 					 11'd4: tx_data <= sequence_number[23:16];
 					 11'd5: begin tx_data <= sequence_number[15:8]; Tx_fifo_rdreq <= 1'b1; end
-					 11'd6: begin tx_data <= sequence_number[7:0]; Tx_fifo_rdreq <= 1'b1; end
-					 11'd1029: Tx_fifo_rdreq <= 1'b0; // Total-3
-					 default: tx_data <= PHY_Tx_data;
-				endcase
+					 11'd6: begin tx_data <= sequence_number[7:0]; Tx_fifo_rdreq <= 1'b1; end  
+					 11'd1029: begin Tx_fifo_rdreq <= 1'b0; tx_data <= PHY_Tx_data; end // Total-3	
+					 default: tx_data <= PHY_Tx_data;		 
+				endcase				
 				byte_no <= byte_no + 11'd1;
 			end
 		end
@@ -177,10 +177,17 @@ WIDE2:
 					 11'd3: tx_data <= spec_seq_number[31:24];
 					 11'd4: tx_data <= spec_seq_number[23:16];
 					 11'd5: begin tx_data <= spec_seq_number[15:8]; sp_fifo_rdreq <= 1'b1; end
+<<<<<<< HEAD:firmware/Ethernet/Tx_send.v
 					 11'd6: begin tx_data <= spec_seq_number[7:0]; sp_fifo_rdreq <= 1'b1; end
 					 11'd1029: sp_fifo_rdreq <= 1'b0; // Total-3
 					 default: tx_data <= sp_fifo_rddata;
 				endcase
+=======
+					 11'd6: begin tx_data <= spec_seq_number[7:0]; sp_fifo_rdreq <= 1'b1; end  	
+					 11'd1029: begin sp_fifo_rdreq <= 1'b0; tx_data <= sp_fifo_rddata; end // Total-3
+					 default: tx_data <= sp_fifo_rddata;		 
+				endcase				
+>>>>>>> origin/master:firmware/tests/ethernet/Ethernet/Tx_send.v
 				byte_no <= byte_no + 11'd1;
 			end
 		end

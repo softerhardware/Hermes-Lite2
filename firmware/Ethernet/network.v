@@ -4,7 +4,7 @@
 //  Metis code.
 //
 //  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
+//  it under the t=erms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
 //
@@ -20,6 +20,7 @@
 
 //  Metis code copyright 2010, 2011, 2012, 2013 Phil Harman VK6APH, Alex Shovkoplyas, VE3NEA.
 //  April 2016, N2ADR: Added dhcp_seconds_timer
+//  January 2017, N2ADR: Added remote_mac_sync to the dhcp module
 
 
 module network (
@@ -553,8 +554,9 @@ dhcp dhcp_inst(
   .tx_clock(tx_clock),
   .udp_tx_enable(udp_tx_enable),
   .tx_enable(dhcp_tx_enable),
-  .udp_tx_active(udp_tx_active),
-  .remote_ip(remote_ip_sync),				// IP address of DHCP server
+  .udp_tx_active(udp_tx_active), 
+  .remote_mac(remote_mac_sync),				// MAC address of DHCP server
+  .remote_ip(remote_ip_sync),				// IP address of DHCP server 
   .dhcp_seconds_timer(dhcp_seconds_timer),
 
   // tx_out
