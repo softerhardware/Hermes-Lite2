@@ -10,13 +10,13 @@ module top (
     // Ethernet PHY
     input           phy_clk125,
     output  [3:0]   phy_tx,
-    output          phy_tx_en,              
-    output          phy_tx_clk,           
-    input   [3:0]   phy_rx,     
-    input           phy_rx_dv,                  
-    input           phy_rx_clk,           
+    output          phy_tx_en,
+    output          phy_tx_clk,
+    input   [3:0]   phy_rx,
+    input           phy_rx_dv,
+    input           phy_rx_clk,
     output          phy_rst_n,
-    inout           phy_mdio,               
+    inout           phy_mdio,
     output          phy_mdc,
 
     // Clock
@@ -26,7 +26,7 @@ module top (
 
     // RF Frontend
     output          rffe_ad9866_rst_n,
-    //(* useioff = 1 *) 
+    //(* useioff = 1 *)
     output  [5:0]   rffe_ad9866_tx,
     input   [5:0]   rffe_ad9866_rx,
     input           rffe_ad9866_rxsync,
@@ -73,11 +73,27 @@ module top (
     wire this_MAC;
     wire run;
     wire reset;
-    wire clk;
 
     reg [31:0]  counter = 32'b10101010101010101010101010101010;
 
-    always @(posedge phy_clk125) counter <= counter + 1;
+
+    wire clock_125_mhz_0_deg;
+    wire clock_125_mhz_90_deg;
+    wire clock_12_5MHz;
+    wire clock_2_5MHz;
+
+    ethpll ethpll_inst (
+    	.inclk0   (phy_clk125),   //  refclk.clk
+    	.areset   (1'b0),      //   reset.reset
+    	.c0 (clock_125_mhz_0_deg), // outclk0.clk
+    	.c1 (clock_125_mhz_90_deg), // outclk1.clk
+    	.c2 (clock_12_5MHz), // outclk2.clk
+    	.c3 (clock_2_5MHz) // outclk3.clk
+    );
+
+    assign phy_tx_clk = clock_125_mhz_90_deg;
+
+    always @(posedge clock_125_mhz_0_deg) counter <= counter + 1;
 
     assign io_led_d4 = 1'b1;
     assign io_led_d5 = 1'b1;
@@ -110,55 +126,47 @@ module top (
     assign pa_en = 1'b0;
 
 
-ethernet #(.MAC({8'h00,8'h1c,8'hc0,8'ha2,8'h22,8'hdd}), .IP({8'd0,8'd0,8'd0,8'd0}), .Hermes_serialno(8'd31)) ethernet_inst (
+    ethernet #(.MAC({8'h00,8'h1c,8'hc0,8'ha2,8'h22,8'hdd}), .IP({8'd0,8'd0,8'd0,8'd0}), .Hermes_serialno(8'd31)) ethernet_inst (
 
-    .clk50mhz(phy_clk125),
+      // Send to ethernet
+      .clock_2_5MHz(clock_2_5MHz),
+      .tx_clock(clock_125_mhz_0_deg),
+      .Tx_fifo_rdreq_o(),
+      .PHY_Tx_data_i(8'h00),
+      .PHY_Tx_rdused_i(11'h000),
 
-    // Send to ethernet
-    .Tx_clock_2_o(clk),
-    .Tx_fifo_rdreq_o(),
-    .PHY_Tx_data_i(8'h00),
-    .PHY_Tx_rdused_i(11'h000),
+      .sp_fifo_rddata_i(8'h00),
+      .sp_data_ready_i(1'b0),
+      .sp_fifo_rdreq_o(),
 
-    .sp_fifo_rddata_i(8'h00),  
-    .sp_data_ready_i(1'b0),
-    .sp_fifo_rdreq_o(),
+      // Receive from ethernet
+      .PHY_data_clock_o(),
+      .Rx_enable_o(),
+      .Rx_fifo_data_o(),
 
-    // Receive from ethernet
-    .PHY_data_clock_o(),
-    .Rx_enable_o(),
-    .Rx_fifo_data_o(),
+      // Status
+      .this_MAC_o(this_MAC),
+      .run_o(run),
+      .IF_rst_i(1'b0),
+      .reset_o(reset),
+      .dipsw_i(2'b01),
+      .AssignNR(8'h01),
 
-    // Status
-    .this_MAC_o(this_MAC),
-    .run_o(run),
-    .IF_rst_i(1'b0),
-    .reset_o(reset),
-    .dipsw_i(2'b01),
-    .AssignNR(8'h01),
-
-    // MII Ethernet PHY
-    .PHY_TX(phy_tx),
-    .PHY_TX_EN(phy_tx_en),              //PHY Tx enable
-    .PHY_TX_CLOCK(1'b0),           //Not used in RGMII
-    .PHY_TX_CLOCK_out(phy_tx_clk),
-    .PHY_RX(phy_rx),     
-    .RX_DV(phy_rx_dv),                  //PHY has data flag
-    .PHY_RX_CLOCK(phy_rx_clk),           //PHY Rx data clock
-    .PHY_RESET_N(phy_rst_n),  
-    .PHY_MDIO(phy_mdio),
-    .PHY_MDC(phy_mdc)
+      // MII Ethernet PHY
+      .PHY_TX(phy_tx),
+      .PHY_TX_EN(phy_tx_en),              //PHY Tx enable
+      .PHY_RX(phy_rx),
+      .RX_DV(phy_rx_dv),                  //PHY has data flag
+      .PHY_RX_CLOCK(phy_rx_clk),           //PHY Rx data clock
+      .PHY_RESET_N(phy_rst_n),
+      .PHY_MDIO(phy_mdio),
+      .PHY_MDC(phy_mdc)
     );
 
-// Really 0.16 seconds at Hermes-Lite 61.44 MHz clock
-localparam half_second = 10000000; // at 48MHz clock rate
+    // Really 0.16 seconds at Hermes-Lite 61.44 MHz clock
+    localparam half_second = 10000000; // at 48MHz clock rate
 
-Led_flash Flash_LED4(.clock(clk), .signal(this_MAC), .LED(io_led_d2), .period(half_second));
-Led_flash Flash_LED5(.clock(clk), .signal(run), .LED(io_led_d3), .period(half_second));
-
+    Led_flash Flash_LED4(.clock(clock_125_mhz_0_deg), .signal(this_MAC), .LED(io_led_d2), .period(half_second));
+    Led_flash Flash_LED5(.clock(clock_125_mhz_0_deg), .signal(run), .LED(io_led_d3), .period(half_second));
 
 endmodule
-
-
-
-
