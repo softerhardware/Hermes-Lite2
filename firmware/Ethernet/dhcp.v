@@ -38,6 +38,7 @@ module dhcp (
   input udp_tx_enable,
   input tx_enable, 
   input udp_tx_active, 
+  input [47:0] remote_mac,
   input [31:0] remote_ip,  		
   input [3:0] dhcp_seconds_timer,
   //tx out
@@ -57,18 +58,23 @@ module dhcp (
 
   );
    
-localparam TX_IDLE = 8'd0, DHCPDISCOVER = 8'd1, DHCPSEND = 8'd2, DHCPOFFER = 8'd3, DHCPREQUEST = 8'd4;
+localparam TX_IDLE = 8'd0, DHCPDISCOVER = 8'd1, DHCPSEND = 8'd2, DHCPOFFER = 8'd3, DHCPREQUEST = 8'd4, DHCPRENEW = 8'd5;
 localparam RX_IDLE = 8'd0, RX_OFFER_ACK = 8'd1, RX_DONE = 8'd2;
-  
  
-//discovery message  
-localparam DIS_TX_LEN = 16'd244;
-localparam REQ_TX_LEN = 16'd256;
+localparam DIS_TX_LEN = 16'd244;		// length of discover message
+localparam REQ_TX_LEN = 16'd256;		// length of request message for boot (starting) state
+localparam RENEW_TX_LEN = 16'd250;		// length of request message for lease renewal
 
 reg [8:0] byte_no;
 reg tx_request;
 reg send_discovery;
+reg is_renewal = 1'b0;		// Are we renewing the lease?
 reg [8:0] state = TX_IDLE;
+
+reg [47:0] destination_mac = 48'hFFFFFFFFFFFF;
+reg [31:0] destination_ip = 32'hFFFFFFFF;
+assign dhcp_destination_mac = destination_mac;
+assign dhcp_destination_ip = destination_ip;
 
 reg [15:0] xid_sum;		// random-ish number, constant after the first DHCP Discover
 reg xid_done = 0;
@@ -92,7 +98,12 @@ begin
 		byte_no <= 9'b1;
 		dhcp_tx_request <= 1'b0;	
 		send_discovery <= 1'b0;
-			if (tx_enable) state <= DHCPDISCOVER;
+			if (tx_enable) begin
+				if (is_renewal)
+					state <= DHCPRENEW;
+				else
+					state <= DHCPDISCOVER;
+			end
 			else if (send_request) state <= DHCPREQUEST;
 		end
 	
@@ -118,6 +129,16 @@ begin
 			end
 		end 	
 		
+	DHCPRENEW:
+		begin
+		length <= RENEW_TX_LEN;			
+		dhcp_tx_request <= 1'b1;
+			if (udp_tx_enable) begin			// tx_data needs to be available before udp_tx_active
+				tx_data <= 8'h01;					// hence this is byte_no 0 
+				state <= DHCPSEND;
+			end
+		end 	
+		
 	DHCPSEND:
 		begin
 			if (byte_no < length) begin
@@ -132,8 +153,13 @@ begin
 					7: tx_data <= xid3;
 					8: tx_data <= 8'd0;
 					9: tx_data <= {4'd0, dhcp_seconds_timer};
-				  10: tx_data <= 8'd0;		// 18 zeros
-				  28: tx_data <= local_mac[47:40];
+				  10: tx_data <= 8'd0;		// 2 zeros
+				  12: tx_data <= is_renewal ? ip_accept[31:24] : 8'd0;		// ciaddr
+				  13: tx_data <= is_renewal ? ip_accept[23:16] : 8'd0;
+				  14: tx_data <= is_renewal ? ip_accept[15:8]  : 8'd0;
+				  15: tx_data <= is_renewal ? ip_accept[7:0]   : 8'd0;
+				  16: tx_data <= 8'd0;		// 12 zeros
+				  28: tx_data <= local_mac[47:40];		// chaddr
 				  29: tx_data <= local_mac[39:32];
 				  30: tx_data <= local_mac[31:24];
 				  31: tx_data <= local_mac[23:16];
@@ -147,14 +173,14 @@ begin
 				 240: tx_data <= 8'h35;
 				 241: tx_data <= 8'h01;
 				 242: tx_data <= send_discovery ? 8'h01 : 8'h03;
-				 243: tx_data <= send_discovery ? 8'hFF : 8'h32;  // send discovery ends here
-				 244: tx_data <= 8'h04;
-				 245: tx_data <= ip_accept[31:24];
+				 243: tx_data <= send_discovery ? 8'hFF : 8'h32;	// send discovery ends here
+				 244: tx_data <= 8'h04;								// start of REQUEST
+				 245: tx_data <= ip_accept[31:24];		// Requested IP
 				 246: tx_data <= ip_accept[23:16];
 				 247: tx_data <= ip_accept[15:8];
 				 248: tx_data <= ip_accept[7:0];
-				 249: tx_data <= 8'h36;
-				 250: tx_data <= 8'h04;
+				 249: tx_data <= is_renewal ? 8'hFF : 8'h36;		// Renewal Request ends here
+				 250: tx_data <= 8'h04;		// Original Request requires the Server Identifier
 				 251: tx_data <= remote_ip[31:24];
 				 252: tx_data <= remote_ip[23:16];
 				 253: tx_data <= remote_ip[15:8];
@@ -172,8 +198,6 @@ end
 //-----------------------------------------------------------------------------
 //                               output
 //-----------------------------------------------------------------------------  
-assign dhcp_destination_mac  = 48'hFFFFFFFFFFFF;
-assign dhcp_destination_ip   = 32'hFFFFFFFF;  
 assign dhcp_destination_port = 16'd67;
 
 //--------------------------------------------------------------------
@@ -330,7 +354,10 @@ begin
 									option[15:8] <= rx_data;
 									if (rx_data == 8'hFF) begin // early exit if no padding in ACK
 									 	dhcp_success <= 1'b1;
-										dhcp_failed  <= 1'b0;	
+										dhcp_failed  <= 1'b0;
+										is_renewal <= 1'b1;	
+										destination_mac <= remote_mac;	// save DHCP server addresses for renewal
+										destination_ip <= remote_ip;
 										rx_state <= RX_IDLE;
 									end										 
 									rx_byte_no <=  rx_byte_no + 9'd1;
