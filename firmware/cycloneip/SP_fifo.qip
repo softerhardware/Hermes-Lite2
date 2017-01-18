@@ -1,0 +1,4 @@
+set_global_assignment -name IP_TOOL_NAME "FIFO"
+set_global_assignment -name IP_TOOL_VERSION "16.0"
+set_global_assignment -name IP_GENERATED_DEVICE_FAMILY "{Cyclone III}"
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) "SP_fifo.v"]
