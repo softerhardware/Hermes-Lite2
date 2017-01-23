@@ -19,16 +19,16 @@ create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1
 
 create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|inclk[0]} -phase 90.00 -duty_cycle 50.00 -name clock_90_125MHz {ethpll_inst|altpll_component|auto_generated|pll1|clk[1]}
 
-create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|inclk[0]} -divide_by 10 -duty_cycle 50.00 -name clock_12_5MHz {ethpll_inst|altpll_component|auto_generated|pll1|clk[2]}
+create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|inclk[0]} -divide_by 50 -duty_cycle 50.00 -name clock_2_5MHz {ethpll_inst|altpll_component|auto_generated|pll1|clk[2]}
 
-create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|inclk[0]} -divide_by 50 -duty_cycle 50.00 -name clock_2_5MHz {ethpll_inst|altpll_component|auto_generated|pll1|clk[3]}
+
+create_generated_clock -source {ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -duty_cycle 50.00 -name clock_76p8MHz {ad9866pll_inst|altpll_component|auto_generated|pll1|clk[0]}
+
+
+
 
 ## Create TX clock version based on pin output
 create_generated_clock -name tx_output_clock -source [get_pins {ethpll_inst|altpll_component|auto_generated|pll1|clk[1]}] [get_ports {phy_tx_clk}]
-
-create_generated_clock -divide_by 20 -source rffe_ad9866_clk76p8 -name BCLK {Hermes_clk_lrclk_gen:clrgen|BCLK}
-
-
 
 derive_clock_uncertainty
 
@@ -77,7 +77,7 @@ set_clock_groups -asynchronous -group { \
 					tx_output_clock \
 				       } \
 					-group {phy_rx_clk } \
-					-group {rffe_ad9866_rxclk rffe_ad9866_clk76p8 BCLK} 
+					-group {rffe_ad9866_rxclk rffe_ad9866_clk76p8 clock_76p8MHz}
 
 #**************************************************************
 # Set Maximum Delay
@@ -151,7 +151,7 @@ set_input_delay -add_delay -min -clock rffe_ad9866_rxclk 0.5 [get_ports {rffe_ad
 
 
 ## AD9866 TX Path
-## Adjust for PCB delays 
+## Adjust for PCB delays
 
 set_multicycle_path -to [get_ports {rffe_ad9866_txsync}] -setup -start 2
 set_multicycle_path -to [get_ports {rffe_ad9866_txsync}] -hold -start 0
