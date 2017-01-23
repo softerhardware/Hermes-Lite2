@@ -67,10 +67,7 @@ module network (
   input  PHY_DV,
   input  PHY_RX_CLOCK,
   input  PHY_INT_N,
-  output PHY_RESET_N,
-  input rst_n,
   input macbit,
-
 
   inout  PHY_MDIO,
   output PHY_MDC,
@@ -150,13 +147,12 @@ always @(negedge clock_2_5MHz)
 
       //wait for eeprom
       ST_EEPROM_READ:
-        if (eeprom_ready)
-          begin
-			 local_ip <= static_ip;
-			 dhcp_timer <= 22'd2_500_000;	// set dhcp timer to one second
-			 dhcp_seconds_timer <= 4'd0;	// zero seconds have elapsed
+        begin
+			 		local_ip <= static_ip;
+			 		dhcp_timer <= 22'd2_500_000;	// set dhcp timer to one second
+			 		dhcp_seconds_timer <= 4'd0;	// zero seconds have elapsed
           state <= ST_PHY_INIT;
-          end
+        end
 
       //set phy initialization request
       ST_PHY_INIT:
@@ -235,38 +231,8 @@ always @(negedge clock_2_5MHz)
 
     endcase
 
-//-----------------------------------------------------------------------------
-// reads mac and static ip from eeprom, writes static ip to eeprom
-//-----------------------------------------------------------------------------
-//eeprom eeprom_inst(
-//  .clock(clock_2_5MHz),
-//  .rd_request(state == ST_EEPROM_START),
-//  .wr_request(set_ip),
-//  .ready(eeprom_ready),
-//  .mac(local_mac),
-//  .ip(static_ip),
-//  .ip_to_write(assign_ip),
-//  .IP_write_done(IP_write_done),
-//  .SCK(SCK),
-//  .SI(SI),
-//  .SO(SO),
-//  .CS(CS)
-//);
-
-//assign eeprom_ready = 1'b1;
-//assign static_ip = {8'd192,8'd168,8'd33,8'd249};
 assign static_ip = IP;
 assign local_mac =  {MAC[47:2],~macbit,MAC[0]};
-
-reg [14:0] eepromcnt;
-
-always @(posedge clock_2_5MHz or negedge rst_n) begin
-  if (~rst_n) eepromcnt <= 0;
-  else if (~(&eepromcnt)) eepromcnt <= eepromcnt + 15'h01;
-end
-
-assign eeprom_ready = &eepromcnt[14:11];
-assign PHY_RESET_N = &eepromcnt[14:12];
 
 
 //-----------------------------------------------------------------------------
@@ -554,9 +520,9 @@ dhcp dhcp_inst(
   .tx_clock(tx_clock),
   .udp_tx_enable(udp_tx_enable),
   .tx_enable(dhcp_tx_enable),
-  .udp_tx_active(udp_tx_active), 
+  .udp_tx_active(udp_tx_active),
   .remote_mac(remote_mac_sync),				// MAC address of DHCP server
-  .remote_ip(remote_ip_sync),				// IP address of DHCP server 
+  .remote_ip(remote_ip_sync),				// IP address of DHCP server
   .dhcp_seconds_timer(dhcp_seconds_timer),
 
   // tx_out
@@ -656,8 +622,7 @@ rgmii_send rgmii_send_inst (
   .clock(tx_clock),
   .PHY_TX(PHY_TX),
   .PHY_TX_EN(PHY_TX_EN),
-  .PHY_INT_N(PHY_INT_N),
-  .PHY_RESET_N()
+  .PHY_INT_N(PHY_INT_N)
   );
 
 

@@ -1,6 +1,6 @@
 //
 //  Hermes Lite
-// 
+//
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,87 +16,87 @@
 //  along with this program; if not, write to the Free Software
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-// (C) Phil Harman VK6APH, Kirk Weedman KD7IRS  2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 
+// (C) Phil Harman VK6APH, Kirk Weedman KD7IRS  2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014
 // (C) Steve Haynal KF7O 2014-2017
 
 
-// This is a port of the Hermes project from www.openhpsdr.org to work with
+// This RTL originated from www.openhpsdr.org and has been modified to support
 // the Hermes-Lite hardware described at http://github.com/softerhardware/Hermes-Lite2.
 
 module hermeslite(
 
-    // Power
-    output          pwr_clk3p3,
-    output          pwr_clk1p2,
-    output          pwr_clkvpa,
-    output          pwr_envpa,
+  // Power
+  output          pwr_clk3p3,
+  output          pwr_clk1p2,
+  output          pwr_clkvpa,
+  output          pwr_envpa,
 
-    // Ethernet PHY
-    input           phy_clk125,
-    output  [3:0]   phy_tx,
-    output          phy_tx_en,
-    output          phy_tx_clk,
-    input   [3:0]   phy_rx,
-    input           phy_rx_dv,
-    input           phy_rx_clk,
-    output          phy_rst_n,
-    inout           phy_mdio,
-    output          phy_mdc,
+  // Ethernet PHY
+  input           phy_clk125,
+  output  [3:0]   phy_tx,
+  output          phy_tx_en,
+  output          phy_tx_clk,
+  input   [3:0]   phy_rx,
+  input           phy_rx_dv,
+  input           phy_rx_clk,
+  input           phy_rst_n,
+  inout           phy_mdio,
+  output          phy_mdc,
 
-    // Clock
-    output          clk_recovered,
-    inout           clk_sda1,
-    inout           clk_scl1,
+  // Clock
+  output          clk_recovered,
+  inout           clk_sda1,
+  inout           clk_scl1,
 
-    // RF Frontend
-    output          rffe_ad9866_rst_n,
-    (* useioff = 1 *) output  [5:0]   rffe_ad9866_tx,
-    input   [5:0]   rffe_ad9866_rx,
-    input           rffe_ad9866_rxsync,
-    (* useioff = 1 *) output          rffe_ad9866_txsync,
-    output          rffe_ad9866_txquiet_n,
-    output          rffe_ad9866_sdio,
-    output          rffe_ad9866_sclk,
-    output          rffe_ad9866_sen_n,
-    output  [5:0]   rffe_ad9866_pga,
-    input           rffe_ad9866_rxclk,
-    input           rffe_ad9866_clk76p8,
-    output          rffe_rfsw_sel,
+  // RF Frontend
+  output          rffe_ad9866_rst_n,
+  (* useioff = 1 *) output  [5:0]   rffe_ad9866_tx,
+  input   [5:0]   rffe_ad9866_rx,
+  input           rffe_ad9866_rxsync,
+  (* useioff = 1 *) output          rffe_ad9866_txsync,
+  output          rffe_ad9866_txquiet_n,
+  output          rffe_ad9866_sdio,
+  output          rffe_ad9866_sclk,
+  output          rffe_ad9866_sen_n,
+  output  [5:0]   rffe_ad9866_pga,
+  input           rffe_ad9866_rxclk,
+  input           rffe_ad9866_clk76p8,
+  output          rffe_rfsw_sel,
 
-    // IO
-    output          io_led_d2,
-    output          io_led_d3,
-    output          io_led_d4,
-    output          io_led_d5,
-    input           io_cn4_2,
-    input           io_cn4_3,
-    input           io_cn4_6,
-    input           io_cn4_7,
-    input           io_cn5_2,
-    input           io_cn5_3,
-    input           io_cn5_6,
-    input           io_cn5_7,
-    input           io_db22_2,
-    input           io_db22_3,
-    output          io_adc_scl,
-    output          io_adc_sda,
-    input           io_cn8,
-    input           io_cn9,
-    input           io_cn10,
-    output          io_scl2,
-    output          io_sda2,
-    input           io_tp2,
-    input           io_db24,
+  // IO
+  output          io_led_d2,
+  output          io_led_d3,
+  output          io_led_d4,
+  output          io_led_d5,
+  input           io_cn4_2,
+  input           io_cn4_3,
+  input           io_cn4_6,
+  input           io_cn4_7,
+  input           io_cn5_2,
+  input           io_cn5_3,
+  input           io_cn5_6,
+  input           io_cn5_7,
+  input           io_db22_2,
+  input           io_db22_3,
+  output          io_adc_scl,
+  output          io_adc_sda,
+  input           io_cn8,
+  input           io_cn9,
+  input           io_cn10,
+  output          io_scl2,
+  output          io_sda2,
+  input           io_tp2,
+  input           io_db24,
 
-    // PA
-    output          pa_tr,
-    output          pa_en);
+  // PA
+  output          pa_tr,
+  output          pa_en);
 
 
 // PARAMETERS
 
 // Ethernet Interface
-parameter MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h22,8'hdd};
+parameter MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h12,8'hdd};
 parameter IP = {8'd0,8'd0,8'd0,8'd0};
 
 // ADC Oscillator
@@ -129,8 +129,8 @@ localparam DUPRXMAXGAIN = 6'h12;
 localparam DUPRXMINGAIN = 6'h06;
 
 // Number of Receivers
-parameter NR = 2; // number of receivers to implement
-wire [7:0]AssignNR;         // IP address read from EEPROM
+parameter NR = 2;     // number of receivers to implement
+wire [7:0] AssignNR;         // IP address read from EEPROM
 assign AssignNR = NR;
 
 // Number of transmitters Be very careful when using more than 1 transmitter!
@@ -145,11 +145,11 @@ parameter M_TPD   = 4;
 parameter IF_TPD  = 2;
 
 parameter  Hermes_serialno = 8'd31;     // Serial number of this version
-localparam Penny_serialno = 8'd00;      // Use same value as equ1valent Penny code 
+localparam Penny_serialno = 8'd00;      // Use same value as equ1valent Penny code
 localparam Merc_serialno = 8'd00;       // Use same value as equivalent Mercury code
 
 localparam RX_FIFO_SZ  = 4096;          // 16 by 4096 deep RX FIFO
-localparam TX_FIFO_SZ  = 1024;          // 16 by 1024 deep TX FIFO  
+localparam TX_FIFO_SZ  = 1024;          // 16 by 1024 deep TX FIFO
 localparam SP_FIFO_SZ = 2048;           // 16 by 8192 deep SP FIFO, was 16384 but wouldn't fit
 
 
@@ -157,136 +157,136 @@ localparam bit [0:19][8:0] initarray_nointerpolation = {
     // First bit is 1'b1 for write enable to that address
     {1'b1,8'h80}, // Address 0x00, enable 4 wire SPI
     {1'b0,8'h00}, // Address 0x01,
-    {1'b0,8'h00}, // Address 0x02, 
-    {1'b0,8'h00}, // Address 0x03, 
+    {1'b0,8'h00}, // Address 0x02,
+    {1'b0,8'h00}, // Address 0x03,
     {1'b1,8'h00}, // Address 0x04, // No multiply of oscillator for no interpolation
-    {1'b0,8'h00}, // Address 0x05, 
+    {1'b0,8'h00}, // Address 0x05,
     {1'b1,8'h00}, // Address 0x06, // No divide down for FPGA clock
     {1'b1,8'h21}, // Address 0x07, Initiate DC offset calibration and RX filter on
     {1'b1,8'h4b}, // Address 0x08, RX filter f-3db at ~34 MHz after scaling
-    {1'b0,8'h00}, // Address 0x09, 
-    {1'b0,8'h00}, // Address 0x0a, 
+    {1'b0,8'h00}, // Address 0x09,
+    {1'b0,8'h00}, // Address 0x0a,
     {1'b1,8'h20}, // Address 0x0b, RX gain only on PGA
     {1'b1,8'h81}, // Address 0x0c, TX twos complement and interpolation factor
-    {1'b1,8'h01}, // Address 0x0d, RT twos complement 
-    {1'b0,8'h01}, // Address 0x0e, Enable/Disable IAMP 
-    {1'b0,8'h00}, // Address 0x0f,     
+    {1'b1,8'h01}, // Address 0x0d, RT twos complement
+    {1'b0,8'h01}, // Address 0x0e, Enable/Disable IAMP
+    {1'b0,8'h00}, // Address 0x0f,
     {1'b0,8'h84}, // Address 0x10, Select TX gain
     {1'b1,8'h00}, // Address 0x11, Select TX gain
-    {1'b0,8'h00}, // Address 0x12, 
-    {1'b0,8'h00}  // Address 0x13,     
+    {1'b0,8'h00}, // Address 0x12,
+    {1'b0,8'h00}  // Address 0x13,
 };
 
 localparam bit [0:19][8:0] initarray_2xosc = {
     // First bit is 1'b1 for write enable to that address
     {1'b1,8'h80}, // Address 0x00, enable 4 wire SPI
     {1'b0,8'h00}, // Address 0x01,
-    {1'b0,8'h00}, // Address 0x02, 
-    {1'b0,8'h00}, // Address 0x03, 
-    {1'b1,8'h16}, // Address 0x04, 
-    {1'b0,8'h00}, // Address 0x05, 
+    {1'b0,8'h00}, // Address 0x02,
+    {1'b0,8'h00}, // Address 0x03,
+    {1'b1,8'h16}, // Address 0x04,
+    {1'b0,8'h00}, // Address 0x05,
     {1'b0,8'h00}, // Address 0x06,
     {1'b1,8'h21}, // Address 0x07, Initiate DC offset calibration and RX filter on
     {1'b1,8'h4b}, // Address 0x08, RX filter f-3db at ~34 MHz after scaling
-    {1'b0,8'h00}, // Address 0x09, 
-    {1'b0,8'h00}, // Address 0x0a, 
+    {1'b0,8'h00}, // Address 0x09,
+    {1'b0,8'h00}, // Address 0x0a,
     {1'b1,8'h20}, // Address 0x0b, RX gain only on PGA
-    {1'b1,8'h41}, // Address 0x0c, TX twos complement and interpolation factor 
-    {1'b1,8'h01}, // Address 0x0d, RT twos complement 
-    {1'b0,8'h01}, // Address 0x0e, Enable/Disable IAMP 
-    {1'b0,8'h00}, // Address 0x0f,     
+    {1'b1,8'h41}, // Address 0x0c, TX twos complement and interpolation factor
+    {1'b1,8'h01}, // Address 0x0d, RT twos complement
+    {1'b0,8'h01}, // Address 0x0e, Enable/Disable IAMP
+    {1'b0,8'h00}, // Address 0x0f,
     {1'b0,8'h84}, // Address 0x10, Select TX gain
     {1'b1,8'h00}, // Address 0x11, Select TX gain
-    {1'b0,8'h00}, // Address 0x12, 
-    {1'b0,8'h00}  // Address 0x13,     
+    {1'b0,8'h00}, // Address 0x12,
+    {1'b0,8'h00}  // Address 0x13,
 };
 
 localparam bit [0:19][8:0] initarray_disable_IAMP = {
     // First bit is 1'b1 for write enable to that address
     {1'b0,8'h80}, // Address 0x00, enable 4 wire SPI
     {1'b0,8'h00}, // Address 0x01,
-    {1'b0,8'h00}, // Address 0x02, 
-    {1'b0,8'h00}, // Address 0x03, 
-    {1'b0,8'h00}, // Address 0x04, 
-    {1'b0,8'h00}, // Address 0x05, 
+    {1'b0,8'h00}, // Address 0x02,
+    {1'b0,8'h00}, // Address 0x03,
+    {1'b0,8'h00}, // Address 0x04,
+    {1'b0,8'h00}, // Address 0x05,
     {1'b0,8'h00}, // Address 0x06,
     {1'b1,8'h21}, // Address 0x07, Initiate DC offset calibration and RX filter on
     {1'b1,8'h4b}, // Address 0x08, RX filter f-3db at ~34 MHz after scaling
-    {1'b0,8'h00}, // Address 0x09, 
-    {1'b0,8'h00}, // Address 0x0a, 
+    {1'b0,8'h00}, // Address 0x09,
+    {1'b0,8'h00}, // Address 0x0a,
     {1'b1,8'h20}, // Address 0x0b, RX gain only on PGA
-    {1'b1,8'h41}, // Address 0x0c, TX twos complement and interpolation factor 
-    {1'b1,8'h01}, // Address 0x0d, RT twos complement 
-    {1'b1,8'h01}, // Address 0x0e, Enable/Disable IAMP 
-    {1'b0,8'h00}, // Address 0x0f,     
+    {1'b1,8'h41}, // Address 0x0c, TX twos complement and interpolation factor
+    {1'b1,8'h01}, // Address 0x0d, RT twos complement
+    {1'b1,8'h01}, // Address 0x0e, Enable/Disable IAMP
+    {1'b0,8'h00}, // Address 0x0f,
     {1'b0,8'h84}, // Address 0x10, Select TX gain
     {1'b1,8'h00}, // Address 0x11, Select TX gain
-    {1'b0,8'h00}, // Address 0x12, 
-    {1'b0,8'h00}  // Address 0x13,     
+    {1'b0,8'h00}, // Address 0x12,
+    {1'b0,8'h00}  // Address 0x13,
 };
 
 localparam bit [0:19][8:0] initarray_6m = {
     // First bit is 1'b1 for write enable to that address
     {1'b1,8'h80}, // Address 0x00, enable 4 wire SPI
     {1'b0,8'h00}, // Address 0x01,
-    {1'b0,8'h00}, // Address 0x02, 
-    {1'b0,8'h00}, // Address 0x03, 
+    {1'b0,8'h00}, // Address 0x02,
+    {1'b0,8'h00}, // Address 0x03,
     {1'b1,8'h00}, // Address 0x04, // No multiply of oscillator for no interpolation
-    {1'b0,8'h00}, // Address 0x05, 
+    {1'b0,8'h00}, // Address 0x05,
     {1'b1,8'h00}, // Address 0x06, // No divide down for FPGA clock
     {1'b1,8'h20}, // Address 0x07, Initiate DC offset calibration and RX filter *OFF*
     {1'b1,8'h4b}, // Address 0x08, RX filter f-3db at ~34 MHz after scaling
-    {1'b0,8'h00}, // Address 0x09, 
-    {1'b0,8'h00}, // Address 0x0a, 
+    {1'b0,8'h00}, // Address 0x09,
+    {1'b0,8'h00}, // Address 0x0a,
     {1'b1,8'h20}, // Address 0x0b, RX gain only on PGA
     {1'b1,8'h81}, // Address 0x0c, TX twos complement and interpolation factor
-    {1'b1,8'h01}, // Address 0x0d, RX twos complement 
-    {1'b1,8'h01}, // Address 0x0e, Enable/Disable IAMP 
-    {1'b0,8'h00}, // Address 0x0f,     
+    {1'b1,8'h01}, // Address 0x0d, RX twos complement
+    {1'b1,8'h01}, // Address 0x0e, Enable/Disable IAMP
+    {1'b0,8'h00}, // Address 0x0f,
     {1'b0,8'h84}, // Address 0x10, Select TX gain
     {1'b1,8'h00}, // Address 0x11, Select TX gain
-    {1'b0,8'h00}, // Address 0x12, 
-    {1'b0,8'h00}  // Address 0x13,     
+    {1'b0,8'h00}, // Address 0x12,
+    {1'b0,8'h00}  // Address 0x13,
 };
 
 localparam bit [0:19][8:0] initarray_regular = {
     // First bit is 1'b1 for write enable to that address
     {1'b0,8'h80}, // Address 0x00, enable 4 wire SPI
     {1'b0,8'h00}, // Address 0x01,
-    {1'b0,8'h00}, // Address 0x02, 
-    {1'b0,8'h00}, // Address 0x03, 
-    {1'b0,8'h00}, // Address 0x04, 
-    {1'b0,8'h00}, // Address 0x05, 
+    {1'b0,8'h00}, // Address 0x02,
+    {1'b0,8'h00}, // Address 0x03,
+    {1'b0,8'h00}, // Address 0x04,
+    {1'b0,8'h00}, // Address 0x05,
     {1'b0,8'h00}, // Address 0x06,
     {1'b1,8'h21}, // Address 0x07, Initiate DC offset calibration and RX filter on
     {1'b1,8'h4b}, // Address 0x08, RX filter f-3db at ~34 MHz after scaling
-    {1'b0,8'h00}, // Address 0x09, 
-    {1'b0,8'h00}, // Address 0x0a, 
+    {1'b0,8'h00}, // Address 0x09,
+    {1'b0,8'h00}, // Address 0x0a,
     {1'b1,8'h20}, // Address 0x0b, RX gain only on PGA
-    {1'b1,8'h41}, // Address 0x0c, TX twos complement and interpolation factor 
-    {1'b1,8'h01}, // Address 0x0d, RT twos complement 
-    {1'b0,8'h01}, // Address 0x0e, Enable/Disable IAMP 
-    {1'b0,8'h00}, // Address 0x0f,     
+    {1'b1,8'h41}, // Address 0x0c, TX twos complement and interpolation factor
+    {1'b1,8'h01}, // Address 0x0d, RT twos complement
+    {1'b0,8'h01}, // Address 0x0e, Enable/Disable IAMP
+    {1'b0,8'h00}, // Address 0x0f,
     {1'b0,8'h84}, // Address 0x10, Select TX gain
     {1'b1,8'h00}, // Address 0x11, Select TX gain
-    {1'b0,8'h00}, // Address 0x12, 
-    {1'b0,8'h00}  // Address 0x13,     
+    {1'b0,8'h00}, // Address 0x12,
+    {1'b0,8'h00}  // Address 0x13,
 };
 
 
-localparam disable_IAMP = 1'b1; 
+localparam disable_IAMP = 1'b1;
 localparam bit [0:19][8:0] initarray0 = (disable_IAMP == 1) ? initarray_disable_IAMP : initarray_regular;
 
 
 // Set initarray1 to other value to select between two configurations
-// Must reset or repower HL to take effect 
+// Must reset or repower HL to take effect
 localparam bit [0:19][8:0] initarray1 = initarray0;
 
 // No interpolation and not filter for 6M
 //localparam bit [0:19][8:0] initarray1 = initarray_6m;
 
 // Based on dip switch
-// SDK has just two dip switches, dipsw[2]==dipsw[1] in SDK, dipsw[1] 
+// SDK has just two dip switches, dipsw[2]==dipsw[1] in SDK, dipsw[1]
 // CV has three dip switches
 // CVA9 has four dip switches but only three are currently connected
 // dipsw[2:1] select alternate MAC addresses
@@ -294,34 +294,96 @@ localparam bit [0:19][8:0] initarray1 = initarray0;
 // Use dipsw[2] is used for initarray selection. This will also change the MAC but that is okay and may be desirable
 
 
-    assign pwr_clk3p3 = 1'b0;
-    assign pwr_clk1p2 = 1'b0;
-    assign pwr_clkvpa = 1'b0;
-    assign pwr_envpa = 1'b0;
+assign pwr_clk3p3 = 1'b0;
+assign pwr_clk1p2 = 1'b0;
+assign pwr_clkvpa = 1'b0;
+assign pwr_envpa = 1'b1;
 
-    assign io_adc_scl = 1'b0;
-    assign io_adc_sda = 1'b0;
-    assign io_scl2 = 1'b0;
-    assign io_sda2 = 1'b0;
+assign io_adc_scl = 1'b0;
+assign io_adc_sda = 1'b0;
+assign io_scl2 = 1'b0;
+assign io_sda2 = 1'b0;
 
-    assign pa_en = 1'b0;
+assign pa_en = 1'b0;
 
 
-    assign clk_recovered = 1'b0;
-    assign rffe_rfsw_sel = 1'b0;
+assign clk_recovered = 1'b0;
+assign rffe_rfsw_sel = 1'b0;
+
+
+
+// Reset and Clock Control
+
+wire clock_125_mhz_0_deg;
+wire clock_125_mhz_90_deg;
+wire clock_2_5MHz;
+wire ethpll_locked;
+
+ethpll ethpll_inst (
+    .inclk0   (phy_clk125),   //  refclk.clk
+    .c0 (clock_125_mhz_0_deg), // outclk0.clk
+    .c1 (clock_125_mhz_90_deg), // outclk1.clk
+    .c2 (clock_2_5MHz), // outclk2.clk
+    .locked (ethpll_locked)
+);
+
+wire ethup;
+
+// phy_rst_n will go high after ~50ms due to RC
+// ethpll_locked will go high once pll is locked
+assign ethup = ethpll_locked & phy_rst_n;
+
+// ethup starts I2C configuration of the Versa
+// the PLL may lock twice the frequency changes
+
+wire clock_76p8_mhz;
+wire clock_153p6_mhz;
+wire ad9866pll_locked;
+
+ad9866pll ad9866pll_inst (
+  .inclk0   (rffe_ad9866_clk76p8),   //  refclk.clk
+  .areset   (~ethup),      //   reset.reset
+  .c0 (clock_76p8_mhz), // outclk0.clk
+  .c1 (clock_153p6_mhz), // outclk1.clk
+  .locked (ad9866pll_locked)
+);
+
+// Most FPGA logic is reset when ethernet is up and ad9866 PLL is locked
+// AD9866 is released from reset
+wire rst;
+wire clk_i2c_rst;
+wire clk_i2c_start;
+
+reg [15:0] resetcounter = 16'h0000;
+always @ (posedge clock_2_5MHz)
+  if (~resetcounter[15] & ethup) resetcounter <= resetcounter + 16'h01;
+
+assign clk_i2c_rst = ~(|resetcounter[15:10]);
+assign clk_i2c_start = ~(|resetcounter[15:11]);
+assign rst = ~(|resetcounter[15:14]);
+
+reg ad9866_rst_n = 1'b0;
+
+always @ (posedge clock_2_5MHz)
+  if (resetcounter[15] & ad9866pll_locked) ad9866_rst_n <= 1'b1;
+
+assign rffe_ad9866_rst_n = ad9866_rst_n;
+
+
+
+
+
+
 
 //--------------------------------------------------------------
-// Reset Lines - C122_rst, IF_rst
+// Reset Lines - C122_rst, rst
 //--------------------------------------------------------------
 
-wire  IF_rst;
-    
-assign IF_rst    = (!pll_locked || reset);       // hold code in reset until PLLs are locked & PHY operational
 
-// transfer IF_rst to 122.88MHz clock domain to generate C122_rst
+// transfer rst to 122.88MHz clock domain to generate C122_rst
 cdc_sync #(1)
-    reset_C122 (.siga(IF_rst), .rstb(IF_rst), .clkb(rffe_ad9866_clk76p8), .sigb(C122_rst)); // 122.88MHz clock domain reset
-    
+    reset_C122 (.siga(rst), .rstb(rst), .clkb(clock_76p8_mhz), .sigb(C122_rst)); // 122.88MHz clock domain reset
+
 //---------------------------------------------------------
 //      CLOCKS
 //---------------------------------------------------------
@@ -329,7 +391,7 @@ cdc_sync #(1)
 wire CLRCLK;
 
 wire C122_cbclk, C122_cbrise, C122_cbfall;
-Hermes_clk_lrclk_gen #(.CLK_FREQ(CLK_FREQ)) clrgen (.reset(C122_rst), .CLK_IN(rffe_ad9866_clk76p8), .BCLK(C122_cbclk),
+Hermes_clk_lrclk_gen #(.CLK_FREQ(CLK_FREQ)) clrgen (.reset(C122_rst), .CLK_IN(clock_76p8_mhz), .BCLK(C122_cbclk),
                              .Brise(C122_cbrise), .Bfall(C122_cbfall), .LRCLK(CLRCLK));
 
 
@@ -341,21 +403,8 @@ wire [7:0] Rx_fifo_data;
 
 wire this_MAC;
 wire run;
-wire reset;
 
-wire clock_125_mhz_0_deg;
-wire clock_125_mhz_90_deg;
-wire clock_12_5MHz;
-wire clock_2_5MHz;
 
-ethpll ethpll_inst (
-    .inclk0   (phy_clk125),   //  refclk.clk
-    .areset   (1'b0),      //   reset.reset
-    .c0 (clock_125_mhz_0_deg), // outclk0.clk
-    .c1 (clock_125_mhz_90_deg), // outclk1.clk
-    .c2 (clock_12_5MHz), // outclk2.clk
-    .c3 (clock_2_5MHz) // outclk3.clk
-);
 
 assign phy_tx_clk = clock_125_mhz_90_deg;
 
@@ -363,23 +412,20 @@ assign phy_tx_clk = clock_125_mhz_90_deg;
 // FIXME: Proper frequency for IF_clk or remove
 // FIXME: Proper frequency for slow clock or remove
 // FIXME: Slow clock proper frequench or remove
-// FIXME: Add pll_locked
 wire IF_clk;
 wire ad9866spiclk;
-wire rstclk;
-wire pll_locked;
-wire extreset;
+
+
 wire cwkey_i;
 wire ptt_i;
 wire [7:0] leds;
 
-assign IF_clk = rffe_ad9866_clk76p8;
-assign ad9866spiclk = rffe_ad9866_clk76p8;
-assign rstclk = clock_2_5MHz;
-assign extreset = 1'b1;
+assign IF_clk = clock_76p8_mhz;
+assign ad9866spiclk = clock_76p8_mhz;
+
 assign cwkey_i = 1'b1;
 assign ptt_i = 1'b1;
-assign pll_locked = 1'b1;
+
 
 ethernet #(.MAC(MAC), .IP(IP), .Hermes_serialno(Hermes_serialno)) ethernet_inst (
 
@@ -402,8 +448,6 @@ ethernet #(.MAC(MAC), .IP(IP), .Hermes_serialno(Hermes_serialno)) ethernet_inst 
     // Status
     .this_MAC_o(this_MAC),
     .run_o(run),
-    .IF_rst_i(IF_rst),
-    .reset_o(reset),
     .dipsw_i(2'b01),
     .AssignNR(AssignNR),
 
@@ -413,42 +457,40 @@ ethernet #(.MAC(MAC), .IP(IP), .Hermes_serialno(Hermes_serialno)) ethernet_inst 
     .PHY_RX(phy_rx),
     .RX_DV(phy_rx_dv),                  //PHY has data flag
     .PHY_RX_CLOCK(phy_rx_clk),           //PHY Rx data clock
-    .PHY_RESET_N(),
     .PHY_MDIO(phy_mdio),
     .PHY_MDC(phy_mdc)
 );
 
-// FIXME: Proper reset here
-assign phy_rst_n = 1'b1;
+
 
 //----------------------------------------------------
-//   Receive PHY FIFO 
+//   Receive PHY FIFO
 //----------------------------------------------------
 
 /*
-                        PHY_Rx_fifo (16k bytes) 
-                    
+                        PHY_Rx_fifo (16k bytes)
+
                         ---------------------
       Rx_fifo_data |data[7:0]     wrfull | PHY_wrfull ----> Flash LED!
                         |                        |
         Rx_enable   |wrreq                 |
-                        |                         |                                     
+                        |                         |
     PHY_data_clock  |>wrclk                |
-                        ---------------------                               
-  IF_PHY_drdy     |rdreq          q[15:0]| IF_PHY_data [swap Endian] 
-                       |                          |                             
-                    |                rdempty| IF_PHY_rdempty 
-                     |                    |                             
-             IF_clk |>rdclk rdusedw[12:0]|          
-                       ---------------------                                
+                        ---------------------
+  IF_PHY_drdy     |rdreq          q[15:0]| IF_PHY_data [swap Endian]
+                       |                          |
+                    |                rdempty| IF_PHY_rdempty
+                     |                    |
+             IF_clk |>rdclk rdusedw[12:0]|
+                       ---------------------
                        |                    |
-             IF_rst  |aclr                |                             
-                       ---------------------                                
- 
- NOTE: the rdempty stays asserted until enough words have been written to the input port to fill an entire word on the 
- output port. Hence 4 writes must take place for this to happen. 
- Also, rdusedw indicates how many 16 bit samples are available to be read. 
- 
+             rst  |aclr                |
+                       ---------------------
+
+ NOTE: the rdempty stays asserted until enough words have been written to the input port to fill an entire word on the
+ output port. Hence 4 writes must take place for this to happen.
+ Also, rdusedw indicates how many 16 bit samples are available to be read.
+
 */
 
 wire PHY_wrfull;
@@ -458,11 +500,11 @@ wire IF_PHY_drdy;
 
 PHY_Rx_fifo PHY_Rx_fifo_inst(.wrclk (PHY_data_clock),.rdreq (IF_PHY_drdy),.rdclk (IF_clk),.wrreq(Rx_enable),
                 .data (Rx_fifo_data),.q ({IF_PHY_data[7:0],IF_PHY_data[15:8]}), .rdempty(IF_PHY_rdempty),
-                .wrfull(PHY_wrfull),.aclr(IF_rst | PHY_wrfull));
+                .wrfull(PHY_wrfull),.aclr(rst | PHY_wrfull));
 
 
-                     
-                     
+
+
 //------------------------------------------------
 //   SP_fifo  (16384 words) dual clock FIFO
 //------------------------------------------------
@@ -472,26 +514,26 @@ PHY_Rx_fifo PHY_Rx_fifo_inst(.wrclk (PHY_data_clock),.rdreq (IF_PHY_drdy),.rdclk
         Output is in Bytes for easy interface to the PHY code
         NB: The output flags are only valid after a read/write clock has taken place
 
-       
+
                                SP_fifo
                         ---------------------
           temp_ADC |data[15:0]     wrfull| sp_fifo_wrfull
                         |                        |
     sp_fifo_wrreq   |wrreq       wrempty| sp_fifo_wrempty
                         |                        |
-            C122_clk    |>wrclk              | 
+            C122_clk    |>wrclk              |
                         ---------------------
     sp_fifo_rdreq   |rdreq         q[7:0]| sp_fifo_rddata
-                        |                    | 
+                        |                    |
                         |                        |
-        clock_125_mhz_0_deg  |>rdclk              | 
-                        |                      | 
+        clock_125_mhz_0_deg  |>rdclk              |
+                        |                      |
                         ---------------------
                         |                    |
      C122_rst OR   |aclr                |
         !run       |                    |
                         ---------------------
-        
+
 */
 
 wire  sp_fifo_rdreq;
@@ -502,57 +544,57 @@ wire sp_fifo_wrreq;
 wire have_sp_data;
 
 //--------------------------------------------------
-//   Wideband Spectrum Data 
+//   Wideband Spectrum Data
 //--------------------------------------------------
 
-//  When wide_spectrum is set and sp_fifo_wrempty then fill fifo with 16k words 
-// of consecutive ADC samples.  Pass have_sp_data to Tx_MAC to indicate that 
+//  When wide_spectrum is set and sp_fifo_wrempty then fill fifo with 16k words
+// of consecutive ADC samples.  Pass have_sp_data to Tx_MAC to indicate that
 // data is available.
 // Reset fifo when !run so the data always starts at a known state.
 
 
-SP_fifo  SPF (.aclr(C122_rst | !run), .wrclk (rffe_ad9866_clk76p8), .rdclk(clock_125_mhz_0_deg), 
+SP_fifo  SPF (.aclr(C122_rst | !run), .wrclk (clock_76p8_mhz), .rdclk(clock_125_mhz_0_deg),
              .wrreq (sp_fifo_wrreq), .data ({{4{temp_ADC[11]}},temp_ADC}), .rdreq (sp_fifo_rdreq),
-             .q(sp_fifo_rddata), .wrfull(sp_fifo_wrfull), .wrempty(sp_fifo_wrempty));                    
-                     
-                     
-sp_rcv_ctrl SPC (.clk(rffe_ad9866_clk76p8), .reset(C122_rst), .sp_fifo_wrempty(sp_fifo_wrempty),
-                 .sp_fifo_wrfull(sp_fifo_wrfull), .write(sp_fifo_wrreq), .have_sp_data(have_sp_data));  
-                 
-// the wideband data is presented too fast for the PC to swallow so slow down 
+             .q(sp_fifo_rddata), .wrfull(sp_fifo_wrfull), .wrempty(sp_fifo_wrempty));
+
+
+sp_rcv_ctrl SPC (.clk(clock_76p8_mhz), .reset(C122_rst), .sp_fifo_wrempty(sp_fifo_wrempty),
+                 .sp_fifo_wrfull(sp_fifo_wrfull), .write(sp_fifo_wrreq), .have_sp_data(have_sp_data));
+
+// the wideband data is presented too fast for the PC to swallow so slow down
 
 wire sp_data_ready;
 
 
 
 // rate is 125e6/2**19
-reg [18:0]sp_delay;   
+reg [18:0]sp_delay;
 always @ (posedge clock_125_mhz_0_deg)
     sp_delay <= sp_delay + 15'd1;
-assign sp_data_ready = (sp_delay == 0 && have_sp_data);     
+assign sp_data_ready = (sp_delay == 0 && have_sp_data);
 
 
 assign IF_mic_Data = 0;
 
 //---------------------------------------------------------
 //      De-ramdomizer
-//--------------------------------------------------------- 
+//---------------------------------------------------------
 
 /*
 
- A Digital Output Randomizer is fitted to the LTC2208. This complements bits 15 to 1 if 
- bit 0 is 1. This helps to reduce any pickup by the A/D input of the digital outputs. 
- We need to de-ramdomize the LTC2208 data if this is turned on. 
- 
+ A Digital Output Randomizer is fitted to the LTC2208. This complements bits 15 to 1 if
+ bit 0 is 1. This helps to reduce any pickup by the A/D input of the digital outputs.
+ We need to de-ramdomize the LTC2208 data if this is turned on.
+
 */
 
-// Test sine wave for DAC
-// reg [11:0] cosv;
+//Test sine wave for DAC
+//reg [11:0] cosv;
 // reg [5:0] cosi;
-// always @(posedge rffe_ad9866_clk76p8)
+// always @(posedge clock_76p8_mhz)
 //     if (cosi < 58) cosi <= cosi + 1;
 //     else cosi <= 0;
-
+//
 // wire [11:0] cosv;
 // always @(cosi)
 //   begin
@@ -649,8 +691,9 @@ wire rxgoodlvln = (temp_ADC[11:9] == 3'b100);
 
 // Pipeline DACD just before IO, negedge as in historical RTL
 reg [11:0] DACDp;
-always @ (negedge rffe_ad9866_clk76p8)
+always @ (negedge clock_76p8_mhz)
     DACDp <= DACD;
+    //DACDp <= cosv;
 
 
 reg [11:0] ad9866_rx_stage;
@@ -671,7 +714,7 @@ always @(posedge rffe_ad9866_rxclk)
 reg iad9866_txsync;
 reg [11:0] ad9866_tx_stage;
 // TX path
-always @(posedge rffe_ad9866_rxclk)
+always @(negedge rffe_ad9866_rxclk)
     begin
         if (iad9866_txsync) begin
             iad9866_txsync <= 1'b0;
@@ -684,11 +727,11 @@ always @(posedge rffe_ad9866_rxclk)
 reg [5:0] ad9866_txr;
 reg ad9866_txsyncr;
 
-always @(posedge rffe_ad9866_rxclk)
+always @(negedge rffe_ad9866_rxclk)
     begin
         ad9866_txr <= iad9866_txsync ? ad9866_tx_stage[5:0] : ad9866_tx_stage[11:6];
         ad9866_txsyncr <= iad9866_txsync;
-    end 
+    end
 
 assign rffe_ad9866_txquiet_n = (FPGA_PTT | VNA); //1'b0;
 assign rffe_ad9866_tx = ad9866_txr;
@@ -703,10 +746,10 @@ assign pa_tr = FPGA_PTT;
 
 
 
-always @ (posedge rffe_ad9866_clk76p8)
+always @ (posedge clock_76p8_mhz)
   begin
     temp_ADC <= ad9866_rx_input;
-  end 
+  end
 
 // AGC
 
@@ -717,30 +760,30 @@ reg [5:0] agc_value;
 wire agc_clrnearclip;
 wire agc_clrgoodlvl;
 
-always @(posedge rffe_ad9866_clk76p8)
+always @(posedge clock_76p8_mhz)
 begin
     if (agc_clrnearclip) agc_nearclip <= 1'b0;
     else if (rxnearclip) agc_nearclip <= 1'b1;
 end
 
-always @(posedge rffe_ad9866_clk76p8)
+always @(posedge clock_76p8_mhz)
 begin
     if (agc_clrgoodlvl) agc_goodlvl <= 1'b0;
     else if (rxgoodlvlp | rxgoodlvln) agc_goodlvl <= 1'b1;
 end
 
 // Used for heartbeat too
-always @(posedge rffe_ad9866_clk76p8)
+always @(posedge clock_76p8_mhz)
 begin
     agc_delaycnt <= agc_delaycnt + 1;
 end
 
-always @(posedge rffe_ad9866_clk76p8)
+always @(posedge clock_76p8_mhz)
 begin
-    if (C122_rst) 
+    if (C122_rst)
         agc_value <= 6'b011111;
     // Decrease gain if near clip seen
-    else if ( ((agc_clrnearclip & agc_nearclip & (agc_value != 6'b000000)) | agc_value > gain_value ) & ~FPGA_PTT ) 
+    else if ( ((agc_clrnearclip & agc_nearclip & (agc_value != 6'b000000)) | agc_value > gain_value ) & ~FPGA_PTT )
         agc_value <= agc_value - 6'h01;
     // Increase if not in the sweet spot of seeing agc_nearclip
     // But no more than ~26dB (38) as that is the place of diminishing returns re the datasheet
@@ -770,23 +813,23 @@ wire  signed [15:0] C122_I_PWM;
 wire  signed [15:0] C122_Q_PWM;
 
 cdc_sync #(32)
-    freq0 (.siga(IF_frequency[0]), .rstb(C122_rst), .clkb(rffe_ad9866_clk76p8), .sigb(C122_frequency_HZ_Tx)); // transfer Tx frequency
+    freq0 (.siga(IF_frequency[0]), .rstb(C122_rst), .clkb(clock_76p8_mhz), .sigb(C122_frequency_HZ_Tx)); // transfer Tx frequency
 
 cdc_sync #(2)
-    rates (.siga({IF_DFS1,IF_DFS0}), .rstb(C122_rst), .clkb(rffe_ad9866_clk76p8), .sigb({C122_DFS1, C122_DFS0})); // sample rate
-    
+    rates (.siga({IF_DFS1,IF_DFS0}), .rstb(C122_rst), .clkb(clock_76p8_mhz), .sigb({C122_DFS1, C122_DFS0})); // sample rate
+
 cdc_sync #(16)
-    Tx_I  (.siga(IF_I_PWM), .rstb(C122_rst), .clkb(rffe_ad9866_clk76p8), .sigb(C122_I_PWM )); // Tx I data
-    
+    Tx_I  (.siga(IF_I_PWM), .rstb(C122_rst), .clkb(clock_76p8_mhz), .sigb(C122_I_PWM )); // Tx I data
+
 cdc_sync #(16)
-    Tx_Q  (.siga(IF_Q_PWM), .rstb(C122_rst), .clkb(rffe_ad9866_clk76p8), .sigb(C122_Q_PWM)); // Tx Q data
-    
-   
+    Tx_Q  (.siga(IF_Q_PWM), .rstb(C122_rst), .clkb(clock_76p8_mhz), .sigb(C122_Q_PWM)); // Tx Q data
+
+
 
 reg signed [15:0]C122_cic_i;
 reg signed [15:0]C122_cic_q;
 wire C122_ce_out_i;
-wire C122_ce_out_q; 
+wire C122_ce_out_q;
 
 //------------------------------------------------------------------------------
 //                 Pulse generators
@@ -796,16 +839,16 @@ wire IF_CLRCLK;
 
 //  Create short pulse from posedge of CLRCLK synced to IF_clk for RXF read timing
 //  First transfer CLRCLK into IF clock domain
-cdc_sync cdc_CRLCLK (.siga(CLRCLK), .rstb(IF_rst), .clkb(IF_clk), .sigb(IF_CLRCLK)); 
+cdc_sync cdc_CRLCLK (.siga(CLRCLK), .rstb(rst), .clkb(IF_clk), .sigb(IF_CLRCLK));
 //  Now generate the pulse
-pulsegen cdc_m   (.sig(IF_CLRCLK), .rst(IF_rst), .clk(IF_clk), .pulse(IF_get_samples));
+pulsegen cdc_m   (.sig(IF_CLRCLK), .rst(rst), .clk(IF_clk), .pulse(IF_get_samples));
 
 
 //---------------------------------------------------------
-//      Convert frequency to phase word 
+//      Convert frequency to phase word
 //---------------------------------------------------------
 
-/*  
+/*
      Calculates  ratio = fo/fs = frequency/122.88Mhz where frequency is in MHz
      Each calculation should take no more than 1 CBCLK
 
@@ -850,7 +893,7 @@ wire             test_strobe3;
 
 // Pipeline for adc fanout
 reg [11:0] adcpipe [0:3];
-always @ (posedge rffe_ad9866_clk76p8) begin
+always @ (posedge clock_76p8_mhz) begin
     adcpipe[0] <= temp_ADC;
     adcpipe[1] <= temp_ADC;
     adcpipe[2] <= temp_ADC;
@@ -859,46 +902,46 @@ end
 
 
 // set the decimation rate 40 = 48k.....2 = 960k
-    
+
     reg [5:0] rate;
-    
+
     always @ ({C122_DFS1, C122_DFS0})
-    begin 
+    begin
         case ({C122_DFS1, C122_DFS0})
 
-        0: rate <= RATE48;     //  48ksps 
+        0: rate <= RATE48;     //  48ksps
         1: rate <= RATE96;     //  96ksps
         2: rate <= RATE192;     //  192ksps
-        3: rate <= RATE384;      //  384ksps        
-        default: rate <= RATE48;        
+        3: rate <= RATE384;      //  384ksps
+        default: rate <= RATE48;
 
         endcase
-    end 
+    end
 
 genvar c;
 generate
   for (c = 0; c < NR; c = c + 1) // calc freq phase word for 4 freqs (Rx1, Rx2, Rx3, Rx4)
-   begin: MDC 
+   begin: MDC
     //  assign C122_ratio[c] = C122_frequency_HZ[c] * M2; // B0 * B57 number = B57 number
 
    // Note: We add 1/2 M2 (M3) so that we end up with a rounded 32 bit integer below.
-    //assign C122_ratio[c] = C122_frequency_HZ[c] * M2 + M3; // B0 * B57 number = B57 number 
+    //assign C122_ratio[c] = C122_frequency_HZ[c] * M2 + M3; // B0 * B57 number = B57 number
 
-    //always @ (posedge rffe_ad9866_clk76p8)
+    //always @ (posedge clock_76p8_mhz)
     //begin
     //  if (C122_cbrise) // time between C122_cbrise is enough for ratio calculation to settle
     //  begin
     //    C122_last_freq[c] <= C122_frequency_HZ[c];
     //    if (C122_last_freq[c] != C122_frequency_HZ[c]) // frequency changed)
-    //      C122_sync_phase_word[c] <= C122_ratio[c][56:25]; // B57 -> B32 number since R is always >= 0  
-    //  end         
+    //      C122_sync_phase_word[c] <= C122_ratio[c][56:25]; // B57 -> B32 number since R is always >= 0
+    //  end
     //end
 
     assign C122_sync_phase_word[c] = C122_frequency_HZ[c];
 
-    cdc_mcp #(48)           // Transfer the receiver data and strobe from rffe_ad9866_clk76p8 to IF_clk
-        IQ_sync (.a_data ({rx_I[c], rx_Q[c]}), .a_clk(rffe_ad9866_clk76p8),.b_clk(IF_clk), .a_data_rdy(strobe[c]),
-                .a_rst(C122_rst), .b_rst(IF_rst), .b_data(IF_M_IQ_Data[c]), .b_data_ack(IF_M_IQ_Data_rdy[c]));
+    cdc_mcp #(48)           // Transfer the receiver data and strobe from clock_76p8_mhz to IF_clk
+        IQ_sync (.a_data ({rx_I[c], rx_Q[c]}), .a_clk(clock_76p8_mhz),.b_clk(IF_clk), .a_data_rdy(strobe[c]),
+                .a_rst(C122_rst), .b_rst(rst), .b_data(IF_M_IQ_Data[c]), .b_data_ack(IF_M_IQ_Data_rdy[c]));
 
 
 if((c==3 && NR>3))// || (c==1 && NR<=3))
@@ -907,29 +950,29 @@ begin
 //   wire signed [23:0] psout_data_Q2;
 //   assign rx_I[c] = psout_data_I2 <<< (FPGA_PTT? 2:0);
 //   assign rx_Q[c] = psout_data_Q2 <<< (FPGA_PTT? 2:0);
-     
+
      receiver #(.CICRATE(CICRATE)) receiver_inst (
     //control
-    .clock(rffe_ad9866_clk76p8),
+    .clock(clock_76p8_mhz),
     .rate(rate),
     .frequency(C122_sync_phase_word[c]),
     .out_strobe(strobe[c]),
     //input
-     .in_data(FPGA_PTT ? DACD : adcpipe[c/8]), 
-//    .in_data((FPGA_PTT & IF_Pure_signal) ? DACD : adcpipe[c/8]), 
+     .in_data(FPGA_PTT ? DACD : adcpipe[c/8]),
+//    .in_data((FPGA_PTT & IF_Pure_signal) ? DACD : adcpipe[c/8]),
    //output
   //  .out_data_I(psout_data_I2),
   //  .out_data_Q(psout_data_Q2)
     .out_data_I(rx_I[c]),
     .out_data_Q(rx_Q[c])
-    ); 
-     
-    end 
-else 
+    );
+
+    end
+else
 
     receiver #(.CICRATE(CICRATE)) receiver_inst (
     //control
-    .clock(rffe_ad9866_clk76p8),
+    .clock(clock_76p8_mhz),
     .rate(rate),
     .frequency(C122_sync_phase_word[c]),
     .out_strobe(strobe[c]),
@@ -939,9 +982,9 @@ else
     .out_data_I(rx_I[c]),
     .out_data_Q(rx_Q[c])
     );
-         
+
     cdc_sync #(32)
-        freq (.siga(IF_frequency[c+1]), .rstb(C122_rst), .clkb(rffe_ad9866_clk76p8), .sigb(C122_frequency_HZ[c])); // transfer Rx1 frequency
+        freq (.siga(IF_frequency[c+1]), .rstb(C122_rst), .clkb(clock_76p8_mhz), .sigb(C122_frequency_HZ[c])); // transfer Rx1 frequency
 end
 endgenerate
 
@@ -949,9 +992,9 @@ endgenerate
 // calc frequency phase word for Tx
 //assign C122_ratio_Tx = C122_frequency_HZ_Tx * M2;
 // Note: We add 1/2 M2 (M3) so that we end up with a rounded 32 bit integer below.
-//assign C122_ratio_Tx = C122_frequency_HZ_Tx * M2 + M3; 
+//assign C122_ratio_Tx = C122_frequency_HZ_Tx * M2 + M3;
 
-//always @ (posedge rffe_ad9866_clk76p8)
+//always @ (posedge clock_76p8_mhz)
 //begin
 //  if (C122_cbrise)
 //  begin
@@ -966,7 +1009,7 @@ assign C122_sync_phase_word_Tx = C122_frequency_HZ_Tx;
 
 
 //---------------------------------------------------------
-//    ADC SPI interface 
+//    ADC SPI interface
 //---------------------------------------------------------
 
 wire [11:0] AIN1;
@@ -974,10 +1017,10 @@ wire [11:0] AIN2;
 wire [11:0] AIN3;
 wire [11:0] AIN4;
 wire [11:0] AIN5;  // holds 12 bit ADC value of Forward Power detector.
-wire [11:0] AIN6;  // holds 12 bit ADC of 13.8v measurement 
+wire [11:0] AIN6;  // holds 12 bit ADC of 13.8v measurement
 
 //Hermes_ADC ADC_SPI(.clock(C122_cbclk), .SCLK(ADCCLK), .nCS(nADCCS), .MISO(ADCMISO), .MOSI(ADCMOSI),
-//                   .AIN1(AIN1), .AIN2(AIN2), .AIN3(AIN3), .AIN4(AIN4), .AIN5(AIN5), .AIN6(AIN6));   
+//                   .AIN1(AIN1), .AIN2(AIN2), .AIN3(AIN3), .AIN4(AIN4), .AIN5(AIN5), .AIN6(AIN6));
 
 assign AIN1 = 0;
 assign AIN2 = 0;
@@ -985,7 +1028,7 @@ assign AIN3 = 0;
 assign AIN4 = 0;
 assign AIN5 =  200;
 assign AIN6 = 1000;
-    
+
 
 
 //reg IF_Filter;
@@ -993,76 +1036,76 @@ assign AIN6 = 1000;
 //reg IF_autoTune;
 
 //---------------------------------------------------------
-//                 Transmitter code 
-//--------------------------------------------------------- 
+//                 Transmitter code
+//---------------------------------------------------------
 
-/* 
+/*
     The gain distribution of the transmitter code is as follows.
     Since the CIC interpolating filters do not interpolate by 2^n they have an overall loss.
-    
+
     The overall gain in the interpolating filter is ((RM)^N)/R.  So in this case its 2560^4.
     This is normalised by dividing by ceil(log2(2560^4)).
-    
+
     In which case the normalized gain would be (2560^4)/(2^46) = .6103515625
-    
+
     The CORDIC has an overall gain of 1.647.
-    
+
     Since the CORDIC takes 16 bit I & Q inputs but output needs to be truncated to 14 bits, in order to
     interface to the DAC, the gain is reduced by 1/4 to 0.41175
-    
-    We need to be able to drive to DAC to its full range in order to maximise the S/N ratio and 
+
+    We need to be able to drive to DAC to its full range in order to maximise the S/N ratio and
     minimise the amount of PA gain.  We can increase the output of the CORDIC by multiplying it by 4.
     This is simply achieved by setting the CORDIC output width to 16 bits and assigning bits [13:0] to the DAC.
-    
-    The gain distripution is now:
-    
-    0.61 * 0.41174 * 4 = 1.00467 
-    
-    This means that the DAC output will wrap if a full range 16 bit I/Q signal is received. 
-    This can be prevented by reducing the output of the CIC filter.
-    
-    If we subtract 1/128 of the CIC output from itself the level becomes
-    
-    1 - 1/128 = 0.9921875
-    
-    Hence the overall gain is now 
-    
-    0.61 * 0.9921875 * 0.41174 * 4 = 0.996798
-    
 
-*/  
+    The gain distripution is now:
+
+    0.61 * 0.41174 * 4 = 1.00467
+
+    This means that the DAC output will wrap if a full range 16 bit I/Q signal is received.
+    This can be prevented by reducing the output of the CIC filter.
+
+    If we subtract 1/128 of the CIC output from itself the level becomes
+
+    1 - 1/128 = 0.9921875
+
+    Hence the overall gain is now
+
+    0.61 * 0.9921875 * 0.41174 * 4 = 0.996798
+
+
+*/
 
 reg signed [15:0]C122_fir_i;
 reg signed [15:0]C122_fir_q;
 
 // latch I&Q data on strobe from FIR
-always @ (posedge rffe_ad9866_clk76p8)
-begin 
-    if (req1) begin 
+always @ (posedge clock_76p8_mhz)
+begin
+    if (req1) begin
         C122_fir_i = C122_I_PWM;
-        C122_fir_q = C122_Q_PWM;    
-    end 
-end 
+        C122_fir_q = C122_Q_PWM;
+    end
+end
 
 
 // Interpolate I/Q samples from 48 kHz to the clock frequency
 
 wire req1, req2;
-wire [19:0] y1_r, y1_i; 
+wire [19:0] y1_r, y1_i;
 wire [15:0] y2_r, y2_i;
 
-FirInterp8_1024 fi (rffe_ad9866_clk76p8, req2, req1, C122_fir_i, C122_fir_q, y1_r, y1_i);  // req2 enables an output sample, req1 requests next input sample.
+FirInterp8_1024 fi (clock_76p8_mhz, req2, req1, C122_fir_i, C122_fir_q, y1_r, y1_i);  // req2 enables an output sample, req1 requests next input sample.
 
 // GBITS reduced to 30
-CicInterpM5 #(.RRRR(RRRR), .IBITS(20), .OBITS(16), .GBITS(GBITS)) in2 ( rffe_ad9866_clk76p8, 1'd1, req2, y1_r, y1_i, y2_r, y2_i);
+CicInterpM5 #(.RRRR(RRRR), .IBITS(20), .OBITS(16), .GBITS(GBITS)) in2 ( clock_76p8_mhz, 1'd1, req2, y1_r, y1_i, y2_r, y2_i);
 
 
 
 //---------------------------------------------------------
-//    CORDIC NCO 
+//    CORDIC NCO
 //---------------------------------------------------------
 
-// Code rotates input at set frequency and produces I & Q 
+// Code rotates input at set frequency and produces I & Q
 
 wire signed [14:0] C122_cordic_i_out;
 wire signed [14:0] C122_cordic_q_out;
@@ -1077,13 +1120,13 @@ assign                  I = VNA ? 16'd19274 : (cwkey ? {1'b0, C122_cwlevel} : y2
 assign                  Q = (VNA | cwkey) ? 0 : y2_r;                   // taking into account CORDICs gain i.e. 0x7FFF/1.7
 
 
-// NOTE:  I and Q inputs reversed to give correct sideband out 
+// NOTE:  I and Q inputs reversed to give correct sideband out
 
 cpl_cordic #(.OUT_WIDTH(16))
-        cordic_inst (.clock(rffe_ad9866_clk76p8), .frequency(C122_phase_word_Tx), .in_data_I(I),            
-        .in_data_Q(Q), .out_data_I(C122_cordic_i_out), .out_data_Q(C122_cordic_q_out));      
-                 
-/* 
+        cordic_inst (.clock(clock_76p8_mhz), .frequency(C122_phase_word_Tx), .in_data_I(I),
+        .in_data_Q(Q), .out_data_I(C122_cordic_i_out), .out_data_Q(C122_cordic_q_out));
+
+/*
   We can use either the I or Q output from the CORDIC directly to drive the DAC.
 
     exp(jw) = cos(w) + j sin(w)
@@ -1114,15 +1157,15 @@ generate
     end else begin: DUALTX
         wire signed [15:0] C122_cordic_tx2_i_out;
         wire signed [15:0] C122_cordic_tx2_q_out;
-        
+
         // Hardwire second TX frequency to second RX
         cpl_cordic #(.OUT_WIDTH(16))
-            cordic_tx2_inst (.clock(rffe_ad9866_clk76p8), .frequency(C122_sync_phase_word[1]), .in_data_I(I),           
+            cordic_tx2_inst (.clock(clock_76p8_mhz), .frequency(C122_sync_phase_word[1]), .in_data_I(I),
             .in_data_Q(Q), .out_data_I(C122_cordic_tx2_i_out), .out_data_Q(C122_cordic_tx2_q_out));
 
         assign txsum = (C122_cordic_i_out + C122_cordic_tx2_i_out) >>> 3;
         assign txsumq = (C122_cordic_q_out + C122_cordic_tx2_q_out) >>> 3;
-        
+
     end
 endgenerate
 
@@ -1130,7 +1173,7 @@ endgenerate
 
 // LFSR for dither
 //reg [15:0] lfsr = 16'h0001;
-//always @ (negedge rffe_ad9866_clk76p8 or negedge extreset)
+//always @ (negedge clock_76p8_mhz or negedge extreset)
 //    if (~extreset) lfsr <= 16'h0001;
 //    else lfsr <= {lfsr[0],lfsr[15],lfsr[14] ^ lfsr[0], lfsr[13] ^ lfsr[0], lfsr[12], lfsr[11] ^ lfsr[0], lfsr[10:1]};
 
@@ -1142,7 +1185,7 @@ endgenerate
 Lookup tables
 These are sent continuously in the unused audio out packets sent to the radio.
 The left channel is an index into the table and the right channel has the value.
-Indexes 0-4097 go into DACLUTI and 4096-8191 go to DACLUTQ. 
+Indexes 0-4097 go into DACLUTI and 4096-8191 go to DACLUTQ.
 The values are sent as signed 16bit numbers but the value is never bigger than 13 bits.
 
 DACLUTI has the out of phase distortion and DACLUTQ has the in phase distortion.
@@ -1152,10 +1195,10 @@ The tables can represent arbitary functions, for now my console software just us
 DACLUTI[x] = 0x + gain2*sin(phase2)*x^2 +  gain3*sin(phase3)*x^3 + gain4*sin(phase4)*x^4 + gain5*sin(phase5)*x^5
 DACLUTQ[x] = 1x + gain2*cos(phase2)*x^2 +  gain3*cos(phase3)*x^3 + gain4*cos(phase4)*x^4 + gain5*cos(phase5)*x^5
 
-The table indexes are signed so the tables are in 2's complement order ie. 0,1,2...2047,-2048,-2047...-1. 
+The table indexes are signed so the tables are in 2's complement order ie. 0,1,2...2047,-2048,-2047...-1.
 
 The table values are scaled to keep the output of DACLUTI[I]-DACLUTI[Q]+DACLUTQ[(I+Q)/root2] to fit in 12 bits,
-the intermediate values and table values can be larger. 
+the intermediate values and table values can be larger.
 Zero input produces centre of the dac range output(signed 0) so with some settings one end or the other of the dac range is not used.
 
 The predistortion is turned on and off by a new command and control packet this follows the last of the 32 receiver frequencies.
@@ -1186,7 +1229,7 @@ reg signed [15:0] iplusqr;
 
 assign iplusq = txsum+txsumq;
 
-always @ (posedge rffe_ad9866_clk76p8)
+always @ (posedge clock_76p8_mhz)
 begin
     txsumr<=txsum;
     txsumqr<=txsumq;
@@ -1200,7 +1243,7 @@ reg signed [15:0] txsumqr2;
 reg signed [15:0] iplusq_over_root2r;
 
 
-always @ (posedge rffe_ad9866_clk76p8)
+always @ (posedge clock_76p8_mhz)
 begin
     txsumr2<=txsumr;
     txsumqr2<=txsumqr;
@@ -1208,7 +1251,7 @@ begin
 end
     assign distorted_dac = DACLUTI[txsumr2[11:0]]-DACLUTI[txsumqr2[11:0]]+DACLUTQ[iplusq_over_root2r[12:1]];
 
-always @ (posedge rffe_ad9866_clk76p8)
+always @ (posedge clock_76p8_mhz)
 case( IF_Predistortion[1:0] )
     0: DACD <= txsum[11:0];
     1: DACD <= distorted_dac[11:0];
@@ -1218,7 +1261,7 @@ endcase
 
 end else
 
-always @ (posedge rffe_ad9866_clk76p8)
+always @ (posedge clock_76p8_mhz)
     DACD <= txsum[11:0]; // + {10'h0,lfsr[2:1]};
 
 endgenerate
@@ -1233,22 +1276,22 @@ wire txgoodlvln = (C122_cordic_i_out[13:11] == 3'b100);
 
 
 //------------------------------------------------------------
-//  Set Power Output 
+//  Set Power Output
 //------------------------------------------------------------
 
-// PWM DAC to set drive current to DAC. PWM_count increments 
-// using IF_clk. If the count is less than the drive 
-// level set by the PC then DAC_ALC will be high, otherwise low.  
+// PWM DAC to set drive current to DAC. PWM_count increments
+// using IF_clk. If the count is less than the drive
+// level set by the PC then DAC_ALC will be high, otherwise low.
 
 //reg [7:0] PWM_count;
-//always @ (posedge rffe_ad9866_clk76p8)
-//begin 
+//always @ (posedge clock_76p8_mhz)
+//begin
 //  PWM_count <= PWM_count + 1'b1;
 //  if (IF_Drive_Level >= PWM_count)
 //      DAC_ALC <= 1'b1;
-//  else 
+//  else
 //      DAC_ALC <= 1'b0;
-//end 
+//end
 
 
 //---------------------------------------------------------
@@ -1268,16 +1311,16 @@ wire     [47:0] IF_chan_test;
 
 always @*
 begin
-  if (IF_rst)
+  if (rst)
     IF_tx_IQ_mic_rdy = 1'b0;
-  else 
+  else
       IF_tx_IQ_mic_rdy = IF_M_IQ_Data_rdy[0];   // this the strobe signal from the ADC now in IF clock domain
 end
 
 assign IF_IQ_Data = IF_M_IQ_Data[IF_chan];
 
 // concatenate the IQ and Mic data to form a 64 bit data word
-assign IF_tx_IQ_mic_data = {IF_IQ_Data, IF_mic_Data};  
+assign IF_tx_IQ_mic_data = {IF_IQ_Data, IF_mic_Data};
 
 //----------------------------------------------------------------------------
 //     Tx_fifo Control - creates IF_tx_fifo_wdata and IF_tx_fifo_wreq signals
@@ -1308,7 +1351,7 @@ wire            IF_tx_fifo_clr;
 assign RX_USED = {IF_Rx_fifo_full,IF_Rx_fifo_used};
 
 
-assign Penny_ALC = AIN5; 
+assign Penny_ALC = AIN5;
 
 wire VNA_start = VNA && IF_Rx_save && (IF_Rx_ctrl_0[7:1] == 7'b0000_001);  // indicates a frequency change for the VNA.
 
@@ -1327,8 +1370,8 @@ assign IO8 = 1'b1;
 assign OVERFLOW = (~leds[0] | ~leds[3]) ;
 
 
-Hermes_Tx_fifo_ctrl #(RX_FIFO_SZ, TX_FIFO_SZ) TXFC 
-           (IF_rst, IF_clk, IF_tx_fifo_wdata, IF_tx_fifo_wreq, IF_tx_fifo_full,
+Hermes_Tx_fifo_ctrl #(RX_FIFO_SZ, TX_FIFO_SZ) TXFC
+           (rst, IF_clk, IF_tx_fifo_wdata, IF_tx_fifo_wreq, IF_tx_fifo_full,
             IF_tx_fifo_used, IF_tx_fifo_clr, IF_tx_IQ_mic_rdy,
             IF_tx_IQ_mic_data, IF_chan, IF_last_chan, clean_dash, clean_dot, (cwkey | clean_ptt), OVERFLOW,
             Penny_serialno, Merc_serialno, Hermes_serialno, Penny_ALC, AIN1, AIN2,
@@ -1339,11 +1382,11 @@ Hermes_Tx_fifo_ctrl #(RX_FIFO_SZ, TX_FIFO_SZ) TXFC
 //------------------------------------------------------------------------
 
 /*
-        Data from the Tx FIFO Controller  is written to the FIFO using IF_tx_fifo_wreq. 
+        Data from the Tx FIFO Controller  is written to the FIFO using IF_tx_fifo_wreq.
         FIFO is 1024 WORDS long.
         NB: The output flags are only valid after a read/write clock has taken place
-        
-        
+
+
                             --------------------
     IF_tx_fifo_wdata    |data[15:0]      wrful| IF_tx_fifo_full
                            |                         |
@@ -1353,25 +1396,25 @@ Hermes_Tx_fifo_ctrl #(RX_FIFO_SZ, TX_FIFO_SZ) TXFC
                            ---------------------
     Tx_fifo_rdreq       |rdreq         q[7:0]| PHY_Tx_data
                            |                          |
-       clock_125_mhz_0_deg       |>rdclk       rdempty| 
+       clock_125_mhz_0_deg       |>rdclk       rdempty|
                            |          rdusedw[10:0]| PHY_Tx_rdused  (0 to 2047 bytes)
                            ---------------------
                            |                    |
  IF_tx_fifo_clr OR      |aclr                |
-    IF_rst              ---------------------
-                
-        
+    rst              ---------------------
+
+
 
 */
 
-Tx_fifo Tx_fifo_inst(.wrclk (IF_clk),.rdreq (Tx_fifo_rdreq),.rdclk (clock_125_mhz_0_deg),.wrreq (IF_tx_fifo_wreq), 
+Tx_fifo Tx_fifo_inst(.wrclk (IF_clk),.rdreq (Tx_fifo_rdreq),.rdclk (clock_125_mhz_0_deg),.wrreq (IF_tx_fifo_wreq),
                 .data ({IF_tx_fifo_wdata[7:0], IF_tx_fifo_wdata[15:8]}),.q (PHY_Tx_data),.wrusedw(IF_tx_fifo_used), .wrfull(IF_tx_fifo_full),
-                .rdempty(),.rdusedw(PHY_Tx_rdused),.wrempty(IF_tx_fifo_empty),.aclr(IF_rst || IF_tx_fifo_clr ));
+                .rdempty(),.rdusedw(PHY_Tx_rdused),.wrempty(IF_tx_fifo_empty),.aclr(rst || IF_tx_fifo_clr ));
 
 wire [7:0] PHY_Tx_data;
 reg [3:0]sync_TD;
-wire PHY_Tx_rdempty;             
-             
+wire PHY_Tx_rdempty;
+
 
 
 //---------------------------------------------------------
@@ -1385,8 +1428,8 @@ wire [15:0] IF_PHY_data;
 wire [15:0] IF_Rx_fifo_wdata;
 reg         IF_Rx_fifo_wreq;
 
-FIFO #(RX_FIFO_SZ) RXF (.rst(IF_rst), .clk (IF_clk), .full(IF_Rx_fifo_full), .usedw(IF_Rx_fifo_used), 
-          .wrreq (IF_Rx_fifo_wreq), .data (IF_PHY_data), 
+FIFO #(RX_FIFO_SZ) RXF (.rst(rst), .clk (IF_clk), .full(IF_Rx_fifo_full), .usedw(IF_Rx_fifo_used),
+          .wrreq (IF_Rx_fifo_wreq), .data (IF_PHY_data),
           .rdreq (IF_Rx_fifo_rreq), .q (IF_Rx_fifo_rdata) );
 
 
@@ -1399,7 +1442,7 @@ FIFO #(RX_FIFO_SZ) RXF (.rst(IF_rst), .clk (IF_clk), .full(IF_Rx_fifo_full), .us
   Read the value of IF_PHY_data whenever IF_PHY_drdy is set.
   Look for sync and if found decode the C&C data.
   Then send subsequent data to Rx FIF0 until end of frame.
-    
+
 */
 
 reg   [2:0] IF_SYNC_state;
@@ -1421,12 +1464,12 @@ localparam SYNC_IDLE   = 1'd0,
 
 always @ (posedge IF_clk)
 begin
-  if (IF_rst)
+  if (rst)
     IF_SYNC_state <= #IF_TPD SYNC_IDLE;
   else
     IF_SYNC_state <= #IF_TPD IF_SYNC_state_next;
 
-  if (IF_rst)
+  if (rst)
     IF_Rx_save <= #IF_TPD 1'b0;
   else
     IF_Rx_save <= #IF_TPD IF_PHY_drdy && (IF_SYNC_state == SYNC_RX_3_4);
@@ -1460,20 +1503,20 @@ begin
     begin
       IF_Rx_fifo_wreq  = 1'b0;             // Note: Sync bytes not saved in Rx_fifo
 
-      if (IF_rst || !IF_PHY_drdy) 
+      if (rst || !IF_PHY_drdy)
         IF_SYNC_state_next = SYNC_IDLE;    // wait till we get data from PC
       else if (IF_PHY_data == 16'h7F7F)
         IF_SYNC_state_next = SYNC_START;   // possible start of sync
       else
         IF_SYNC_state_next = SYNC_IDLE;
-    end 
+    end
 
-    // check for 0x7F  sync character & get Rx control_0 
+    // check for 0x7F  sync character & get Rx control_0
     SYNC_START:
     begin
       IF_Rx_fifo_wreq  = 1'b0;             // Note: Sync bytes not saved in Rx_fifo
 
-      if (!IF_PHY_drdy)              
+      if (!IF_PHY_drdy)
         IF_SYNC_state_next = SYNC_START;   // wait till we get data from PC
       else if (IF_PHY_data[15:8] == 8'h7F)
         IF_SYNC_state_next = SYNC_RX_1_2;  // have sync so continue
@@ -1481,12 +1524,12 @@ begin
         IF_SYNC_state_next = SYNC_IDLE;    // start searching for sync sequence again
     end
 
-    
+
     SYNC_RX_1_2:                             // save Rx control 1 & 2
     begin
       IF_Rx_fifo_wreq  = 1'b0;             // Note: Rx control 1 & 2 not saved in Rx_fifo
 
-      if (!IF_PHY_drdy)              
+      if (!IF_PHY_drdy)
         IF_SYNC_state_next = SYNC_RX_1_2;  // wait till we get data from PC
       else
         IF_SYNC_state_next = SYNC_RX_3_4;
@@ -1496,22 +1539,22 @@ begin
     begin
       IF_Rx_fifo_wreq  = 1'b0;             // Note: Rx control 3 & 4 not saved in Rx_fifo
 
-      if (!IF_PHY_drdy)              
+      if (!IF_PHY_drdy)
         IF_SYNC_state_next = SYNC_RX_3_4;  // wait till we get data from PC
       else
         IF_SYNC_state_next = SYNC_FINISH;
     end
 
     // Remainder of data goes to Rx_fifo, re-start looking
-    // for a new SYNC at end of this frame. 
-    // Note: due to the use of IF_PHY_drdy data will only be written to the 
+    // for a new SYNC at end of this frame.
+    // Note: due to the use of IF_PHY_drdy data will only be written to the
     // Rx fifo if there is room. Also the frame_count will only be incremented if IF_PHY_drdy is true.
     SYNC_FINISH:
-    begin    
+    begin
       IF_Rx_fifo_wreq  = IF_PHY_drdy;
       if (IF_PHY_drdy & (IF_SYNC_frame_cnt == ((512-8)/2)-1)) begin  // frame ended, go get sync again
         IF_SYNC_state_next = SYNC_IDLE;
-      end 
+      end
       else IF_SYNC_state_next = SYNC_FINISH;
     end
 
@@ -1526,7 +1569,7 @@ end
 wire have_room;
 assign have_room = (IF_Rx_fifo_used < RX_FIFO_SZ - ((512-8)/2)) ? 1'b1 : 1'b0;  // the /2 is because we send 16 bit values
 
-// prevent read from PHY fifo if empty and writing to Rx fifo if not enough room 
+// prevent read from PHY fifo if empty and writing to Rx fifo if not enough room
 assign  IF_PHY_drdy = have_room & ~IF_PHY_rdempty;
 
 //assign IF_PHY_drdy = ~IF_PHY_rdempty;
@@ -1542,9 +1585,9 @@ assign  IF_PHY_drdy = have_room & ~IF_PHY_rdempty;
 
     Decode frequency (both Tx and Rx if full duplex selected), PTT, Speed etc
 
-    The current frequency is set by the PC by decoding 
+    The current frequency is set by the PC by decoding
     IF_Rx_ctrl_1... IF_Rx_ctrl_4 when IF_Rx_ctrl_0[7:1] = 7'b0000_001
-        
+
       The Rx Sampling Rate, either 192k, 96k or 48k is set by
       the PC by decoding IF_Rx_ctrl_1 when IF_Rx_ctrl_0[7:1] are all zero. IF_Rx_ctrl_1
       decodes as follows:
@@ -1554,56 +1597,56 @@ assign  IF_PHY_drdy = have_room & ~IF_PHY_rdempty;
       IF_Rx_ctrl_1 = 8'bxxxx_xx10  - 192kHz
 
     Decode PTT from PC. Held in IF_Rx_ctrl_0[0] as follows
-    
+
     0 = PTT inactive
     1 = PTT active
-    
-    Decode Attenuator settings on Alex, when IF_Rx_ctrl_0[7:1] = 0, IF_Rx_ctrl_3[1:0] indicates the following 
-    
+
+    Decode Attenuator settings on Alex, when IF_Rx_ctrl_0[7:1] = 0, IF_Rx_ctrl_3[1:0] indicates the following
+
     00 = 0dB
     01 = 10dB
     10 = 20dB
     11 = 30dB
-    
+
     Decode ADC & Attenuator settings on Hermes, when IF_Rx_ctrl_0[7:1] = 0, IF_Rx_ctrl_3[4:2] indicates the following
-    
+
     000 = Random, Dither, Preamp OFF
     1xx = Random ON
     x1x = Dither ON
     xx1 = Preamp ON **** replace with attenuator
-    
+
     Decode Rx relay settings on Alex, when IF_Rx_ctrl_0[7:1] = 0, IF_Rx_ctrl_3[6:5] indicates the following
-    
+
     00 = None
     01 = Rx 1
     10 = Rx 2
     11 = Transverter
-    
+
     Decode Tx relay settigs on Alex, when IF_Rx_ctrl_0[7:1] = 0, IF_Rx_ctrl_4[1:0] indicates the following
-    
+
     00 = Tx 1
     01 = Tx 2
     10 = Tx 3
-    
+
     Decode Rx_1_out relay settigs on Alex, when IF_Rx_ctrl_0[7:1] = 0, IF_Rx_ctrl_3[7] indicates the following
 
-    1 = Rx_1_out on 
+    1 = Rx_1_out on
 
     When IF_Rx_ctrl_0[7:1] == 7'b0001_010 decodes as follows:
-    
+
     IF_Line_In_Gain     <= IF_Rx_ctrl2[4:0] // decode 5-bit line gain setting
-    
+
 */
 
 reg   [6:0] IF_OC;                  // open collectors on Hermes
-//reg         IF_mode;              // normal or Class E PA operation 
+//reg         IF_mode;              // normal or Class E PA operation
 reg         IF_RAND;                // when set randomizer in ADCon
 reg         IF_DITHER;              // when set dither in ADC on
 //reg   [1:0] IF_ATTEN;             // decode attenuator setting on Alex
 reg         Preamp;                 // selects input attenuator setting, 0 = 20dB, 1 = 0dB (preamp ON)
 reg   [1:0] IF_TX_relay;            // Tx relay setting on Alex
 reg         IF_Rout;                // Rx1 out on Alex
-reg   [1:0] IF_RX_relay;            // Rx relay setting on Alex 
+reg   [1:0] IF_RX_relay;            // Rx relay setting on Alex
 reg  [31:0] IF_frequency[0:32];     // Tx, Rx1, Rx2, Rx3, Rx4, ..., Rx32
 reg         IF_duplex;
 reg         IF_DFS1;
@@ -1613,7 +1656,7 @@ reg         IF_Mic_boost;           // Mic boost 0 = 0dB, 1 = 20dB
 reg         IF_Line_In;             // Selects input, mic = 0, line = 1
 reg   [4:0] IF_Line_In_Gain;        // Sets Line-In Gain value (00000=-32.4 dB to 11111=+12 dB in 1.5 dB steps)
 reg         IF_Apollo;              // Selects Alex (0) or Apollo (1)
-reg             VNA;                        // Selects VNA mode when set. 
+reg             VNA;                        // Selects VNA mode when set.
 reg        Alex_manual;             // set if manual selection of Alex relays active
 reg         Alex_6m_preamp;         // set if manual selection and 6m preamp selected
 reg   [6:0] Alex_manual_LPF;        // Alex LPF relay selection in manual mode
@@ -1621,21 +1664,21 @@ reg   [5:0] Alex_manual_HPF;        // Alex HPF relay selection in manual mode
 reg   [4:0] Hermes_atten;           // 0-31 dB Heremes attenuator value
 reg         Hermes_atten_enable; // enable/disable bit for Hermes attenuator
 reg         TR_relay_disable;       // Alex T/R relay disable option
-reg         IF_Pure_signal;              // 
-reg   [3:0]  IF_Predistortion;              // 
+reg         IF_Pure_signal;              //
+reg   [3:0]  IF_Predistortion;              //
 
 always @ (posedge IF_clk)
-begin 
-  if (IF_rst)
+begin
+  if (rst)
   begin // set up default values - 0 for now
     // RX_CONTROL_1
     IF_DFS1 <= 1'b0; // decode speed
-    IF_DFS0 <= 1'b0; 
+    IF_DFS0 <= 1'b0;
     // RX_CONTROL_2
 //    IF_mode            <= 1'b0;       // decode mode, normal or Class E PA
     IF_OC              <= 7'b0;     // decode open collectors on Hermes
     // RX_CONTROL_3
-//    IF_ATTEN           <= 2'b0;       // decode Alex attenuator setting 
+//    IF_ATTEN           <= 2'b0;       // decode Alex attenuator setting
     Preamp             <= 1'b1;     // decode Preamp (Attenuator), default on
     IF_DITHER          <= 1'b1;     // decode dither on or off
     IF_RAND            <= 1'b0;     // decode randomizer on or off
@@ -1646,13 +1689,13 @@ begin
     IF_TX_relay        <= 2'b0;     // decode Alex Tx Relays
     IF_duplex          <= 1'b0;     // not in duplex mode
      IF_last_chan       <= 5'b00000;    // default single receiver
-    IF_Mic_boost       <= 1'b0;     // mic boost off 
+    IF_Mic_boost       <= 1'b0;     // mic boost off
     IF_Drive_Level     <= 8'b0;    // drive at minimum
      IF_Line_In           <= 1'b0;      // select Mic input, not Line in
 //   IF_Filter            <= 1'b0;      // Apollo filter disabled (bypassed)
 //   IF_Tuner             <= 1'b0;      // Apollo tuner disabled (bypassed)
 //   IF_autoTune         <= 1'b0;       // Apollo auto-tune disabled
-     IF_Apollo            <= 1'b0;     //   Alex selected       
+     IF_Apollo            <= 1'b0;     //   Alex selected
      VNA                      <= 1'b0;      // VNA disabled
      Alex_manual          <= 1'b0;      // default manual Alex filter selection (0 = auto selection, 1 = manual selection)
      Alex_manual_HPF      <= 6'b0;      // default manual settings, no Alex HPF filters selected
@@ -1663,20 +1706,20 @@ begin
      Hermes_atten_enable <= 1'b0;       // default disable Hermes attenuator
      IF_Pure_signal      <= 1'b0;      // default disable pure signal
      IF_Predistortion    <= 4'b0000;   // default disable predistortion
-    
+
   end
   else if (IF_Rx_save)                  // all Rx_control bytes are ready to be saved
-  begin                                         // Need to ensure that C&C data is stable 
+  begin                                         // Need to ensure that C&C data is stable
     if (IF_Rx_ctrl_0[7:1] == 7'b0000_000)
     begin
       // RX_CONTROL_1
-      IF_DFS1  <= IF_Rx_ctrl_1[1]; // decode speed 
-      IF_DFS0  <= IF_Rx_ctrl_1[0]; // decode speed 
+      IF_DFS1  <= IF_Rx_ctrl_1[1]; // decode speed
+      IF_DFS0  <= IF_Rx_ctrl_1[0]; // decode speed
       // RX_CONTROL_2
 //      IF_mode             <= IF_Rx_ctrl_2[0];   // decode mode, normal or Class E PA
       IF_OC               <= IF_Rx_ctrl_2[7:1]; // decode open collectors on Penelope
       // RX_CONTROL_3
-//      IF_ATTEN            <= IF_Rx_ctrl_3[1:0]; // decode Alex attenuator setting 
+//      IF_ATTEN            <= IF_Rx_ctrl_3[1:0]; // decode Alex attenuator setting
       Preamp              <= IF_Rx_ctrl_3[2];  // decode Preamp (Attenuator)  1 = On (0dB atten), 0 = Off (20dB atten)
       IF_DITHER           <= IF_Rx_ctrl_3[3];   // decode dither on or off
       IF_RAND             <= IF_Rx_ctrl_3[4];   // decode randomizer on or off
@@ -1689,19 +1732,19 @@ begin
     end
     if (IF_Rx_ctrl_0[7:1] == 7'b0001_001)
     begin
-      IF_Drive_Level      <= IF_Rx_ctrl_1;          // decode drive level 
-      IF_Mic_boost        <= IF_Rx_ctrl_2[0];       // decode mic boost 0 = 0dB, 1 = 20dB  
+      IF_Drive_Level      <= IF_Rx_ctrl_1;          // decode drive level
+      IF_Mic_boost        <= IF_Rx_ctrl_2[0];       // decode mic boost 0 = 0dB, 1 = 20dB
       IF_Line_In          <= IF_Rx_ctrl_2[1];       // 0 = Mic input, 1 = Line In
 //    IF_Filter           <= IF_Rx_ctrl_2[2];       // 1 = enable Apollo filter
 //    IF_Tuner            <= IF_Rx_ctrl_2[3];       // 1 = enable Apollo tuner
 //    IF_autoTune         <= IF_Rx_ctrl_2[4];       // 1 = begin Apollo auto-tune
-      IF_Apollo         <= IF_Rx_ctrl_2[5];      // 1 = Apollo enabled, 0 = Alex enabled 
+      IF_Apollo         <= IF_Rx_ctrl_2[5];      // 1 = Apollo enabled, 0 = Alex enabled
       Alex_manual         <= IF_Rx_ctrl_2[6];       // manual Alex HPF/LPF filter selection (0 = disable, 1 = enable)
       VNA                     <= IF_Rx_ctrl_2[7];       // 1 = enable VNA mode
       Alex_manual_HPF     <= IF_Rx_ctrl_3[5:0];     // Alex HPF filters select
       Alex_6m_preamp      <= IF_Rx_ctrl_3[6];       // 6M low noise amplifier (0 = disable, 1 = enable)
       TR_relay_disable  <= IF_Rx_ctrl_3[7];     // Alex T/R relay disable option (0=TR relay enabled, 1=TR relay disabled)
-      Alex_manual_LPF     <= IF_Rx_ctrl_4[6:0];     // Alex LPF filters select    
+      Alex_manual_LPF     <= IF_Rx_ctrl_4[6:0];     // Alex LPF filters select
     end
     if (IF_Rx_ctrl_0[7:1] == 7'b0001_010)
     begin
@@ -1719,7 +1762,7 @@ begin
       end
      end
   end
-end 
+end
 
 // Always compute frequency
 // This really should be done on the PC....
@@ -1736,16 +1779,16 @@ always @ (posedge IF_clk) begin
         freqcompp[0] <= freqcomp[56:25];
         freqcompp[1] <= freqcomp[56:25];
         freqcompp[2] <= freqcomp[56:25];
-        freqcompp[3] <= freqcomp[56:25];  
+        freqcompp[3] <= freqcomp[56:25];
         chanp[0] <= IF_Rx_ctrl_0[7:1];
         chanp[1] <= IF_Rx_ctrl_0[7:1];
         chanp[2] <= IF_Rx_ctrl_0[7:1];
-        chanp[3] <= IF_Rx_ctrl_0[7:1];    
+        chanp[3] <= IF_Rx_ctrl_0[7:1];
     end
 end
 
 always @ (posedge IF_clk) begin
-    if (IF_rst)
+    if (rst)
         IF_Rx_savep <= 1'b0;
     else
         IF_Rx_savep <= IF_Rx_save;
@@ -1753,8 +1796,8 @@ end
 
 
 always @ (posedge IF_clk)
-begin 
-  if (IF_rst)
+begin
+  if (rst)
   begin // set up default values - 0 for now
     IF_frequency[0] <= 32'd0;
     IF_frequency[1] <= 32'd0;
@@ -1765,7 +1808,7 @@ begin
         IF_frequency[0]   <= freqcompp[0]; //freqcomp[56:25];
         if (!IF_duplex && (IF_last_chan == 5'b00000)) IF_frequency[1] <= IF_frequency[0];
     end
-        
+
     if (chanp[0] == 7'b0000_010) begin // decode Rx1 frequency
         if (!IF_duplex && (IF_last_chan == 5'b00000)) IF_frequency[1] <= IF_frequency[0];
         else IF_frequency[1] <= freqcompp[0]; //freqcomp[56:25];
@@ -1777,13 +1820,13 @@ end
 generate
   for (c = 1; c < NR; c = c + 1) begin: RXIFFREQ
     always @ (posedge IF_clk) begin
-        if (IF_rst) IF_frequency[c+1] <= 32'd0;
+        if (rst) IF_frequency[c+1] <= 32'd0;
         else if (IF_Rx_savep) begin
             if (chanp[c/8] == ((c < 7) ? c+2 : c+11)) begin
-              //if (IF_last_chan >= c) 
+              //if (IF_last_chan >= c)
                 IF_frequency[c+1] <= freqcompp[c/8]; //freqcomp[56:25];
               //else IF_frequency[c+1] <= IF_frequency[0];
-            end                 
+            end
         end
     end
   end
@@ -1794,10 +1837,10 @@ assign FPGA_PTT = IF_Rx_ctrl_0[0] | cwkey | clean_ptt; // IF_Rx_ctrl_0 only upda
 
 
 //------------------------------------------------------------
-//  Attenuator 
+//  Attenuator
 //------------------------------------------------------------
 
-// set the attenuator according to whether Hermes_atten_enable and Preamp bits are set 
+// set the attenuator according to whether Hermes_atten_enable and Preamp bits are set
 //wire [4:0] atten_data;
 
 
@@ -1811,11 +1854,11 @@ wire [5:0] igain_value;
 assign igain_value = IF_RAND ? agc_value : gain_value;
 
 
-always @(posedge rffe_ad9866_clk76p8) begin
+always @(posedge clock_76p8_mhz) begin
 //assign ad9866_pga = (FPGA_PTT | VNA) ? ((VNA & Preamp) ? DUPRXMAXGAIN : DUPRXMINGAIN) : (IF_RAND ? agc_value : gain_value);
 //allow gain changes during tx
 //AD9866 appears to diminish TX if RX gain is more than 1f, ceiling of 1f for receiver if in TX
-	ad9866_pga_d <= VNA ? (Preamp ? DUPRXMAXGAIN : DUPRXMINGAIN) : ((FPGA_PTT & igain_value[5]) ? 6'h1f : igain_value);
+  ad9866_pga_d <= VNA ? (Preamp ? DUPRXMAXGAIN : DUPRXMINGAIN) : ((FPGA_PTT & igain_value[5]) ? 6'h1f : igain_value);
 
 
 end
@@ -1832,7 +1875,7 @@ assign rffe_ad9866_pga = ad9866_pga_d;
 
     The first word is the Left audio followed by the Right audio
     which is followed by I data and finally the Q data.
-        
+
     The words sent to the D/A converters must be sent at the sample rate
     of the A/D converters (48kHz) so is synced to the negative edge of the CLRCLK (via IF_get_rx_data).
 */
@@ -1860,9 +1903,9 @@ generate
 
 if(PREDISTORT==1) begin: PD2
 
-always @ (posedge IF_clk) 
+always @ (posedge IF_clk)
 begin
-  if (IF_rst)
+  if (rst)
     IF_PWM_state   <= #IF_TPD PWM_IDLE;
   else
     IF_PWM_state   <= #IF_TPD IF_PWM_state_next;
@@ -1880,7 +1923,7 @@ begin
         PD1.DACLUTQ[IF_Left_Data[11:0]]<= IF_Rx_fifo_rdata[12:0];
     else
         PD1.DACLUTI[IF_Left_Data[11:0]]<= IF_Rx_fifo_rdata[12:0];
-            
+
     end
 
   // get I audio
@@ -1895,11 +1938,11 @@ end
 
 
 end else begin
-  
 
-always @ (posedge IF_clk) 
+
+always @ (posedge IF_clk)
 begin
-  if (IF_rst)
+  if (rst)
     IF_PWM_state   <= #IF_TPD PWM_IDLE;
   else
     IF_PWM_state   <= #IF_TPD IF_PWM_state_next;
@@ -1912,9 +1955,9 @@ begin
   if (IF_PWM_state == PWM_Q_AUDIO)
     IF_Q_PWM       <= #IF_TPD IF_Rx_fifo_rdata;
 
-end    
+end
 
-end 
+end
 
 endgenerate
 
@@ -1997,7 +2040,7 @@ debounce de_cwkey(.clean_pb(clean_cwkey), .pb(~cwkey_i), .clk(IF_clk));
 // CW state machine
 always @(posedge IF_clk)
     begin case (cwstate)
-        cwrx: 
+        cwrx:
             begin
                 cwlevel <= 18'h00;
                 if (clean_cwkey) cwstate <= cwkeydown;
@@ -2026,7 +2069,7 @@ assign cwkey = cwstate != cwrx;
 
 wire [14:0] C122_cwlevel;
 cdc_sync #(15)
-    CWLVL  (.siga(cwlevel[17:3]), .rstb(C122_rst), .clkb(rffe_ad9866_clk76p8), .sigb(C122_cwlevel)); // To Tx domain
+    CWLVL  (.siga(cwlevel[17:3]), .rstb(C122_rst), .clkb(clock_76p8_mhz), .sigb(C122_cwlevel)); // To Tx domain
 
 
 //---------------------------------------------------------
@@ -2057,8 +2100,8 @@ wire [5:0] dd;
 
 // Linear mapping from 0to255 to 0to39
 generate
-	if (disable_IAMP == 1) assign dd = VNA ? VNATXGAIN : {2'b00,IF_Drive_Level[7:4]};
-	else assign dd = VNA ? VNATXGAIN : ((IF_Drive_Level+4) >> 3) + (IF_Drive_Level >> 5);
+  if (disable_IAMP == 1) assign dd = VNA ? VNATXGAIN : {2'b00,IF_Drive_Level[7:4]};
+  else assign dd = VNA ? VNATXGAIN : ((IF_Drive_Level+4) >> 3) + (IF_Drive_Level >> 5);
 endgenerate
 
 
@@ -2068,20 +2111,20 @@ always @ (posedge ad9866spiclk)
 
 assign ad9866rqst = dd != lastdd;
 
-ad9866 #(.initarray0(initarray0), .initarray1(initarray1)) ad9866_inst(.reset(~rffe_ad9866_rst_n),.clk(ad9866spiclk),.initarray_sel(1'b0),.sclk(rffe_ad9866_sclk),.sdio(rffe_ad9866_sdio),.sdo(1'b0),.sen_n(rffe_ad9866_sen_n),.dataout(),.extrqst(ad9866rqst),.gain(dd));
+ad9866 #(.initarray0(initarray0), .initarray1(initarray1)) ad9866_inst(.reset(~ad9866_rst_n),.clk(ad9866spiclk),.initarray_sel(1'b0),.sclk(rffe_ad9866_sclk),.sdio(rffe_ad9866_sdio),.sdo(1'b0),.sen_n(rffe_ad9866_sen_n),.dataout(),.extrqst(ad9866rqst),.gain(dd));
 
 
 // Really 0.16 seconds at Hermes-Lite 61.44 MHz clock
 localparam half_second = 10000000; // at 48MHz clock rate
 
-Led_flash Flash_LED0(.clock(rffe_ad9866_clk76p8), .signal(rxclipp), .LED(leds[0]), .period(half_second));
-Led_flash Flash_LED1(.clock(rffe_ad9866_clk76p8), .signal(rxgoodlvlp), .LED(leds[1]), .period(half_second));
-Led_flash Flash_LED2(.clock(rffe_ad9866_clk76p8), .signal(rxgoodlvln), .LED(leds[2]), .period(half_second));
-Led_flash Flash_LED3(.clock(rffe_ad9866_clk76p8), .signal(rxclipn), .LED(leds[3]), .period(half_second));
+Led_flash Flash_LED0(.clock(clock_76p8_mhz), .signal(rxclipp), .LED(leds[0]), .period(half_second));
+Led_flash Flash_LED1(.clock(clock_76p8_mhz), .signal(rxgoodlvlp), .LED(leds[1]), .period(half_second));
+Led_flash Flash_LED2(.clock(clock_76p8_mhz), .signal(rxgoodlvln), .LED(leds[2]), .period(half_second));
+Led_flash Flash_LED3(.clock(clock_76p8_mhz), .signal(rxclipn), .LED(leds[3]), .period(half_second));
 
 Led_flash Flash_LED4(.clock(IF_clk), .signal(this_MAC), .LED(leds[4]), .period(half_second));
 Led_flash Flash_LED5(.clock(IF_clk), .signal(run), .LED(leds[5]), .period(half_second));
-Led_flash Flash_LED6(.clock(IF_clk), .signal(IF_SYNC_state == SYNC_RX_1_2), .LED(leds[6]), .period(half_second));   
+Led_flash Flash_LED6(.clock(IF_clk), .signal(IF_SYNC_state == SYNC_RX_1_2), .LED(leds[6]), .period(half_second));
 
 assign leds[7] = agc_delaycnt[25];
 
@@ -2093,15 +2136,7 @@ assign io_led_d5 = leds[3];
 
 
 
-reg [15:0] resetcounter = 16'h0000;
-always @ (posedge rstclk or negedge extreset)
-    if (~extreset) resetcounter <= 16'h00;
-    else if (~resetcounter[15]) resetcounter <= resetcounter + 16'h01;
 
-assign rffe_ad9866_rst_n = resetcounter[15];
-
-reg clk_rst = 1'b1;
-reg clk_start = 1'b0;
 
 // I2C for Versa Clock
 wire [6:0]  cmd_address;
@@ -2110,11 +2145,6 @@ wire [7:0]  data;
 wire        data_valid, data_ready, data_last;
 wire        scl_i, scl_o, scl_t, sda_i, sda_o, sda_t;
 
-always @(posedge rstclk) begin
-    if (resetcounter[10]) clk_rst <= 1'b0;
-    if (resetcounter[11]) clk_start <= 1'b1;
-end
-
 assign scl_i = clk_scl1;
 assign clk_scl1 = scl_t ? 1'bz : scl_o;
 assign sda_i = clk_sda1;
@@ -2122,7 +2152,7 @@ assign clk_sda1 = sda_t ? 1'bz : sda_o;
 
 i2c_init i2c_init_i (
     .clk(clock_2_5MHz),
-    .rst(clk_rst),
+    .rst(clk_i2c_rst),
     /*
      * I2C master interface
      */
@@ -2146,12 +2176,12 @@ i2c_init i2c_init_i (
     /*
      * Configuration
      */
-    .start(clk_start)
+    .start(clk_i2c_start)
 );
 
 i2c_master i2c_master_i (
     .clk(clock_2_5MHz),
-    .rst(clk_rst),
+    .rst(clk_i2c_rst),
     /*
      * Host interface
      */
@@ -2214,4 +2244,4 @@ end
 endfunction
 
 
-endmodule 
+endmodule

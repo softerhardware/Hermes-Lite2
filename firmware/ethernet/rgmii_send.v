@@ -31,8 +31,7 @@ module rgmii_send (
   //hardware pins
   output [3:0]PHY_TX,
   output PHY_TX_EN,
-  input  PHY_INT_N,
-  output PHY_RESET_N
+  input  PHY_INT_N
   );
 
 
@@ -60,7 +59,6 @@ reg [2:0] state = ST_IDLE;
 
 wire sending = tx_enable | (state == ST_SEND);
 assign active = sending | (state == ST_GAP);
-assign PHY_RESET_N = 1'b1;
 
 
 always @(posedge clock)

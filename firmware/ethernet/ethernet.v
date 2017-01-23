@@ -20,8 +20,6 @@ module ethernet (
 	// Status
 	output this_MAC_o,
 	output run_o,
-	input IF_rst_i,
-	output reset_o,
 	input [1:0] dipsw_i,
 	input [7:0] AssignNR,
 
@@ -31,7 +29,6 @@ module ethernet (
 	input  [3:0]PHY_RX,
 	input  RX_DV,
 	input  PHY_RX_CLOCK,
-	output PHY_RESET_N,
 	inout  PHY_MDIO,
 	output PHY_MDC
 );
@@ -42,7 +39,6 @@ parameter IP;
 parameter Hermes_serialno;
 
 wire [7:0] network_status;
-//wire iPHY_RESET_N;
 
 wire dst_unreachable;
 wire udp_tx_request;
@@ -94,17 +90,15 @@ network #(.MAC(MAC), .IP(IP)) network_inst(
 	.PHY_TX(PHY_TX),
 	.PHY_TX_EN(PHY_TX_EN),
 	.PHY_RX(PHY_RX),
-  	.PHY_DV(RX_DV),
+  .PHY_DV(RX_DV),
  	.PHY_RX_CLOCK(PHY_RX_CLOCK),
 	.PHY_INT_N(1'b1),
-	.PHY_RESET_N(PHY_RESET_N),
-	.rst_n(1'b1),
 	.macbit(dipsw_i[1]),
-    .PHY_MDIO(PHY_MDIO),
-  	.PHY_MDC(PHY_MDC),
-  	.MODE2(1'b1),
-  	.network_status(network_status),
-  	.network_state(network_state)
+  .PHY_MDIO(PHY_MDIO),
+  .PHY_MDC(PHY_MDC),
+  .MODE2(1'b1),
+  .network_status(network_status),
+  .network_state(network_state)
 );
 
 Rx_recv rx_recv_inst(
@@ -155,7 +149,6 @@ assign PHY_data_clock_o = rx_clock;
 assign this_MAC_o = network_status[0];
 
 assign run_o = run;
-assign reset_o = ~PHY_RESET_N;
 
 // Set Tx_reset (no sdr send) if not in RUNNING or DHCP RENEW state
 assign Tx_reset = network_state[3:1] != 3'b100;
