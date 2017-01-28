@@ -205,7 +205,7 @@ always @(posedge tx_clock)
   end
       
   
-assign tx_active = (tx_enable | sending) & ~fifo_empty;
+assign tx_active = (tx_enable | sending); // & ~fifo_empty;
 
 assign fifo_read = (tx_byte_no == 0) && sending && tx_active;
 
