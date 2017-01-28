@@ -83,13 +83,48 @@ set_clock_groups -asynchronous -group { \
 # Set Maximum Delay
 #**************************************************************
 
-set_max_delay -from clock_125MHz -to clock_125MHz 21
-set_max_delay -from clock_125MHz -to tx_output_clock 3
+set_max_delay -from [get_clocks {clock_125MHz}] \
+	-to {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]} 21
+
+set_max_delay -from {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|*} \
+	-to {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]} 7.9
+
+set_max_delay -through [get_nets ethernet_inst|network_inst|ip_tx_enable*] \
+	-to {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]} 7.9
+
+
+set_max_delay -from [get_clocks {clock_125MHz}] \
+	-to {ethernet:ethernet_inst|network:network_inst|mac_send:mac_send_inst|shift_reg[*]} 21
+
+set_max_delay -from {ethernet:ethernet_inst|network:network_inst|mac_send:mac_send_inst|*} \
+	-to {ethernet:ethernet_inst|network:network_inst|mac_send:mac_send_inst|shift_reg[*]} 7.9
+
+set_max_delay -through [get_nets ethernet_inst|network_inst|mac_tx_enable*] \
+	-to {ethernet:ethernet_inst|network:network_inst|mac_send:mac_send_inst|shift_reg[*]} 7.9
+
+
+set_max_delay -from [get_clocks {clock_125MHz}] \
+	-to {ethernet:ethernet_inst|network:network_inst|rgmii_send:rgmii_send_inst|shift_reg[*]} 21
+
+set_max_delay -from {ethernet:ethernet_inst|network:network_inst|rgmii_send:rgmii_send_inst|*} \
+	-to {ethernet:ethernet_inst|network:network_inst|rgmii_send:rgmii_send_inst|shift_reg[*]} 7.9
+
+set_max_delay -through [get_nets ethernet_inst|network_inst|rgmii_tx_enable*] \
+	-to {ethernet:ethernet_inst|network:network_inst|rgmii_send:rgmii_send_inst|shift_reg[*]} 7.9
+
+
+set_max_delay -from [get_clocks {clock_125MHz}] \
+	-to {ethernet:ethernet_inst|network:network_inst|udp_send:udp_send_inst|shift_reg[*]} 21
+
+set_max_delay -from {ethernet:ethernet_inst|network:network_inst|udp_send:udp_send_inst|*} \
+	-to {ethernet:ethernet_inst|network:network_inst|udp_send:udp_send_inst|shift_reg[*]} 7.9
+
+set_max_delay -through [get_nets ethernet_inst|network_inst|udp_tx_enable*] \
+	-to {ethernet:ethernet_inst|network:network_inst|udp_send:udp_send_inst|shift_reg[*]} 7.9
+
+set_max_delay -from clock_125MHz -to tx_output_clock 3.3
 
 set_max_delay -from clock_2_5MHz -to clock_125MHz 22
-
-#set_max_delay -from phy_rx_clk -to phy_rx_clk 10
-
 
 
 #**************************************************************
@@ -97,10 +132,6 @@ set_max_delay -from clock_2_5MHz -to clock_125MHz 22
 #**************************************************************
 
 set_min_delay -from clock_90_125MHz -to tx_output_clock -2
-
-#set_min_delay -from phy_rx_clk -to phy_rx_clk -4
-
-
 
 #**************************************************************
 # Set False Paths
@@ -164,3 +195,6 @@ set_output_delay -add_delay -min -clock rffe_ad9866_rxclk -0.3 [get_ports {rffe_
 
 set_output_delay -add_delay -max -clock rffe_ad9866_rxclk 2.0 [get_ports {rffe_ad9866_tx[*]}]
 set_output_delay -add_delay -min -clock rffe_ad9866_rxclk -0.3 [get_ports {rffe_ad9866_tx[*]}]
+
+
+##set_max_delay -from {IF_Rx_ctrl_*} -to {freqcompp*} 15.9

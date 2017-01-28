@@ -1,18 +1,18 @@
 # -------------------------------------------------------------------------- #
 #
 # Copyright (C) 2016  Intel Corporation. All rights reserved.
-# Your use of Intel Corporation's design tools, logic functions 
-# and other software and tools, and its AMPP partner logic 
-# functions, and any output files from any of the foregoing 
-# (including device programming or simulation files), and any 
-# associated documentation or information are expressly subject 
-# to the terms and conditions of the Intel Program License 
+# Your use of Intel Corporation's design tools, logic functions
+# and other software and tools, and its AMPP partner logic
+# functions, and any output files from any of the foregoing
+# (including device programming or simulation files), and any
+# associated documentation or information are expressly subject
+# to the terms and conditions of the Intel Program License
 # Subscription Agreement, the Intel Quartus Prime License Agreement,
-# the Intel MegaCore Function License Agreement, or other 
-# applicable license agreement, including, without limitation, 
-# that your use is for the sole purpose of programming logic 
-# devices manufactured by Intel and sold by Intel or its 
-# authorized distributors.  Please refer to the applicable 
+# the Intel MegaCore Function License Agreement, or other
+# applicable license agreement, including, without limitation,
+# that your use is for the sole purpose of programming logic
+# devices manufactured by Intel and sold by Intel or its
+# authorized distributors.  Please refer to the applicable
 # agreement for further details.
 #
 # -------------------------------------------------------------------------- #
@@ -184,6 +184,8 @@ set_instance_assignment -name IO_STANDARD "2.5 V" -to pa_en
 set_global_assignment -name VERILOG_INPUT_VERSION SYSTEMVERILOG_2005
 set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
 set_global_assignment -name VERILOG_FILE ../../rtl/Led_flash.v
+set_global_assignment -name VERILOG_FILE ../../rtl/i2c_init.v
+set_global_assignment -name VERILOG_FILE ../../rtl/i2c_master.v
 set_global_assignment -name SDC_FILE top.sdc
 set_global_assignment -name VERILOG_FILE top.v
 set_global_assignment -name VERILOG_FILE ../../ethernet/cdc_sync.v
@@ -210,4 +212,5 @@ set_global_assignment -name VERILOG_FILE ../../ethernet/arp.v
 set_global_assignment -name VERILOG_FILE ../../ethernet/Rx_recv.v
 set_global_assignment -name VERILOG_FILE ../../ethernet/Tx_send.v
 set_global_assignment -name QIP_FILE ../../cycloneip/ethpll.qip
+
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

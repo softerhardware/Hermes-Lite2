@@ -30,8 +30,7 @@ module ethernet (
 	input  RX_DV,
 	input  PHY_RX_CLOCK,
 	inout  PHY_MDIO,
-	output PHY_MDC
-);
+	output PHY_MDC);
 
 
 parameter MAC;
