@@ -83,8 +83,8 @@ module hermeslite(
   input           io_cn8,
   input           io_cn9,
   input           io_cn10,
-  output          io_scl2,
-  output          io_sda2,
+  inout           io_scl2,
+  inout           io_sda2,
   input           io_tp2,
   input           io_db24,
 
@@ -301,15 +301,10 @@ assign pwr_envpa = 1'b1;
 
 assign io_adc_scl = 1'b0;
 assign io_adc_sda = 1'b0;
-assign io_scl2 = 1'b0;
-assign io_sda2 = 1'b0;
-
-assign pa_en = 1'b0;
-
+//assign io_scl2 = 1'b0;
+//assign io_sda2 = 1'b0;
 
 assign clk_recovered = 1'b0;
-assign rffe_rfsw_sel = 1'b0;
-
 
 
 // Reset and Clock Control
@@ -738,7 +733,7 @@ assign rffe_ad9866_tx = ad9866_txr;
 assign rffe_ad9866_txsync = ad9866_txsyncr;
 
 
-assign pa_tr = FPGA_PTT;
+
 //assign userout = IF_OC;
 
 
@@ -1666,6 +1661,8 @@ reg         Hermes_atten_enable; // enable/disable bit for Hermes attenuator
 reg         TR_relay_disable;       // Alex T/R relay disable option
 reg         IF_Pure_signal;              //
 reg   [3:0]  IF_Predistortion;              //
+reg         IF_PA_enable;
+reg         IF_TR_disable;
 
 always @ (posedge IF_clk)
 begin
@@ -1706,6 +1703,8 @@ begin
      Hermes_atten_enable <= 1'b0;       // default disable Hermes attenuator
      IF_Pure_signal      <= 1'b0;      // default disable pure signal
      IF_Predistortion    <= 4'b0000;   // default disable predistortion
+     IF_PA_enable         <= 1'b0;
+     IF_TR_disable        <= 1'b0;
 
   end
   else if (IF_Rx_save)                  // all Rx_control bytes are ready to be saved
@@ -1753,7 +1752,12 @@ begin
         Hermes_atten      <= IF_Rx_ctrl_4[4:0];    // decode input attenuation setting
       Hermes_atten_enable <= IF_Rx_ctrl_4[5];    // decode Hermes attenuator enable/disable
     end
-     if (IF_Rx_ctrl_0[7:1] == 7'b0101_011)
+    if (IF_Rx_ctrl_0[7:1] == 7'b0001_100)
+    begin
+      IF_PA_enable <= IF_Rx_ctrl_4[7];
+      IF_TR_disable <= IF_Rx_ctrl_4[6];
+    end
+    if (IF_Rx_ctrl_0[7:1] == 7'b0101_011)
     begin
      // DACLUT[{IF_Rx_ctrl_1[3:0], IF_Rx_ctrl_2[7:0]}]<= {IF_Rx_ctrl_3[3:0], IF_Rx_ctrl_4[7:0]};
       if(IF_Rx_ctrl_1==8'b0000_0000)//predistortion control sub index
@@ -2137,6 +2141,14 @@ assign io_led_d5 = leds[3];
 
 
 
+// FIXME: Sequence power
+// FIXME: External TR won't work in low power mode
+assign pa_tr = FPGA_PTT & (IF_PA_enable | ~IF_TR_disable);
+assign pa_en = FPGA_PTT & IF_PA_enable;
+assign rffe_rfsw_sel = IF_PA_enable;
+
+
+
 
 // I2C for Versa Clock
 wire [6:0]  cmd_address;
@@ -2229,6 +2241,99 @@ i2c_master i2c_master_i (
     .stop_on_idle(1'b0)
 );
 
+
+
+
+// I2C for  bias
+wire [6:0]  i2c2_cmd_address;
+wire        i2c2_cmd_start, i2c2_cmd_read, i2c2_cmd_write, i2c2_cmd_write_multiple, i2c2_cmd_stop, i2c2_cmd_valid, i2c2_cmd_ready;
+wire [7:0]  i2c2_data;
+wire        i2c2_data_valid, i2c2_data_ready, i2c2_data_last;
+wire        i2c2_scl_i, i2c2_scl_o, i2c2_scl_t, i2c2_sda_i, i2c2_sda_o, i2c2_sda_t;
+
+assign i2c2_scl_i = io_scl2;
+assign io_scl2 = i2c2_scl_t ? 1'bz : i2c2_scl_o;
+assign i2c2_sda_i = io_sda2;
+assign io_sda2 = i2c2_sda_t ? 1'bz : i2c2_sda_o;
+
+i2c2_init i2c2_init_i (
+    .clk(clock_2_5MHz),
+    .rst(clk_i2c_rst),
+    /*
+     * I2C master interface
+     */
+    .cmd_address(i2c2_cmd_address),
+    .cmd_start(i2c2_cmd_start),
+    .cmd_read(i2c2_cmd_read),
+    .cmd_write(i2c2_cmd_write),
+    .cmd_write_multiple(i2c2_cmd_write_multiple),
+    .cmd_stop(i2c2_cmd_stop),
+    .cmd_valid(i2c2_cmd_valid),
+    .cmd_ready(i2c2_cmd_ready),
+
+    .data_out(i2c2_data),
+    .data_out_valid(i2c2_data_valid),
+    .data_out_ready(i2c2_data_ready),
+    .data_out_last(i2c2_data_last),
+    /*
+     * Status
+     */
+    .busy(),
+    /*
+     * Configuration
+     */
+    .start(clk_i2c_start)
+);
+
+i2c_master i2c2_master_i (
+    .clk(clock_2_5MHz),
+    .rst(clk_i2c_rst),
+    /*
+     * Host interface
+     */
+    .cmd_address(i2c2_cmd_address),
+    .cmd_start(i2c2_cmd_start),
+    .cmd_read(i2c2_cmd_read),
+    .cmd_write(i2c2_cmd_write),
+    .cmd_write_multiple(i2c2_cmd_write_multiple),
+    .cmd_stop(i2c2_cmd_stop),
+    .cmd_valid(i2c2_cmd_valid),
+    .cmd_ready(i2c2_cmd_ready),
+
+    .data_in(i2c2_data),
+    .data_in_valid(i2c2_data_valid),
+    .data_in_ready(i2c2_data_ready),
+    .data_in_last(i2c2_data_last),
+
+    .data_out(),
+    .data_out_valid(),
+    .data_out_ready(1'b1),
+    .data_out_last(),
+
+    /*
+     * I2C interface
+     */
+    .scl_i(i2c2_scl_i),
+    .scl_o(i2c2_scl_o),
+    .scl_t(i2c2_scl_t),
+    .sda_i(i2c2_sda_i),
+    .sda_o(i2c2_sda_o),
+    .sda_t(i2c2_sda_t),
+
+    /*
+     * Status
+     */
+    .busy(),
+    .bus_control(),
+    .bus_active(),
+    .missed_ack(),
+
+    /*
+     * Configuration
+     */
+    .prescale(16'h0002),
+    .stop_on_idle(1'b0)
+);
 
 
 

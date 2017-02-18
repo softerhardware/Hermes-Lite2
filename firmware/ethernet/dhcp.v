@@ -324,6 +324,7 @@ begin
                       rx_byte_no <=  rx_byte_no + 9'd1;
                       end
                  end
+
 //          // read next two bytes and look for lease time, DHCP server IP address or end
               240: begin
                   option[15:8] <= rx_data;
@@ -344,7 +345,7 @@ begin
                  end
               242: begin
                   skip <= option[7:0];              // potentially skip these number of bytes
-                  if (option == 16'h35xx) begin // dhcp type since can be in any order
+                  if (option == 16'h3501) begin // dhcp type since can be in any order
                     if(rx_data == 8'h02) begin          // if 0x02 then an offer so request it
                       rx_send_request <= 1'b1;
                       rx_state <= RX_DONE;            // wait until end of data then re-start
@@ -358,11 +359,11 @@ begin
                       rx_state <= RX_DONE;          // wait for end of packet then re-start
                     end
                   end
-                  if (option == 16'h33xx) begin           // get lease time
+                  if (option == 16'h3304) begin           // get lease time
                     lease[31:24] <= rx_data;
                     rx_byte_no <= 243;
                   end
-                  else if (option == 16'h36xx) begin        // get DHCP sever IP address
+                  else if (option == 16'h3604) begin        // get DHCP sever IP address
                     server_ip[31:24] <= rx_data;
                     rx_byte_no <= 246;
                   end

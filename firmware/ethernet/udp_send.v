@@ -1,7 +1,7 @@
 //
 //  HPSDR - High Performance Software Defined Radio
 //
-//  Metis code. 
+//  Metis code.
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -38,14 +38,14 @@ module udp_send (
  // output reg [47:0] destination_mac,
 //  output reg [31:0] destination_ip
   );
-  
+
 
 //udp header
 localparam HDR_LEN = 16'd8;
 localparam HI_BIT = HDR_LEN * 8 - 1;
 assign length_out = HDR_LEN + length_in;
-wire [15:0] checksum = 16'b0;						// no checksum needed with IP4				
-wire [HI_BIT:0] tx_bits = {(local_port + {8'd0,port_ID}), destination_port, length_out, checksum}; 
+wire [15:0] checksum = 16'b0;						// no checksum needed with IP4
+wire [HI_BIT:0] tx_bits = {(local_port + {8'd0,port_ID}), destination_port, length_out, checksum};
 
 //shift reg
 reg [HI_BIT:0] shift_reg;
@@ -55,28 +55,29 @@ reg [15:0] byte_no;
 //state machine
 localparam false = 1'b0, true = 1'b1;
 reg sending = false;
- 
-always @(posedge clock)  
+
+always @(posedge clock)
   begin
   //tx data
   if (active) begin
 	//	destination_mac <= remote_mac;
 	//	destination_ip  <= remote_ip;
 		shift_reg <= {shift_reg[HI_BIT-8:0], data_in};
-  end 
-  else shift_reg <= tx_bits;	  
+  end
+  else shift_reg <= tx_bits;
   //send while payload is coming
-  if (tx_enable) begin byte_no <= length_out -16'd1; sending <= true; end
+  if (tx_enable) begin
+    byte_no <= length_in + 16'd7; //length_out -16'd1;
+    sending <= true; end
   //purge shift register
   else if (byte_no != 0) byte_no <= byte_no - 15'd1;
   //done
   else sending <= false;
   end
 
-  
+
 assign active = (tx_enable | sending) && (byte_no != 0) ;  //last term prevents one too many bytes being sent
- 
-  
-  
+
+
+
 endmodule
-  

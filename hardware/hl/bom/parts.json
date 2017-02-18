@@ -190,7 +190,7 @@
 	},
 
 "U LP2985": {
-	"mpn":["LP2985-50DBVR"],
+	"mpn":["LP2985-33DBVR"],
 	"spec":"LDO 5V 150mA",
 	"assembly":"SMT",
 	"pins":5
@@ -246,7 +246,7 @@
 	},
 
 "D TVS": {
-	"mpn":["CDSOD323-T05L"],
+	"mpn":["CDSOD323-T05LC"],
 	"spec":"TVS Diode",
 	"assembly":"SMT",
 	"pins":3
