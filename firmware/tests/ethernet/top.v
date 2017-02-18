@@ -123,7 +123,7 @@ module top (
     assign pa_en = 1'b0;
 
 
-    ethernet #(.MAC({8'h00,8'h1c,8'hc0,8'ha2,8'h22,8'hdd}), .IP({8'd0,8'd0,8'd0,8'd0}), .Hermes_serialno(8'd31)) ethernet_inst (
+    ethernet #(.MAC({8'h00,8'h1c,8'hc0,8'ha2,8'h22,8'h2d}), .IP({8'd0,8'd0,8'd0,8'd0}), .Hermes_serialno(8'd31)) ethernet_inst (
 
       // Send to ethernet
       .clock_2_5MHz(clock_2_5MHz),

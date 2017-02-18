@@ -565,6 +565,7 @@ cdc_sync #(16) cdc_sync_inst9 (.siga(udp_destination_port), .rstb(0), .clkb(tx_c
 //-----------------------------------------------------------------------------
 //                               send
 //-----------------------------------------------------------------------------
+
 udp_send udp_send_inst (
   //in
   .reset(tx_reset),
@@ -580,7 +581,6 @@ udp_send udp_send_inst (
   .length_out(udp_length),
   .port_ID(port_ID)
   );
-
 
 ip_send ip_send_inst (
   //in
