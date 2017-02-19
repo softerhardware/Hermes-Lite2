@@ -58,7 +58,10 @@ module i2c2_init (
     /*
      * Configuration
      */
-    input  wire        start
+    /* Values */
+    input  wire [7:0]  bias0,
+    input  wire [7:0]  bias1
+
 );
 
 /*
@@ -140,15 +143,24 @@ reg [8:0] init_data [INIT_DATA_LEN-1:0];
 
 initial begin
     // single address
-    init_data[0]  = {2'b01, 7'h28}; // Q3
+    init_data[0]  = {2'b01, 7'h28}; // Q3 bias0
     init_data[1]  = {1'b1, 8'h00};
-    init_data[2]  = {1'b1, 8'h1c}; // 1C
+    init_data[2]  = {1'b1, 8'hfe}; // 1C
 
-    init_data[3]  = {2'b01, 7'h28}; // Q4
+    init_data[3]  = {2'b01, 7'h28}; // Q4 bias1
     init_data[4]  = {1'b1, 8'h10};
-    init_data[5]  = {1'b1, 8'h18}; // 18
+    init_data[5]  = {1'b1, 8'hfe}; // 18
 
     init_data[6] = 9'd0; // stop
+end
+
+wire loadbias0 = init_data[2][7:0] != bias0;
+wire loadbias1 = init_data[5][7:0] != bias1;
+wire start = loadbias0 | loadbias1;
+
+always @(posedge clk) begin
+    if (loadbias0) init_data[2] <= {1'b1,bias0};
+    if (loadbias1) init_data[5] <= {1'b1,bias1};
 end
 
 localparam [3:0]

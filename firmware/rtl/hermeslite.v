@@ -1567,8 +1567,6 @@ assign have_room = (IF_Rx_fifo_used < RX_FIFO_SZ - ((512-8)/2)) ? 1'b1 : 1'b0;  
 // prevent read from PHY fifo if empty and writing to Rx fifo if not enough room
 assign  IF_PHY_drdy = have_room & ~IF_PHY_rdempty;
 
-//assign IF_PHY_drdy = ~IF_PHY_rdempty;
-
 
 
 //---------------------------------------------------------
@@ -1634,35 +1632,22 @@ assign  IF_PHY_drdy = have_room & ~IF_PHY_rdempty;
 */
 
 reg   [6:0] IF_OC;                  // open collectors on Hermes
-//reg         IF_mode;              // normal or Class E PA operation
 reg         IF_RAND;                // when set randomizer in ADCon
 reg         IF_DITHER;              // when set dither in ADC on
-//reg   [1:0] IF_ATTEN;             // decode attenuator setting on Alex
 reg         Preamp;                 // selects input attenuator setting, 0 = 20dB, 1 = 0dB (preamp ON)
-reg   [1:0] IF_TX_relay;            // Tx relay setting on Alex
-reg         IF_Rout;                // Rx1 out on Alex
-reg   [1:0] IF_RX_relay;            // Rx relay setting on Alex
-reg  [31:0] IF_frequency[0:32];     // Tx, Rx1, Rx2, Rx3, Rx4, ..., Rx32
+reg  [31:0] IF_frequency[0:NR];     // Tx, Rx1, Rx2, Rx3
 reg         IF_duplex;
 reg         IF_DFS1;
 reg         IF_DFS0;
 reg   [7:0] IF_Drive_Level;         // Tx drive level
-reg         IF_Mic_boost;           // Mic boost 0 = 0dB, 1 = 20dB
-reg         IF_Line_In;             // Selects input, mic = 0, line = 1
-reg   [4:0] IF_Line_In_Gain;        // Sets Line-In Gain value (00000=-32.4 dB to 11111=+12 dB in 1.5 dB steps)
-reg         IF_Apollo;              // Selects Alex (0) or Apollo (1)
-reg             VNA;                        // Selects VNA mode when set.
-reg        Alex_manual;             // set if manual selection of Alex relays active
-reg         Alex_6m_preamp;         // set if manual selection and 6m preamp selected
-reg   [6:0] Alex_manual_LPF;        // Alex LPF relay selection in manual mode
-reg   [5:0] Alex_manual_HPF;        // Alex HPF relay selection in manual mode
+reg         VNA;                    // Selects VNA mode when set.
 reg   [4:0] Hermes_atten;           // 0-31 dB Heremes attenuator value
-reg         Hermes_atten_enable; // enable/disable bit for Hermes attenuator
-reg         TR_relay_disable;       // Alex T/R relay disable option
-reg         IF_Pure_signal;              //
-reg   [3:0]  IF_Predistortion;              //
+reg         IF_Pure_signal;              
+reg   [3:0] IF_Predistortion;             
 reg         IF_PA_enable;
 reg         IF_TR_disable;
+reg   [7:0] bias0;
+reg   [7:0] bias1;
 
 always @ (posedge IF_clk)
 begin
@@ -1672,40 +1657,23 @@ begin
     IF_DFS1 <= 1'b0; // decode speed
     IF_DFS0 <= 1'b0;
     // RX_CONTROL_2
-//    IF_mode            <= 1'b0;       // decode mode, normal or Class E PA
     IF_OC              <= 7'b0;     // decode open collectors on Hermes
     // RX_CONTROL_3
-//    IF_ATTEN           <= 2'b0;       // decode Alex attenuator setting
     Preamp             <= 1'b1;     // decode Preamp (Attenuator), default on
     IF_DITHER          <= 1'b1;     // decode dither on or off
     IF_RAND            <= 1'b0;     // decode randomizer on or off
-    IF_RX_relay        <= 2'b0;     // decode Alex Rx relays
-    IF_Rout            <= 1'b0;     // decode Alex Rx_1_out relay
-     TR_relay_disable   <= 1'b0;     // decode Alex T/R relay disable
     // RX_CONTROL_4
-    IF_TX_relay        <= 2'b0;     // decode Alex Tx Relays
     IF_duplex          <= 1'b0;     // not in duplex mode
-     IF_last_chan       <= 5'b00000;    // default single receiver
-    IF_Mic_boost       <= 1'b0;     // mic boost off
+    IF_last_chan       <= 5'b00000;    // default single receiver
     IF_Drive_Level     <= 8'b0;    // drive at minimum
-     IF_Line_In           <= 1'b0;      // select Mic input, not Line in
-//   IF_Filter            <= 1'b0;      // Apollo filter disabled (bypassed)
-//   IF_Tuner             <= 1'b0;      // Apollo tuner disabled (bypassed)
-//   IF_autoTune         <= 1'b0;       // Apollo auto-tune disabled
-     IF_Apollo            <= 1'b0;     //   Alex selected
-     VNA                      <= 1'b0;      // VNA disabled
-     Alex_manual          <= 1'b0;      // default manual Alex filter selection (0 = auto selection, 1 = manual selection)
-     Alex_manual_HPF      <= 6'b0;      // default manual settings, no Alex HPF filters selected
-     Alex_6m_preamp   <= 1'b0;      // default not set
-     Alex_manual_LPF      <= 7'b0;     // default manual settings, no Alex LPF filters selected
-     IF_Line_In_Gain      <= 5'b0;     // default line-in gain at min
-     Hermes_atten         <= 5'b0;     // default zero input attenuation
-     Hermes_atten_enable <= 1'b0;       // default disable Hermes attenuator
-     IF_Pure_signal      <= 1'b0;      // default disable pure signal
-     IF_Predistortion    <= 4'b0000;   // default disable predistortion
-     IF_PA_enable         <= 1'b0;
-     IF_TR_disable        <= 1'b0;
-
+    VNA                <= 1'b0;      // VNA disabled
+    Hermes_atten       <= 5'b0;     // default zero input attenuation
+    IF_Pure_signal     <= 1'b0;      // default disable pure signal
+    IF_Predistortion   <= 4'b0000;   // default disable predistortion
+    IF_PA_enable       <= 1'b0;
+    IF_TR_disable      <= 1'b0;
+    bias0              <= 8'hff;
+    bias1              <= 8'hff;
   end
   else if (IF_Rx_save)                  // all Rx_control bytes are ready to be saved
   begin                                         // Need to ensure that C&C data is stable
@@ -1715,47 +1683,31 @@ begin
       IF_DFS1  <= IF_Rx_ctrl_1[1]; // decode speed
       IF_DFS0  <= IF_Rx_ctrl_1[0]; // decode speed
       // RX_CONTROL_2
-//      IF_mode             <= IF_Rx_ctrl_2[0];   // decode mode, normal or Class E PA
       IF_OC               <= IF_Rx_ctrl_2[7:1]; // decode open collectors on Penelope
       // RX_CONTROL_3
-//      IF_ATTEN            <= IF_Rx_ctrl_3[1:0]; // decode Alex attenuator setting
       Preamp              <= IF_Rx_ctrl_3[2];  // decode Preamp (Attenuator)  1 = On (0dB atten), 0 = Off (20dB atten)
       IF_DITHER           <= IF_Rx_ctrl_3[3];   // decode dither on or off
       IF_RAND             <= IF_Rx_ctrl_3[4];   // decode randomizer on or off
-      IF_RX_relay         <= IF_Rx_ctrl_3[6:5]; // decode Alex Rx relays
-      IF_Rout             <= IF_Rx_ctrl_3[7];   // decode Alex Rx_1_out relay
       // RX_CONTROL_4
-      IF_TX_relay         <= IF_Rx_ctrl_4[1:0]; // decode Alex Tx Relays
       IF_duplex           <= IF_Rx_ctrl_4[2];   // save duplex mode
       IF_last_chan        <= IF_Rx_ctrl_4[7:3]; // number of IQ streams to send to PC
     end
     if (IF_Rx_ctrl_0[7:1] == 7'b0001_001)
     begin
-      IF_Drive_Level      <= IF_Rx_ctrl_1;          // decode drive level
-      IF_Mic_boost        <= IF_Rx_ctrl_2[0];       // decode mic boost 0 = 0dB, 1 = 20dB
-      IF_Line_In          <= IF_Rx_ctrl_2[1];       // 0 = Mic input, 1 = Line In
-//    IF_Filter           <= IF_Rx_ctrl_2[2];       // 1 = enable Apollo filter
-//    IF_Tuner            <= IF_Rx_ctrl_2[3];       // 1 = enable Apollo tuner
-//    IF_autoTune         <= IF_Rx_ctrl_2[4];       // 1 = begin Apollo auto-tune
-      IF_Apollo         <= IF_Rx_ctrl_2[5];      // 1 = Apollo enabled, 0 = Alex enabled
-      Alex_manual         <= IF_Rx_ctrl_2[6];       // manual Alex HPF/LPF filter selection (0 = disable, 1 = enable)
-      VNA                     <= IF_Rx_ctrl_2[7];       // 1 = enable VNA mode
-      Alex_manual_HPF     <= IF_Rx_ctrl_3[5:0];     // Alex HPF filters select
-      Alex_6m_preamp      <= IF_Rx_ctrl_3[6];       // 6M low noise amplifier (0 = disable, 1 = enable)
-      TR_relay_disable  <= IF_Rx_ctrl_3[7];     // Alex T/R relay disable option (0=TR relay enabled, 1=TR relay disabled)
-      Alex_manual_LPF     <= IF_Rx_ctrl_4[6:0];     // Alex LPF filters select
+      IF_Drive_Level      <= IF_Rx_ctrl_1;         // decode drive level
+      VNA                 <= IF_Rx_ctrl_2[7];      // 1 = enable VNA mode
     end
     if (IF_Rx_ctrl_0[7:1] == 7'b0001_010)
     begin
-      IF_Line_In_Gain   <= IF_Rx_ctrl_2[4:0];       // decode line-in gain setting
       IF_Pure_signal    <= IF_Rx_ctrl_2[6];       // decode pure signal setting
-        Hermes_atten      <= IF_Rx_ctrl_4[4:0];    // decode input attenuation setting
-      Hermes_atten_enable <= IF_Rx_ctrl_4[5];    // decode Hermes attenuator enable/disable
+      Hermes_atten      <= IF_Rx_ctrl_4[4:0];    // decode input attenuation setting
     end
     if (IF_Rx_ctrl_0[7:1] == 7'b0001_100)
     begin
       IF_PA_enable <= IF_Rx_ctrl_4[7];
       IF_TR_disable <= IF_Rx_ctrl_4[6];
+      bias0 <= IF_Rx_ctrl_1;
+      bias1 <= IF_Rx_ctrl_2;
     end
     if (IF_Rx_ctrl_0[7:1] == 7'b0101_011)
     begin
@@ -2115,7 +2067,9 @@ always @ (posedge ad9866spiclk)
 
 assign ad9866rqst = dd != lastdd;
 
-ad9866 #(.initarray0(initarray0), .initarray1(initarray1)) ad9866_inst(.reset(~ad9866_rst_n),.clk(ad9866spiclk),.initarray_sel(1'b0),.sclk(rffe_ad9866_sclk),.sdio(rffe_ad9866_sdio),.sdo(1'b0),.sen_n(rffe_ad9866_sen_n),.dataout(),.extrqst(ad9866rqst),.gain(dd));
+ad9866 #(.initarray0(initarray0), .initarray1(initarray1)) ad9866_inst(.reset(~ad9866_rst_n),
+  .clk(ad9866spiclk),.initarray_sel(1'b0),
+  .sclk(rffe_ad9866_sclk),.sdio(rffe_ad9866_sdio),.sdo(1'b0),.sen_n(rffe_ad9866_sen_n),.dataout(),.extrqst(ad9866rqst),.gain(dd));
 
 
 // Really 0.16 seconds at Hermes-Lite 61.44 MHz clock
@@ -2245,6 +2199,7 @@ i2c_master i2c_master_i (
 
 
 // I2C for  bias
+
 wire [6:0]  i2c2_cmd_address;
 wire        i2c2_cmd_start, i2c2_cmd_read, i2c2_cmd_write, i2c2_cmd_write_multiple, i2c2_cmd_stop, i2c2_cmd_valid, i2c2_cmd_ready;
 wire [7:0]  i2c2_data;
@@ -2282,7 +2237,8 @@ i2c2_init i2c2_init_i (
     /*
      * Configuration
      */
-    .start(clk_i2c_start)
+    .bias0(bias0),
+    .bias1(bias1)
 );
 
 i2c_master i2c2_master_i (
