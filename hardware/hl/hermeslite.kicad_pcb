@@ -1,9 +1,9 @@
-(kicad_pcb (version 4) (host pcbnew 4.0.2+dfsg1-stable)
+(kicad_pcb (version 4) (host pcbnew 4.0.4-stable)
 
   (general
     (links 1371)
     (no_connects 0)
-    (area 49.411905 38.4 205.240477 152.221428)
+    (area 49.561905 38.7 205.090477 152.071428)
     (thickness 1.6)
     (drawings 78)
     (tracks 5150)
@@ -4954,11 +4954,11 @@
     )
   )
 
-  (module HERMESLITE:SMD-0603 (layer F.Cu) (tedit 5816755A) (tstamp 57FB1495)
+  (module HERMESLITE:SMD-0603 (layer F.Cu) (tedit 58B1B96A) (tstamp 57FB1495)
     (at 153.65 127.4 180)
     (path /577F7295/57858511)
     (attr smd)
-    (fp_text reference B99 (at -0.25 1.1 180) (layer F.SilkS)
+    (fp_text reference B99 (at -0.25 1.3 180) (layer F.SilkS)
       (effects (font (size 0.8 0.8) (thickness 0.1)))
     )
     (fp_text value 0.1uF (at 0 0 180) (layer F.SilkS) hide
@@ -5083,11 +5083,11 @@
     )
   )
 
-  (module HERMESLITE:SMD-0805 (layer F.Cu) (tedit 5796CB05) (tstamp 57FAFC63)
+  (module HERMESLITE:SMD-0805 (layer F.Cu) (tedit 58B1B974) (tstamp 57FAFC63)
     (at 134.9 129.2)
     (path /577F7295/57864AA9)
     (attr smd)
-    (fp_text reference R99 (at 0 1.4) (layer F.SilkS)
+    (fp_text reference R99 (at 0 1.5) (layer F.SilkS)
       (effects (font (size 0.8 0.8) (thickness 0.1)))
     )
     (fp_text value 270 (at 0 0.381) (layer F.SilkS) hide
