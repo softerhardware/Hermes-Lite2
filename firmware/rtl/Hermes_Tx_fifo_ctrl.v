@@ -273,7 +273,7 @@ begin
   case (tx_addr)
     0:
     begin
-      C1_DATA = {4'b0,IO8,IO6,IO5,IO4,ADC_OVERLOAD};
+      C1_DATA = {3'b0,IO8,IO6,IO5,IO4,ADC_OVERLOAD};
       C2_DATA = Merc_serialno;
       C3_DATA = Penny_serialno;
       C4_DATA = Hermes_serialno;

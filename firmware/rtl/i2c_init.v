@@ -134,7 +134,7 @@ write 0x11223344 to register 0x0004 on devices at 0x50, 0x51, 0x52, and 0x53
 */
 
 // init_data ROM
-localparam INIT_DATA_LEN = 22;
+localparam INIT_DATA_LEN = 22; // Change from 22 to 31 for 73.728 MHz 
 
 reg [8:0] init_data [INIT_DATA_LEN-1:0];
 
@@ -169,6 +169,20 @@ initial begin
     init_data[20]  = {1'b1, 8'h3b};
 
     init_data[21] = 9'd0; // stop
+
+    //init_data[21]  = {2'b01, 7'h6a}; // Add for 73.728 MHz 
+    //init_data[22]  = {1'b1, 8'h22};
+    //init_data[23]  = {1'b1, 8'h02};
+
+    //init_data[24]  = {2'b01, 7'h6a}; // Add for 73.728 MHz 
+    //init_data[25]  = {1'b1, 8'h23};
+    //init_data[26]  = {1'b1, 8'hd5};
+
+    //init_data[27]  = {2'b01, 7'h6a}; // Add for 73.728 MHz 
+    //init_data[28]  = {1'b1, 8'h24};
+    //init_data[29]  = {1'b1, 8'h56};    
+
+    //init_data[30] = 9'd0; // stop
 end
 
 localparam [3:0]
