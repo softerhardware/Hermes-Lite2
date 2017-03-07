@@ -230,6 +230,7 @@ set_global_assignment -name VERILOG_FILE rtl/Hermes_ADC.v
 set_global_assignment -name VERILOG_FILE rtl/i2c_master.v
 set_global_assignment -name VERILOG_FILE rtl/i2c_init.v
 set_global_assignment -name VERILOG_FILE rtl/i2c2_init.v
+set_global_assignment -name VERILOG_FILE rtl/i2c.v
 set_global_assignment -name VERILOG_FILE ethernet/cdc_sync.v
 set_global_assignment -name VERILOG_FILE ethernet/udp_send.v
 set_global_assignment -name VERILOG_FILE ethernet/udp_recv.v

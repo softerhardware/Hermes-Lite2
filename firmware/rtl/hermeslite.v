@@ -1767,198 +1767,39 @@ assign pa_tr = FPGA_PTT & (IF_PA_enable | ~IF_TR_disable);
 assign pa_en = FPGA_PTT & IF_PA_enable;
 assign rffe_rfsw_sel = IF_PA_enable;
 
+wire scl1_i, scl1_t, scl1_o, sda1_i, sda1_t, sda1_o;
+wire scl2_i, scl2_t, scl2_o, sda2_i, sda2_t, sda2_o;
 
-
-
-// I2C for Versa Clock
-wire [6:0]  cmd_address;
-wire        cmd_start, cmd_read, cmd_write, cmd_write_multiple, cmd_stop, cmd_valid, cmd_ready;
-wire [7:0]  i2c_data;
-wire        data_valid, data_ready, data_last;
-wire        scl_i, scl_o, scl_t, sda_i, sda_o, sda_t;
-
-assign scl_i = clk_scl1;
-assign clk_scl1 = scl_t ? 1'bz : scl_o;
-assign sda_i = clk_sda1;
-assign clk_sda1 = sda_t ? 1'bz : sda_o;
-
-i2c_init i2c_init_i (
-    .clk(clock_2_5MHz),
-    .rst(clk_i2c_rst),
-    /*
-     * I2C master interface
-     */
-    .cmd_address(cmd_address),
-    .cmd_start(cmd_start),
-    .cmd_read(cmd_read),
-    .cmd_write(cmd_write),
-    .cmd_write_multiple(cmd_write_multiple),
-    .cmd_stop(cmd_stop),
-    .cmd_valid(cmd_valid),
-    .cmd_ready(cmd_ready),
-
-    .data_out(i2c_data),
-    .data_out_valid(data_valid),
-    .data_out_ready(data_ready),
-    .data_out_last(data_last),
-    /*
-     * Status
-     */
-    .busy(),
-    /*
-     * Configuration
-     */
-    .start(clk_i2c_start)
-);
-
-i2c_master i2c_master_i (
-    .clk(clock_2_5MHz),
-    .rst(clk_i2c_rst),
-    /*
-     * Host interface
-     */
-    .cmd_address(cmd_address),
-    .cmd_start(cmd_start),
-    .cmd_read(cmd_read),
-    .cmd_write(cmd_write),
-    .cmd_write_multiple(cmd_write_multiple),
-    .cmd_stop(cmd_stop),
-    .cmd_valid(cmd_valid),
-    .cmd_ready(cmd_ready),
-
-    .data_in(i2c_data),
-    .data_in_valid(data_valid),
-    .data_in_ready(data_ready),
-    .data_in_last(data_last),
-
-    .data_out(),
-    .data_out_valid(),
-    .data_out_ready(1'b1),
-    .data_out_last(),
-
-    /*
-     * I2C interface
-     */
-    .scl_i(scl_i),
-    .scl_o(scl_o),
-    .scl_t(scl_t),
-    .sda_i(sda_i),
-    .sda_o(sda_o),
-    .sda_t(sda_t),
-
-    /*
-     * Status
-     */
-    .busy(),
-    .bus_control(),
-    .bus_active(),
-    .missed_ack(),
-
-    /*
-     * Configuration
-     */
-    .prescale(16'h0002),
-    .stop_on_idle(1'b0)
+i2c i2c_i (
+  .clk(clock_2_5MHz),
+  .rst(clk_i2c_rst),
+  .init_start(clk_i2c_start),
+  .bias0(bias0),
+  .bias1(bias1),
+  .scl1_i(scl1_i),
+  .scl1_o(scl1_o),
+  .scl1_t(scl1_t),
+  .sda1_i(sda1_i),
+  .sda1_o(sda1_o),
+  .sda1_t(sda1_t),
+  .scl2_i(scl2_i),
+  .scl2_o(scl2_o),
+  .scl2_t(scl2_t),
+  .sda2_i(sda2_i),
+  .sda2_o(sda2_o),
+  .sda2_t(sda2_t)
 );
 
 
+assign scl1_i = clk_scl1;
+assign clk_scl1 = scl1_t ? 1'bz : scl1_o;
+assign sda1_i = clk_sda1;
+assign clk_sda1 = sda1_t ? 1'bz : sda1_o;
 
-
-// I2C for  bias
-
-wire [6:0]  i2c2_cmd_address;
-wire        i2c2_cmd_start, i2c2_cmd_read, i2c2_cmd_write, i2c2_cmd_write_multiple, i2c2_cmd_stop, i2c2_cmd_valid, i2c2_cmd_ready;
-wire [7:0]  i2c2_data;
-wire        i2c2_data_valid, i2c2_data_ready, i2c2_data_last;
-wire        i2c2_scl_i, i2c2_scl_o, i2c2_scl_t, i2c2_sda_i, i2c2_sda_o, i2c2_sda_t;
-
-assign i2c2_scl_i = io_scl2;
-assign io_scl2 = i2c2_scl_t ? 1'bz : i2c2_scl_o;
-assign i2c2_sda_i = io_sda2;
-assign io_sda2 = i2c2_sda_t ? 1'bz : i2c2_sda_o;
-
-i2c2_init i2c2_init_i (
-    .clk(clock_2_5MHz),
-    .rst(clk_i2c_rst),
-    /*
-     * I2C master interface
-     */
-    .cmd_address(i2c2_cmd_address),
-    .cmd_start(i2c2_cmd_start),
-    .cmd_read(i2c2_cmd_read),
-    .cmd_write(i2c2_cmd_write),
-    .cmd_write_multiple(i2c2_cmd_write_multiple),
-    .cmd_stop(i2c2_cmd_stop),
-    .cmd_valid(i2c2_cmd_valid),
-    .cmd_ready(i2c2_cmd_ready),
-
-    .data_out(i2c2_data),
-    .data_out_valid(i2c2_data_valid),
-    .data_out_ready(i2c2_data_ready),
-    .data_out_last(i2c2_data_last),
-    /*
-     * Status
-     */
-    .busy(),
-    /*
-     * Configuration
-     */
-    .bias0(bias0),
-    .bias1(bias1)
-);
-
-i2c_master i2c2_master_i (
-    .clk(clock_2_5MHz),
-    .rst(clk_i2c_rst),
-    /*
-     * Host interface
-     */
-    .cmd_address(i2c2_cmd_address),
-    .cmd_start(i2c2_cmd_start),
-    .cmd_read(i2c2_cmd_read),
-    .cmd_write(i2c2_cmd_write),
-    .cmd_write_multiple(i2c2_cmd_write_multiple),
-    .cmd_stop(i2c2_cmd_stop),
-    .cmd_valid(i2c2_cmd_valid),
-    .cmd_ready(i2c2_cmd_ready),
-
-    .data_in(i2c2_data),
-    .data_in_valid(i2c2_data_valid),
-    .data_in_ready(i2c2_data_ready),
-    .data_in_last(i2c2_data_last),
-
-    .data_out(),
-    .data_out_valid(),
-    .data_out_ready(1'b1),
-    .data_out_last(),
-
-    /*
-     * I2C interface
-     */
-    .scl_i(i2c2_scl_i),
-    .scl_o(i2c2_scl_o),
-    .scl_t(i2c2_scl_t),
-    .sda_i(i2c2_sda_i),
-    .sda_o(i2c2_sda_o),
-    .sda_t(i2c2_sda_t),
-
-    /*
-     * Status
-     */
-    .busy(),
-    .bus_control(),
-    .bus_active(),
-    .missed_ack(),
-
-    /*
-     * Configuration
-     */
-    .prescale(16'h0002),
-    .stop_on_idle(1'b0)
-);
-
-
-
+assign scl2_i = io_scl2;
+assign io_scl2 = scl2_t ? 1'bz : scl2_o;
+assign sda2_i = io_sda2;
+assign io_sda2 = sda2_t ? 1'bz : sda2_o;
 
 
 
