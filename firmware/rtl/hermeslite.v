@@ -130,7 +130,7 @@ localparam DUPRXMAXGAIN = 6'h12;
 localparam DUPRXMINGAIN = 6'h06;
 
 // Number of Receivers
-localparam NR = 2;     // number of receivers to implement
+localparam NR = 3;     // number of receivers to implement
 
 
 // Number of transmitters Be very careful when using more than 1 transmitter!
@@ -1087,7 +1087,7 @@ assign RX_USED = {IF_Rx_fifo_full,IF_Rx_fifo_used};
 
 assign Penny_ALC = AIN5;
 
-wire VNA_start = VNA && IF_Rx_save && (addr == 6'h01);  // indicates a frequency change for the VNA.
+wire VNA_start = VNA && basewrite[0] && (addr == 6'h01);  // indicates a frequency change for the VNA.
 
 
 wire IO4;
@@ -1183,7 +1183,7 @@ reg   [2:0] IF_SYNC_state;
 reg   [2:0] IF_SYNC_state_next;
 reg   [7:0] IF_SYNC_frame_cnt;  // 256-4 words = 252 words
 
-reg         IF_Rx_save;
+reg   [2:0] basewrite; // Shift register to delay write 
 
 
 localparam SYNC_IDLE   = 1'd0,
@@ -1200,9 +1200,9 @@ begin
     IF_SYNC_state <=  IF_SYNC_state_next;
 
   if (rst)
-    IF_Rx_save <=  1'b0;
+  	basewrite <= 3'b000;
   else
-    IF_Rx_save <=  IF_PHY_drdy && (IF_SYNC_state == SYNC_RX_3_4);
+  	basewrite <= {basewrite[1:0],IF_PHY_drdy && (IF_SYNC_state == SYNC_RX_3_4)};
 
   if (IF_PHY_drdy && (IF_SYNC_state == SYNC_START) && (IF_PHY_data[15:8] == 8'h7F))
   begin
@@ -1350,7 +1350,7 @@ begin
     bias0              <= 8'hff;
     bias1              <= 8'hff;
   end
-  else if (IF_Rx_save)                  // all Rx_control bytes are ready to be saved
+  else if (basewrite[0])                  // all Rx_control bytes are ready to be saved
   begin                                         // Need to ensure that C&C data is stable
     if (addr == 6'h00)
     begin
@@ -1402,11 +1402,11 @@ assign freqcomp = data * M2 + M3;
 
 // Pipeline freqcomp
 reg [31:0] freqcompp [0:3];
-reg IF_Rx_savep;
 reg [5:0] chanp [0:3];
 
 always @ (posedge clock_76p8_mhz) begin
-    if (IF_Rx_save) begin
+	// Pipeline to allow 2 cycles for multiply
+    if (basewrite[1]) begin
         freqcompp[0] <= freqcomp[56:25];
         freqcompp[1] <= freqcomp[56:25];
         freqcompp[2] <= freqcomp[56:25];
@@ -1418,13 +1418,6 @@ always @ (posedge clock_76p8_mhz) begin
     end
 end
 
-always @ (posedge clock_76p8_mhz) begin
-    if (rst)
-        IF_Rx_savep <= 1'b0;
-    else
-        IF_Rx_savep <= IF_Rx_save;
-end
-
 
 always @ (posedge clock_76p8_mhz)
 begin
@@ -1433,7 +1426,7 @@ begin
     IF_frequency[0] <= 32'd0;
     IF_frequency[1] <= 32'd0;
   end
-  else if (IF_Rx_savep)
+  else if (basewrite[2])
   begin
     if (chanp[0] == 6'h01) begin // decode IF_frequency[0]
         IF_frequency[0]   <= freqcompp[0]; //freqcomp[56:25];
@@ -1452,7 +1445,7 @@ generate
   for (c = 1; c < NR; c = c + 1) begin: RXIFFREQ
     always @ (posedge clock_76p8_mhz) begin
         if (rst) IF_frequency[c+1] <= 32'd0;
-        else if (IF_Rx_savep) begin
+        else if (basewrite[2]) begin
             if (chanp[c/8] == ((c < 7) ? c+2 : c+11)) begin
               //if (IF_last_chan >= c)
                 IF_frequency[c+1] <= freqcompp[c/8]; //freqcomp[56:25];

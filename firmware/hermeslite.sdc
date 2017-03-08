@@ -151,6 +151,9 @@ set_false_path -rise_from [get_clocks clock_125MHz] -fall_to [get_clocks tx_outp
 set_false_path -fall_from [get_clocks clock_125MHz] -fall_to [get_clocks tx_output_clock] -hold
 set_false_path -rise_from [get_clocks clock_125MHz] -rise_to [get_clocks tx_output_clock] -hold
 
+## Multicycle for frequency computation
+set_multicycle_path 2 -from {data[*]} -to {freqcompp[*][*]} -setup -end 
+set_multicycle_path 1 -from {data[*]} -to {freqcompp[*][*]} -hold -end 
 
 ## AD9866 RX Path
 
