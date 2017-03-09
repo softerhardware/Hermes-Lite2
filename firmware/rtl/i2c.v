@@ -5,8 +5,11 @@ module i2c(
     input  wire         clk,
     input  wire         rst,
     input  wire         init_start,
-    input  wire [7:0]   bias0,
-    input  wire [7:0]   bias1,
+
+    // Bus interface
+    input  wire [5:0]   addr,
+    input  wire [31:0]  data,
+    input  wire         write,
 
     /*
      * I2C interface
@@ -37,6 +40,9 @@ wire [6:0]  i2c2_cmd_address;
 wire        i2c2_cmd_start, i2c2_cmd_read, i2c2_cmd_write, i2c2_cmd_write_multiple, i2c2_cmd_stop, i2c2_cmd_valid, i2c2_cmd_ready;
 wire [7:0]  i2c2_data;
 wire        i2c2_data_valid, i2c2_data_ready, i2c2_data_last;
+
+
+wire i2c2_write_en = write & (addr == 6'h3d) & (data[31:24] == 8'h06);
 
 
 i2c_init i2c1_init_i (
@@ -147,8 +153,8 @@ i2c2_init i2c2_init_i (
     /*
      * Configuration
      */
-    .bias0(bias0),
-    .bias1(bias1)
+    .write(i2c2_write_en),
+    .data(data)
 );
 
 i2c_master i2c2_master_i (
