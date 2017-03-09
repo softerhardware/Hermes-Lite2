@@ -1321,8 +1321,7 @@ reg         IF_Pure_signal;
 reg   [3:0] IF_Predistortion;             
 reg         IF_PA_enable;
 reg         IF_TR_disable;
-reg   [7:0] bias0;
-reg   [7:0] bias1;
+
 
 always @ (posedge clock_76p8_mhz)
 begin
@@ -1331,13 +1330,10 @@ begin
     // RX_CONTROL_1
     IF_DFS1 <= 1'b0; // decode speed
     IF_DFS0 <= 1'b0;
-    // RX_CONTROL_2
     IF_OC              <= 7'b0;     // decode open collectors on Hermes
-    // RX_CONTROL_3
     Preamp             <= 1'b1;     // decode Preamp (Attenuator), default on
     IF_DITHER          <= 1'b1;     // decode dither on or off
     IF_RAND            <= 1'b0;     // decode randomizer on or off
-    // RX_CONTROL_4
     IF_duplex          <= 1'b0;     // not in duplex mode
     IF_last_chan       <= 5'b00000;    // default single receiver
     IF_Drive_Level     <= 8'b0;    // drive at minimum
@@ -1347,8 +1343,7 @@ begin
     IF_Predistortion   <= 4'b0000;   // default disable predistortion
     IF_PA_enable       <= 1'b0;
     IF_TR_disable      <= 1'b0;
-    bias0              <= 8'hff;
-    bias1              <= 8'hff;
+
   end
   else if (basewrite[0])                  // all Rx_control bytes are ready to be saved
   begin                                         // Need to ensure that C&C data is stable
@@ -1357,13 +1352,10 @@ begin
       // RX_CONTROL_1
       IF_DFS1  <= data[25]; // decode speed
       IF_DFS0  <= data[24]; // decode speed
-      // RX_CONTROL_2
       IF_OC               <= data[23:17]; // decode open collectors on Penelope
-      // RX_CONTROL_3
       Preamp              <= data[10];  // decode Preamp (Attenuator)  1 = On (0dB atten), 0 = Off (20dB atten)
       IF_DITHER           <= data[11];   // decode dither on or off
       IF_RAND             <= data[12];   // decode randomizer on or off
-      // RX_CONTROL_4
       IF_duplex           <= data[2];   // save duplex mode
       IF_last_chan        <= data[7:3]; // number of IQ streams to send to PC
     end
@@ -1371,20 +1363,14 @@ begin
     begin
       IF_Drive_Level      <= data[31:24];         // decode drive level
       VNA                 <= data[23];      // 1 = enable VNA mode
+      IF_PA_enable 		  <= data[19];
+      IF_TR_disable       <= data[18];
     end
     if (addr == 6'h0a)
     begin
       IF_Pure_signal    <= data[22];       // decode pure signal setting
       Hermes_atten      <= data[4:0];    // decode input attenuation setting
     end
-    if (addr == 6'h0c)
-    begin
-      IF_PA_enable <= data[7];
-      IF_TR_disable <= data[6];
-      bias0 <= data[31:24];
-      bias1 <= data[23:16];
-    end
-    // FIXME: Move out of response range
     if (addr == 6'h2b)
     begin
       if(data[31:24]==8'h00)//predistortion control sub index
@@ -1767,8 +1753,9 @@ i2c i2c_i (
   .clk(clock_2_5MHz),
   .rst(clk_i2c_rst),
   .init_start(clk_i2c_start),
-  .bias0(bias0),
-  .bias1(bias1),
+  .addr(addr),
+  .data(data),
+  .write(basewrite[1]),
   .scl1_i(scl1_i),
   .scl1_o(scl1_o),
   .scl1_t(scl1_t),

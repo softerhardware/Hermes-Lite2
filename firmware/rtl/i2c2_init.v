@@ -59,9 +59,8 @@ module i2c2_init (
      * Configuration
      */
     /* Values */
-    input  wire [7:0]  bias0,
-    input  wire [7:0]  bias1
-
+    input  wire        write,
+    input  wire [31:0] data
 );
 
 /*
@@ -137,7 +136,7 @@ write 0x11223344 to register 0x0004 on devices at 0x50, 0x51, 0x52, and 0x53
 */
 
 // init_data ROM
-localparam INIT_DATA_LEN = 7;
+localparam INIT_DATA_LEN = 4;
 
 reg [8:0] init_data [INIT_DATA_LEN-1:0];
 
@@ -147,21 +146,21 @@ initial begin
     init_data[1]  = {1'b1, 8'h00};
     init_data[2]  = {1'b1, 8'hfe}; // 1C
 
-    init_data[3]  = {2'b01, 7'h28}; // Q4 bias1
-    init_data[4]  = {1'b1, 8'h10};
-    init_data[5]  = {1'b1, 8'hfe}; // 18
-
-    init_data[6] = 9'd0; // stop
+    init_data[3] = 9'd0; // stop
 end
 
-wire loadbias0 = init_data[2][7:0] != bias0;
-wire loadbias1 = init_data[5][7:0] != bias1;
-wire start = loadbias0 | loadbias1;
+wire start = write;
 
+// FIXME: Always stops, write may not start if busy
 always @(posedge clk) begin
-    if (loadbias0) init_data[2] <= {1'b1,bias0};
-    if (loadbias1) init_data[5] <= {1'b1,bias1};
+    if (write) begin
+        init_data[0]  = {2'b01, data[22:16]};
+        init_data[1]  = {1'b1, data[15:8]};
+        init_data[2]  = {1'b1, data[7:0]};
+    end
 end
+
+
 
 localparam [3:0]
     STATE_IDLE = 3'd0,
