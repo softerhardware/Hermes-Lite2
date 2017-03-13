@@ -153,9 +153,10 @@ wire FPGA_PTT;
 wire [7:0] AssignNR;         // IP address read from EEPROM
 
 
-reg mox;
-reg [5:0] addr;
-reg [31:0] data;
+reg mox = 1'b0;
+reg ack = 1'b0;
+reg [5:0] addr = 6'h0;
+reg [31:0] data = 32'h00;
 
 assign AssignNR = NR;
 
@@ -1089,7 +1090,9 @@ assign Penny_ALC = AIN5;
 
 wire VNA_start = VNA && basewrite[0] && (addr == 6'h01);  // indicates a frequency change for the VNA.
 
-
+wire [37:0] response_out_tdata;
+wire response_out_tvalid;
+wire resposne_out_tready;
 wire IO4;
 wire IO5;
 wire IO6;
@@ -1109,7 +1112,9 @@ Hermes_Tx_fifo_ctrl #(RX_FIFO_SZ, TX_FIFO_SZ) TXFC
             IF_tx_fifo_used, IF_tx_fifo_clr, IF_tx_IQ_mic_rdy,
             IF_tx_IQ_mic_data, IF_chan, IF_last_chan, clean_dash, clean_dot, (cwkey | clean_ptt), OVERFLOW,
             Penny_serialno, Merc_serialno, Hermes_serialno, Penny_ALC, AIN1, AIN2,
-            AIN3, AIN4, AIN6, IO4, IO5, IO6, IO8, VNA_start, VNA);
+            AIN3, AIN4, AIN6, IO4, IO5, IO6, IO8, VNA_start, VNA,
+            response_out_tdata, response_out_tvalid, response_out_tready );
+
 
 //------------------------------------------------------------------------
 //   Tx_fifo  (1024 words) Dual clock FIFO - Altera Megafunction (dcfifo)
@@ -1206,7 +1211,7 @@ begin
 
   if (IF_PHY_drdy && (IF_SYNC_state == SYNC_START) && (IF_PHY_data[15:8] == 8'h7F))
   begin
-  	// FIXME: Ignore response bit for now
+    ack <= IF_PHY_data[7];
   	addr <= IF_PHY_data[6:1];
   	mox <= IF_PHY_data[0];
   end
@@ -1751,10 +1756,12 @@ wire scl2_i, scl2_t, scl2_o, sda2_i, sda2_t, sda2_o;
 
 i2c i2c_i (
   .clk(clock_2_5MHz),
+  .clock_76p8_mhz(clock_76p8_mhz),
   .rst(clk_i2c_rst),
   .init_start(clk_i2c_start),
   .addr(addr),
   .data(data),
+  .invalidate(i2c_invalidate),
   .write(basewrite[1]),
   .scl1_i(scl1_i),
   .scl1_o(scl1_o),
@@ -1781,6 +1788,30 @@ assign io_scl2 = scl2_t ? 1'bz : scl2_o;
 assign sda2_i = io_sda2;
 assign io_sda2 = sda2_t ? 1'bz : sda2_o;
 
+// Invalidate is or of all invalidates from all acceptors
+wire invalidate = i2c_invalidate;
+wire response_inp_tvalid, response_inp_tready;
+
+assign response_inp_tvalid = response_inp_tready & basewrite[1] & ack & ~invalidate;
+
+
+axis_fifo #(.ADDR_WIDTH(1), .DATA_WIDTH(38)) response_fifo (
+  .clk(clock_76p8_mhz),
+  .rst(rst),
+  .input_axis_tdata({addr,data}),
+  .input_axis_tvalid(response_inp_tvalid),
+  .input_axis_tready(response_inp_tready),
+  .input_axis_tlast(1'b0),
+  .input_axis_tuser(1'b0),
+
+  .output_axis_tdata(response_out_tdata),
+  .output_axis_tvalid(response_out_tvalid),
+  .output_axis_tready(response_out_tready),
+  .output_axis_tlast(),
+  .output_axis_tuser()
+);
+
+ 
 
 
 function integer clogb2;
