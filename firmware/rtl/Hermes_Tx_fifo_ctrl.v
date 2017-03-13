@@ -60,7 +60,8 @@ module Hermes_Tx_fifo_ctrl(IF_reset, IF_clk, Tx_fifo_wdata, Tx_fifo_wreq, Tx_fif
                     Tx_fifo_clr, Tx_IQ_mic_rdy,
                     Tx_IQ_mic_data, IF_chan, IF_last_chan, clean_dash, clean_dot, clean_PTT_in, ADC_OVERLOAD,
                     Penny_serialno, Merc_serialno, Hermes_serialno, Penny_ALC, AIN1, AIN2, AIN3, 
-                    AIN4, AIN6, IO4, IO5, IO6, IO8, VNA_start, VNA);
+                    AIN4, AIN6, IO4, IO5, IO6, IO8, VNA_start, VNA, 
+                    response_out_tdata, response_out_tvalid, response_out_tready );
                     
 parameter RX_FIFO_SZ = 2048;
 parameter TX_FIFO_SZ = 1024;
@@ -108,7 +109,17 @@ input  wire 			  IO8;
 input  wire 				VNA_start;
 input  wire             VNA; 				// set when in VNA mode
 
+input  wire [37:0]  response_out_tdata;
+input  wire         response_out_tvalid;
+output wire         response_out_tready;
+
+
+
+
 reg VNA_start_reg = 0;
+
+reg tvalid = 1'b0;
+
 
 
 // internal signals
@@ -239,7 +250,7 @@ begin
 
   if (IF_reset)
     tx_addr <= #IF_TPD 1'b0;
-  else if (AD_state == AD_SEND_CTL3_4) // toggle it for each frame
+  else if ((AD_state == AD_SEND_CTL3_4) & ~tvalid) // toggle it for each frame
   begin
     if (tx_addr != MAX_ADDR)
       tx_addr <= #IF_TPD tx_addr + 1'b1;
@@ -265,7 +276,13 @@ begin
 	 
   if (VNA_start) VNA_start_reg <= 1'b1;
   else if (AD_state == AD_LOOP_CHK) VNA_start_reg <= 1'b0;  // in VNA mode indicate new frequency
-	 
+
+  if (AD_state == AD_SEND_SYNC1) 
+    tvalid <= response_out_tvalid;
+
+  if (AD_state == AD_SEND_CTL3_4) 
+    tvalid <= 1'b0;
+
 end
 
 always @*
@@ -338,21 +355,22 @@ begin
 
     AD_SEND_SYNC2:
     begin  
-      Tx_fifo_wdata   = {8'h7F, tx_addr, clean_dot, clean_dash, clean_PTT_in};
+      Tx_fifo_wdata   = tvalid ?  {8'h7f, 1'b1, response_out_tdata[37:32], clean_PTT_in} :
+                                  {8'h7F, tx_addr, clean_dot, clean_dash, clean_PTT_in};
       Tx_fifo_wreq    = 1'b1;
       AD_state_next   = AD_SEND_CTL1_2;
     end
 
     AD_SEND_CTL1_2:
     begin
-      Tx_fifo_wdata   = {C1_DATA, C2_DATA};
+      Tx_fifo_wdata   = tvalid ? response_out_tdata[31:16] : {C1_DATA, C2_DATA};
       Tx_fifo_wreq    = 1'b1;
       AD_state_next   = AD_SEND_CTL3_4;
     end
 
     AD_SEND_CTL3_4:
     begin 
-      Tx_fifo_wdata   = {C3_DATA, C4_DATA};
+      Tx_fifo_wdata   = tvalid ? response_out_tdata[15:0] : {C3_DATA, C4_DATA};
       Tx_fifo_wreq    = 1'b1;
       AD_state_next   = AD_SEND_MJ_RDY;
     end
@@ -444,6 +462,9 @@ begin
     end
   endcase
 end
+
+// Complete reponse during CTL3_4
+assign response_out_tready = tvalid & (AD_state == AD_SEND_CTL3_4);
 
 function integer clogb2;
 input [31:0] depth;

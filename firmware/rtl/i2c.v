@@ -3,6 +3,7 @@
 
 module i2c(
     input  wire         clk,
+    input  wire         clock_76p8_mhz,
     input  wire         rst,
     input  wire         init_start,
 
@@ -10,6 +11,7 @@ module i2c(
     input  wire [5:0]   addr,
     input  wire [31:0]  data,
     input  wire         write,
+    output wire         invalidate,
 
     /*
      * I2C interface
@@ -43,6 +45,10 @@ wire        i2c2_data_valid, i2c2_data_ready, i2c2_data_last;
 
 
 wire i2c2_write_en = write & (addr == 6'h3d) & (data[31:24] == 8'h06);
+
+wire i2c2_busy;
+assign invalidate = (addr == 6'h3d) & i2c2_busy;
+
 
 
 i2c_init i2c1_init_i (
@@ -128,7 +134,7 @@ i2c_master i2c1_master_i (
 
 
 i2c2_init i2c2_init_i (
-    .clk(clk),
+    .clk(clock_76p8_mhz),
     .rst(rst),
     /*
      * I2C master interface
@@ -149,7 +155,7 @@ i2c2_init i2c2_init_i (
     /*
      * Status
      */
-    .busy(),
+    .busy(i2c2_busy),
     /*
      * Configuration
      */
@@ -158,7 +164,7 @@ i2c2_init i2c2_init_i (
 );
 
 i2c_master i2c2_master_i (
-    .clk(clk),
+    .clk(clock_76p8_mhz),
     .rst(rst),
     /*
      * Host interface
@@ -203,7 +209,7 @@ i2c_master i2c2_master_i (
     /*
      * Configuration
      */
-    .prescale(16'h0002),
+    .prescale(16'h0030),
     .stop_on_idle(1'b0)
 );
 

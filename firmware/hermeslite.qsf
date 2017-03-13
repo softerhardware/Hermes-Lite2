@@ -254,6 +254,7 @@ set_global_assignment -name VERILOG_FILE ethernet/crc32.v
 set_global_assignment -name VERILOG_FILE ethernet/arp.v
 set_global_assignment -name VERILOG_FILE ethernet/Rx_recv.v
 set_global_assignment -name VERILOG_FILE ethernet/Tx_send.v
+set_global_assignment -name VERILOG_FILE rtl/axis_fifo.v
 set_global_assignment -name QIP_FILE cycloneip/ethpll.qip
 set_global_assignment -name QIP_FILE cycloneip/ad9866pll.qip
 set_global_assignment -name QIP_FILE cycloneip/SP_fifo.qip
