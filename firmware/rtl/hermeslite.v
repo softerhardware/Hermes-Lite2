@@ -78,8 +78,8 @@ module hermeslite(
   input           io_cn5_7,
   input           io_db22_2,
   input           io_db22_3,
-  output          io_adc_scl,
-  output          io_adc_sda,
+  inout           io_adc_scl,
+  inout           io_adc_sda,
   input           io_cn8,
   input           io_cn9,
   input           io_cn10,
@@ -173,8 +173,8 @@ assign pwr_clk1p2 = 1'b0;
 assign pwr_clkvpa = 1'b0;
 assign pwr_envpa = 1'b1;
 
-assign io_adc_scl = 1'b0;
-assign io_adc_sda = 1'b0;
+//assign io_adc_scl = 1'b0;
+//assign io_adc_sda = 1'b0;
 
 
 assign clk_recovered = 1'b0;
@@ -757,11 +757,7 @@ wire [11:0] AIN6;  // holds 12 bit ADC of 13.8v measurement
 //Hermes_ADC ADC_SPI(.clock(C122_cbclk), .SCLK(ADCCLK), .nCS(nADCCS), .MISO(ADCMISO), .MOSI(ADCMOSI),
 //                   .AIN1(AIN1), .AIN2(AIN2), .AIN3(AIN3), .AIN4(AIN4), .AIN5(AIN5), .AIN6(AIN6));
 
-assign AIN1 = 0;
-assign AIN2 = 0;
-assign AIN3 = 0;
 assign AIN4 = 0;
-assign AIN5 =  200;
 assign AIN6 = 1000;
 
 
@@ -1753,6 +1749,7 @@ assign rffe_rfsw_sel = IF_PA_enable;
 
 wire scl1_i, scl1_t, scl1_o, sda1_i, sda1_t, sda1_o;
 wire scl2_i, scl2_t, scl2_o, sda2_i, sda2_t, sda2_o;
+wire scl3_i, scl3_t, scl3_o, sda3_i, sda3_t, sda3_o;
 
 i2c i2c_i (
   .clk(clock_2_5MHz),
@@ -1787,6 +1784,28 @@ assign scl2_i = io_scl2;
 assign io_scl2 = scl2_t ? 1'bz : scl2_o;
 assign sda2_i = io_sda2;
 assign io_sda2 = sda2_t ? 1'bz : sda2_o;
+
+
+slow_adc slow_adc_i (
+  .clk(clock_76p8_mhz),
+  .rst(clk_i2c_rst),
+  .ain0(AIN1),
+  .ain1(AIN5),
+  .ain2(AIN3),
+  .ain3(AIN2),
+  .scl_i(scl3_i),
+  .scl_o(scl3_o),
+  .scl_t(scl3_t),
+  .sda_i(sda3_i),
+  .sda_o(sda3_o),
+  .sda_t(sda3_t)
+);
+
+assign scl3_i = io_adc_scl;
+assign io_adc_scl = scl3_t ? 1'bz : scl3_o;
+assign sda3_i = io_adc_sda;
+assign io_adc_sda = sda3_t ? 1'bz : sda3_o;
+
 
 // Invalidate is or of all invalidates from all acceptors
 wire invalidate = i2c_invalidate;
