@@ -103,7 +103,7 @@ assign atan_table[31] = 32'b00000000000000000000000000000001; //1
 //                              registers
 //------------------------------------------------------------------------------
 //NCO
-reg [WP-1:0] phase;
+reg [WP-1:0] phase = 0;
 wire [1:0] quadrant = phase[WP-1:WP-2];
 
 
@@ -203,8 +203,8 @@ generate
     
   else
     begin
-    reg signed [WO-1:0] rounded_I;
-    reg signed [WO-1:0] rounded_Q;
+    reg signed [WO-1:0] rounded_I =0;
+    reg signed [WO-1:0] rounded_Q =0;
 
     always @(posedge clock)
       begin
