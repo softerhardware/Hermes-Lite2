@@ -10,7 +10,7 @@
 		<user_name>Page_0</user_name>
 		<page_flags>1</page_flags>
 		<bit0>
-			<sof_filename>C:/cygwin64/home/shaynal/Hermes-Lite2/firmware/build/hermeslite.sof<compress_bitstream>1</compress_bitstream></sof_filename> 
+			<sof_filename>build/hermeslite.sof<compress_bitstream>1</compress_bitstream></sof_filename> 
 		</bit0>
 	</sof_data>
 	<version>10</version>

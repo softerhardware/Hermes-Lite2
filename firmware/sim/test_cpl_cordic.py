@@ -18,6 +18,38 @@ build_cmd = "iverilog -g2012 -o %s.vvp %s" % (testbench, src)
 
 cosa = np.zeros(16384)
 
+verilogtb = """
+module test_cpl_cordic;
+
+    reg clk;
+    reg signed [31:0] phase;
+    wire signed [15:0] cos;
+
+    initial begin
+        $from_myhdl(clk, phase);
+        $to_myhdl(cos);
+        $dumpfile("test_cpl_cordic.lxt");
+        $dumpvars(0, test_cpl_cordic);
+    end
+
+
+cpl_cordic #(.OUT_WIDTH(16)) UUT (
+    .clock(clk), 
+    .frequency(phase), 
+    .in_data_I(16'h4c9a),           
+    .in_data_Q(16'h0000), 
+    .out_data_I(cos), 
+    .out_data_Q()
+);
+
+endmodule
+"""
+f = open(testbench+".v","w")
+f.write(verilogtb)
+f.close()
+
+
+
 def bench():
     global cosa
 
@@ -65,6 +97,7 @@ def test_bench():
     sim.run()
 
     dt = 1.0/76.8e6
+    print("MinMax",np.min(cosa),np.max(cosa))
     s = spectrum.Spectrum(cosa,dt,window=signal.flattop)
     peaks = s.findPeaks(order=4,clipdb=90)
     s.printPeaks(peaks)

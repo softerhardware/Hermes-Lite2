@@ -29,8 +29,7 @@ module varcic(decimation, clock, in_strobe,  out_strobe, in_data, out_data );
   parameter IN_WIDTH = 18;
   parameter ACC_WIDTH = 45;
   parameter OUT_WIDTH = 18;
-
-  parameter CICRATE;
+  parameter CICRATE = 12;
   
   input [5:0] decimation; 
   
@@ -45,9 +44,7 @@ module varcic(decimation, clock, in_strobe,  out_strobe, in_data, out_data );
 //------------------------------------------------------------------------------
 //                               control
 //------------------------------------------------------------------------------
-reg [15:0] sample_no;
-initial sample_no = 16'd0;
-
+reg [15:0] sample_no = 0;
 
 always @(posedge clock)
   if (in_strobe)
