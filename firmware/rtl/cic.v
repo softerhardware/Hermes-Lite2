@@ -44,9 +44,7 @@ output signed [OUT_WIDTH-1:0] out_data;
 //------------------------------------------------------------------------------
 //                               control
 //------------------------------------------------------------------------------
-reg [15:0] sample_no;
-initial sample_no = 15'd0;
-
+reg [15:0] sample_no = 0;
 
 always @(posedge clock)
   if (in_strobe)

@@ -31,10 +31,7 @@ input strobe;
 input signed [WIDTH-1:0] in_data;
 output reg signed [WIDTH-1:0] out_data;
 
-
-reg signed [WIDTH-1:0] prev_data;
-initial prev_data = 0;
-
+reg signed [WIDTH-1:0] prev_data = 0;
 
 always @(posedge clock)  
   if (strobe) 
