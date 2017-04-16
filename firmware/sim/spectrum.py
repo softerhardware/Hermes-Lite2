@@ -19,7 +19,7 @@ class Spectrum:
     fftoa = pyfftw.n_byte_align_empty(int(n/2) + 1, 16, 'complex64')
     fft = pyfftw.FFTW(fftia,fftoa,flags=('FFTW_ESTIMATE',),planning_timelimit=60.0)
 
-    maxv = npa.max()
+    maxv = abs(npa).max()
     print("Max value is",maxv)
 
     if window: 
@@ -44,6 +44,7 @@ class Spectrum:
 
     maxv = self.sa.max()
     print("Max is",maxv)
+    print(self.sa)
 
     self.sa = 20.0*np.log10(self.sa/maxv) 
 
@@ -82,35 +83,86 @@ class Spectrum:
     for (db,mhz) in peaks:
         print("| {0:10.6f} | {1:7.2f} |".format(mhz,db))
 
-
-
-
-  def plot(self):
+  def plot(self,title='Spectrum',xoffset=0):
 
     sa = self.sa
     n = len(sa)
 
-    title = "Spectrum"
     fig = plt.figure()
     fig.subplots_adjust(bottom=0.2)
     fig.suptitle(title, fontsize=20)
     sp = fig.add_subplot(111)
 
-    xaxis = np.r_[0:n] * self.bin2mhz
+    xaxis = (np.r_[0:n] - xoffset) * self.bin2mhz
 
     sp.plot(xaxis,sa) ##,'-',color='b',label='Spectrum')
-    sp.set_ylabel("dBFS")
+    sp.set_ylabel("dB")
     sp.set_xlabel("MHz")
 
     plt.show()              
 
 
-if __name__ == '__main__':
-  npa = np.load("cosa.npy")
 
-  dt = 1.0/73.728e6
 
-  s = Spectrum(npa,dt,window=signal.flattop)
-  peaks = s.findPeaks(order=4,clipdb=90)
-  s.printPeaks(peaks)
-  s.plot()
+class SpectrumIQ(Spectrum):
+
+  def __init__(self,npa,dt,decimation,window=None):
+
+    n = len(npa)
+    print("Length n is",n)
+
+    fftpg = 10*np.log10(n)
+    print("FFT Processing Gain {0:.1f} dB".format(fftpg))
+    filterpg = 10*np.log10(decimation)
+    print("Filter Processing Gain {0:.1f} dB".format(filterpg))
+    totalpg=fftpg+filterpg
+    print("Total Processing Gain {0:.1f} dB".format(totalpg))
+
+    fftia = pyfftw.n_byte_align_empty(n, 16, 'complex64')
+    fftoa = pyfftw.n_byte_align_empty(n, 16, 'complex64')
+
+    fft = pyfftw.FFTW(fftia,fftoa) ##,flags=('FFTW_ESTIMATE',),planning_timelimit=60.0)
+
+    ra = np.real(npa)
+    ia = np.imag(npa)
+    bitsused = int(np.ceil(np.log2(2*np.max([np.max(ra),np.abs(np.min(ra)),np.max(ia),np.abs(np.min(ia))]))))
+    print("Input bits in use",bitsused)
+    #print("Real max={0:.1f} min={1:.1f}".format(np.max(ra),np.min(ra)))
+    #print("Imag max={0:.1f} min={1:.1f}".format(np.max(ia),np.min(ia)))
+
+
+    if window: 
+      w = window(n)
+      fftia[:] = w * npa
+    else:
+      fftia[:] = npa  
+
+
+    fft()
+
+    self.sa = np.abs(fftoa)
+
+    ## Scale amplitude for window
+    if window:
+      scale = 1.0/np.sum(window(10000)/10000.0)
+      print("Scaling postwindow by",scale)
+      self.sa = scale * self.sa
+
+    self.sa = np.concatenate( [self.sa[int(n/2):n],self.sa[0:int(n/2)]] )
+
+    ## Result is vrms
+    ##print("Converting to dBFS")
+
+    maxv = self.sa.max()
+
+    self.sa = 20.0*np.log10(self.sa/maxv) 
+
+    w = int(n/4)
+    print("Quarter noise floor means: {0:.1f} {1:.1f} {2:.1f} {3:.1f}".format(
+      np.mean(self.sa[:w]),np.mean(self.sa[w:2*w]),np.mean(self.sa[2*w:3*w]),np.mean(self.sa[3*w:])))
+ 
+    self.mhz2bin = len(self.sa) * 1e6 * dt * decimation
+    self.bin2mhz = 1.0/self.mhz2bin
+
+    print("Spectrum Array length is",len(self.sa))
+

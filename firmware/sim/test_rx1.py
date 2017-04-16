@@ -182,6 +182,7 @@ class Test(object):
                 i = i + 1
                 if decimA_avail:
                     self.res[j] = decimA_real
+                    ##print(self.res[j],decimA_real)
                     j = j + 1
                 yield clk.negedge
                 if (i % 1024) == 0: print(j)
@@ -202,7 +203,7 @@ class Test(object):
 if __name__ == '__main__':
     print("Running test...")
     ## Set ampl to -0.5 for just 1 bit changing
-    t = Test(cic_out_width=14,ampl=-0.5)
+    t = Test(cic_out_width=14,ampl=1.0)
     t.test_bench()
     ##t = Test(16,7)
     ##t.test_bench()

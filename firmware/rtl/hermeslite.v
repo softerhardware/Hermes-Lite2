@@ -1813,7 +1813,6 @@ wire response_inp_tvalid, response_inp_tready;
 
 assign response_inp_tvalid = response_inp_tready & basewrite[1] & ack & ~invalidate;
 
-
 axis_fifo #(.ADDR_WIDTH(1), .DATA_WIDTH(38)) response_fifo (
   .clk(clock_76p8_mhz),
   .rst(rst),
@@ -1829,8 +1828,6 @@ axis_fifo #(.ADDR_WIDTH(1), .DATA_WIDTH(38)) response_fifo (
   .output_axis_tlast(),
   .output_axis_tuser()
 );
-
- 
 
 
 function integer clogb2;
