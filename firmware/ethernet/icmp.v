@@ -200,18 +200,18 @@ always @(posedge tx_clock)
   if (reset | fifo_empty ) sending <= false;
   else if (tx_enable) sending <= true;
   //(tx_byte_no) update
-  if (!sending) tx_byte_no <= 3'd3;
-  else if (tx_byte_no != 3'd0) tx_byte_no <= tx_byte_no - 3'd1; 
+  if (!sending) tx_byte_no <= 3'b100;
+  else tx_byte_no <= {1'b0,tx_byte_no[2:1]};
   end
       
   
 assign tx_active = (tx_enable | sending); // & ~fifo_empty;
 
-assign fifo_read = (tx_byte_no == 0) && sending && tx_active;
+assign fifo_read = (tx_byte_no == 3'h0) && sending && tx_active;
 
-assign tx_data = (tx_byte_no == 3)? 8'b0 :
-                 (tx_byte_no == 2)? checksum[15:8] :
-                 (tx_byte_no == 1)? checksum[7:0] :
+assign tx_data = (tx_byte_no[2])? 8'b0 :
+                 (tx_byte_no[1])? checksum[15:8] :
+                 (tx_byte_no[0])? checksum[7:0] :
                   fifo_data; 
 
   

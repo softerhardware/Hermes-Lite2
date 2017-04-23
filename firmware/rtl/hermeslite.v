@@ -70,7 +70,7 @@ module hermeslite(
   output          io_led_d5,
   input           io_cn4_2,
   input           io_cn4_3,
-  input           io_cn4_6,
+  output          io_cn4_6,
   input           io_cn4_7,
   input           io_cn5_2,
   input           io_cn5_3,
@@ -267,8 +267,8 @@ wire ptt_i;
 wire [7:0] leds;
 
 
-assign cwkey_i = 1'b1;
-assign ptt_i = 1'b1;
+assign cwkey_i = io_cn4_2;
+assign ptt_i = io_cn4_3;
 
 
 ethernet #(.MAC(MAC), .IP(IP), .Hermes_serialno(Hermes_serialno)) ethernet_inst (
@@ -292,7 +292,7 @@ ethernet #(.MAC(MAC), .IP(IP), .Hermes_serialno(Hermes_serialno)) ethernet_inst 
     // Status
     .this_MAC_o(this_MAC),
     .run_o(run),
-    .dipsw_i(2'b01),
+    .dipsw_i({1'b0,io_cn9}),
     .AssignNR(AssignNR),
 
     // MII Ethernet PHY
@@ -452,14 +452,18 @@ wire rxgoodlvln = (temp_ADC[11:9] == 3'b100);
 
 // Pipeline DACD just before IO, negedge as in historical RTL
 reg [11:0] DACDp;
-always @ (posedge clock_76p8_mhz)
+reg FPGA_PTT_VNAp;
+always @ (posedge clock_76p8_mhz) begin
     DACDp <= DACD;
+    FPGA_PTT_VNAp <= (FPGA_PTT | VNA) ;
     //DACDp <= cosv;
+end
 
 
 reg [11:0] ad9866_rx_stage;
 reg [11:0] ad9866_rx_input;
 
+	
 // Assume that ad9866_rxclk is synchronous to ad9866clk
 // Don't know the phase relation
 always @(posedge rffe_ad9866_rxclk)
@@ -479,7 +483,7 @@ always @(posedge rffe_ad9866_rxclk)
     begin
         if (iad9866_txsync) begin
             iad9866_txsync <= 1'b0;
-            ad9866_tx_stage <= ( (FPGA_PTT | VNA) ? DACDp : 12'h000);
+            ad9866_tx_stage <= FPGA_PTT_VNAp ? DACDp : 12'h000;
         end else begin
             iad9866_txsync <= 1'b1;
         end
@@ -491,10 +495,10 @@ reg ad9866_txsyncr;
 always @(posedge rffe_ad9866_rxclk)
     begin
         ad9866_txr <= iad9866_txsync ? ad9866_tx_stage[5:0] : ad9866_tx_stage[11:6];
-        ad9866_txsyncr <= (FPGA_PTT | VNA) ? iad9866_txsync : 1'b0;
+        ad9866_txsyncr <= FPGA_PTT_VNAp ? iad9866_txsync : 1'b0;
     end
 
-assign rffe_ad9866_txquiet_n = (FPGA_PTT | VNA); //1'b0;
+assign rffe_ad9866_txquiet_n = FPGA_PTT_VNAp; //1'b0;
 assign rffe_ad9866_tx = ad9866_txr;
 assign rffe_ad9866_txsync = ad9866_txsyncr;
 
@@ -1444,7 +1448,10 @@ generate
 endgenerate
 
 
-assign FPGA_PTT = mox | cwkey | clean_ptt; // mox only updated when we get correct sync sequence
+wire clean_txinhibit;
+debounce de_txinhibit(.clean_pb(clean_txinhibit), .pb(~io_cn8), .clk(clock_76p8_mhz));
+
+assign FPGA_PTT = (mox | cwkey | clean_ptt) & ~clean_txinhibit; // mox only updated when we get correct sync sequence
 
 
 //------------------------------------------------------------
@@ -1678,6 +1685,7 @@ always @(posedge clock_76p8_mhz)
 
 assign cwkey = cwstate != cwrx;
 
+assign io_cn4_6 = cwkey;
 
 //---------------------------------------------------------
 //  Debounce dot key - active low
@@ -1698,7 +1706,6 @@ assign clean_dash = 0;
 // 5 ms debounce with 48 MHz clock
 wire clean_ptt;
 debounce de_ptt(.clean_pb(clean_ptt), .pb(~ptt_i), .clk(clock_76p8_mhz));
-
 
 
 // AD9866 Instance
