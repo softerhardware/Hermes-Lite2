@@ -35,7 +35,7 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 6 7
 Title "Hermes-Lite Input Output"
-Date "2016-11-13"
+Date "2017-04-23"
 Rev "2.0-beta2"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
@@ -547,9 +547,9 @@ Wire Wire Line
 	2850 3650 2775 3650
 Text Notes 800  5700 0    60   ~ 0
 To support LVDS TX/RX pairs.\nFor LVDS exclude all discretes\nand use 0 Ohm or 0.1 uF capacitor\nfor R85,R86,R89,R90.\nR17 is optional for LVDS termination.
-Text Notes 2300 3600 2    60   ~ 0
+Text Notes 2300 3050 2    60   ~ 0
 Two inputs. CW/PTT or CW keyer.
-Text Notes 2200 3700 2    60   ~ 0
+Text Notes 2200 3150 2    60   ~ 0
 Two jumpers or generic inputs.
 $Comp
 L JNC J14
@@ -715,8 +715,6 @@ Wire Wire Line
 	5725 7400 5675 7400
 Wire Wire Line
 	5675 7400 5675 7425
-Text Notes 5325 7775 0    60   ~ 0
-Two IO for internal\ndaughter boards.
 $Comp
 L R R8
 U 1 1 57C6B024
@@ -1766,8 +1764,6 @@ F 3 "" H 9700 2825 50  0000 C CNN
 	1    9700 2825
 	-1   0    0    -1  
 $EndComp
-Text Notes 6975 4050 0    60   ~ 0
-Three input only on back.\nOptional CW/PTT/Jumper inputs.
 $Comp
 L RFD2b CN8
 U 1 1 58044FCF
@@ -2513,4 +2509,20 @@ Wire Wire Line
 Wire Wire Line
 	9450 3575 9450 3550
 Connection ~ 9450 3550
+Text Notes 2400 3500 2    60   ~ 0
+CW key in. Ground to key.
+Text Notes 2250 3700 2    60   ~ 0
+PTT in. Ground to key.
+Text Notes 2450 3900 2    60   ~ 0
+CW out. Vlvds when Keyed.
+Text Notes 6900 3650 0    60   ~ 0
+TX Inhibit.\nGround to inhibit.
+Text Notes 6900 4050 0    60   ~ 0
+Hermes-Lite ID.\nGround for Hermes.
+Text Notes 6900 4400 0    60   ~ 0
+Recover Select.
+Text Notes 5500 6900 0    60   ~ 0
+Clock 2X Select.
+Text Notes 5500 7700 0    60   ~ 0
+Eth Speed.\n
 $EndSCHEMATC
