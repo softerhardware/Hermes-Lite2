@@ -104,6 +104,30 @@ localparam bit [0:19][8:0] initarray_disable_IAMP = {
     {1'b0,8'h00}  // Address 0x13,
 };
 
+localparam bit [0:19][8:0] initarray_disable_IAMP2 = {
+    // First bit is 1'b1 for write enable to that address
+    {1'b0,8'h80}, // Address 0x00, enable 4 wire SPI
+    {1'b0,8'h00}, // Address 0x01,
+    {1'b0,8'h00}, // Address 0x02,
+    {1'b0,8'h00}, // Address 0x03,
+    {1'b0,8'h00}, // Address 0x04,
+    {1'b0,8'h00}, // Address 0x05,
+    {1'b0,8'h00}, // Address 0x06,
+    {1'b1,8'h20}, // Address 0x07, Initiate DC offset calibration and RX filter on, 21 to 20 to disable RX filter
+    {1'b0,8'h4b}, // Address 0x08, RX filter f-3db at ~34 MHz after scaling
+    {1'b0,8'h00}, // Address 0x09,
+    {1'b0,8'h00}, // Address 0x0a,
+    {1'b1,8'h20}, // Address 0x0b, RX gain only on PGA
+    {1'b1,8'h43}, // Address 0x0c, TX twos complement and interpolation factor
+    {1'b1,8'h03}, // Address 0x0d, RX twos complement
+    {1'b1,8'h81}, // Address 0x0e, Enable/Disable IAMP
+    {1'b0,8'h00}, // Address 0x0f,
+    {1'b1,8'h80}, // Address 0x10, Select TX gain
+    {1'b1,8'h00}, // Address 0x11, Select TX gain
+    {1'b1,8'h00}, // Address 0x12,
+    {1'b1,8'h0c}  // Address 0x13,
+};
+
 localparam bit [0:19][8:0] initarray_6m = {
     // First bit is 1'b1 for write enable to that address
     {1'b1,8'h80}, // Address 0x00, enable 4 wire SPI
