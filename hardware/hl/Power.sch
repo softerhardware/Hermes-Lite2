@@ -35,7 +35,7 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 2 7
 Title "Power"
-Date "2016-11-13"
+Date "2017-04-23"
 Rev "2.0-beta2"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
