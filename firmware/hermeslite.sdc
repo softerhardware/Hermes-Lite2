@@ -111,6 +111,20 @@ set_max_delay -through [get_nets ethernet_inst|network_inst|ip_tx_enable*] \
 	-to {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]} 7.9
 
 
+#set_max_delay -through [get_nets ethernet_inst|network_inst|ip_send_inst|is_icmp] \
+#	-to {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]} 21
+
+#set_max_delay -through [get_nets ethernet_inst|network_inst|ip_send_inst|length*] \
+#	-to {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]} 22
+
+#set_max_delay -through [get_nets ethernet_inst|network_inst|ip_send_inst|destination_ip*] \
+#	-to {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]} 21
+
+#set_max_delay -through [get_nets ethernet_inst|network_inst|ip_send_inst|local_ip*] \
+#	-to {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]} 23
+
+
+
 set_max_delay -from [get_clocks {clock_125MHz}] \
 	-to {ethernet:ethernet_inst|network:network_inst|mac_send:mac_send_inst|shift_reg[*]} 21
 
