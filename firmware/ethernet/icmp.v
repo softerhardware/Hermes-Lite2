@@ -93,20 +93,21 @@ always @(posedge rx_clock)
         //next header byte
         else byte_no <= byte_no - 3'd1;
 
-      ST_PAYLOAD:
+      ST_PAYLOAD: begin
         //end of payload data, reply
         if (!rx_enable) state <= ST_TXREQ;
         //not enough space in fifo
         else if (fifo_full) state <= ST_DONE;
-        else 
-          begin
+        
+        //Allow during fifo_full for timing as data is invalid
+        if (rx_enable) begin
           //update checksum
           if (length[0]) sum <= sum + {24'b0, rx_data};  // sum is 32 bits so need to add 24 
           else sum <= sum + {16'd0, rx_data, 8'b0};      // need to form 16 bits from two 8 bit values hence toggle using length[0]  
           //count payload bytes
           length <= length + 16'd1;
-          end
-        
+        end
+      end
       //wait for permission to send
       ST_TXREQ: if (sending_sync) state <= ST_TX;    
 
