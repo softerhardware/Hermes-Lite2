@@ -141,7 +141,7 @@ localparam PREDISTORT = 0;
 
 
 
-localparam  Hermes_serialno = 8'd31;     // Serial number of this version
+localparam  Hermes_serialno = 8'd40;     // Serial number of this version
 localparam Penny_serialno = 8'd00;      // Use same value as equ1valent Penny code
 localparam Merc_serialno = 8'd00;       // Use same value as equivalent Mercury code
 
