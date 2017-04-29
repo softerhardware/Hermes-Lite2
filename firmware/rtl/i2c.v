@@ -1,55 +1,65 @@
+`timescale 1ns / 1ps
 
+module i2c #
+(
+    parameter WB_DATA_WIDTH = 32,
+    parameter WB_ADDR_WIDTH = 6
+)
+(
+    input  logic         clk,
+    input  logic         clock_76p8_mhz,
+    input  logic         rst,
+    input  logic         init_start,
 
-
-module i2c(
-    input  wire         clk,
-    input  wire         clock_76p8_mhz,
-    input  wire         rst,
-    input  wire         init_start,
-
-    // Bus interface
-    input  wire [5:0]   addr,
-    input  wire [31:0]  data,
-    input  wire         write,
-    output wire         invalidate,
+    // Wishbone slave interface
+    input  logic [WB_ADDR_WIDTH-1:0]   wbs_adr_i,
+    input  logic [WB_DATA_WIDTH-1:0]   wbs_dat_i,
+    input  logic                       wbs_we_i,
+    input  logic                       wbs_stb_i,
+    output logic                       wbs_ack_o,   
+    input  logic                       wbs_cyc_i,  
 
     /*
      * I2C interface
      */
-    input  wire         scl1_i,
-    output wire         scl1_o,
-    output wire         scl1_t,
-    input  wire         sda1_i,
-    output wire         sda1_o,
-    output wire         sda1_t,    
+    input  logic         scl1_i,
+    output logic         scl1_o,
+    output logic         scl1_t,
+    input  logic         sda1_i,
+    output logic         sda1_o,
+    output logic         sda1_t,    
 
-    input  wire         scl2_i,
-    output wire         scl2_o,
-    output wire         scl2_t,
-    input  wire         sda2_i,
-    output wire         sda2_o,
-    output wire         sda2_t
+    input  logic         scl2_i,
+    output logic         scl2_o,
+    output logic         scl2_t,
+    input  logic         sda2_i,
+    output logic         sda2_o,
+    output logic         sda2_t
 );
 
 // I2C for Versa Clock
-wire [6:0]  i2c1_cmd_address;
-wire        i2c1_cmd_start, i2c1_cmd_read, i2c1_cmd_write, i2c1_cmd_write_multiple, i2c1_cmd_stop, i2c1_cmd_valid, i2c1_cmd_ready;
-wire [7:0]  i2c1_data;
-wire        i2c1_data_valid, i2c1_data_ready, i2c1_data_last;
+logic [6:0]  i2c1_cmd_address;
+logic        i2c1_cmd_start, i2c1_cmd_read, i2c1_cmd_write, i2c1_cmd_write_multiple, i2c1_cmd_stop, i2c1_cmd_valid, i2c1_cmd_ready;
+logic [7:0]  i2c1_data;
+logic        i2c1_data_valid, i2c1_data_ready, i2c1_data_last;
 
 
-wire [6:0]  i2c2_cmd_address;
-wire        i2c2_cmd_start, i2c2_cmd_read, i2c2_cmd_write, i2c2_cmd_write_multiple, i2c2_cmd_stop, i2c2_cmd_valid, i2c2_cmd_ready;
-wire [7:0]  i2c2_data;
-wire        i2c2_data_valid, i2c2_data_ready, i2c2_data_last;
+logic [6:0]  i2c2_cmd_address;
+logic        i2c2_cmd_start, i2c2_cmd_read, i2c2_cmd_write, i2c2_cmd_write_multiple, i2c2_cmd_stop, i2c2_cmd_valid, i2c2_cmd_ready;
+logic [7:0]  i2c2_data;
+logic        i2c2_data_valid, i2c2_data_ready, i2c2_data_last;
 
+logic        i2c2_busy;
 
-wire i2c2_write_en = write & (addr == 6'h3d) & (data[31:24] == 8'h06);
-
-wire i2c2_busy;
-assign invalidate = (addr == 6'h3d) & i2c2_busy;
-
-
+// Wishbone slave
+logic wbs_ack = 0;
+always @(posedge clk) begin
+  if (rst | wbs_ack) 
+    wbs_ack <= 1'b0;
+  else if (~i2c2_busy & wbs_we_i & wbs_stb_i & (wbs_adr_i == 6'h3d) & (wbs_dat_i[31:24] == 8'h06))
+    wbs_ack <= 1'b1;
+end
+assign wbs_ack_0 = wbs_ack;
 
 i2c_init i2c1_init_i (
     .clk(clk),
@@ -160,7 +170,7 @@ i2c2_init i2c2_init_i (
      * Configuration
      */
     .write(i2c2_write_en),
-    .data(data)
+    .data(wbs_dat_i)
 );
 
 i2c_master i2c2_master_i (

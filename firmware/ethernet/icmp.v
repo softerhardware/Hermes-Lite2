@@ -144,27 +144,38 @@ wire fifo_empty;
 wire [7:0] fifo_data;
 
 //fifo read and write clocks
-reg rx_clk_en = 1'b0;
-always @(negedge rx_clock)
-  rx_clk_en <= (state == ST_IDLE) || (state == ST_HEADER) || (state == ST_PAYLOAD);
-reg tx_clk_en = 1'b0;
-always @(negedge tx_clock) 
-  tx_clk_en <= sending;  
-wire fifo_clock = rx_clk_en? rx_clock : tx_clk_en? tx_clock : 1'b0; 
+//reg rx_clk_en = 1'b0;
+//always @(negedge rx_clock)
+//  rx_clk_en <= (state == ST_IDLE) || (state == ST_HEADER) || (state == ST_PAYLOAD);
+//reg tx_clk_en = 1'b0;
+//always @(negedge tx_clock) 
+//  tx_clk_en <= sending;  
+//wire fifo_clock = rx_clk_en? rx_clock : tx_clk_en? tx_clock : 1'b0; 
 
 
         
-icmp_fifo icmp_fifo_inst (
-  .clock(fifo_clock),
-  .data(rx_data),
-  .rdreq(fifo_read),
-  .sclr(fifo_clear),
-  .wrreq(fifo_write),
-  .empty(fifo_empty),
-  .full(fifo_full),
-  .q(fifo_data)
-  );
+//icmp_fifo icmp_fifo_inst (
+//  .clock(fifo_clock),
+//  .data(rx_data),
+//  .rdreq(fifo_read),
+//  .sclr(fifo_clear),
+//  .wrreq(fifo_write),
+//  .empty(fifo_empty),
+//  .full(fifo_full),
+//  .q(fifo_data)
+//  );
 
+icmp_fifo icmp_fifo_inst (
+  .aclr(fifo_clear),
+  .data(rx_data),
+  .rdclk(tx_clock),
+  .rdreq(fifo_read),
+  .wrclk(rx_clock),
+  .wrreq(fifo_write),
+  .q(fifo_data),
+  .rdempty(fifo_empty),
+  .wrfull(fifo_full)
+);
 
   
 //-----------------------------------------------------------------------------

@@ -184,6 +184,9 @@ set_instance_assignment -name IO_STANDARD "2.5 V" -to pa_en
 set_global_assignment -name VERILOG_INPUT_VERSION SYSTEMVERILOG_2005
 set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
 
+set_location_assignment M9K_X33_Y5_N0 -to "ethernet:ethernet_inst|network:network_inst|icmp:icmp_inst|icmp_fifo:icmp_fifo_inst|scfifo:scfifo_component|scfifo_gf31:auto_generated|a_dpfifo_3731:dpfifo|altsyncram_dgh1:FIFOram"
+
+set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
 set_global_assignment -name SDC_FILE hermeslite.sdc
 set_global_assignment -name VERILOG_FILE rtl/hermeslite.v
 set_global_assignment -name VERILOG_FILE rtl/ad9866.v
@@ -233,6 +236,7 @@ set_global_assignment -name VERILOG_FILE rtl/i2c_init.v
 set_global_assignment -name VERILOG_FILE rtl/i2c2_init.v
 set_global_assignment -name VERILOG_FILE rtl/i2c.v
 set_global_assignment -name VERILOG_FILE rtl/slow_adc.v
+set_global_assignment -name VERILOG_FILE rtl/cmd_wbm.v
 set_global_assignment -name VERILOG_FILE ethernet/cdc_sync.v
 set_global_assignment -name VERILOG_FILE ethernet/udp_send.v
 set_global_assignment -name VERILOG_FILE ethernet/udp_recv.v
