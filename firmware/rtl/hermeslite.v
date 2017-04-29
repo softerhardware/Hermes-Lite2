@@ -149,12 +149,30 @@ localparam RX_FIFO_SZ  = 4096;          // 16 by 4096 deep RX FIFO
 localparam TX_FIFO_SZ  = 1024;          // 16 by 1024 deep TX FIFO
 localparam SP_FIFO_SZ = 2048;           // 16 by 8192 deep SP FIFO, was 16384 but wouldn't fit
 
+// Wishbone interconnect
+localparam WB_DATA_WIDTH = 32;
+localparam WB_ADDR_WIDTH = 6;
+
+
+logic [WB_ADDR_WIDTH-1:0]   wb_adr;
+logic [WB_DATA_WIDTH-1:0]   wb_dat;
+logic                       wb_we;
+logic                       wb_stb;
+logic                       wb_ack;
+logic                       wb_cyc;
+logic                       wb_tga;
+
+// Individual acknowledges
+logic                       wb_ack_i2c;
+
+
+
 wire FPGA_PTT;
 wire [7:0] AssignNR;         // IP address read from EEPROM
 
 
 reg mox = 1'b0;
-reg ack = 1'b0;
+reg resp_rqst = 1'b0;
 reg [5:0] addr = 6'h0;
 reg [31:0] data = 32'h00;
 
@@ -1211,7 +1229,7 @@ begin
 
   if (IF_PHY_drdy && (IF_SYNC_state == SYNC_START) && (IF_PHY_data[15:8] == 8'h7F))
   begin
-    ack <= IF_PHY_data[7];
+    resp_rqst <= IF_PHY_data[7];
   	addr <= IF_PHY_data[6:1];
   	mox <= IF_PHY_data[0];
   end
@@ -1763,10 +1781,14 @@ i2c i2c_i (
   .clock_76p8_mhz(clock_76p8_mhz),
   .rst(clk_i2c_rst),
   .init_start(clk_i2c_start),
-  .addr(addr),
-  .data(data),
-  .invalidate(i2c_invalidate),
-  .write(basewrite[1]),
+
+  .wbs_adr_i(wb_adr),
+  .wbs_dat_i(wb_dat),
+  .wbs_we_i(wb_we),
+  .wbs_stb_i(wb_stb),
+  .wbs_ack_o(wb_ack_i2c),
+  .wbs_cyc_i(wb_cyc),
+
   .scl1_i(scl1_i),
   .scl1_o(scl1_o),
   .scl1_t(scl1_t),
@@ -1780,6 +1802,7 @@ i2c i2c_i (
   .sda2_o(sda2_o),
   .sda2_t(sda2_t)
 );
+
 
 
 assign scl1_i = clk_scl1;
@@ -1814,11 +1837,10 @@ assign sda3_i = io_adc_sda;
 assign io_adc_sda = sda3_t ? 1'bz : sda3_o;
 
 
-// Invalidate is or of all invalidates from all acceptors
-wire invalidate = i2c_invalidate;
+
 wire response_inp_tvalid, response_inp_tready;
 
-assign response_inp_tvalid = response_inp_tready & basewrite[1] & ack & ~invalidate;
+assign response_inp_tvalid = response_inp_tready & wb_tga & wb_stb & wb_ack & wb_we;
 
 axis_fifo #(.ADDR_WIDTH(1), .DATA_WIDTH(38)) response_fifo (
   .clk(clock_76p8_mhz),
@@ -1835,6 +1857,28 @@ axis_fifo #(.ADDR_WIDTH(1), .DATA_WIDTH(38)) response_fifo (
   .output_axis_tlast(),
   .output_axis_tuser()
 );
+
+
+cmd_wbm #(.WB_DATA_WIDTH(WB_DATA_WIDTH), .WB_ADDR_WIDTH(WB_ADDR_WIDTH)) cmd_wbm_i (
+  .clk(clock_76p8_mhz),
+  .rst(rst),
+
+  .wbm_adr_o(wb_adr), 
+  .wbm_dat_o(wb_dat),
+  .wbm_we_o(wb_we), 
+  .wbm_stb_o(wb_stb),
+  .wbm_ack_i(wb_ack),
+  .wbm_cyc_o(wb_cyc),
+  .wbm_tga_o(wb_tga),
+
+  .cmd_resp_rqst(resp_rqst),
+  .cmd_write(basewrite[1]),
+  .cmd_addr(addr),
+  .cmd_data(data)
+);
+
+// OR acknowledge from all slaves
+assign wb_ack = wb_ack_i2c;
 
 
 function integer clogb2;
