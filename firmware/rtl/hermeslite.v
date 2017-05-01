@@ -1337,7 +1337,6 @@ reg  [31:0] IF_frequency[0:NR];     // Tx, Rx1, Rx2, Rx3
 reg         IF_duplex;
 reg         IF_DFS1;
 reg         IF_DFS0;
-reg   [7:0] IF_Drive_Level;         // Tx drive level
 reg         VNA;                    // Selects VNA mode when set.
 reg   [4:0] Hermes_atten;           // 0-31 dB Heremes attenuator value
 reg         IF_Pure_signal;              
@@ -1359,7 +1358,6 @@ begin
     IF_RAND            <= 1'b0;     // decode randomizer on or off
     IF_duplex          <= 1'b0;     // not in duplex mode
     IF_last_chan       <= 5'b00000;    // default single receiver
-    IF_Drive_Level     <= 8'b0;    // drive at minimum
     VNA                <= 1'b0;      // VNA disabled
     Hermes_atten       <= 5'b0;     // default zero input attenuation
     IF_Pure_signal     <= 1'b0;      // default disable pure signal
@@ -1384,7 +1382,6 @@ begin
     end
     if (addr == 6'h09)
     begin
-      IF_Drive_Level      <= data[31:24];         // decode drive level
       VNA                 <= data[23];      // 1 = enable VNA mode
       IF_PA_enable 		  <= data[19];
       IF_TR_disable       <= data[18];
@@ -1726,23 +1723,6 @@ wire clean_ptt;
 debounce de_ptt(.clean_pb(clean_ptt), .pb(~ptt_i), .clk(clock_76p8_mhz));
 
 
-// AD9866 Instance
-wire ad9866rqst;
-wire [5:0] dd;
-
-// Linear mapping from 0to255 to 0to39
-assign dd = VNA ? VNATXGAIN : {2'b00,IF_Drive_Level[7:4]};
-
-reg [5:0] lastdd;
-always @ (posedge clock_76p8_mhz)
-    lastdd <= dd;
-
-assign ad9866rqst = dd != lastdd;
-
-ad9866 ad9866_inst(.reset(~ad9866_rst_n), .clk(clock_76p8_mhz),
-  .sclk(rffe_ad9866_sclk),.sdio(rffe_ad9866_sdio),.sdo(1'b0),.sen_n(rffe_ad9866_sen_n),.dataout(),.extrqst(ad9866rqst),.gain(dd));
-
-
 // Really 0.16 seconds at Hermes-Lite 61.44 MHz clock
 localparam half_second = 10000000; // at 48MHz clock rate
 
@@ -1764,6 +1744,25 @@ assign io_led_d4 = leds[0];
 assign io_led_d5 = leds[3];
 
 
+logic wb_ack_ad9866;
+
+ad9866 #(.WB_DATA_WIDTH(WB_DATA_WIDTH), .WB_ADDR_WIDTH(WB_ADDR_WIDTH)) ad9866_i
+(
+  .clk(clock_76p8_mhz),
+  .rst(~ad9866_rst_n), 
+  .sclk(rffe_ad9866_sclk),
+  .sdio(rffe_ad9866_sdio),
+  .sdo(1'b0),
+  .sen_n(rffe_ad9866_sen_n),
+  .dataout(),
+
+  .wbs_adr_i(wb_adr),
+  .wbs_dat_i(wb_dat),
+  .wbs_we_i(wb_we),
+  .wbs_stb_i(wb_stb),
+  .wbs_ack_o(wb_ack_ad9866),
+  .wbs_cyc_i(wb_cyc)
+);
 
 
 // FIXME: Sequence power
@@ -1776,7 +1775,8 @@ wire scl1_i, scl1_t, scl1_o, sda1_i, sda1_t, sda1_o;
 wire scl2_i, scl2_t, scl2_o, sda2_i, sda2_t, sda2_o;
 wire scl3_i, scl3_t, scl3_o, sda3_i, sda3_t, sda3_o;
 
-i2c i2c_i (
+i2c #(.WB_DATA_WIDTH(WB_DATA_WIDTH), .WB_ADDR_WIDTH(WB_ADDR_WIDTH)) i2c_i
+(
   .clk(clock_2_5MHz),
   .clock_76p8_mhz(clock_76p8_mhz),
   .rst(clk_i2c_rst),
@@ -1878,7 +1878,7 @@ cmd_wbm #(.WB_DATA_WIDTH(WB_DATA_WIDTH), .WB_ADDR_WIDTH(WB_ADDR_WIDTH)) cmd_wbm_
 );
 
 // OR acknowledge from all slaves
-assign wb_ack = wb_ack_i2c;
+assign wb_ack = wb_ack_i2c | wb_ack_ad9866;
 
 
 function integer clogb2;
