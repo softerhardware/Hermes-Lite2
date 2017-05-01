@@ -234,6 +234,7 @@ always @* begin
   next_tx_gain = tx_gain;
   next_rx_gain = rx_gain;
   cmd_ack = 1'b0;
+  cmd_data  = {wbs_dat_i[20:16],wbs_dat_i[7:0]};
 
   case(wbs_state)
 
@@ -256,7 +257,7 @@ always @* begin
 
           // Generic AD9866 write
           6'h3b: begin
-            next_wbs_state = WBS_WRITE;
+            if (wbs_dat_i[31:24] == 8'h06) next_wbs_state = WBS_WRITE;
           end
         endcase 
       end        
@@ -274,9 +275,9 @@ always @* begin
       next_wbs_state = WBS_IDLE;
     end
 
-    WBS_RXGAIN: begin
-      //cmd_ack   = 1'b1;
-      //cmd_data  = {5'h09,4'b0100,txgain};
+    WBS_WRITE: begin
+      cmd_ack   = 1'b1;
+      cmd_data  = {wbs_dat_i[20:16],wbs_dat_i[7:0]};
       next_wbs_state = WBS_IDLE;
     end
 
