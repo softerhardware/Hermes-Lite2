@@ -19,16 +19,28 @@
 // (C) Steve Haynal KF7O 2014, 2015, 2016
 
 
-module ad9866 (
-    input reset,
-    input clk,
-    output reg sclk,
-    output sdio,
-    input sdo,
-    output reg sen_n,
-    output [7:0] dataout,
-    input extrqst,
-    input [5:0] gain
+module ad9866 #
+(
+    parameter WB_DATA_WIDTH = 32,
+    parameter WB_ADDR_WIDTH = 6
+)
+(
+    input  logic        clk,
+    input  logic        rst,
+    output logic        sclk,
+    output logic        sdio,
+    input  logic        sdo,
+    output logic        sen_n,
+    output logic [7:0]  dataout,
+
+    // Wishbone slave interface
+    input  logic [WB_ADDR_WIDTH-1:0]   wbs_adr_i,
+    input  logic [WB_DATA_WIDTH-1:0]   wbs_dat_i,
+    input  logic                       wbs_we_i,
+    input  logic                       wbs_stb_i,
+    output logic                       wbs_ack_o,   
+    input  logic                       wbs_cyc_i
+
 );
 
 
@@ -187,12 +199,98 @@ reg [5:0] dut1_pc;
 logic [8:0] initarrayv;
 bit [0:19][8:0] initarray;
 
+// Wishbone slave
+logic [1:0]       wbs_state = 1'b0;
+logic [1:0]       next_wbs_state;
+logic [3:0]       tx_gain = 4'h0;
+logic [3:0]       next_tx_gain;
+logic [4:0]       rx_gain = 5'h0;
+logic [4:0]       next_rx_gain;
+
+logic             cmd_ack; 
+logic [15:0]      cmd_data;
+
+localparam 
+  WBS_IDLE    = 2'b00,
+  WBS_TXGAIN  = 2'b01,
+  WBS_RXGAIN  = 2'b11,
+  WBS_WRITE   = 2'b10;
+
+always @(posedge clk) begin
+  if (rst) begin
+    wbs_state <= WBS_IDLE;
+    tx_gain <= 4'h0;
+    rx_gain <= 5'h00;
+  end else begin
+    wbs_state <= next_wbs_state;
+    tx_gain <= next_tx_gain;
+    rx_gain <= next_rx_gain;
+  end
+end
+
+
+always @* begin
+  next_wbs_state = wbs_state;
+  next_tx_gain = tx_gain;
+  next_rx_gain = rx_gain;
+  cmd_ack = 1'b0;
+
+  case(wbs_state)
+
+    WBS_IDLE: begin
+      if (wbs_we_i & wbs_stb_i & sen_n) begin
+        // Accept possible write
+        case (wbs_adr_i)
+
+          // Hermes TX Gain Setting
+          6'h09: begin
+            next_tx_gain = wbs_dat_i[31:28];
+            if (tx_gain != wbs_dat_i[31:28]) next_wbs_state = WBS_TXGAIN;
+          end
+
+          // Hermes RX Gain Setting
+          6'h0a: begin
+            next_rx_gain = wbs_dat_i[4:0];
+            if (rx_gain != wbs_dat_i[4:0]) next_wbs_state = WBS_RXGAIN;
+          end
+
+          // Generic AD9866 write
+          6'h3b: begin
+            next_wbs_state = WBS_WRITE;
+          end
+        endcase 
+      end        
+    end
+
+    WBS_TXGAIN: begin
+      cmd_ack   = 1'b1;
+      cmd_data  = {5'h09,4'b0100,tx_gain};
+      next_wbs_state = WBS_IDLE;
+    end
+    
+    WBS_RXGAIN: begin
+      //cmd_ack   = 1'b1;
+      //cmd_data  = {5'h09,4'b0100,txgain};
+      next_wbs_state = WBS_IDLE;
+    end
+
+    WBS_RXGAIN: begin
+      //cmd_ack   = 1'b1;
+      //cmd_data  = {5'h09,4'b0100,txgain};
+      next_wbs_state = WBS_IDLE;
+    end
+
+  endcase
+end
+
+assign wbs_ack_o = cmd_ack;
+
+// SPI interface
 assign initarray = initarray_disable_IAMP;
 
-
 // Init program counter
-always @(posedge clk, posedge reset) begin: AD9866_DUT1_FSM
-    if (reset == 1'b1) begin
+always @(posedge clk) begin: AD9866_DUT1_FSM
+    if (rst) begin
         dut1_pc <= 6'h00;
     end
     else begin
@@ -206,20 +304,19 @@ always @(posedge clk, posedge reset) begin: AD9866_DUT1_FSM
     end
 end
 
-always @(sen_n, dut1_pc, gain, extrqst) begin: AD9866_DUT1_COMB
-    initarrayv = {2'b01,gain};
-    datain = {8'h0a,initarrayv[7:0]};   
+always @* begin
+    initarrayv = initarray[dut1_pc[5:1]];
+    datain = cmd_data;   
     start = 1'b0;
     if (sen_n) begin
         if (dut1_pc[5:1] <= 6'h13) begin
             if (dut1_pc[0] == 1'b0) begin
-                initarrayv = initarray[dut1_pc[5:1]];
+                
                 datain = {3'h0,dut1_pc[5:1],initarrayv[7:0]};
                 start = initarrayv[8];
             end
         end else begin
-            // Send gain code
-            start = extrqst;
+            start = cmd_ack;
         end
     end
 end
@@ -228,8 +325,8 @@ assign dataout = dut2_data[8-1:0];
 assign sdio = dut2_data[15];
 
 // SPI state machine
-always @(posedge clk, posedge reset) begin: AD9866_DUT2_FSM
-    if (reset == 1) begin
+always @(posedge clk) begin: AD9866_DUT2_FSM
+    if (rst) begin
         sen_n <= 1;
         sclk <= 0;
         dut2_state <= 2'b00;

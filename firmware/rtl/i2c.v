@@ -59,7 +59,7 @@ always @(posedge clk) begin
   else if (~i2c2_busy & wbs_we_i & wbs_stb_i & (wbs_adr_i == 6'h3d) & (wbs_dat_i[31:24] == 8'h06))
     wbs_ack <= 1'b1;
 end
-assign wbs_ack_0 = wbs_ack;
+assign wbs_ack_o = wbs_ack;
 
 i2c_init i2c1_init_i (
     .clk(clk),
