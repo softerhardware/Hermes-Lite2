@@ -53,7 +53,7 @@ logic        i2c2_busy;
 
 // Wishbone slave
 logic wbs_ack = 0;
-always @(posedge clk) begin
+always @(posedge clock_76p8_mhz) begin
   if (rst | wbs_ack) 
     wbs_ack <= 1'b0;
   else if (~i2c2_busy & wbs_we_i & wbs_stb_i & (wbs_adr_i == 6'h3d) & (wbs_dat_i[31:24] == 8'h06))
