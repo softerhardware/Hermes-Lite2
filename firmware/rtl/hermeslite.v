@@ -1845,7 +1845,7 @@ assign response_inp_tvalid = response_inp_tready & wb_tga & wb_stb & wb_ack & wb
 axis_fifo #(.ADDR_WIDTH(1), .DATA_WIDTH(38)) response_fifo (
   .clk(clock_76p8_mhz),
   .rst(rst),
-  .input_axis_tdata({addr,data}),
+  .input_axis_tdata({wb_adr,wb_dat}),
   .input_axis_tvalid(response_inp_tvalid),
   .input_axis_tready(response_inp_tready),
   .input_axis_tlast(1'b0),
