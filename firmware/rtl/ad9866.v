@@ -265,7 +265,7 @@ always @* begin
 
     WBS_TXGAIN: begin
       cmd_ack   = 1'b1;
-      cmd_data  = {5'h09,4'b0100,tx_gain};
+      cmd_data  = {5'h0a,4'b0100,tx_gain};
       next_wbs_state = WBS_IDLE;
     end
     
