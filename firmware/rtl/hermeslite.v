@@ -124,11 +124,6 @@ localparam GBITS = (CLK_FREQ == 61440000) ? 30 : (CLK_FREQ == 79872000) ? 31 : (
 localparam RRRR = (CLK_FREQ == 61440000) ? 160 : (CLK_FREQ == 79872000) ? 208 : (CLK_FREQ == 76800000) ? 200 : 192;
 
 
-// VNA Settings
-localparam VNATXGAIN = 6'h10;
-localparam DUPRXMAXGAIN = 6'h12;
-localparam DUPRXMINGAIN = 6'h06;
-
 // Number of Receivers
 localparam NR = 3;     // number of receivers to implement
 
@@ -533,56 +528,6 @@ always @ (posedge clock_76p8_mhz)
   begin
     temp_ADC <= ad9866_rx_input;
   end
-
-// AGC
-
-reg agc_nearclip;
-reg agc_goodlvl;
-reg [25:0] agc_delaycnt;
-reg [5:0] agc_value;
-wire agc_clrnearclip;
-wire agc_clrgoodlvl;
-
-always @(posedge clock_76p8_mhz)
-begin
-    if (agc_clrnearclip) agc_nearclip <= 1'b0;
-    else if (rxnearclip) agc_nearclip <= 1'b1;
-end
-
-always @(posedge clock_76p8_mhz)
-begin
-    if (agc_clrgoodlvl) agc_goodlvl <= 1'b0;
-    else if (rxgoodlvlp | rxgoodlvln) agc_goodlvl <= 1'b1;
-end
-
-// Used for heartbeat too
-always @(posedge clock_76p8_mhz)
-begin
-    agc_delaycnt <= agc_delaycnt + 1;
-end
-
-always @(posedge clock_76p8_mhz)
-begin
-    if (rst)
-        agc_value <= 6'b011111;
-    // Decrease gain if near clip seen
-    else if ( ((agc_clrnearclip & agc_nearclip & (agc_value != 6'b000000)) | agc_value > gain_value ) & ~FPGA_PTT )
-        agc_value <= agc_value - 6'h01;
-    // Increase if not in the sweet spot of seeing agc_nearclip
-    // But no more than ~26dB (38) as that is the place of diminishing returns re the datasheet
-    else if ( agc_clrgoodlvl & ~agc_goodlvl & (agc_value <= gain_value) & ~FPGA_PTT )
-        agc_value <= agc_value + 6'h01;
-end
-
-// tp = 1.0/61.44e6
-// 2**26 * tp = 1.0922 seconds
-// PGA settling time is less than 500 ns
-// Do decrease possible every 2 us (2**7 * tp)
-assign agc_clrnearclip = (agc_delaycnt[6:0] == 7'b1111111);
-// Do increase possible every 68 ms, 1us before/after a possible descrease
-assign agc_clrgoodlvl = (agc_delaycnt[21:0] == 22'b1011111111111110111111);
-
-
 
 wire  [31:0] C122_LR_data;
 
@@ -1330,15 +1275,12 @@ assign  IF_PHY_drdy = have_room & ~IF_PHY_rdempty;
 
 
 reg   [6:0] IF_OC;                  // open collectors on Hermes
-reg         IF_RAND;                // when set randomizer in ADCon
-reg         IF_DITHER;              // when set dither in ADC on
 reg         Preamp;                 // selects input attenuator setting, 0 = 20dB, 1 = 0dB (preamp ON)
 reg  [31:0] IF_frequency[0:NR];     // Tx, Rx1, Rx2, Rx3
 reg         IF_duplex;
 reg         IF_DFS1;
 reg         IF_DFS0;
 reg         VNA;                    // Selects VNA mode when set.
-reg   [4:0] Hermes_atten;           // 0-31 dB Heremes attenuator value
 reg         IF_Pure_signal;              
 reg   [3:0] IF_Predistortion;             
 reg         IF_PA_enable;
@@ -1354,12 +1296,9 @@ begin
     IF_DFS0 <= 1'b0;
     IF_OC              <= 7'b0;     // decode open collectors on Hermes
     Preamp             <= 1'b1;     // decode Preamp (Attenuator), default on
-    IF_DITHER          <= 1'b1;     // decode dither on or off
-    IF_RAND            <= 1'b0;     // decode randomizer on or off
     IF_duplex          <= 1'b0;     // not in duplex mode
     IF_last_chan       <= 5'b00000;    // default single receiver
     VNA                <= 1'b0;      // VNA disabled
-    Hermes_atten       <= 5'b0;     // default zero input attenuation
     IF_Pure_signal     <= 1'b0;      // default disable pure signal
     IF_Predistortion   <= 4'b0000;   // default disable predistortion
     IF_PA_enable       <= 1'b0;
@@ -1375,8 +1314,6 @@ begin
       IF_DFS0  <= data[24]; // decode speed
       IF_OC               <= data[23:17]; // decode open collectors on Penelope
       Preamp              <= data[10];  // decode Preamp (Attenuator)  1 = On (0dB atten), 0 = Off (20dB atten)
-      IF_DITHER           <= data[11];   // decode dither on or off
-      IF_RAND             <= data[12];   // decode randomizer on or off
       IF_duplex           <= data[2];   // save duplex mode
       IF_last_chan        <= data[7:3]; // number of IQ streams to send to PC
     end
@@ -1389,7 +1326,6 @@ begin
     if (addr == 6'h0a)
     begin
       IF_Pure_signal    <= data[22];       // decode pure signal setting
-      Hermes_atten      <= data[4:0];    // decode input attenuation setting
     end
     if (addr == 6'h2b)
     begin
@@ -1469,34 +1405,9 @@ debounce de_txinhibit(.clean_pb(clean_txinhibit), .pb(~io_cn8), .clk(clock_76p8_
 assign FPGA_PTT = (mox | cwkey | clean_ptt) & ~clean_txinhibit; // mox only updated when we get correct sync sequence
 
 
-//------------------------------------------------------------
-//  Attenuator
-//------------------------------------------------------------
-
-// set the attenuator according to whether Hermes_atten_enable and Preamp bits are set
-//wire [4:0] atten_data;
 
 
-// Hack to use IF_DITHER to switch highest bit of attenuation
-wire [5:0] gain_value;
-reg [5:0] ad9866_pga_d;
-
-assign gain_value = {~IF_DITHER, ~Hermes_atten};
-
-wire [5:0] igain_value;
-assign igain_value = IF_RAND ? agc_value : gain_value;
-
-
-always @(posedge clock_76p8_mhz) begin
-//assign ad9866_pga = (FPGA_PTT | VNA) ? ((VNA & Preamp) ? DUPRXMAXGAIN : DUPRXMINGAIN) : (IF_RAND ? agc_value : gain_value);
-//allow gain changes during tx
-//AD9866 appears to diminish TX if RX gain is more than 1f, ceiling of 1f for receiver if in TX
-  ad9866_pga_d <= VNA ? (Preamp ? DUPRXMAXGAIN : DUPRXMINGAIN) : ((FPGA_PTT & igain_value[5]) ? 6'h1f : igain_value);
-
-
-end
-
-assign rffe_ad9866_pga = ad9866_pga_d;
+assign rffe_ad9866_pga = 6'b000000;
 
 
 //---------------------------------------------------------
@@ -1734,8 +1645,6 @@ Led_flash Flash_LED3(.clock(clock_76p8_mhz), .signal(rxclipn), .LED(leds[3]), .p
 Led_flash Flash_LED4(.clock(clock_76p8_mhz), .signal(this_MAC), .LED(leds[4]), .period(half_second));
 Led_flash Flash_LED5(.clock(clock_76p8_mhz), .signal(run), .LED(leds[5]), .period(half_second));
 Led_flash Flash_LED6(.clock(clock_76p8_mhz), .signal(IF_SYNC_state == SYNC_RX_1_2), .LED(leds[6]), .period(half_second));
-
-assign leds[7] = agc_delaycnt[25];
 
 
 assign io_led_d2 = leds[4];

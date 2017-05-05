@@ -105,7 +105,7 @@ localparam bit [0:19][8:0] initarray_disable_IAMP = {
     {1'b0,8'h4b}, // Address 0x08, RX filter f-3db at ~34 MHz after scaling
     {1'b0,8'h00}, // Address 0x09,
     {1'b0,8'h00}, // Address 0x0a,
-    {1'b1,8'h20}, // Address 0x0b, RX gain only on PGA
+    {1'b1,8'h00}, // Address 0x0b, No gain on PGA
     {1'b1,8'h43}, // Address 0x0c, TX twos complement and interpolation factor
     {1'b1,8'h03}, // Address 0x0d, RX twos complement
     {1'b1,8'h81}, // Address 0x0e, Enable/Disable IAMP
@@ -204,11 +204,11 @@ logic [1:0]       wbs_state = 1'b0;
 logic [1:0]       next_wbs_state;
 logic [3:0]       tx_gain = 4'h0;
 logic [3:0]       next_tx_gain;
-logic [4:0]       rx_gain = 5'h0;
-logic [4:0]       next_rx_gain;
+logic [6:0]       rx_gain = 7'b1000000;
+logic [6:0]       next_rx_gain;
 
 logic             cmd_ack; 
-logic [15:0]      cmd_data;
+logic [12:0]      cmd_data;
 
 localparam 
   WBS_IDLE    = 2'b00,
@@ -220,7 +220,7 @@ always @(posedge clk) begin
   if (rst) begin
     wbs_state <= WBS_IDLE;
     tx_gain <= 4'h0;
-    rx_gain <= 5'h00;
+    rx_gain <= 7'b1000000;
   end else begin
     wbs_state <= next_wbs_state;
     tx_gain <= next_tx_gain;
@@ -251,8 +251,8 @@ always @* begin
 
           // Hermes RX Gain Setting
           6'h0a: begin
-            next_rx_gain = wbs_dat_i[4:0];
-            if (rx_gain != wbs_dat_i[4:0]) next_wbs_state = WBS_RXGAIN;
+            next_rx_gain = wbs_dat_i[6:0];
+            if (rx_gain != wbs_dat_i[6:0]) next_wbs_state = WBS_RXGAIN;
           end
 
           // Generic AD9866 write
@@ -270,8 +270,9 @@ always @* begin
     end
     
     WBS_RXGAIN: begin
-      //cmd_ack   = 1'b1;
-      //cmd_data  = {5'h09,4'b0100,txgain};
+      cmd_ack   = 1'b1;
+      cmd_data[12:6]  = {5'h09,2'b01};
+      cmd_data[5:0]   = rx_gain[6] ? rx_gain[5:0] : (rx_gain[5] ? ~rx_gain[5:0] : {1'b1,rx_gain[4:0]});
       next_wbs_state = WBS_IDLE;
     end
 
@@ -307,7 +308,7 @@ end
 
 always @* begin
     initarrayv = initarray[dut1_pc[5:1]];
-    datain = cmd_data;   
+    datain = {3'b000,cmd_data};   
     start = 1'b0;
     if (sen_n) begin
         if (dut1_pc[5:1] <= 6'h13) begin
