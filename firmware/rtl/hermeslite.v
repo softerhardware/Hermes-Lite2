@@ -479,7 +479,7 @@ reg [11:0] ad9866_rx_input;
 	
 // Assume that ad9866_rxclk is synchronous to ad9866clk
 // Don't know the phase relation
-always @(posedge rffe_ad9866_rxclk)
+always @(posedge clock_153p6_mhz)
     begin
         if (rffe_ad9866_rxsync) begin
             ad9866_rx_stage[5:0] <= rffe_ad9866_rx;
@@ -492,7 +492,7 @@ always @(posedge rffe_ad9866_rxclk)
 reg iad9866_txsync;
 reg [11:0] ad9866_tx_stage;
 // TX path
-always @(posedge rffe_ad9866_rxclk)
+always @(posedge clock_153p6_mhz)
     begin
         if (iad9866_txsync) begin
             iad9866_txsync <= 1'b0;
@@ -505,7 +505,7 @@ always @(posedge rffe_ad9866_rxclk)
 reg [5:0] ad9866_txr;
 reg ad9866_txsyncr;
 
-always @(posedge rffe_ad9866_rxclk)
+always @(posedge clock_153p6_mhz)
     begin
         ad9866_txr <= iad9866_txsync ? ad9866_tx_stage[5:0] : ad9866_tx_stage[11:6];
         ad9866_txsyncr <= FPGA_PTT_VNAp ? iad9866_txsync : 1'b0;
@@ -638,6 +638,7 @@ generate
     //  end
     //end
 
+	assign C122_frequency_HZ[c] = IF_frequency[c+1];
     assign C122_sync_phase_word[c] = C122_frequency_HZ[c];
 
     assign IF_M_IQ_Data[c] = {rx_I[c], rx_Q[c]};
@@ -645,48 +646,47 @@ generate
 
 
 
+if((c==3 && NR>3) || (c==1 && NR<=3))
+	begin
+	//    wire signed [23:0] psout_data_I2;
+	//   wire signed [23:0] psout_data_Q2;
+	//   assign rx_I[c] = psout_data_I2 <<< (FPGA_PTT? 2:0);
+	//   assign rx_Q[c] = psout_data_Q2 <<< (FPGA_PTT? 2:0);
 
-if((c==3 && NR>3))// || (c==1 && NR<=3))
-begin
-//    wire signed [23:0] psout_data_I2;
-//   wire signed [23:0] psout_data_Q2;
-//   assign rx_I[c] = psout_data_I2 <<< (FPGA_PTT? 2:0);
-//   assign rx_Q[c] = psout_data_Q2 <<< (FPGA_PTT? 2:0);
+	     receiver #(.CICRATE(CICRATE)) receiver_inst (
+	    //control
+	    .clock(clock_76p8_mhz),
+	    .rate(rate),
+	    .frequency(C122_sync_phase_word[c]),
+	    .out_strobe(strobe[c]),
+	    //input
+	    //.in_data(FPGA_PTT ? DACD : adcpipe[c/8]),
+		.in_data((FPGA_PTT & IF_Pure_signal) ? DACDp : adcpipe[c/8]),
+	   //output
+	  //  .out_data_I(psout_data_I2),
+	  //  .out_data_Q(psout_data_Q2)
+	    .out_data_I(rx_I[c]),
+	    .out_data_Q(rx_Q[c])
+	    );
 
-     receiver #(.CICRATE(CICRATE)) receiver_inst (
-    //control
-    .clock(clock_76p8_mhz),
-    .rate(rate),
-    .frequency(C122_sync_phase_word[c]),
-    .out_strobe(strobe[c]),
-    //input
-     .in_data(FPGA_PTT ? DACD : adcpipe[c/8]),
-//    .in_data((FPGA_PTT & IF_Pure_signal) ? DACD : adcpipe[c/8]),
-   //output
-  //  .out_data_I(psout_data_I2),
-  //  .out_data_Q(psout_data_Q2)
-    .out_data_I(rx_I[c]),
-    .out_data_Q(rx_Q[c])
-    );
 
     end
 else
+	begin
 
-    receiver #(.CICRATE(CICRATE)) receiver_inst (
-    //control
-    .clock(clock_76p8_mhz),
-    .rate(rate),
-    .frequency(C122_sync_phase_word[c]),
-    .out_strobe(strobe[c]),
-    //input
-    .in_data(adcpipe[c/8]),
-    //output
-    .out_data_I(rx_I[c]),
-    .out_data_Q(rx_Q[c])
-    );
-
-    assign C122_frequency_HZ[c] = IF_frequency[c+1];
-
+	    receiver #(.CICRATE(CICRATE)) receiver_inst (
+	    //control
+	    .clock(clock_76p8_mhz),
+	    .rate(rate),
+	    .frequency(C122_sync_phase_word[c]),
+	    .out_strobe(strobe[c]),
+	    //input
+	    .in_data(adcpipe[c/8]),
+	    //output
+	    .out_data_I(rx_I[c]),
+	    .out_data_Q(rx_Q[c])
+	    );
+	end
 end
 endgenerate
 

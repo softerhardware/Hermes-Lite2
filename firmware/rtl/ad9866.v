@@ -99,7 +99,7 @@ localparam bit [0:19][8:0] initarray_disable_IAMP = {
     {1'b0,8'h00}, // Address 0x02,
     {1'b0,8'h00}, // Address 0x03,
     {1'b0,8'h00}, // Address 0x04,
-    {1'b0,8'h00}, // Address 0x05,
+    {1'b1,8'h01}, // Address 0x05,
     {1'b0,8'h00}, // Address 0x06,
     {1'b1,8'h20}, // Address 0x07, Initiate DC offset calibration and RX filter on, 21 to 20 to disable RX filter
     {1'b0,8'h4b}, // Address 0x08, RX filter f-3db at ~34 MHz after scaling
@@ -123,7 +123,7 @@ localparam bit [0:19][8:0] initarray_disable_IAMP2 = {
     {1'b0,8'h00}, // Address 0x02,
     {1'b0,8'h00}, // Address 0x03,
     {1'b0,8'h00}, // Address 0x04,
-    {1'b0,8'h00}, // Address 0x05,
+    {1'b1,8'h01}, // Address 0x05,
     {1'b0,8'h00}, // Address 0x06,
     {1'b1,8'h20}, // Address 0x07, Initiate DC offset calibration and RX filter on, 21 to 20 to disable RX filter
     {1'b0,8'h4b}, // Address 0x08, RX filter f-3db at ~34 MHz after scaling

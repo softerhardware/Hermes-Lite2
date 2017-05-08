@@ -3,7 +3,7 @@ set_time_format -unit ns -decimal_places 3
 
 
 create_clock -period 76.8MHz [get_ports rffe_ad9866_clk76p8]		-name rffe_ad9866_clk76p8
-create_clock -period 153.6MHz -waveform {1 4.255}	  [get_ports rffe_ad9866_rxclk]				-name rffe_ad9866_rxclk
+##create_clock -period 153.6MHz -waveform {1 4.255}	  [get_ports rffe_ad9866_rxclk]				-name rffe_ad9866_rxclk
 
 
 create_clock -name phy_clk125 -period 125.000MHz	[get_ports phy_clk125]
@@ -14,6 +14,9 @@ create_clock -name phy_rx_clk -period 8.000	-waveform {2 6} [get_ports {phy_rx_c
 create_clock -name virt_phy_rx_clk	-period 8.000
 
 create_clock -name virt_clock_76p8MHz	-period 76.8MHz
+
+create_clock -name virt_ad9866_rxclk_tx -waveform {1.5 4.755} -period 153.6MHz 
+create_clock -name virt_ad9866_rxclk_rx -period 153.6MHz 
 
 
 ## run derive_pll_clocks -use_net_name in timing analyzer to generate template for below
@@ -27,7 +30,7 @@ create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1
 
 create_generated_clock -source {ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -duty_cycle 50.00 -name clock_76p8MHz {ad9866pll_inst|altpll_component|auto_generated|pll1|clk[0]}
 
-
+create_generated_clock -source {ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -multiply_by 2 -duty_cycle 50.00 -name clock_153p6_mhz {ad9866pll_inst|altpll_component|auto_generated|pll1|clk[1]}
 
 
 ## Create TX clock version based on pin output
@@ -95,7 +98,7 @@ set_clock_groups -asynchronous -group { \
 					tx_output_clock \
 				       } \
 					-group {phy_rx_clk } \
-					-group {rffe_ad9866_rxclk rffe_ad9866_clk76p8 clock_76p8MHz}
+					-group {clock_153p6_mhz rffe_ad9866_clk76p8 clock_76p8MHz}
 
 #**************************************************************
 # Set Maximum Delay
@@ -207,46 +210,46 @@ set_multicycle_path 1 -from {data[*]} -to {freqcompp[*][*]} -hold -end
 
 ## AD9866 RX Path
 
-set_input_delay -add_delay -max -clock rffe_ad9866_rxclk 3.78 [get_ports {rffe_ad9866_rxsync}]
-set_input_delay -add_delay -min -clock rffe_ad9866_rxclk 0.5 [get_ports {rffe_ad9866_rxsync}]
+set_input_delay -add_delay -max -clock virt_ad9866_rxclk_rx 2.78 [get_ports {rffe_ad9866_rxsync}]
+set_input_delay -add_delay -min -clock virt_ad9866_rxclk_rx 0.5 [get_ports {rffe_ad9866_rxsync}]
 
-##set_input_delay -add_delay -max -clock rffe_ad9866_rxclk 3.78 [get_ports {rffe_ad9866_rx[*]}]
-##set_input_delay -add_delay -min -clock rffe_ad9866_rxclk 0.5 [get_ports {rffe_ad9866_rx[*]}]
+##set_input_delay -add_delay -max -clock virt_ad9866_rxclk_tx 2.78 [get_ports {rffe_ad9866_rx[*]}]
+##set_input_delay -add_delay -min -clock virt_ad9866_rxclk_tx 0.5 [get_ports {rffe_ad9866_rx[*]}]
 
 ## Break out as bits for individual control of delay
 
-set_input_delay -add_delay -max -clock rffe_ad9866_rxclk 3.78 [get_ports {rffe_ad9866_rx[0]}]
-set_input_delay -add_delay -min -clock rffe_ad9866_rxclk 0.5 [get_ports {rffe_ad9866_rx[0]}]
+set_input_delay -add_delay -max -clock virt_ad9866_rxclk_rx 2.78 [get_ports {rffe_ad9866_rx[0]}]
+set_input_delay -add_delay -min -clock virt_ad9866_rxclk_rx 0.5 [get_ports {rffe_ad9866_rx[0]}]
 
-set_input_delay -add_delay -max -clock rffe_ad9866_rxclk 3.78 [get_ports {rffe_ad9866_rx[1]}]
-set_input_delay -add_delay -min -clock rffe_ad9866_rxclk 0.5 [get_ports {rffe_ad9866_rx[1]}]
+set_input_delay -add_delay -max -clock virt_ad9866_rxclk_rx 2.78 [get_ports {rffe_ad9866_rx[1]}]
+set_input_delay -add_delay -min -clock virt_ad9866_rxclk_rx 0.5 [get_ports {rffe_ad9866_rx[1]}]
 
-set_input_delay -add_delay -max -clock rffe_ad9866_rxclk 3.78 [get_ports {rffe_ad9866_rx[2]}]
-set_input_delay -add_delay -min -clock rffe_ad9866_rxclk 0.5 [get_ports {rffe_ad9866_rx[2]}]
+set_input_delay -add_delay -max -clock virt_ad9866_rxclk_rx 2.78 [get_ports {rffe_ad9866_rx[2]}]
+set_input_delay -add_delay -min -clock virt_ad9866_rxclk_rx 0.5 [get_ports {rffe_ad9866_rx[2]}]
 
-set_input_delay -add_delay -max -clock rffe_ad9866_rxclk 3.78 [get_ports {rffe_ad9866_rx[3]}]
-set_input_delay -add_delay -min -clock rffe_ad9866_rxclk 0.5 [get_ports {rffe_ad9866_rx[3]}]
+set_input_delay -add_delay -max -clock virt_ad9866_rxclk_rx 2.78 [get_ports {rffe_ad9866_rx[3]}]
+set_input_delay -add_delay -min -clock virt_ad9866_rxclk_rx 0.5 [get_ports {rffe_ad9866_rx[3]}]
 
-set_input_delay -add_delay -max -clock rffe_ad9866_rxclk 3.78 [get_ports {rffe_ad9866_rx[4]}]
-set_input_delay -add_delay -min -clock rffe_ad9866_rxclk 0.5 [get_ports {rffe_ad9866_rx[4]}]
+set_input_delay -add_delay -max -clock virt_ad9866_rxclk_rx 2.78 [get_ports {rffe_ad9866_rx[4]}]
+set_input_delay -add_delay -min -clock virt_ad9866_rxclk_rx 0.5 [get_ports {rffe_ad9866_rx[4]}]
 
-set_input_delay -add_delay -max -clock rffe_ad9866_rxclk 3.78 [get_ports {rffe_ad9866_rx[5]}]
-set_input_delay -add_delay -min -clock rffe_ad9866_rxclk 0.5 [get_ports {rffe_ad9866_rx[5]}]
+set_input_delay -add_delay -max -clock virt_ad9866_rxclk_rx 2.78 [get_ports {rffe_ad9866_rx[5]}]
+set_input_delay -add_delay -min -clock virt_ad9866_rxclk_rx 0.5 [get_ports {rffe_ad9866_rx[5]}]
 
 
 ## AD9866 TX Path
 ## Adjust for PCB delays
 
-set_output_delay -add_delay -max -clock rffe_ad9866_rxclk 2.0 [get_ports {rffe_ad9866_txsync}]
-set_output_delay -add_delay -min -clock rffe_ad9866_rxclk -0.3 [get_ports {rffe_ad9866_txsync}]
+set_output_delay -add_delay -max -clock virt_ad9866_rxclk_tx 1.0 [get_ports {rffe_ad9866_txsync}]
+set_output_delay -add_delay -min -clock virt_ad9866_rxclk_tx -0.9 [get_ports {rffe_ad9866_txsync}]
 
-set_output_delay -add_delay -max -clock rffe_ad9866_rxclk 2.0 [get_ports {rffe_ad9866_tx[*]}]
-set_output_delay -add_delay -min -clock rffe_ad9866_rxclk -0.3 [get_ports {rffe_ad9866_tx[*]}]
+set_output_delay -add_delay -max -clock virt_ad9866_rxclk_tx 1.0 [get_ports {rffe_ad9866_tx[*]}]
+set_output_delay -add_delay -min -clock virt_ad9866_rxclk_tx -0.9 [get_ports {rffe_ad9866_tx[*]}]
 
 set_multicycle_path -to [get_ports {rffe_ad9866_txsync}] -setup -start 2
-set_multicycle_path -to [get_ports {rffe_ad9866_txsync}] -hold -start 0
+set_multicycle_path -to [get_ports {rffe_ad9866_txsync}] -hold -start 1
 
 set_multicycle_path -to [get_ports {rffe_ad9866_tx[*]}] -setup -start 2
-set_multicycle_path -to [get_ports {rffe_ad9866_tx[*]}] -hold -start 0
+set_multicycle_path -to [get_ports {rffe_ad9866_tx[*]}] -hold -start 1
 
 ##set_max_delay -from {IF_Rx_ctrl_*} -to {freqcompp*} 15.9
