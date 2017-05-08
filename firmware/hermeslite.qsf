@@ -229,8 +229,6 @@ set_global_assignment -name VERILOG_FILE rtl/Hermes_clk_lrclk_gen.v
 set_global_assignment -name VERILOG_FILE rtl/Hermes_Tx_fifo_ctrl.v
 set_global_assignment -name VERILOG_FILE rtl/pulsegen.v
 set_global_assignment -name VERILOG_FILE rtl/receiver.v
-set_global_assignment -name VERILOG_FILE rtl/SPI.v
-set_global_assignment -name VERILOG_FILE rtl/Hermes_ADC.v
 set_global_assignment -name VERILOG_FILE rtl/i2c_master.v
 set_global_assignment -name VERILOG_FILE rtl/i2c_init.v
 set_global_assignment -name VERILOG_FILE rtl/i2c2_init.v

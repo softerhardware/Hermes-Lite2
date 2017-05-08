@@ -44,150 +44,6 @@ module ad9866 #
 );
 
 
-localparam bit [0:19][8:0] initarray_nointerpolation = {
-    // First bit is 1'b1 for write enable to that address
-    {1'b1,8'h80}, // Address 0x00, enable 4 wire SPI
-    {1'b0,8'h00}, // Address 0x01,
-    {1'b0,8'h00}, // Address 0x02,
-    {1'b0,8'h00}, // Address 0x03,
-    {1'b1,8'h00}, // Address 0x04, // No multiply of oscillator for no interpolation
-    {1'b0,8'h00}, // Address 0x05,
-    {1'b1,8'h00}, // Address 0x06, // No divide down for FPGA clock
-    {1'b1,8'h21}, // Address 0x07, Initiate DC offset calibration and RX filter on
-    {1'b1,8'h4b}, // Address 0x08, RX filter f-3db at ~34 MHz after scaling
-    {1'b0,8'h00}, // Address 0x09,
-    {1'b0,8'h00}, // Address 0x0a,
-    {1'b1,8'h20}, // Address 0x0b, RX gain only on PGA
-    {1'b1,8'h81}, // Address 0x0c, TX twos complement and interpolation factor
-    {1'b1,8'h01}, // Address 0x0d, RT twos complement
-    {1'b0,8'h01}, // Address 0x0e, Enable/Disable IAMP
-    {1'b0,8'h00}, // Address 0x0f,
-    {1'b0,8'h84}, // Address 0x10, Select TX gain
-    {1'b1,8'h00}, // Address 0x11, Select TX gain
-    {1'b0,8'h00}, // Address 0x12,
-    {1'b0,8'h00}  // Address 0x13,
-};
-
-localparam bit [0:19][8:0] initarray_2xosc = {
-    // First bit is 1'b1 for write enable to that address
-    {1'b1,8'h80}, // Address 0x00, enable 4 wire SPI
-    {1'b0,8'h00}, // Address 0x01,
-    {1'b0,8'h00}, // Address 0x02,
-    {1'b0,8'h00}, // Address 0x03,
-    {1'b1,8'h16}, // Address 0x04,
-    {1'b0,8'h00}, // Address 0x05,
-    {1'b0,8'h00}, // Address 0x06,
-    {1'b1,8'h21}, // Address 0x07, Initiate DC offset calibration and RX filter on
-    {1'b1,8'h4b}, // Address 0x08, RX filter f-3db at ~34 MHz after scaling
-    {1'b0,8'h00}, // Address 0x09,
-    {1'b0,8'h00}, // Address 0x0a,
-    {1'b1,8'h20}, // Address 0x0b, RX gain only on PGA
-    {1'b1,8'h41}, // Address 0x0c, TX twos complement and interpolation factor
-    {1'b1,8'h01}, // Address 0x0d, RT twos complement
-    {1'b0,8'h01}, // Address 0x0e, Enable/Disable IAMP
-    {1'b0,8'h00}, // Address 0x0f,
-    {1'b0,8'h84}, // Address 0x10, Select TX gain
-    {1'b1,8'h00}, // Address 0x11, Select TX gain
-    {1'b0,8'h00}, // Address 0x12,
-    {1'b0,8'h00}  // Address 0x13,
-};
-
-localparam bit [0:19][8:0] initarray_disable_IAMP = {
-    // First bit is 1'b1 for write enable to that address
-    {1'b0,8'h80}, // Address 0x00, enable 4 wire SPI
-    {1'b0,8'h00}, // Address 0x01,
-    {1'b0,8'h00}, // Address 0x02,
-    {1'b0,8'h00}, // Address 0x03,
-    {1'b0,8'h00}, // Address 0x04,
-    {1'b1,8'h01}, // Address 0x05,
-    {1'b0,8'h00}, // Address 0x06,
-    {1'b1,8'h20}, // Address 0x07, Initiate DC offset calibration and RX filter on, 21 to 20 to disable RX filter
-    {1'b0,8'h4b}, // Address 0x08, RX filter f-3db at ~34 MHz after scaling
-    {1'b0,8'h00}, // Address 0x09,
-    {1'b0,8'h00}, // Address 0x0a,
-    {1'b1,8'h00}, // Address 0x0b, No gain on PGA
-    {1'b1,8'h43}, // Address 0x0c, TX twos complement and interpolation factor
-    {1'b1,8'h03}, // Address 0x0d, RX twos complement
-    {1'b1,8'h81}, // Address 0x0e, Enable/Disable IAMP
-    {1'b0,8'h00}, // Address 0x0f,
-    {1'b1,8'h80}, // Address 0x10, Select TX gain
-    {1'b1,8'h00}, // Address 0x11, Select TX gain
-    {1'b1,8'h00}, // Address 0x12,
-    {1'b0,8'h00}  // Address 0x13,
-};
-
-localparam bit [0:19][8:0] initarray_disable_IAMP2 = {
-    // First bit is 1'b1 for write enable to that address
-    {1'b0,8'h80}, // Address 0x00, enable 4 wire SPI
-    {1'b0,8'h00}, // Address 0x01,
-    {1'b0,8'h00}, // Address 0x02,
-    {1'b0,8'h00}, // Address 0x03,
-    {1'b0,8'h00}, // Address 0x04,
-    {1'b1,8'h01}, // Address 0x05,
-    {1'b0,8'h00}, // Address 0x06,
-    {1'b1,8'h20}, // Address 0x07, Initiate DC offset calibration and RX filter on, 21 to 20 to disable RX filter
-    {1'b0,8'h4b}, // Address 0x08, RX filter f-3db at ~34 MHz after scaling
-    {1'b0,8'h00}, // Address 0x09,
-    {1'b0,8'h00}, // Address 0x0a,
-    {1'b1,8'h20}, // Address 0x0b, RX gain only on PGA
-    {1'b1,8'h43}, // Address 0x0c, TX twos complement and interpolation factor
-    {1'b1,8'h03}, // Address 0x0d, RX twos complement
-    {1'b1,8'h81}, // Address 0x0e, Enable/Disable IAMP
-    {1'b0,8'h00}, // Address 0x0f,
-    {1'b1,8'h80}, // Address 0x10, Select TX gain
-    {1'b1,8'h00}, // Address 0x11, Select TX gain
-    {1'b1,8'h00}, // Address 0x12,
-    {1'b1,8'h0c}  // Address 0x13,
-};
-
-localparam bit [0:19][8:0] initarray_6m = {
-    // First bit is 1'b1 for write enable to that address
-    {1'b1,8'h80}, // Address 0x00, enable 4 wire SPI
-    {1'b0,8'h00}, // Address 0x01,
-    {1'b0,8'h00}, // Address 0x02,
-    {1'b0,8'h00}, // Address 0x03,
-    {1'b1,8'h00}, // Address 0x04, // No multiply of oscillator for no interpolation
-    {1'b0,8'h00}, // Address 0x05,
-    {1'b1,8'h00}, // Address 0x06, // No divide down for FPGA clock
-    {1'b1,8'h20}, // Address 0x07, Initiate DC offset calibration and RX filter *OFF*
-    {1'b1,8'h4b}, // Address 0x08, RX filter f-3db at ~34 MHz after scaling
-    {1'b0,8'h00}, // Address 0x09,
-    {1'b0,8'h00}, // Address 0x0a,
-    {1'b1,8'h20}, // Address 0x0b, RX gain only on PGA
-    {1'b1,8'h81}, // Address 0x0c, TX twos complement and interpolation factor
-    {1'b1,8'h01}, // Address 0x0d, RX twos complement
-    {1'b1,8'h01}, // Address 0x0e, Enable/Disable IAMP
-    {1'b0,8'h00}, // Address 0x0f,
-    {1'b0,8'h84}, // Address 0x10, Select TX gain
-    {1'b1,8'h00}, // Address 0x11, Select TX gain
-    {1'b0,8'h00}, // Address 0x12,
-    {1'b0,8'h00}  // Address 0x13,
-};
-
-localparam bit [0:19][8:0] initarray_regular = {
-    // First bit is 1'b1 for write enable to that address
-    {1'b0,8'h80}, // Address 0x00, enable 4 wire SPI
-    {1'b0,8'h00}, // Address 0x01,
-    {1'b0,8'h00}, // Address 0x02,
-    {1'b0,8'h00}, // Address 0x03,
-    {1'b0,8'h00}, // Address 0x04,
-    {1'b0,8'h00}, // Address 0x05,
-    {1'b0,8'h00}, // Address 0x06,
-    {1'b1,8'h21}, // Address 0x07, Initiate DC offset calibration and RX filter on
-    {1'b1,8'h4b}, // Address 0x08, RX filter f-3db at ~34 MHz after scaling
-    {1'b0,8'h00}, // Address 0x09,
-    {1'b0,8'h00}, // Address 0x0a,
-    {1'b1,8'h20}, // Address 0x0b, RX gain only on PGA
-    {1'b1,8'h41}, // Address 0x0c, TX twos complement and interpolation factor
-    {1'b1,8'h01}, // Address 0x0d, RT twos complement
-    {1'b0,8'h01}, // Address 0x0e, Enable/Disable IAMP
-    {1'b0,8'h00}, // Address 0x0f,
-    {1'b0,8'h84}, // Address 0x10, Select TX gain
-    {1'b1,8'h00}, // Address 0x11, Select TX gain
-    {1'b0,8'h00}, // Address 0x12,
-    {1'b0,8'h00}  // Address 0x13,
-};
-
 
 reg [15:0] datain;
 reg start;
@@ -197,7 +53,8 @@ reg [15:0] dut2_data;
 reg [5:0] dut1_pc;
 
 logic [8:0] initarrayv;
-bit [0:19][8:0] initarray;
+reg [8:0] initarray [19:0];
+
 
 // Wishbone slave
 logic [1:0]       wbs_state = 1'b0;
@@ -209,6 +66,32 @@ logic [6:0]       next_rx_gain;
 
 logic             cmd_ack; 
 logic [12:0]      cmd_data;
+
+
+initial begin
+    // First bit is 1'b1 for write enable to that address
+    initarray[0] = {1'b0,8'h80}; // Address 0x00, enable 4 wire SPI
+    initarray[1] = {1'b0,8'h00}; // Address 0x01,
+    initarray[2] = {1'b0,8'h00}; // Address 0x02,
+    initarray[3] = {1'b0,8'h00}; // Address 0x03,
+    initarray[4] = {1'b0,8'h00}; // Address 0x04,
+    initarray[5] = {1'b0,8'h00}; // Address 0x05,
+    initarray[6] = {1'b1,8'h54}; // Address 0x06, Disable clkout2
+    initarray[7] = {1'b1,8'h20}; // Address 0x07, Initiate DC offset calibration and RX filter on, 21 to 20 to disable RX filter
+    initarray[8] = {1'b0,8'h4b}; // Address 0x08, RX filter f-3db at ~34 MHz after scaling
+    initarray[9] = {1'b0,8'h00}; // Address 0x09,
+    initarray[10] = {1'b0,8'h00}; // Address 0x0a,
+    initarray[11] = {1'b1,8'h00}; // Address 0x0b, No RX gain on PGA
+    initarray[12] = {1'b1,8'h43}; // Address 0x0c, TX twos complement and interpolation factor
+    initarray[13] = {1'b1,8'h03}; // Address 0x0d, RX twos complement
+    initarray[14] = {1'b1,8'h81}; // Address 0x0e, Enable/Disable IAMP
+    initarray[15] = {1'b0,8'h00}; // Address 0x0f,
+    initarray[16] = {1'b1,8'h80}; // Address 0x10, Select TX gain
+    initarray[17] = {1'b1,8'h00}; // Address 0x11, Select TX gain
+    initarray[18] = {1'b1,8'h00}; // Address 0x12,
+    initarray[19] = {1'b0,8'h00}; // Address 0x13,
+end
+
 
 localparam 
   WBS_IDLE    = 2'b00,
@@ -259,6 +142,9 @@ always @* begin
           6'h3b: begin
             if (wbs_dat_i[31:24] == 8'h06) next_wbs_state = WBS_WRITE;
           end
+
+          default: next_wbs_state = wbs_state;
+
         endcase 
       end        
     end
@@ -288,7 +174,7 @@ end
 assign wbs_ack_o = cmd_ack;
 
 // SPI interface
-assign initarray = initarray_disable_IAMP;
+
 
 // Init program counter
 always @(posedge clk) begin: AD9866_DUT1_FSM

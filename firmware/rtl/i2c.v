@@ -169,7 +169,7 @@ i2c2_init i2c2_init_i (
     /*
      * Configuration
      */
-    .write(i2c2_write_en),
+    .write(wbs_ack_o),
     .data(wbs_dat_i)
 );
 

@@ -193,6 +193,9 @@ assign pwr_envpa = 1'b1;
 assign clk_recovered = 1'b0;
 
 
+
+wire response_inp_tvalid, response_inp_tready, response_out_tready;
+
 // Reset and Clock Control
 
 wire clock_125_mhz_0_deg;
@@ -447,16 +450,6 @@ reg [11:0]temp_ADC;
 
 wire rxclipp = (temp_ADC == 12'b011111111111);
 wire rxclipn = (temp_ADC == 12'b100000000000);
-
-// Near clips occur just over 1 dB from full range
-// 2**12 = 4096
-// (6.02*12)+1.76 = 74
-// 2**11.8074 = 3584
-// 4096-3584 = 512 (256 from positive and 256 from negtive clips)
-// (6.02*11.8074)+1.76 = 72.84
-// 74 - 72.84 = ~1.16 dB from full range
-wire rxnearclip = (temp_ADC[11:8] == 4'b0111) | (temp_ADC[11:8] == 4'b1000);
-
 
 // Like above but 2**11.585 = (4096-1024) = 3072
 wire rxgoodlvlp = (temp_ADC[11:9] == 3'b011);
@@ -721,9 +714,6 @@ wire [11:0] AIN4;
 wire [11:0] AIN5;  // holds 12 bit ADC value of Forward Power detector.
 wire [11:0] AIN6;  // holds 12 bit ADC of 13.8v measurement
 
-//Hermes_ADC ADC_SPI(.clock(C122_cbclk), .SCLK(ADCCLK), .nCS(nADCCS), .MISO(ADCMISO), .MOSI(ADCMOSI),
-//                   .AIN1(AIN1), .AIN2(AIN2), .AIN3(AIN3), .AIN4(AIN4), .AIN5(AIN5), .AIN6(AIN6));
-
 assign AIN4 = 0;
 assign AIN6 = 1000;
 
@@ -805,8 +795,8 @@ CicInterpM5 #(.RRRR(RRRR), .IBITS(20), .OBITS(16), .GBITS(GBITS)) in2 ( clock_76
 
 // Code rotates input at set frequency and produces I & Q
 
-wire signed [14:0] C122_cordic_i_out;
-wire signed [14:0] C122_cordic_q_out;
+wire signed [15:0] C122_cordic_i_out;
+wire signed [15:0] C122_cordic_q_out;
 wire signed [31:0] C122_phase_word_Tx;
 
 wire signed [15:0] I;
@@ -814,7 +804,7 @@ wire signed [15:0] Q;
 
 // if in VNA mode use the Rx[0] phase word for the Tx
 assign C122_phase_word_Tx = VNA ? C122_sync_phase_word[0] : C122_sync_phase_word_Tx;
-assign                  I = VNA ? 16'd19274 : (cwkey ? {1'b0, cwlevel} : y2_i);    // select VNA mode if active. Set CORDIC for max DAC output
+assign                  I = VNA ? 16'h4d80 : (cwkey ? {1'b0, cwlevel[17:3]} : y2_i);    // select VNA mode if active. Set CORDIC for max DAC output
 assign                  Q = (VNA | cwkey) ? 0 : y2_r;                   // taking into account CORDICs gain i.e. 0x7FFF/1.7
 
 
@@ -964,13 +954,6 @@ always @ (posedge clock_76p8_mhz)
 
 endgenerate
 
-
-
-wire txclipp = (C122_cordic_i_out[13:2] == 12'b011111111111);
-wire txclipn = (C122_cordic_i_out[13:2] == 12'b100000000000);
-
-wire txgoodlvlp = (C122_cordic_i_out[13:11] == 3'b011);
-wire txgoodlvln = (C122_cordic_i_out[13:11] == 3'b100);
 
 
 //------------------------------------------------------------
@@ -1568,10 +1551,10 @@ end
 //  Debounce CWKEY input - active low
 //---------------------------------------------------------
 
-// 3 ms rise and fall, not shaped, but like HiQSDR
+// 2 ms rise and fall, not shaped, but like HiQSDR
 // MAX CWLEVEL is picked to be 8*max cordic level for transmit
 // ADJUST if cordic max changes...
-localparam MAX_CWLEVEL = 18'h25a50;
+localparam MAX_CWLEVEL = 18'h26c00; //(16'h4d80 << 3);
 wire clean_cwkey;
 wire cwkey;
 reg [17:0] cwlevel;
@@ -1635,7 +1618,7 @@ debounce de_ptt(.clean_pb(clean_ptt), .pb(~ptt_i), .clk(clock_76p8_mhz));
 
 
 // Really 0.16 seconds at Hermes-Lite 61.44 MHz clock
-localparam half_second = 10000000; // at 48MHz clock rate
+localparam half_second = 24'd10000000; // at 48MHz clock rate
 
 Led_flash Flash_LED0(.clock(clock_76p8_mhz), .signal(rxclipp), .LED(leds[0]), .period(half_second));
 Led_flash Flash_LED1(.clock(clock_76p8_mhz), .signal(rxgoodlvlp), .LED(leds[1]), .period(half_second));
@@ -1744,10 +1727,6 @@ assign scl3_i = io_adc_scl;
 assign io_adc_scl = scl3_t ? 1'bz : scl3_o;
 assign sda3_i = io_adc_sda;
 assign io_adc_sda = sda3_t ? 1'bz : sda3_o;
-
-
-
-wire response_inp_tvalid, response_inp_tready;
 
 assign response_inp_tvalid = response_inp_tready & wb_tga & wb_stb & wb_ack & wb_we;
 
