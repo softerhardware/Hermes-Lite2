@@ -203,6 +203,13 @@
 	"pins":14
 	},	
 
+"U MCP4662": {
+	"mpn":["MCP4662-502E/UN"],
+	"spec":"Digital Rheostat 5K",
+	"assembly":"SMT",
+	"pins":10
+	},	
+
 "U ST1S10": {
 	"mpn":["ST1S10PHR"],
 	"spec":"Switching Regulator",
@@ -287,6 +294,13 @@
 	"pins":2
 	},
 
+"R 27K 0805": {
+	"mpn":["RC0805FR-0727KL"],
+	"spec":"27K 0805<=1%>=1/8W",
+	"assembly":"SMT",
+	"pins":2
+	},	
+
 "R 20K 0603": {
 	"mpn":["RC0603FR-0720KL"],
 	"spec":"20K 0603<=1%>=1/10W",
@@ -322,6 +336,13 @@
 	"pins":2
 	},
 
+"R 9.1K 0805": {
+	"mpn":["RC0805FR-079K1L"],
+	"spec":"9.1K 0805<=1%>=1/8W",
+	"assembly":"SMT",
+	"pins":2
+	},	
+
 "R 4.7K 0603": {
 	"mpn":["RC0603FR-074K7L"],
 	"spec":"4.7K 0603<=5%>=1/10W",
@@ -345,7 +366,7 @@
 
 "R 1.8K 0603": {
 	"mpn":["RC0603FR-071K8L"],
-	"spec":"1.8K 0603<=5%>=1/10W",
+	"spec":"1.8K 0603<=1%>=1/10W",
 	"assembly":"SMT",
 	"pins":2
 	},
