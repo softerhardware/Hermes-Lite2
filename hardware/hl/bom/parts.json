@@ -133,6 +133,13 @@
 	"pins":2
 	},
 
+"C 8.2pF 0603": {
+	"mpn":["CC0603JRNPO9BN8R2"],
+	"spec":"8.2pF 0603NP0>=25V<=5%",
+	"assembly":"SMT",
+	"pins":2
+	},
+
 "U KSZ9031RN": {
 	"mpn":["KSZ9031RNXCC","KSZ9031RNXCA"],
 	"spec":"Gigabit EthPhy",
@@ -257,6 +264,13 @@
 	"spec":"TVS Diode",
 	"assembly":"SMT",
 	"pins":3
+	},
+
+"D SMBJ18CA": {
+	"mpn":["SMBJ18CA-H"],
+	"spec":"TVS Diode",
+	"assembly":"SMT",
+	"pins":2
 	},
 
 "D DNI": {
