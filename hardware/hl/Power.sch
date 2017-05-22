@@ -1,42 +1,12 @@
 EESchema Schematic File Version 2
-LIBS:power
-LIBS:device
-LIBS:transistors
-LIBS:conn
-LIBS:linear
-LIBS:regul
-LIBS:74xx
-LIBS:cmos4000
-LIBS:adc-dac
-LIBS:memory
-LIBS:xilinx
-LIBS:microcontrollers
-LIBS:dsp
-LIBS:microchip
-LIBS:analog_switches
-LIBS:motorola
-LIBS:texas
-LIBS:intel
-LIBS:audio
-LIBS:interface
-LIBS:digital-audio
-LIBS:philips
-LIBS:display
-LIBS:cypress
-LIBS:siliconi
-LIBS:opto
-LIBS:atmel
-LIBS:contrib
-LIBS:valves
 LIBS:hermeslite
-LIBS:hermeslite-cache
 EELAYER 25 0
 EELAYER END
 $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 2 7
 Title "Power"
-Date "2017-05-14"
+Date "2017-05-21"
 Rev "2.0-beta3"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
@@ -1555,15 +1525,15 @@ Wire Wire Line
 Text Notes 4600 2075 0    60   ~ 0
 JTAG Connector\nFPGA programming\nMay be used as 30 Mb/s \ninterface to SBC
 $Comp
-L FUSE F1
+L Polyfuse F1
 U 1 1 578F363C
 P 1500 3475
-F 0 "F1" H 1300 3600 39  0000 C CNN
-F 1 "3A@20V" H 1375 3400 39  0000 C CNN
+F 0 "F1" V 1400 3400 39  0000 C CNN
+F 1 "3A@20V" V 1600 3475 39  0000 C CNN
 F 2 "HERMESLITE:FUSE" H 1500 3475 50  0001 C CNN
 F 3 "" H 1500 3475 50  0000 C CNN
 	1    1500 3475
-	1    0    0    -1  
+	0    1    1    0   
 $EndComp
 $Comp
 L CONN_01X02 CN2
@@ -1577,9 +1547,9 @@ F 3 "" H 875 3525 50  0000 C CNN
 	-1   0    0    -1  
 $EndComp
 Wire Wire Line
-	1075 3475 1250 3475
+	1075 3475 1350 3475
 Wire Wire Line
-	1750 3475 2250 3475
+	1650 3475 2250 3475
 $Comp
 L GND #PWR33
 U 1 1 57906E32
@@ -2698,7 +2668,7 @@ F 3 "" H 3925 6950 50  0000 C CNN
 $EndComp
 Wire Wire Line
 	3925 6925 3925 6950
-Text Notes 6925 6075 0    60   ~ 0
+Text Notes 6950 6125 0    60   ~ 0
 8.0V\n<=1.5A
 $Comp
 L +VPA #PWR61

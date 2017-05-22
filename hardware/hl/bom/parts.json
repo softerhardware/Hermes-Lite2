@@ -252,6 +252,14 @@
 	"pins":8
 	},	
 
+"U INA119x1": {
+	"mpn":["INA199A1DC"],
+	"spec":"Current Sense AMP",
+	"assembly":"SMT",
+	"pins":6
+	},	
+
+
 "D 1N5711": {
 	"mpn":["1N5711WS-7-F"],
 	"spec":"Schottky Barrier Diode",
@@ -486,6 +494,13 @@
 "R 2.2 0603": {
 	"mpn":["RC0603FR-072R2L"],
 	"spec":"2.2 0603<=5%>=1/10W",
+	"assembly":"SMT",
+	"pins":2
+	},
+
+"R 0.04 1206": {
+	"mpn":["PE1206FRM070R04L"],
+	"spec":"0.04 1206<=1%>=1/4W",
 	"assembly":"SMT",
 	"pins":2
 	},

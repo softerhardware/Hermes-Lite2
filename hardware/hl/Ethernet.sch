@@ -1,42 +1,12 @@
 EESchema Schematic File Version 2
-LIBS:power
-LIBS:device
-LIBS:transistors
-LIBS:conn
-LIBS:linear
-LIBS:regul
-LIBS:74xx
-LIBS:cmos4000
-LIBS:adc-dac
-LIBS:memory
-LIBS:xilinx
-LIBS:microcontrollers
-LIBS:dsp
-LIBS:microchip
-LIBS:analog_switches
-LIBS:motorola
-LIBS:texas
-LIBS:intel
-LIBS:audio
-LIBS:interface
-LIBS:digital-audio
-LIBS:philips
-LIBS:display
-LIBS:cypress
-LIBS:siliconi
-LIBS:opto
-LIBS:atmel
-LIBS:contrib
-LIBS:valves
 LIBS:hermeslite
-LIBS:hermeslite-cache
 EELAYER 25 0
 EELAYER END
 $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 3 7
 Title "Ethernet"
-Date "2017-05-14"
+Date "2017-05-21"
 Rev "2.0-beta3"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
@@ -940,8 +910,6 @@ F 3 "" H 4125 3975 50  0000 C CNN
 	1    4125 3975
 	-1   0    0    -1  
 $EndComp
-Connection ~ 4425 3950
-Connection ~ 4425 3450
 $Comp
 L C_Small C37
 U 1 1 5773371F
@@ -967,15 +935,15 @@ F 4 "ETH" V 4275 3450 60  0001 C CNN "Option"
 	0    1    -1   0   
 $EndComp
 $Comp
-L CRYSTAL_SMD X1
+L Crystal_GND3_Small X1
 U 1 1 5773372D
-P 4425 3700
-F 0 "X1" V 4475 3525 39  0000 C CNN
-F 1 "25MHz" H 4325 3800 39  0000 L CNN
-F 2 "HERMESLITE:XTAL" H 4425 3700 50  0001 C CNN
-F 3 "" H 4425 3700 50  0000 C CNN
-F 4 "ETH" V 4425 3700 60  0001 C CNN "Option"
-	1    4425 3700
+P 4450 3700
+F 0 "X1" V 4500 3525 39  0000 C CNN
+F 1 "25MHz" H 4350 3800 39  0000 L CNN
+F 2 "HERMESLITE:XTAL" H 4450 3700 50  0001 C CNN
+F 3 "" H 4450 3700 50  0000 C CNN
+F 4 "ETH" V 4450 3700 60  0001 C CNN "Option"
+	1    4450 3700
 	0    1    -1   0   
 $EndComp
 Wire Wire Line
@@ -989,10 +957,6 @@ Wire Wire Line
 	4375 3450 4650 3450
 Text Notes 2900 3825 0    60   ~ 0
 X1 to support 2.5x2.0\nor 3.2x2.5 mm standard\n4-lead SMD packages
-Wire Wire Line
-	4425 3900 4425 3950
-Wire Wire Line
-	4425 3450 4425 3500
 Wire Wire Line
 	4375 3950 4650 3950
 Wire Wire Line
@@ -1162,4 +1126,10 @@ Build Options:\n
 Text Notes 1525 6775 0    60   ~ 0
 None
 Connection ~ 4125 3950
+Wire Wire Line
+	4450 3600 4450 3450
+Connection ~ 4450 3450
+Wire Wire Line
+	4450 3800 4450 3950
+Connection ~ 4450 3950
 $EndSCHEMATC
