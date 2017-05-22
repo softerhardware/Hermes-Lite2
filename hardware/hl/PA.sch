@@ -1,42 +1,12 @@
 EESchema Schematic File Version 2
-LIBS:power
-LIBS:device
-LIBS:transistors
-LIBS:conn
-LIBS:linear
-LIBS:regul
-LIBS:74xx
-LIBS:cmos4000
-LIBS:adc-dac
-LIBS:memory
-LIBS:xilinx
-LIBS:microcontrollers
-LIBS:dsp
-LIBS:microchip
-LIBS:analog_switches
-LIBS:motorola
-LIBS:texas
-LIBS:intel
-LIBS:audio
-LIBS:interface
-LIBS:digital-audio
-LIBS:philips
-LIBS:display
-LIBS:cypress
-LIBS:siliconi
-LIBS:opto
-LIBS:atmel
-LIBS:contrib
-LIBS:valves
 LIBS:hermeslite
-LIBS:hermeslite-cache
 EELAYER 25 0
 EELAYER END
 $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 7 7
 Title "Hermes-Lite V2 5W Power Amplifier"
-Date "2017-05-14"
+Date "2017-05-21"
 Rev "2.0-beta3"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
@@ -219,13 +189,13 @@ $EndComp
 $Comp
 L +VPA #PWR182
 U 1 1 5785B361
-P 4475 2000
-F 0 "#PWR182" H 4475 1850 50  0001 C CNN
-F 1 "+VPA" V 4475 2200 39  0000 C CNN
-F 2 "" H 4475 2000 50  0000 C CNN
-F 3 "" H 4475 2000 50  0000 C CNN
-	1    4475 2000
-	0    -1   -1   0   
+P 6100 975
+F 0 "#PWR182" H 6100 825 50  0001 C CNN
+F 1 "+VPA" H 6075 1125 39  0000 C CNN
+F 2 "" H 6100 975 50  0000 C CNN
+F 3 "" H 6100 975 50  0000 C CNN
+	1    6100 975 
+	1    0    0    -1  
 $EndComp
 $Comp
 L C_Small C144
@@ -868,7 +838,7 @@ $Comp
 L C_Small C85
 U 1 1 58173BC3
 P 5475 2000
-F 0 "C85" V 5525 1850 39  0000 L CNN
+F 0 "C85" V 5575 1950 39  0000 L CNN
 F 1 "DNI" V 5375 1950 39  0000 L CNN
 F 2 "HERMESLITE:SMD-0805" H 5475 2000 50  0001 C CNN
 F 3 "" H 5475 2000 50  0000 C CNN
@@ -1035,7 +1005,7 @@ Wire Wire Line
 	5125 3250 5125 3225
 Connection ~ 5125 3225
 Wire Wire Line
-	5325 2000 5325 3250
+	5325 1000 5325 3250
 Connection ~ 5325 3225
 Wire Wire Line
 	5525 3250 5525 3225
@@ -1074,7 +1044,6 @@ Wire Wire Line
 Connection ~ 4750 2000
 Wire Wire Line
 	4550 2025 4550 2000
-Connection ~ 4550 2000
 Wire Wire Line
 	5150 2250 5150 2225
 Wire Wire Line
@@ -1121,8 +1090,6 @@ Wire Wire Line
 Connection ~ 4775 4200
 Wire Wire Line
 	4550 2250 5150 2250
-Wire Wire Line
-	4475 2000 5375 2000
 Wire Wire Line
 	8250 2325 8250 3025
 Wire Wire Line
@@ -1313,4 +1280,94 @@ Wire Wire Line
 	7900 4525 7900 4550
 Text Notes 1100 6475 0    60   ~ 0
 R101,R95,R47,R56 set for AFT05MS003. Bias voltage ranges from 2.5 to 3.5V.\nSet R101,R95 to 7.5K, R47,R66 to 3.3K for bias voltage range from 3.1 to 5.3V.
+Wire Wire Line
+	4550 2000 5375 2000
+$Comp
+L INA199x1 U?
+U 1 1 591F78EF
+P 5775 1650
+F 0 "U?" H 5775 2150 39  0000 C CNN
+F 1 "INA199x1" H 5775 1625 39  0000 C CNN
+F 2 "" H 5775 1650 60  0000 C CNN
+F 3 "" H 5775 1650 60  0000 C CNN
+	1    5775 1650
+	-1   0    0    -1  
+$EndComp
+$Comp
+L R R?
+U 1 1 591F79D2
+P 5775 1000
+F 0 "R?" V 5700 1000 39  0000 C CNN
+F 1 "0.04" V 5782 1001 39  0000 C CNN
+F 2 "HERMESLITE:SMD-0805" V 5705 1000 30  0001 C CNN
+F 3 "" H 5775 1000 30  0000 C CNN
+F 4 "GENERIC" V 5775 1000 60  0001 C CNN "Option"
+F 5 "R 1K" V 5775 1000 60  0001 C CNN "Key"
+	1    5775 1000
+	0    1    1    0   
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 591F92E3
+P 5450 1600
+F 0 "#PWR?" H 5450 1350 50  0001 C CNN
+F 1 "GND" H 5450 1450 50  0001 C CNN
+F 2 "" H 5450 1600 50  0000 C CNN
+F 3 "" H 5450 1600 50  0000 C CNN
+	1    5450 1600
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5625 1000 5325 1000
+Wire Wire Line
+	5475 1275 5325 1275
+Connection ~ 5325 1275
+Wire Wire Line
+	5475 1475 5450 1475
+Wire Wire Line
+	5450 1475 5450 1600
+Wire Wire Line
+	5475 1575 5450 1575
+Connection ~ 5450 1575
+Wire Wire Line
+	6075 1375 6100 1375
+Wire Wire Line
+	6100 1375 6100 975 
+Wire Wire Line
+	5925 1000 6225 1000
+Connection ~ 6100 1000
+Wire Wire Line
+	6075 1275 6100 1275
+Connection ~ 6100 1275
+Text GLabel 6175 1575 2    39   Output ~ 0
+Vipa
+Wire Wire Line
+	6075 1575 6175 1575
+$Comp
+L C_Small B?
+U 1 1 592081CD
+P 6225 1125
+F 0 "B?" H 6235 1195 39  0000 L CNN
+F 1 "0.1uF" H 6235 1045 39  0000 L CNN
+F 2 "HERMESLITE:SMD-0603" H 6225 1125 50  0001 C CNN
+F 3 "" H 6225 1125 50  0000 C CNN
+F 4 "PA" H 6225 1125 60  0001 C CNN "Option"
+	1    6225 1125
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 59209ADC
+P 6225 1275
+F 0 "#PWR?" H 6225 1025 50  0001 C CNN
+F 1 "GND" H 6225 1125 50  0001 C CNN
+F 2 "" H 6225 1275 50  0000 C CNN
+F 3 "" H 6225 1275 50  0000 C CNN
+	1    6225 1275
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6225 1000 6225 1025
+Wire Wire Line
+	6225 1225 6225 1275
 $EndSCHEMATC
