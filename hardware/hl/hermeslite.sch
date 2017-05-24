@@ -29,13 +29,14 @@ LIBS:atmel
 LIBS:contrib
 LIBS:valves
 LIBS:hermeslite
+LIBS:hermeslite-cache
 EELAYER 25 0
 EELAYER END
 $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 1 7
 Title "Hermes-Lite"
-Date "2017-05-21"
+Date "2017-05-23"
 Rev "2.0-beta3"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
