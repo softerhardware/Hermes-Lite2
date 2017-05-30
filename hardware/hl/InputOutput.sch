@@ -2559,13 +2559,7 @@ Connection ~ 2650 5700
 Wire Wire Line
 	2750 4950 2725 4950
 Wire Wire Line
-	2725 4950 2725 5300
-Connection ~ 2725 5300
-Wire Wire Line
 	2750 4850 2650 4850
-Wire Wire Line
-	2650 4850 2650 5500
-Connection ~ 2650 5500
 Wire Wire Line
 	3175 2875 4075 2875
 Connection ~ 3975 2875
@@ -2583,13 +2577,7 @@ $EndComp
 Wire Wire Line
 	2750 3100 2725 3100
 Wire Wire Line
-	2725 3100 2725 3450
-Connection ~ 2725 3450
-Wire Wire Line
 	2750 3000 2650 3000
-Wire Wire Line
-	2650 3000 2650 3650
-Connection ~ 2650 3650
 $Comp
 L GND #PWR0185
 U 1 1 5929D64C
@@ -2730,4 +2718,16 @@ Wire Wire Line
 	5425 6800 5375 6800
 Wire Wire Line
 	5425 7000 5375 7000
+Wire Wire Line
+	2725 3100 2725 3650
+Connection ~ 2725 3650
+Wire Wire Line
+	2650 3000 2650 3450
+Connection ~ 2650 3450
+Wire Wire Line
+	2725 4950 2725 5500
+Connection ~ 2725 5500
+Wire Wire Line
+	2650 4850 2650 5300
+Connection ~ 2650 5300
 $EndSCHEMATC
