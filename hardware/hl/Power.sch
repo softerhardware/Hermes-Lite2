@@ -1906,8 +1906,8 @@ F 5 "HV" H 6400 5600 60  0001 C CNN "Ext"
 	1    6400 5600
 	1    0    0    -1  
 $EndComp
-Text Notes 7500 6550 0    60   ~ 0
-Default low voltage LDMOS PA: Include U8 and surrounding. \n>=12V PA: Exclude U8 and surrounding, jumper J6. 
+Text Notes 7500 6650 0    60   ~ 0
+Default low voltage LDMOS PA: Include U8 and surrounding. \n>=12V PA: Exclude U8 and surrounding, jumper J6. \nInclude J20 only with single 10V regulator.
 $Comp
 L FB FB15
 U 1 1 58050EF1
@@ -2090,7 +2090,7 @@ L JNC J20
 U 1 1 5809D217
 P 5300 7100
 F 0 "J20" H 5225 6975 39  0000 C CNN
-F 1 "JNC" V 5300 7100 39  0000 C CNN
+F 1 "JNO" V 5300 7100 39  0000 C CNN
 F 2 "HERMESLITE:SMD-0805" V 5230 7100 50  0001 C CNN
 F 3 "" H 5300 7100 50  0000 C CNN
 F 4 "ONE10V" H 5300 7100 60  0001 C CNN "OPTION"
