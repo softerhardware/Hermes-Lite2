@@ -1,5 +1,5 @@
 # <span style="color: brue; "> ji1udd Hermes-Lite Ver2 compact tranceiver</span>
-##Outline
+## Outline
 This is HF QRP SDR compact transceiver that consists of Hermes-Lite Ver2 and Raspberry Pi. (Under making, 16 Jun 2017)
 <img src="compact-trx/powercontrol/docs/compact-trx.JPG" width="480px">
 
@@ -19,23 +19,23 @@ Hermes-Lite Ver2, Raspberry Pi 2B, 5" HDMI Monitor, Power Control board, Audio c
 - Control Hermes-Lite and RPi+Monitor power individually by hooking one of rotary encoder push switches, without any additional switch. and keep an origianl rotary encoder push swtch function.
 
 
-<img src="compact-trx/powercontrol/docs/PowerControlboard.JPG" width="480px">
+<img src="compact-trx/powercontrol/docs/PowerControlboard.jpg" width="480px">
 
 In this [Test Video](https://youtu.be/TSX1PIrnZoY), power control board was used with HL v1.22. I put an [additional circuit](compact-trx/powercontrol/docs/Add-on-PMOS-switch.png) between power source and HL v1.22.
 
 ### Function
-####1) Power ON
+#### 1) Power ON
 - Turn on both HL and RPi+Monitor (hold Power SW down less than 3sec)
 - Turn on only HL  (hold down more than 3sec and less than 7sec)
 - Turn on only RPi+Monitor (hold down more than 7sec)
 
-####2) Power OFF
+#### 2) Power OFF
 - hold down more than 3sec.
 
-####3) Use Power SW as original function switch when RPi is on.
+#### 3) Use Power SW as original function switch when RPi is on.
 - hold down less than 3sec.
 
-####4) Shift only HL on to both on.
+#### 4) Shift only HL on to both on.
 - hold down less than 3sec.
 
 For more detail, please refer to [state diagram](compact-trx/powercontrol/docs/PowerControl_state_diagram.pdf).
@@ -46,13 +46,13 @@ For more detail, please refer to [state diagram](compact-trx/powercontrol/docs/P
 - Operating(after boot up OS): 300mA at 13.8V supply.
 
 
-###Hardware
+### Hardware
 [Schematic](compact-trx/powercontrol/docs/PowerControl_v11.pdf)
 [BOM](compact-trx/powercontrol/docs/BOM_PwrCtrl.pdf)
 [Gerber](compact-trx/powercontrol/gerber/PowerControl.zip)
 
 
-###PIC software
+### PIC software
 I used legacy MPLAB IDE v8.92, XC8 C compiler v1.33 and ICD2.
 
 [source file(.c)](compact-trx/powercontrol/software/pic12f1822/HL2_Power_Control.c)
@@ -60,8 +60,8 @@ I used legacy MPLAB IDE v8.92, XC8 C compiler v1.33 and ICD2.
 
 If you want to adjust turn off delay time after SBC status stop, adjust parameter "Power off delay" in C source file. The current setting is 600 (6sec).
 
-###Raspberry Pi software & setting
-####1) GPIO setting for RPi status output
+### Raspberry Pi software & setting
+#### 1) GPIO setting for RPi status output
      $ sudo nano /boot/config.txt
 
   add the followng line at the end of file
@@ -69,14 +69,14 @@ If you want to adjust turn off delay time after SBC status stop, adjust paramete
     dtparam=act_led_gpio=4
 
 
-####2) shutdown script
+#### 2) shutdown script
   Store [shutdown.py](compact-trx/powercontrol/software/RaspberryPi/shutdown.py) into /home/pi. aftar that,
 
     $ sudo chmod 755 shutdown.py
 
   If you change GPIO assignment, this script and above status output setting should be changed properly.
 
-####3) Start the script after RPi boot up
+#### 3) Start the script after RPi boot up
     $ sudo nano /etc/rc.local
 
   add the followng line before "exit 0"
@@ -85,7 +85,7 @@ If you want to adjust turn off delay time after SBC status stop, adjust paramete
      exit 0
 
 
-4) Start PiHPSDR after RPi boot up
+#### 4) Start PiHPSDR after RPi boot up
     Please refer to official PiHPSDR installation document.
 
 ---
