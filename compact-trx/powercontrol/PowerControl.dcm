@@ -1,0 +1,27 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP AP2204K
+D 200 mA Low Dropout Voltage Regulator, Fixed Output 1.2V, SOT-23-5
+K 200mA LDO Regulator Fixed Positive
+F http://www.ti.com/lit/ds/symlink/tlv70025.pdf
+$ENDCMP
+#
+$CMP OKL-T/3-W12N-C
+D DC-DC Converter module
+$ENDCMP
+#
+$CMP PIC12F1822
+D Micon
+$ENDCMP
+#
+$CMP TAR5SB33
+D 200 mA Low Dropout Voltage Regulator, Fixed Output 1.2V, SOT-23-5
+K 200mA LDO Regulator Fixed Positive
+$ENDCMP
+#
+$CMP TLV70033DDC
+D 200 mA Low Dropout Voltage Regulator, Fixed Output 3.3V, SOT-23-5
+K 200mA LDO Regulator Fixed Positive
+$ENDCMP
+#
+#End Doc Library

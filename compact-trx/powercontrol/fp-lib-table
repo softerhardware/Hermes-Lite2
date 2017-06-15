@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name powercontrol)(type KiCad)(uri "$(KIPRJMOD)\\powercontrol.pretty")(options "")(descr ""))
+)
