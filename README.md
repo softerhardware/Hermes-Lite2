@@ -16,7 +16,7 @@ Hermes-Lite Ver2, Raspberry Pi 2B, 5" HDMI Monitor, Power Control board, Audio c
 ### Purpose
 - Turn tranceiver on and off easily.
 - Turn RPi off automatically after shut down process has been completed.
-- Control Hermes-Lite and RPi+Monitor power individually by hooking one of rotary encoder push switches, without any additional switch. and keep an origianl rotary encoder push swtch function.
+- Control Hermes-Lite and RPi+Monitor power individually by hooking one of rotary encoder push switches, without any additional switch. and keep an origianl rotary encoder push switch function.
 
 
 <img src="compact-trx/powercontrol/docs/PowerControlboard.jpg" width="480px">
