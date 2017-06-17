@@ -133,9 +133,9 @@
 	"pins":2
 	},
 
-"C 8.2pF 0603": {
-	"mpn":["CC0603JRNPO9BN8R2"],
-	"spec":"8.2pF 0603NP0>=25V<=5%",
+"C 8.2pF 0805": {
+	"mpn":["CL21C8R2DBANNNC"],
+	"spec":"8.2pF 0805NP0>=25V<=5%",
 	"assembly":"SMT",
 	"pins":2
 	},
@@ -197,18 +197,11 @@
 	},
 
 "U LP2985": {
-	"mpn":["LP2985-33DBVR"],
-	"spec":"LDO 5V 150mA",
+	"mpn":["LP2985-10DBVR"],
+	"spec":"LDO 10V 150mA",
 	"assembly":"SMT",
 	"pins":5
 	},
-
-"U MCP4661": {
-	"mpn":["MCP4661-103E/ST"],
-	"spec":"Digital POT 10K",
-	"assembly":"SMT",
-	"pins":14
-	},	
 
 "U MCP4662": {
 	"mpn":["MCP4662-502E/UN"],
@@ -252,7 +245,7 @@
 	"pins":8
 	},	
 
-"U INA119x1": {
+"U INA199x1": {
 	"mpn":["INA199A1DC"],
 	"spec":"Current Sense AMP",
 	"assembly":"SMT",
@@ -275,7 +268,7 @@
 	},
 
 "D SMBJ18CA": {
-	"mpn":["SMBJ18CA-H"],
+	"mpn":["SMBJ18CA"],
 	"spec":"TVS Diode",
 	"assembly":"SMT",
 	"pins":2
@@ -400,13 +393,6 @@
 	"pins":2
 	},
 
-"R 1.5K 0603": {
-	"mpn":["RC0603FR-071K5L"],
-	"spec":"1.5K 0603<=5%>=1/10W",
-	"assembly":"SMT",
-	"pins":2
-	},
-
 "R 1K 0603": {
 	"mpn":["RC0603FR-071KL"],
 	"spec":"1K 0603<=5%>=1/10W",
@@ -498,21 +484,14 @@
 	"pins":2
 	},
 
-"R 0.04 1206": {
-	"mpn":["PE1206FRM070R04L"],
+"R 0.04": {
+	"mpn":["RL1206FR-070R04L","PE1206FRM070R04L"],
 	"spec":"0.04 1206<=1%>=1/4W",
 	"assembly":"SMT",
 	"pins":2
 	},
 
 "J JNC 0603": {
-	"mpn":["RC0603JR-070RL"],
-	"spec":"0Ohm 0603<=5%>=1/10W",
-	"assembly":"SMT",
-	"pins":2
-	},
-
-"J JNO 0603": {
 	"mpn":["RC0603JR-070RL"],
 	"spec":"0Ohm 0603<=5%>=1/10W",
 	"assembly":"SMT",
@@ -581,13 +560,6 @@
 	"altsrc":[["www.ebay.com",1.00]],
 	"assembly":"MTH",
 	"pins":5	
-	},	
-
-"RF BNC": {
-	"mpn":["0731000105"],
-	"spec":"BNC",
-	"assembly":"MTH",
-	"pins":5
 	},	
 
 "X 38.4MHz": {
