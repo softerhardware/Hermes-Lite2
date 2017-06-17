@@ -273,6 +273,7 @@ class Part:
         self.mpns = []
         self.spec = ''
         self.components = [component]
+        ##print "Add component",component.DebugStr()
 
     def AddComponent(self,component):
         self.components.append(component)
