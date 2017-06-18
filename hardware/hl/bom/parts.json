@@ -22,7 +22,7 @@
 	},
 
 "C 10uF 0603": {
-	"mpn":["GRM188R60J106KE47D"],
+	"mpn":["GRM188R60J106KE47D","GRM188R60J106ME47D"],
 	"spec":"10uF 0603>=X5R>=6.3V<=20%",
 	"assembly":"SMT",
 	"pins":2
@@ -43,7 +43,7 @@
 	},
 
 "C 22uF 0805 HV": {
-	"mpn":["GRM21BR61E226ME44L","GRT21BR61E226ME13L"],
+	"mpn":["GRM21BR61E226ME44L","GRT21BR61E226ME13L","CC0805MKX5R8BB226"],
 	"spec":"22uF 0805>=X5R>=25V<=20%",
 	"assembly":"SMT",
 	"pins":2
@@ -183,7 +183,7 @@
 	},
 
 "U OPA2677": {
-	"mpn":["OPA2677IDDAR"],
+	"mpn":["OPA2677IDDA"],
 	"spec":"RF Preamp OpAmp",
 	"assembly":"SMT",
 	"pins":8
@@ -245,7 +245,7 @@
 	"pins":8
 	},	
 
-"U INA199x1": {
+"U INA199A1DC": {
 	"mpn":["INA199A1DC"],
 	"spec":"Current Sense AMP",
 	"assembly":"SMT",
@@ -254,7 +254,7 @@
 
 
 "D 1N5711": {
-	"mpn":["1N5711WS-7-F"],
+	"mpn":["1N5711WS-7-F","SMS3924-079LF"],
 	"spec":"Schottky Barrier Diode",
 	"assembly":"SMT",
 	"pins":2
@@ -266,6 +266,14 @@
 	"assembly":"SMT",
 	"pins":3
 	},
+
+"D SM05": {
+	"mpn":["SM05.TCT","tpd2e009"],
+	"spec":"TVS Diode",
+	"assembly":"SMT",
+	"pins":3
+	},
+
 
 "D SMBJ18CA": {
 	"mpn":["SMBJ18CA"],
@@ -438,6 +446,13 @@
 "R 100 0603": {
 	"mpn":["RC0603FR-07100RL"],
 	"spec":"100 0603<=1%>=1/10W",
+	"assembly":"SMT",
+	"pins":2
+	},
+
+"R 100 0805": {
+	"mpn":["RC0805FR-07100RL"],
+	"spec":"100 0805<=5%>=1/8W",
 	"assembly":"SMT",
 	"pins":2
 	},

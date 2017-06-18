@@ -88,6 +88,10 @@ special = {
     "PROG":[Quote(Decimal(3.00),'*EBay','http://www.ebay.com/itm/altera-Mini-Usb-Blaster-Cable-For-CPLD-FPGA-NIOS-JTAG-Altera-Programmer-/200943750380?hash=item2ec92e4cec:g:YyMAAOSw0fhXieqQ','Various','','USB Blaster')]
 }
 
+## Override for problems with OctoPart
+overrides = {
+    "OPA2677IDDA":[Quote(Decimal(3.90),'Digi-Key','http://www.digikey.com','','OPA2677IDDA','OPA2677IDDA')],
+}
 
 
 class Octopart:
@@ -138,15 +142,25 @@ class Octopart:
         v = self.db.get(mpn)
         if v == None:
             print "MPN",mpn,"does not exist in DB"
+            for k in self.db.getall():
+                print k
             return
 
         rec(v,0)
+
+        return v
 
     def Quotes(self,mpn,quantity):
 
         ##print "Quote for",mpn,quantity
         quotes = []
-        v = self.db.get(mpn)
+        if mpn in overrides:
+            print "WARNING: Using override for",mpn
+            quotes.extend(overrides[mpn])
+            return quotes
+        else:
+            v = self.db.get(mpn)
+
         if v == None: 
             ## Add any special quotes
             if mpn in special:
