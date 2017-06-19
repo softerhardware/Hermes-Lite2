@@ -317,9 +317,9 @@
 	"pins":2
 	},
 
-"R 27K 0805": {
-	"mpn":["RC0805FR-0727KL"],
-	"spec":"27K 0805<=1%>=1/8W",
+"R 27K 0603": {
+	"mpn":["RC0603FR-0727KL"],
+	"spec":"27K 0603<=1%>=1/8W",
 	"assembly":"SMT",
 	"pins":2
 	},	
@@ -359,9 +359,9 @@
 	"pins":2
 	},
 
-"R 9.1K 0805": {
-	"mpn":["RC0805FR-079K1L"],
-	"spec":"9.1K 0805<=1%>=1/8W",
+"R 9.1K 0603": {
+	"mpn":["RC0603FR-079K1L"],
+	"spec":"9.1K 0603<=1%>=1/8W",
 	"assembly":"SMT",
 	"pins":2
 	},	
@@ -478,16 +478,9 @@
 	"pins":2
 	},
 
-"R 14 0805": {
-	"mpn":["ESR10EZPF14R0"],
-	"spec":"14 0805<=5%>=1/4W",
-	"assembly":"SMT",
-	"pins":2
-	},
-
-"R 10 0805": {
-	"mpn":["ESR10EZPF10R0"],
-	"spec":"10 0805<=5%>=1/4W",
+"R 12 0805": {
+	"mpn":["RC0805FR-0712RL","ERJ-6ENF12R0V"],
+	"spec":"14 0805<=5%>=1/8W",
 	"assembly":"SMT",
 	"pins":2
 	},
@@ -692,6 +685,27 @@
 	"pins":4
 	},		
 
+"T 8:1 Z": {
+	"mpn":["MABA-010143-FLUX18","WBC8-1LB"],
+	"spec":"8:1 RF Transformer",
+	"assembly":"SMT",
+	"pins":5
+	},	
+
+"T 1:1 Z": {
+	"mpn":["MABAES0060","PWB1010-1LB","TC1-1TG2+"],
+	"spec":"1:1 RF Transformer",
+	"assembly":"SMT",
+	"pins":5
+	},	
+
+"T 4:1 Z": {
+	"mpn":["B62152A4X30"],
+	"spec":"4:1 RF Transformer",
+	"assembly":"MTH",
+	"pins":4
+	},
+
 "K NA3WK-K": {
 	"mpn":["EC2-3NU","NA-3W-K"],
 	"spec":"Relay",
@@ -699,10 +713,9 @@
 	"pins":10
 	},	
 
-
 "CASE": {
-	"mpn":["CASE"],
-	"spec":"Enclosure",
+	"mpn":["AK-C-C12"],
+	"spec":"55x106x100 raw aluminum",
 	"assembly":"MTH",
 	"pins":0
 	},	
