@@ -84,7 +84,7 @@ special = {
     "T37-6":[Quote(Decimal(0.25),'*Kits&Parts','http://www.kitsandparts.com','','T37-6','T37-6')],
     "RD15HVF1":[Quote(Decimal(4.00),'*AliExpress','http://www.aliexpress.com','Mitsubishi','RD15HVF1','RD15HVF1')],
     "PCB":[Quote(Decimal(18.00),'*Tindie','http://www.tindie.com','Elecrow','','PCB')],
-    "CASE":[Quote(Decimal(9.00),'*EBay','http://www.ebay.com/itm/1PC-Aluminum-PCB-Instrument-Box-Enclosure-Project-Electronic-Case-8-Screws-US-/322239636151?hash=item4b06faa2b7:g:s20AAOSw6n5Xvlrb','Various','','Aluminum 100x100x50')],
+    "AK-C-C12":[Quote(Decimal(16.78),'*AliExpress','https://www.aliexpress.com/item/4-pieces-a-lot-top-sales-china-die-casting-aluminum-housing-55-106-150-mm/1243767700.html','Various','','Aluminum 100x100x50')],
     "PROG":[Quote(Decimal(3.00),'*EBay','http://www.ebay.com/itm/altera-Mini-Usb-Blaster-Cable-For-CPLD-FPGA-NIOS-JTAG-Altera-Programmer-/200943750380?hash=item2ec92e4cec:g:YyMAAOSw0fhXieqQ','Various','','USB Blaster')]
 }
 
