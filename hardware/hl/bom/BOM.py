@@ -91,6 +91,7 @@ special = {
 ## Override for problems with OctoPart
 overrides = {
     "OPA2677IDDA":[Quote(Decimal(3.90),'Digi-Key','http://www.digikey.com','','OPA2677IDDA','OPA2677IDDA')],
+    "INA199A1DC":[Quote(Decimal(0.84),'Mouser','http://www.mouser.com','','INA199A1DC','INA199A1DC')],
 }
 
 
