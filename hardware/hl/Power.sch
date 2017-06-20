@@ -3061,7 +3061,7 @@ Wire Wire Line
 Wire Wire Line
 	3925 4250 3925 4450
 Wire Wire Line
-	2700 4250 3950 4250
+	2650 4250 3950 4250
 Wire Wire Line
 	3500 4250 3500 4300
 Wire Wire Line
@@ -3525,4 +3525,6 @@ Text Notes 1125 4425 0    39   ~ 0
 DNI
 Text Notes 1125 4875 0    39   ~ 0
 DNI
+Text GLabel 2650 4250 0    39   Output ~ 8
+VSUP
 $EndSCHEMATC
