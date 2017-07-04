@@ -60,6 +60,7 @@ class Quote:
         ##return "{0} & {1} & {2} & {3} & {4:.2f}".format(self.manufacturer,octoparturl,seller,sku,self.price)
         return "{0} & {1} & {2} & {3:.2f}".format(octoparturl,seller,sku,self.price)
 
+
     def WikiLine(self):
         if self.name == 'Digi-Key':
             sku = '[{0}](http://www.digikey.com/product-search/en?keywords={0})'.format(self.sku)
@@ -299,6 +300,35 @@ class Part:
         self.pins = v['pins']
         self.assembly = v['assembly']
 
+        if 'aliexpress' in v:
+            self.aliexpress = v['aliexpress']
+        else:
+            self.aliexpress = None
+
+        if 'sub' in v:
+            self.sub = 'Y' if v['sub'] == 1 else 'N'
+        else:
+            self.sub = 'Y'
+
+        if 'package' in v:
+            self.package = LaTeXEscape(v['package'])
+        else:
+            if '0805' in self.spec or self.components[0].ext == '0805':
+                self.package = '0805'
+            elif '0603' in self.spec or self.components[0].ext == '0603': 
+                self.package = '0603' 
+            elif '1206' in self.spec:
+                self.package = '1206'
+            else:
+                self.package = "Custom"
+
+        if 'ecid' in v:
+            self.ecid = v['ecid']
+        else:
+            self.ecid = ' '
+
+
+
     def Quantities(self,options):
         unique = set([])
         optional = 0
@@ -383,6 +413,18 @@ class Part:
         res = res + refs[-1][0] + str(refs[-1][1])
 
         return res
+
+    def LaTeXAssemblyLinks(self):
+
+        if self.aliexpress:
+            url = '\href{{http://www.aliexpress.com/wholesale?SearchText={0}}}{{{1}}}'.format(self.aliexpress,self.mpns[0])
+        else:
+            url = '\href{{http://www.octopart.com/search?q={0}}}{{{1}}}'.format(self.mpns[0],self.mpns[0])
+
+        ##for mpn in self.mpns:
+        ##    urls.append('\href{{http://www.octopart.com/search?q={0}}}{{{1}}}'.format(mpn,i) )
+        
+        return url
 
     def DNIRefs(self,options):
         return [c.ref for c in self.components if (c.option not in options and "NOBOM" not in c.key)]
@@ -589,6 +631,75 @@ class BOM:
         dnis = ' '.join(dni).strip()        
         if dnis != '':
             print >>f,"\\textbf{{Do Not Include:}}"
+            print >>f,dnis
+            print >>f,"\\\\"
+
+        f.close()
+
+
+    def LaTeXAssemblyPrint(self,pre="",prefer=None):
+        keys = self.parts.keys()
+        keys.sort(key=lambda x: self.parts[x].FirstRef(self.optionset))
+        ##keys.sort(key=lambda x: self.parts[x].components[0].ref)
+
+        total = Decimal(0.0)
+
+        f = open("bompre.dat","w")
+        print >>f,pre
+        f.close()
+
+        f = open("bom.dat","w")
+
+        # itemspartspins
+        ipp = {
+            'SMT':(0,0,0),
+            'TH':(0,0,0),
+            'MTH':(0,0,0)
+        }
+
+        dni = []
+
+        for k in keys:
+            p = self.parts[k]
+
+            dni.extend(p.DNIRefs(self.optionset))
+
+            c8 = p.Quantities(self.optionset)[0]
+            if c8 == 0: continue
+
+            c1 = p.ecid
+            c2 = LaTeXEscape(p.spec)
+            c3 = p.LaTeXAssemblyLinks()
+            c4 = p.sub
+            c5 = p.LaTeXRefs(self.optionset)
+            c6 = p.package
+            c7 = p.pins
+
+            items,parts,pins = ipp[p.assembly]
+            ipp[p.assembly] = items+1,parts+c8,pins+(p.pins*c8)
+
+            s = '{0} & {1} & {2} & {3} & {4} & {5} & {6} & {7} \\\\ \hline'.format(c1,c2,c3,c4,c5,c6,c7,c8)
+            
+            ##print c1,c2,c3,c4,c5,c6,c7,c8
+            
+            print >>f,s
+
+        f.close()
+
+        dni.sort()
+        dni = [d[0]+str(d[1]) for d in dni]
+
+
+        f = open("bompost.dat","w")
+
+        ##print >>f,"\\noindent \\textbf{{Total Price:}} \\${0:.2f}\\\\".format(total)
+        print >>f,"\\noindent \\textbf{{Line Items:}} SMT:{0} Assembled TH:{1}\\\\".format(ipp['SMT'][0],ipp['TH'][0])
+        print >>f,"\\textbf{{Parts:}} SMT:{0} Assembled TH:{1}\\\\".format(ipp['SMT'][1],ipp['TH'][1])
+        print >>f,"\\textbf{{Pins:}} SMT:{0} Assembled TH:{1}\\\\".format(ipp['SMT'][2],ipp['TH'][2])
+
+        dnis = ' '.join(dni).strip()        
+        if dnis != '':
+            print >>f,"\\textbf{{Do Not Assemble:}}"
             print >>f,dnis
             print >>f,"\\\\"
 
