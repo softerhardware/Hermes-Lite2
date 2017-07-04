@@ -414,6 +414,32 @@ class Part:
 
         return res
 
+    def CSVRefs(self,options,llen=16):
+
+        refs = [c.ref for c in self.components if c.option in options]
+        refs.sort()
+
+        res = ''
+
+        if refs == []: return res
+
+        i = 0
+        for ref in refs[:-1]:
+            if i > llen:
+                res = res + '\n'
+                i = 0
+            ref = ref[0]+str(ref[1])
+            res = res + ref + ","
+            i = i + 1 + len(ref)
+
+        if i > llen:
+            res = res + '\n'
+
+        res = res + refs[-1][0] + str(refs[-1][1])
+
+        return res
+
+
     def LaTeXAssemblyLinks(self):
 
         if self.aliexpress:
@@ -425,6 +451,17 @@ class Part:
         ##    urls.append('\href{{http://www.octopart.com/search?q={0}}}{{{1}}}'.format(mpn,i) )
         
         return url
+
+    def CSVAssemblyLinks(self):
+        if self.aliexpress:
+            url = '=HYPERLINK("http://www.aliexpress.com/wholesale?SearchText={0}")'.format(self.aliexpress)
+        else:
+            url = '=HYPERLINK("http://www.octopart.com/search?q={0}")'.format(self.mpns[0])
+
+        ##for mpn in self.mpns:
+        ##    urls.append('\href{{http://www.octopart.com/search?q={0}}}{{{1}}}'.format(mpn,i) )
+        
+        return url        
 
     def DNIRefs(self,options):
         return [c.ref for c in self.components if (c.option not in options and "NOBOM" not in c.key)]
@@ -704,6 +741,70 @@ class BOM:
             print >>f,"\\\\"
 
         f.close()
+
+    def CSVAssemblyPrint(self,prefer=None):
+        keys = self.parts.keys()
+        keys.sort(key=lambda x: self.parts[x].FirstRef(self.optionset))
+
+        f = open("bomassembly.csv","w")
+
+        s = '"Part ID", "Description", "Part Number", "Substitution\nOkay", "Designators", "Footprint", "Pins", "Quantity", "Part Reference Link"'
+        print >>f,s
+
+        # itemspartspins
+        ipp = {
+            'SMT':(0,0,0),
+            'TH':(0,0,0),
+            'MTH':(0,0,0)
+        }
+
+        dni = []
+
+        for k in keys:
+            p = self.parts[k]
+
+            dni.extend(p.DNIRefs(self.optionset))
+
+            c8 = p.Quantities(self.optionset)[0]
+            if c8 == 0: continue
+
+            c1 = p.ecid
+            c2 = p.spec
+            c3 = p.mpns[0] 
+            c4 = p.sub
+            c5 = p.CSVRefs(self.optionset)
+            c6 = p.package
+            c7 = p.pins
+            c9 = p.CSVAssemblyLinks()
+
+            items,parts,pins = ipp[p.assembly]
+            ipp[p.assembly] = items+1,parts+c8,pins+(p.pins*c8)
+
+            s = '{0}, "{1}", "{2}", {3}, "{4}", "{5}", {6}, {7}, "{8}"'.format(c1,c2,c3,c4,c5,c6,c7,c8,c9)
+            
+            ##print c1,c2,c3,c4,c5,c6,c7,c8
+            
+            print >>f,s
+
+        print >>f,""
+
+        dni.sort()
+        dni = [d[0]+str(d[1]) for d in dni]
+
+        print >>f,'"Line Items SMT:", " ", {0}, "Line Items TH:", " ", {1}'.format(ipp['SMT'][0],ipp['TH'][0])
+        print >>f,'"Parts SMT:", " ", {0}, "Parts TH:", " ", {1}'.format(ipp['SMT'][1],ipp['TH'][1])
+        print >>f,'"Pins SMT:", " ", {0}, "Pins TH:", " ", {1}'.format(ipp['SMT'][2],ipp['TH'][2])
+
+        print >>f,""
+
+        dnis = ' '.join(dni).strip()        
+        if dnis != '':
+            print >>f,"Do Not Assemble:"
+            print >>f,dnis
+
+        f.close()
+
+
 
 
     def OctoPartUpdatePrices(self):
