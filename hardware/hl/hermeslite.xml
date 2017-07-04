@@ -2,7 +2,7 @@
 <export version="D">
   <design>
     <source>C:/cygwin64/home/shaynal/Hermes-Lite2/hardware/hl/hermeslite.sch</source>
-    <date>6/25/2017 10:31:14 PM</date>
+    <date>6/29/2017 9:44:49 PM</date>
     <tool>Eeschema 4.0.6</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -101,6 +101,7 @@
       <value>PCB</value>
       <fields>
         <field name="Key">PCB</field>
+        <field name="Option">NOASSEMBLY</field>
       </fields>
       <libsource lib="hermeslite" part="JNO"/>
       <sheetpath names="/" tstamps="/"/>
@@ -110,7 +111,7 @@
       <value>CASE</value>
       <fields>
         <field name="Key">CASE</field>
-        <field name="Option">CASE</field>
+        <field name="Option">CASE&amp;NOASSEMBLY</field>
       </fields>
       <libsource lib="hermeslite" part="JNO"/>
       <sheetpath names="/" tstamps="/"/>
@@ -120,7 +121,7 @@
       <value>PROG</value>
       <fields>
         <field name="Key">PROG</field>
-        <field name="Option">PROGRAMMER</field>
+        <field name="Option">PROGRAMMER&amp;NOASSEMBLY</field>
       </fields>
       <libsource lib="hermeslite" part="JNO"/>
       <sheetpath names="/" tstamps="/"/>
@@ -681,6 +682,9 @@
     <comp ref="CN2">
       <value>PS</value>
       <footprint>HERMESLITE:POWERPP</footprint>
+      <fields>
+        <field name="Option">NOASSEMBLY</field>
+      </fields>
       <libsource lib="conn" part="CONN_01X02"/>
       <sheetpath names="/Power and FPGA/" tstamps="/56C9CAA0/"/>
       <tstamp>578FD492</tstamp>
@@ -2806,7 +2810,7 @@
       <footprint>HERMESLITE:SMAEDGE_TH</footprint>
       <fields>
         <field name="Key">CL SMA</field>
-        <field name="Option">TXLP</field>
+        <field name="Option">TXLP&amp;NOASSEMBLY</field>
       </fields>
       <libsource lib="hermeslite" part="BNC"/>
       <sheetpath names="/RF Frontend/" tstamps="/56AAFEF4/"/>
@@ -3778,7 +3782,7 @@
       <footprint>HERMESLITE:IO</footprint>
       <fields>
         <field name="Key">CN8R</field>
-        <field name="Option">FRONTIO</field>
+        <field name="Option">FRONTIO&amp;NOASSEMBLY</field>
       </fields>
       <libsource lib="hermeslite" part="IO8"/>
       <sheetpath names="/Input Output/" tstamps="/56C6CB95/"/>
@@ -4808,7 +4812,7 @@
       <value>4:1 Z</value>
       <footprint>HERMESLITE:BN202V</footprint>
       <fields>
-        <field name="Option">PA</field>
+        <field name="Option">PA&amp;NOASSEMBLY</field>
       </fields>
       <libsource lib="hermeslite" part="TRANSF4CT"/>
       <sheetpath names="/PA/" tstamps="/577F7295/"/>
@@ -4860,7 +4864,7 @@
       <value>SMA</value>
       <footprint>HERMESLITE:SMAEDGE_TH</footprint>
       <fields>
-        <field name="Option">PA</field>
+        <field name="Option">PA&amp;NOASSEMBLY</field>
         <field name="Key">CL SMA</field>
       </fields>
       <libsource lib="hermeslite" part="BNC"/>
@@ -4922,7 +4926,7 @@
       <value>NA3WK-K</value>
       <footprint>HERMESLITE:DPDT_GND</footprint>
       <fields>
-        <field name="Option">PATR</field>
+        <field name="Option">PATR&amp;NOASSEMBLY</field>
       </fields>
       <libsource lib="hermeslite" part="DPDTR_GND"/>
       <sheetpath names="/PA/" tstamps="/577F7295/"/>
@@ -6100,9 +6104,6 @@
     </libpart>
   </libparts>
   <libraries>
-    <library logical="hermeslite">
-      <uri>C:\cygwin64\home\shaynal\Hermes-Lite2\hardware\hl\libs\hermeslite.lib</uri>
-    </library>
     <library logical="device">
       <uri>C:\Program Files\KiCad\share\kicad\library\device.lib</uri>
     </library>
@@ -6111,6 +6112,9 @@
     </library>
     <library logical="linear">
       <uri>C:\Program Files\KiCad\share\kicad\library\linear.lib</uri>
+    </library>
+    <library logical="hermeslite">
+      <uri>C:\cygwin64\home\shaynal\Hermes-Lite2\hardware\hl\libs\hermeslite.lib</uri>
     </library>
   </libraries>
   <nets>
