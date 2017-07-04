@@ -115,7 +115,7 @@
 	},
 
 "C 160pF 0805": {
-	"mpn":["CC0805JRNPO0BN161","GRM2165C2A161JA01D","CL21C161JCANNNC","C0805C161J1GACTU","251R15S161JV4E"],
+	"mpn":["GRM2165C2A161JA01D","CL21C161JCANNNC","C0805C161J1GACTU","251R15S161JV4E"],
 	"spec":"160pF 0805NP0>=50V<=5%",
 	"assembly":"SMT",
 	"pins":2,
@@ -140,7 +140,7 @@
 	},
 
 "C 75pF 0805": {
-	"mpn":["CC0805JRNPO0BN750","GRM2195C2A750JA01D","CL21C750JCANNNC","C0805C750J1GACTU","251R15S750JV4E","08051A750JAT2A"],
+	"mpn":["C0805C750J1GACTU","251R15S750JV4E","08051A750JAT2A"],
 	"spec":"75pF 0805NP0>=50V<=5%",
 	"assembly":"SMT",
 	"pins":2,
@@ -180,7 +180,7 @@
 	"pins":48,
 	"sub":0,
 	"aliexpress":"KSZ9031",
-	"package":"48-VFQFN Exposed Pad"
+	"package":"48-VFQFN EP"
 	},
 
 "U FPGA": {
@@ -190,7 +190,7 @@
 	"pins":144,
 	"sub":0,
 	"aliexpress":"EP4CE22E22C8N",
-	"package":"144-LQFP Exposed Pad"
+	"package":"144-LQFP EP"
 	},
 
 "U EEPROM": {
@@ -200,7 +200,7 @@
 	"pins":8,
 	"sub":0,
 	"aliexpress":"S25FL116K0XMFI041",
-	"package":"8-SOIC (3.90mm Width)"
+	"package":"8-SOIC (3.90mm)"
 	},
 
 "U 5P49V5923": {
@@ -209,7 +209,7 @@
 	"assembly":"SMT",
 	"pins":24,
 	"sub":0,
-	"package":"24-VFQFN Exposed Pad"
+	"package":"24-VFQFN EP"
 	},
 
 "U MCP4716": {
@@ -228,7 +228,7 @@
 	"pins":64,
 	"sub":0,
 	"aliexpress":"AD9866BCPZ",
-	"package":"64-VFQFN Exposed Pad"
+	"package":"64-VFQFN EP"
 	},
 
 "U OPA2677": {
@@ -236,10 +236,9 @@
 	"spec":"RF Preamp OpAmp",
 	"assembly":"SMT",
 	"pins":8,
-	"package":"8-SO PowerPAD",
 	"sub":0,
 	"aliexpress":"OPA2677",
-	"package":"8-PowerSOIC (3.90mm Width)"
+	"package":"8-SOIC (3.90mm) EP"
 	},
 
 "U PE4259": {
@@ -267,7 +266,7 @@
 	"assembly":"SMT",
 	"pins":10,
 	"sub":0,
-	"package":"10-MSOP (3.00mm Width)"
+	"package":"10-MSOP (3.00mm)"
 	},	
 
 "U ST1S10": {
@@ -276,7 +275,7 @@
 	"assembly":"SMT",
 	"pins":8,
 	"sub":0,
-	"package":"8-SOIC (3.90mm Width) Exposed Pad",
+	"package":"8-SOIC (3.90mm) EP",
 	"aliexpress":"st1s10"
 	},
 
@@ -286,7 +285,7 @@
 	"assembly":"SMT",
 	"pins":8,
 	"sub":0,
-	"package":"8-MSOP (3.00mm Width)"
+	"package":"8-MSOP (3.00mm)"
 	},
 
 "U TPS730": {
@@ -305,7 +304,7 @@
 	"assembly":"SMT",
 	"pins":14,
 	"sub":0,
-	"package":"14-SOIC (3.90mm Width)",
+	"package":"14-SOIC (3.90mm)",
 	"aliexpress":"LMV324IDR"
 	},
 
@@ -315,7 +314,7 @@
 	"assembly":"SMT",
 	"pins":8,
 	"sub":0,
-	"package":"8-SOIC (3.90mm Width) Exposed Pad"
+	"package":"8-SOIC (3.90mm) EP"
 	},	
 
 "U INA199A1DC": {
@@ -324,8 +323,7 @@
 	"assembly":"SMT",
 	"pins":6,
 	"sub":0,
-	"package":"SC-70-6",
-	"aliexpress":"INA199A1DC"
+	"package":"SC-70-6"
 	},	
 
 
@@ -353,7 +351,7 @@
 	"assembly":"SMT",
 	"pins":3,
 	"sub":0,
-	"package":"SOT-23-3"
+	"package":"SOT-23-3",
 	"aliexpress":"SM05.TCT"
 	},
 
@@ -383,7 +381,7 @@
 	"assembly":"SMT",
 	"pins":2,
 	"sub":0,
-	"package":"2.10mm L x 1.00mm W Right Angle"
+	"package":"2.1x1.0mmRightAngle"
 	},
 
 "FB FB 0603": {
@@ -410,7 +408,7 @@
 
 "R 27K 0603": {
 	"mpn":["RC0603FR-0727KL"],
-	"spec":"27K 0603<=1%>=1/8W",
+	"spec":"27K 0603<=1%>=1/10W",
 	"assembly":"SMT",
 	"pins":2,
 	"ecid":23694
@@ -455,7 +453,7 @@
 
 "R 9.1K 0603": {
 	"mpn":["RC0603FR-079K1L"],
-	"spec":"9.1K 0603<=1%>=1/8W",
+	"spec":"9.1K 0603<=1%>=1/10W",
 	"assembly":"SMT",
 	"pins":2,
 	"ecid":23987
@@ -510,7 +508,7 @@
 
 "R 1K 0805": {
 	"mpn":["RC0805FR-071KL"],
-	"spec":"1K 0805<=5%>=1/8W",
+	"spec":"1K 0805<=5%>=1/10W",
 	"assembly":"SMT",
 	"pins":2,
 	"ecid":18201
@@ -534,7 +532,7 @@
 
 "R 270 0805": {
 	"mpn":["RC0805FR-07270RL"],
-	"spec":"270 0805<=5%>=1/8W",
+	"spec":"270 0805<=5%>=1/10W",
 	"assembly":"SMT",
 	"pins":2
 	},
@@ -557,7 +555,7 @@
 
 "R 100 0805": {
 	"mpn":["RC0805FR-07100RL"],
-	"spec":"100 0805<=5%>=1/8W",
+	"spec":"100 0805<=5%>=1/10W",
 	"assembly":"SMT",
 	"pins":2,
 	"ecid":18096
@@ -690,7 +688,7 @@
 	"assembly":"SMT",
 	"sub":0,
 	"pins":4,
-	"package":"2.5x2 mm"
+	"package":"2.5x2mm"
 	},	
 
 "X 25MHz": {
@@ -698,7 +696,7 @@
 	"spec":"25MHz XTAL",
 	"assembly":"SMT",
 	"pins":4,
-	"package":"3.2x2.5 mm",
+	"package":"3.2x2.5mm",
 	"aliexpress":"25mhz 3.2x2.5 passive"
 	},	
 
@@ -740,7 +738,7 @@
 	"assembly":"SMT",
 	"pins":2,
 	"sub":0,
-	"package":"5x5 mm"
+	"package":"5x5mm"
 	},		
 
 "L 3.3uH PS": {
@@ -749,7 +747,7 @@
 	"assembly":"SMT",
 	"pins":2,
 	"sub":0,
-	"package":"5x5 mm"
+	"package":"5x5mm"
 	},		
 		
 "F 3A@20V": {
@@ -758,7 +756,7 @@
 	"assembly":"SMT",
 	"pins":2,
 	"sub":0,
-	"package":"2920 7.36x5.12 mm",
+	"package":"2920 7.36x5.12mm",
 	"aliexpress":"MF-LSMF300/24X-2"
 	},		
 
@@ -831,7 +829,7 @@
 	"assembly":"SMT",
 	"pins":5,
 	"sub":0,
-	"package":"SM-22-5 3.81x3.81 mm"
+	"package":"SM-22-5 3.81x3.81mm"
 	},	
 
 "T 1:1 Z": {
@@ -840,7 +838,7 @@
 	"assembly":"SMT",
 	"pins":5,
 	"sub":0,
-	"package":"SM-22-5 3.81x3.81 mm",
+	"package":"SM-22-5 3.81x3.81mm",
 	"aliexpress":"MABAES0060"
 	},	
 
