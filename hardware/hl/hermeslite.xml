@@ -2,14 +2,14 @@
 <export version="D">
   <design>
     <source>C:/cygwin64/home/shaynal/Hermes-Lite2/hardware/hl/hermeslite.sch</source>
-    <date>6/29/2017 9:44:49 PM</date>
+    <date>7/4/2017 7:18:20 PM</date>
     <tool>Eeschema 4.0.6</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
         <title>Hermes-Lite</title>
         <company>SofterHardware</company>
         <rev>2.0-beta3</rev>
-        <date>2017-06-25</date>
+        <date>2017-07-04</date>
         <source>hermeslite.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -22,7 +22,7 @@
         <title>Power</title>
         <company>SofterHardware</company>
         <rev>2.0-beta3</rev>
-        <date>2017-06-25</date>
+        <date>2017-07-04</date>
         <source>Power.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -35,7 +35,7 @@
         <title>Ethernet</title>
         <company>SofterHardware</company>
         <rev>2.0-beta3</rev>
-        <date>2017-06-25</date>
+        <date>2017-07-04</date>
         <source>Ethernet.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -48,7 +48,7 @@
         <title>Clock</title>
         <company>SofterHardware</company>
         <rev>2.0-beta3</rev>
-        <date>2017-06-25</date>
+        <date>2017-07-04</date>
         <source>Clock.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -61,7 +61,7 @@
         <title>RF Frontend</title>
         <company>SofterHardware</company>
         <rev>2.0-beta3</rev>
-        <date>2017-06-25</date>
+        <date>2017-07-04</date>
         <source>RFFrontend.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -74,7 +74,7 @@
         <title>Hermes-Lite Input Output</title>
         <company>SofterHardware</company>
         <rev>2.0-beta3</rev>
-        <date>2017-06-25</date>
+        <date>2017-07-04</date>
         <source>InputOutput.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -87,7 +87,7 @@
         <title>Hermes-Lite V2 5W Power Amplifier</title>
         <company>SofterHardware</company>
         <rev>2.0-beta3</rev>
-        <date>2017-06-25</date>
+        <date>2017-07-04</date>
         <source>PA.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
