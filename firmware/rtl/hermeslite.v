@@ -440,13 +440,15 @@ wire have_sp_data;
 // data is available.
 // Reset fifo when !run so the data always starts at a known state.
 
+wire C122_rst;
+cdc_sync #(1) reset_C122 (.siga(rst), .rstb(rst), .clkb(clock_76p8_mhz), .sigb(C122_rst));
 
-SP_fifo  SPF (.aclr(rst | !run), .wrclk (clock_76p8_mhz), .rdclk(clock_125_mhz_0_deg),
+SP_fifo  SPF (.aclr(C122_rst | !run), .wrclk (clock_76p8_mhz), .rdclk(clock_125_mhz_0_deg),
              .wrreq (sp_fifo_wrreq), .data ({{4{temp_ADC[11]}},temp_ADC}), .rdreq (sp_fifo_rdreq),
              .q(sp_fifo_rddata), .wrfull(sp_fifo_wrfull), .wrempty(sp_fifo_wrempty));
 
 
-sp_rcv_ctrl SPC (.clk(clock_76p8_mhz), .reset(rst), .sp_fifo_wrempty(sp_fifo_wrempty),
+sp_rcv_ctrl SPC (.clk(clock_76p8_mhz), .reset(C122_rst), .sp_fifo_wrempty(sp_fifo_wrempty),
                  .sp_fifo_wrfull(sp_fifo_wrfull), .write(sp_fifo_wrreq), .have_sp_data(have_sp_data));
 
 // the wideband data is presented too fast for the PC to swallow so slow down
