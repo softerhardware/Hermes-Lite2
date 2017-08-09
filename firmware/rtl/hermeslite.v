@@ -159,9 +159,12 @@ localparam NT = 1;
 // Experimental Predistort On=1 Off=0
 localparam PREDISTORT = 0;
 
+`ifdef BETA3
+  localparam  Hermes_serialno = 8'd60;     // Serial number of this version
+`else
+  localparam  Hermes_serialno = 8'd40;     // Serial number of this version
+`endif
 
-
-localparam  Hermes_serialno = 8'd40;     // Serial number of this version
 localparam Penny_serialno = 8'd00;      // Use same value as equ1valent Penny code
 localparam Merc_serialno = 8'd00;       // Use same value as equivalent Mercury code
 
@@ -212,7 +215,6 @@ assign pwr_clk1p2 = 1'b0;
 `ifndef BETA3
 assign pwr_clkvpa = 1'b0;
 `endif
-assign pwr_envpa = 1'b1;
 
 //assign io_adc_scl = 1'b0;
 //assign io_adc_sda = 1'b0;
@@ -1702,6 +1704,7 @@ assign pa_tr = FPGA_PTT & (IF_PA_enable | ~IF_TR_disable);
 assign pa_en = FPGA_PTT & IF_PA_enable;
 `endif
 
+assign pwr_envpa = FPGA_PTT & IF_PA_enable;
 assign rffe_rfsw_sel = IF_PA_enable;
 
 wire scl1_i, scl1_t, scl1_o, sda1_i, sda1_t, sda1_o;
