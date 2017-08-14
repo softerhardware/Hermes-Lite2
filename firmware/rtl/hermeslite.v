@@ -28,8 +28,14 @@ module hermeslite(
   // Power
   output          pwr_clk3p3,
   output          pwr_clk1p2,
-  output          pwr_clkvpa,
   output          pwr_envpa,
+
+`ifdef BETA3
+  output          pwr_envop,
+  output          pwr_envbias,
+`else 
+  output          pwr_clkvpa,
+`endif
 
   // Ethernet PHY
   input           phy_clk125,
@@ -58,10 +64,17 @@ module hermeslite(
   output          rffe_ad9866_sdio,
   output          rffe_ad9866_sclk,
   output          rffe_ad9866_sen_n,
-  output  [5:0]   rffe_ad9866_pga,
   input           rffe_ad9866_rxclk,
   input           rffe_ad9866_clk76p8,
   output          rffe_rfsw_sel,
+
+`ifdef BETA3
+  output          rffe_ad9866_mode,
+  output          rffe_ad9866_pga5,
+`else
+  output  [5:0]   rffe_ad9866_pga,
+`endif
+
 
   // IO
   output          io_led_d2,
@@ -88,9 +101,21 @@ module hermeslite(
   input           io_tp2,
   input           io_db24,
 
+`ifdef BETA3
+  input           io_tp7,
+  input           io_tp8,  
+  input           io_tp9,
+`endif
+
   // PA
+`ifdef BETA3
+  output          pa_inttr,
+  output          pa_exttr
+`else
   output          pa_tr,
-  output          pa_en);
+  output          pa_en
+`endif
+);
 
 
 // PARAMETERS
@@ -134,9 +159,12 @@ localparam NT = 1;
 // Experimental Predistort On=1 Off=0
 localparam PREDISTORT = 0;
 
+`ifdef BETA3
+  localparam  Hermes_serialno = 8'd60;     // Serial number of this version
+`else
+  localparam  Hermes_serialno = 8'd40;     // Serial number of this version
+`endif
 
-
-localparam  Hermes_serialno = 8'd40;     // Serial number of this version
 localparam Penny_serialno = 8'd00;      // Use same value as equ1valent Penny code
 localparam Merc_serialno = 8'd00;       // Use same value as equivalent Mercury code
 
@@ -183,8 +211,10 @@ assign AssignNR = NR;
 
 assign pwr_clk3p3 = 1'b0;
 assign pwr_clk1p2 = 1'b0;
+
+`ifndef BETA3
 assign pwr_clkvpa = 1'b0;
-assign pwr_envpa = 1'b1;
+`endif
 
 //assign io_adc_scl = 1'b0;
 //assign io_adc_sda = 1'b0;
@@ -412,13 +442,15 @@ wire have_sp_data;
 // data is available.
 // Reset fifo when !run so the data always starts at a known state.
 
+wire C122_rst;
+cdc_sync #(1) reset_C122 (.siga(rst), .rstb(rst), .clkb(clock_76p8_mhz), .sigb(C122_rst));
 
-SP_fifo  SPF (.aclr(rst | !run), .wrclk (clock_76p8_mhz), .rdclk(clock_125_mhz_0_deg),
+SP_fifo  SPF (.aclr(C122_rst | !run), .wrclk (clock_76p8_mhz), .rdclk(clock_125_mhz_0_deg),
              .wrreq (sp_fifo_wrreq), .data ({{4{temp_ADC[11]}},temp_ADC}), .rdreq (sp_fifo_rdreq),
              .q(sp_fifo_rddata), .wrfull(sp_fifo_wrfull), .wrempty(sp_fifo_wrempty));
 
 
-sp_rcv_ctrl SPC (.clk(clock_76p8_mhz), .reset(rst), .sp_fifo_wrempty(sp_fifo_wrempty),
+sp_rcv_ctrl SPC (.clk(clock_76p8_mhz), .reset(C122_rst), .sp_fifo_wrempty(sp_fifo_wrempty),
                  .sp_fifo_wrfull(sp_fifo_wrfull), .write(sp_fifo_wrreq), .have_sp_data(have_sp_data));
 
 // the wideband data is presented too fast for the PC to swallow so slow down
@@ -1388,9 +1420,12 @@ debounce de_txinhibit(.clean_pb(clean_txinhibit), .pb(~io_cn8), .clk(clock_76p8_
 assign FPGA_PTT = (mox | cwkey | clean_ptt) & ~clean_txinhibit; // mox only updated when we get correct sync sequence
 
 
-
-
+`ifdef BETA3
+assign rffe_ad9866_pga5 = 1'b0;
+assign rffe_ad9866_mode = 1'b1;
+`else
 assign rffe_ad9866_pga = 6'b000000;
+`endif
 
 
 //---------------------------------------------------------
@@ -1659,8 +1694,17 @@ ad9866 #(.WB_DATA_WIDTH(WB_DATA_WIDTH), .WB_ADDR_WIDTH(WB_ADDR_WIDTH)) ad9866_i
 
 // FIXME: Sequence power
 // FIXME: External TR won't work in low power mode
+`ifdef BETA3
+assign pwr_envbias = FPGA_PTT & IF_PA_enable;
+assign pwr_envop = FPGA_PTT;
+assign pa_exttr = FPGA_PTT;
+assign pa_inttr = FPGA_PTT & (IF_PA_enable | ~IF_TR_disable);
+`else
 assign pa_tr = FPGA_PTT & (IF_PA_enable | ~IF_TR_disable);
 assign pa_en = FPGA_PTT & IF_PA_enable;
+`endif
+
+assign pwr_envpa = FPGA_PTT & IF_PA_enable;
 assign rffe_rfsw_sel = IF_PA_enable;
 
 wire scl1_i, scl1_t, scl1_o, sda1_i, sda1_t, sda1_o;

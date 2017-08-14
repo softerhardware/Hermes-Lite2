@@ -36,7 +36,7 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 4 7
 Title "Clock"
-Date "2017-06-11"
+Date "2017-07-04"
 Rev "2.0-beta3"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
@@ -443,13 +443,13 @@ SCL1
 Wire Wire Line
 	3200 2050 3200 2300
 Wire Wire Line
-	1025 2050 4350 2050
+	1025 2050 4550 2050
 $Comp
 L MCP4716 U5
 U 1 1 56C010F3
 P 2400 2550
-F 0 "U5" H 2575 2300 60  0000 C CNN
-F 1 "MCP4716" H 2400 2800 60  0000 C CNN
+F 0 "U5" H 2575 2300 39  0000 C CNN
+F 1 "MCP4716" H 2400 2800 39  0000 C CNN
 F 2 "HERMESLITE:MCP4716" H 2400 2550 60  0001 C CNN
 F 3 "" H 2400 2550 60  0000 C CNN
 F 4 "VCO" H 2400 2550 60  0001 C CNN "Option"
@@ -560,7 +560,7 @@ Wire Wire Line
 	3600 4800 3450 4800
 Text Notes 4000 3525 0    60   ~ 0
 WJ3
-Text Notes 3425 4400 0    60   ~ 0
+Text Notes 3375 4425 0    60   ~ 0
 WJ2
 Text Notes 6675 5300 0    60   ~ 0
 WJ1
@@ -629,8 +629,8 @@ Wire Wire Line
 	4150 5550 4150 5500
 Text Notes 925  4475 0    60   ~ 0
 Synchronized radio external clock: \nInclude CL1,B58,R39.\nExclude J23,J25.\n\nSynchronized radio recovered clock:\nInclude J23,J5.\nAdjust R39,R40.\nOptional CL1,B58. 
-Text Notes 4550 2400 0    60   ~ 0
-Group A to support 2.5x2.0 or \n3.2x2.5 or 7.0x5.0 mm\nstandard 4-lead SMD\npackages\n
+Text Notes 4675 2400 0    60   ~ 0
+X2 to support 2.5x2.0 or \n3.2x2.5 or 7.0x5.0 mm\nstandard 4-lead SMD\npackages\n
 Wire Wire Line
 	2950 3250 2950 2650
 Connection ~ 2950 2650
@@ -654,19 +654,15 @@ Wire Wire Line
 Wire Wire Line
 	5150 2875 5150 3200
 Connection ~ 5150 3150
-Wire Wire Line
-	4350 2050 4350 2650
-Connection ~ 4350 2650
 $Comp
 L R R41
 U 1 1 577CF89C
 P 6550 5100
 F 0 "R41" V 6630 5100 39  0000 C CNN
-F 1 "DNI" V 6550 5100 39  0000 C CNN
+F 1 "33" V 6550 5100 39  0000 C CNN
 F 2 "HERMESLITE:SMD-0603" V 6480 5100 50  0001 C CNN
 F 3 "" H 6550 5100 50  0000 C CNN
 F 4 "GENERIC" V 6550 5100 60  0001 C CNN "Option"
-F 5 "R 33" V 6550 5100 60  0001 C CNN "Key"
 	1    6550 5100
 	0    1    1    0   
 $EndComp
@@ -853,7 +849,7 @@ Wire Wire Line
 Text Notes 1325 850  0    60   ~ 12
 Build Options:
 Text Notes 1325 1550 0    60   ~ 0
-Default Versa with oscillator: Include FB12,C41,B56,B57,X2. Include R36,R38 if required by oscillator. Exclude B55,R35,R37,U5,J3,J4,C42.\nVersa with VCO: Include FB12,C41,B56,B57,X2,U5,R35,R37,B55. Exclude R36,R38,J4,J3,C42.\nVersa with crystal: Include X2 as crystal, B57 as jumper, J4,J3,C42, R38 as 15pF. Exclude FB12,C41,B56,U5,R35,R36,R37,B55.\n\nNo Versa but oscillator to AD9866: Exclude all Versa components, build for oscillator, connect WJ3 to WJ1.\nNo Versa but external clock to AD9866: Exclude all Versa components and oscillator components. Wire from WJ2 to WJ1.\nSee RF Frontend sheet for additional AD9866 clock options 
+Default Versa with oscillator: Include FB12,C41,B56,B57,X2. Include R36,R38 if required by oscillator. Exclude B55,R35,R37,U5,J3,J4,C42.\nVersa with VCO: Include FB12,C41,B56,B57,X2,U5,R35,R37,B55. Exclude R36,R38,J4,J3,C42.\nVersa with crystal: Include X2 as crystal, B57,J4,J3 as jumper, C42,R38 as 15pF. Exclude FB12,C41,B56,U5,R35,R36,R37,B55.\n\nNo Versa but oscillator to AD9866: Exclude all Versa components, build for oscillator, connect WJ3 to WJ1.\nNo Versa but external clock to AD9866: Exclude all Versa components and oscillator components. Wire from WJ2 to WJ1.\nSee RF Frontend sheet for additional AD9866 clock options 
 Wire Wire Line
 	1025 2050 1025 2075
 Connection ~ 1350 2050
@@ -1091,7 +1087,7 @@ Wire Wire Line
 	4550 3150 4550 3000
 Connection ~ 4550 2650
 Wire Wire Line
-	4550 2650 4550 2700
+	4550 2050 4550 2700
 $Comp
 L JNO J3
 U 1 1 5782ED21
@@ -1122,4 +1118,44 @@ Wire Wire Line
 Wire Wire Line
 	2750 4500 2750 4625
 Connection ~ 2750 4500
+Text Notes 900  2125 0    39   ~ 0
+DNI
+Text Notes 6500 5675 0    39   ~ 0
+DNI
+Text Notes 6975 5525 0    39   ~ 0
+DNI
+Text Notes 6675 5200 0    39   ~ 0
+DNI
+Text Notes 3900 4550 0    39   ~ 0
+DNI
+Text Notes 3875 4225 0    39   ~ 0
+DNI
+Text Notes 3650 4600 0    39   ~ 0
+DNI
+Text Notes 3350 4750 0    39   ~ 0
+DNI
+Text Notes 3100 4225 0    39   ~ 0
+DNI
+Text Notes 3100 4425 0    39   ~ 0
+DNI
+Text Notes 2550 4325 0    39   ~ 0
+DNI
+Text Notes 3500 6975 0    39   ~ 0
+DNI
+Text Notes 4625 2850 0    39   ~ 0
+DNI
+Text Notes 3025 3450 0    39   ~ 0
+DNI
+Text Notes 2300 2325 0    39   ~ 0
+DNI
+Text Notes 1150 2550 0    39   ~ 0
+DNI
+Text Notes 1150 2950 0    39   ~ 0
+DNI
+Text Notes 3275 2425 0    39   ~ 0
+DNI
+Text Notes 3275 2825 0    39   ~ 0
+DNI
+Text Notes 4350 3075 0    39   ~ 0
+DNI
 $EndSCHEMATC

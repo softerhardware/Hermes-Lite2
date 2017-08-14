@@ -1,12 +1,11 @@
-(module SOD323 (layer F.Cu) (tedit 4A7EAE1A)
+(module SOD323 (layer F.Cu) (tedit 594CA5C5)
   (descr SOD323)
-  (fp_text reference SOD323 (at 0 -1.09982) (layer F.SilkS)
+  (fp_text reference D1 (at 2.9 0.1) (layer F.SilkS)
     (effects (font (size 0.8 0.8) (thickness 0.1)))
   )
-  (fp_text value D*** (at 0 1.19888) (layer F.SilkS) hide
+  (fp_text value TVS (at 0 1.19888) (layer F.SilkS) hide
     (effects (font (size 0.8 0.8) (thickness 0.1)))
   )
-  (fp_line (start 0.50038 -0.70104) (end 0.50038 0.70104) (layer F.SilkS) (width 0.1))
   (fp_line (start 0.89916 -0.70104) (end -0.89916 -0.70104) (layer F.SilkS) (width 0.1))
   (fp_line (start -0.89916 -0.70104) (end -0.89916 0.70104) (layer F.SilkS) (width 0.1))
   (fp_line (start -0.89916 0.70104) (end 0.89916 0.70104) (layer F.SilkS) (width 0.1))
