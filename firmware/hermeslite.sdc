@@ -36,6 +36,8 @@ create_generated_clock -source {ad9866pll_inst|altpll_component|auto_generated|p
 ## Create TX clock version based on pin output
 create_generated_clock -name tx_output_clock -source [get_pins {ethpll_inst|altpll_component|auto_generated|pll1|clk[1]}] [get_ports {phy_tx_clk}]
 
+create_generated_clock -name BCLK -divide_by 25 -source [get_pins {ad9866pll_inst|altpll_component|auto_generated|pll1|clk[0]}] [get_pins {clrgen|BCLK|q}]
+
 derive_clock_uncertainty
 
 #**************************************************************
@@ -78,11 +80,13 @@ set_input_delay -min 100 -clock virt_clock_76p8MHz [get_ports io_cn4_2]
 set_input_delay -max -100 -clock virt_clock_76p8MHz [get_ports io_cn4_2]
 set_input_delay -min 100 -clock virt_clock_76p8MHz [get_ports io_cn4_3]
 set_input_delay -max -100 -clock virt_clock_76p8MHz [get_ports io_cn4_3]
+set_input_delay -max -100 -clock virt_clock_76p8MHz [get_ports io_cn4_6]
+set_input_delay -min 100 -clock virt_clock_76p8MHz [get_ports io_cn4_6]
 set_input_delay -min 100 -clock virt_clock_76p8MHz [get_ports io_cn8]
 set_input_delay -max -100 -clock virt_clock_76p8MHz [get_ports io_cn8]
 
-set_output_delay -min 100 -clock virt_clock_76p8MHz [get_ports io_cn4_6]
-set_output_delay -max -100 -clock virt_clock_76p8MHz [get_ports io_cn4_6]
+#set_output_delay -min 100 -clock virt_clock_76p8MHz [get_ports io_cn4_6]
+#set_output_delay -max -100 -clock virt_clock_76p8MHz [get_ports io_cn4_6]
 set_output_delay -min 100 -clock virt_clock_76p8MHz [get_ports {io_led_d*}]
 set_output_delay -max -100 -clock virt_clock_76p8MHz [get_ports {io_led_d*}]
 
@@ -98,7 +102,7 @@ set_clock_groups -asynchronous -group { \
 					tx_output_clock \
 				       } \
 					-group {phy_rx_clk } \
-					-group {clock_153p6_mhz rffe_ad9866_clk76p8 clock_76p8MHz}
+					-group {clock_153p6_mhz rffe_ad9866_clk76p8 clock_76p8MHz BCLK}
 
 #**************************************************************
 # Set Maximum Delay
@@ -161,6 +165,7 @@ set_max_delay -from clock_125MHz -to tx_output_clock 3.3
 
 set_max_delay -from clock_2_5MHz -to clock_125MHz 22
 
+set_max_delay -from BCLK -to rffe_ad9866_clk76p8 16
 
 #**************************************************************
 # Set Minimum Delay

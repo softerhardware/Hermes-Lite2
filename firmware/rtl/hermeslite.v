@@ -81,13 +81,13 @@ module hermeslite(
   output          io_led_d3,
   output          io_led_d4,
   output          io_led_d5,
-  input           io_cn4_2,
+  input           io_cn4_2,   // CW Paddle Dot
   input           io_cn4_3,
-  output          io_cn4_6,
-  input           io_cn4_7,
-  input           io_cn5_2,
-  input           io_cn5_3,
-  input           io_cn5_6,
+  input           io_cn4_6,   // CW Paddle Dash
+  output          io_cn4_7,   // -> AK4951 PDN
+  output          io_cn5_2,   // -> AK4951 BICK
+  output          io_cn5_3,   // -> AK4951 LRCLK
+  input           io_cn5_6,   // <- AK4951 SDTO
   input           io_cn5_7,
   input           io_db22_2,
   input           io_db22_3,
@@ -99,7 +99,7 @@ module hermeslite(
   inout           io_scl2,
   inout           io_sda2,
   input           io_tp2,
-  input           io_db24,
+  output          io_db24,    // -> AK4951 SDTI
 
 `ifdef BETA3
   input           io_tp7,
@@ -150,7 +150,7 @@ localparam RRRR = (CLK_FREQ == 61440000) ? 160 : (CLK_FREQ == 79872000) ? 208 : 
 
 
 // Number of Receivers
-localparam NR = 3;     // number of receivers to implement
+localparam NR = 2;     // number of receivers to implement
 
 
 // Number of transmitters Be very careful when using more than 1 transmitter!
@@ -187,7 +187,6 @@ logic                       wb_tga;
 
 // Individual acknowledges
 logic                       wb_ack_i2c;
-
 
 
 wire FPGA_PTT;
@@ -290,10 +289,15 @@ assign rffe_ad9866_rst_n = ad9866_rst_n;
 
 wire CLRCLK;
 
-wire C122_cbclk, C122_cbrise, C122_cbfall;
-Hermes_clk_lrclk_gen #(.CLK_FREQ(CLK_FREQ)) clrgen (.reset(rst), .CLK_IN(clock_76p8_mhz), .BCLK(C122_cbclk),
-                             .Brise(C122_cbrise), .Bfall(C122_cbfall), .LRCLK(CLRCLK));
+wire C122_cbclk, C122_cbrise, C122_cbfall, C122_LRfall, MCLKrise;
+//Hermes_clk_lrclk_gen #(.CLK_FREQ(CLK_FREQ)) clrgen (
+//.reset(rst), .CLK_IN(clock_76p8_mhz), .BCLK(C122_cbclk),
+//.Brise(C122_cbrise), .Bfall(C122_cbfall), .LRCLK(CLRCLK));
 
+Hermes_clk_lrclk_gen #(.CLK_FREQ(CLK_FREQ)) clrgen (
+  .reset(rst), .CLK_IN(clock_76p8_mhz), .BCLK(C122_cbclk),
+  .Brise(C122_cbrise), .Bfall(C122_cbfall), .LRCLK(CLRCLK),
+  .LRfall(C122_LRfall), .MCLK(), .MCLKrise(MCLKrise) );
 
 wire Tx_fifo_rdreq;
 wire [10:0] PHY_Tx_rdused;
@@ -313,7 +317,7 @@ wire ptt_i;
 wire [7:0] leds;
 
 
-assign cwkey_i = io_cn4_2;
+//assign cwkey_i = io_cn4_2;
 assign ptt_i = io_cn4_3;
 
 
@@ -466,7 +470,7 @@ always @ (posedge clock_125_mhz_0_deg)
 assign sp_data_ready = (sp_delay == 0 && have_sp_data);
 
 
-assign IF_mic_Data = 0;
+//assign IF_mic_Data = 0;
 
 
 
@@ -1300,7 +1304,16 @@ reg         IF_Pure_signal;
 reg   [3:0] IF_Predistortion;             
 reg         IF_PA_enable;
 reg         IF_TR_disable;
-
+reg         IF_Mic_boost;           // Mic boost 0 = 0dB, 1 = 20dB
+reg	      IF_CW_keys_reversed ;   // 0:disable, 1:enable
+reg	[5:0]	IF_Keyer_speed ;        // 1 - 60 WPM
+reg	[1:0]	IF_Keyer_Mode ;         // 00:straight, 01:Mode A, 10:Mode B
+reg	[6:0]	IF_Keyer_Weight ;       // 0 - 100
+reg	[7:0]	IF_CW_Sidetone_Vol ;    // 0 - 127
+reg	[7:0]	IF_CW_PTT_delay ;       // 0 - 255  ms
+reg	[9:0] IF_CW_Hang_Time ;       // 0 - 1023 ms
+reg  [11:0] IF_CW_Tone_Freq ;       // 200 - 2250Hz
+reg			IF_CW_internal ;        // 0:External, 1:Internal
 
 always @ (posedge clock_76p8_mhz)
 begin
@@ -1318,7 +1331,17 @@ begin
     IF_Predistortion   <= 4'b0000;   // default disable predistortion
     IF_PA_enable       <= 1'b0;
     IF_TR_disable      <= 1'b0;
-
+    IF_Mic_boost       <= 1'b0;     // mic boost off
+    IF_CW_keys_reversed <= 1'b0 ;   // default disable keys reverse
+    IF_Keyer_speed     <= 6'd25 ;   // default 25WPM
+    IF_Keyer_Mode      <= 2'd0 ;    // default Keyer disable
+    IF_Keyer_Weight    <= 7'd50 ;   // default 50
+    IF_CW_Sidetone_Vol <= 8'd60 ;   // default 60
+    IF_CW_PTT_delay    <= 8'd10 ;   // default 10ms
+    IF_CW_Hang_Time    <= 10'd200 ; // default 200ms
+    IF_CW_Tone_Freq    <= 12'd600 ; // default 600Hz 
+    IF_CW_internal     <= 1'b0 ;    // default exnternal
+	 
   end
   else if (basewrite[0])                  // all Rx_control bytes are ready to be saved
   begin                                         // Need to ensure that C&C data is stable
@@ -1337,11 +1360,30 @@ begin
       VNA                 <= data[23];      // 1 = enable VNA mode
       IF_PA_enable 		  <= data[19];
       IF_TR_disable       <= data[18];
+      IF_Mic_boost        <= data[16];      // decode mic boost 0 = 0dB, 1 = 20dB
     end
     if (addr == 6'h0a)
     begin
       IF_Pure_signal    <= data[22];       // decode pure signal setting
     end
+    if (addr == 6'h0b)
+    begin
+      IF_CW_keys_reversed <= data[22];	    // decode CW keys reversed setting
+      IF_Keyer_speed   <= data[13:8];      // decode Keyer speed setting
+      IF_Keyer_Mode    <= data[15:14];     // decode Keyer Mode setting
+      IF_Keyer_Weight  <= data[6:0];       // decode Keyer Weight setting
+	 end
+    if (addr == 6'h0f)
+    begin
+      IF_CW_internal     <= data[24];      // decode CW internal generation
+      IF_CW_Sidetone_Vol <= data[23:16];   // decode CW Sidetone Vol setting
+      IF_CW_PTT_delay  <= data[15:8];      // decode CW PTT delay setting
+	 end
+    if (addr == 6'h10)
+    begin
+      IF_CW_Hang_Time <= {data[31:24], data[17:16]} ; // decode CW Hang Time setting
+      IF_CW_Tone_Freq <= {data[15:8], data[3:0]} ;    // decode CW Sidetone frequency setting
+	 end
     if (addr == 6'h2b)
     begin
       if(data[31:24]==8'h00)//predistortion control sub index
@@ -1445,7 +1487,7 @@ assign rffe_ad9866_pga = 6'b000000;
 reg   [2:0] IF_PWM_state;      // state for PWM
 reg   [2:0] IF_PWM_state_next; // next state for PWM
 reg  [15:0] IF_Left_Data;      // Left 16 bit PWM data for D/A converter
-//reg  [15:0] IF_Right_Data;     // Right 16 bit PWM data for D/A converter
+reg  [15:0] IF_Right_Data;     // Right 16 bit PWM data for D/A converter
 reg  [15:0] IF_I_PWM;          // I 16 bit PWM data for D/A conveter
 reg  [15:0] IF_Q_PWM;          // Q 16 bit PWM data for D/A conveter
 wire        IF_get_samples;
@@ -1508,6 +1550,14 @@ begin
     IF_PWM_state   <=  PWM_IDLE;
   else
     IF_PWM_state   <=  IF_PWM_state_next;
+
+  // get Left audio
+  if (IF_PWM_state == PWM_LEFT)
+    IF_Left_Data   <=  IF_Rx_fifo_rdata;
+
+  // get Right audio
+  if (IF_PWM_state == PWM_RIGHT)
+    IF_Right_Data  <=  IF_Rx_fifo_rdata;
 
   // get I audio
   if (IF_PWM_state == PWM_I_AUDIO)
@@ -1597,7 +1647,7 @@ reg [1:0] cwstate;
 localparam  cwrx = 2'b00, cwkeydown = 2'b01, cwkeyup = 2'b11;
 
 // 5 ms debounce with 48 MHz clock
-debounce de_cwkey(.clean_pb(clean_cwkey), .pb(~cwkey_i), .clk(clock_76p8_mhz));
+//debounce de_cwkey(.clean_pb(clean_cwkey), .pb(~cwkey_i), .clk(clock_76p8_mhz));
 
 // CW state machine
 always @(posedge clock_76p8_mhz)
@@ -1629,7 +1679,7 @@ always @(posedge clock_76p8_mhz)
 
 assign cwkey = cwstate != cwrx;
 
-assign io_cn4_6 = cwkey;
+//assign io_cn4_6 = cwkey;
 
 //---------------------------------------------------------
 //  Debounce dot key - active low
@@ -1694,17 +1744,19 @@ ad9866 #(.WB_DATA_WIDTH(WB_DATA_WIDTH), .WB_ADDR_WIDTH(WB_ADDR_WIDTH)) ad9866_i
 
 // FIXME: Sequence power
 // FIXME: External TR won't work in low power mode
+wire FPGA_PTT_keyer;
+
 `ifdef BETA3
-assign pwr_envbias = FPGA_PTT & IF_PA_enable;
-assign pwr_envop = FPGA_PTT;
-assign pa_exttr = FPGA_PTT;
-assign pa_inttr = FPGA_PTT & (IF_PA_enable | ~IF_TR_disable);
+assign pwr_envbias = FPGA_PTT_keyer & IF_PA_enable;
+assign pwr_envop   = FPGA_PTT_keyer;
+assign pa_exttr    = FPGA_PTT_keyer;
+assign pa_inttr    = FPGA_PTT_keyer & (IF_PA_enable | ~IF_TR_disable);
 `else
-assign pa_tr = FPGA_PTT & (IF_PA_enable | ~IF_TR_disable);
-assign pa_en = FPGA_PTT & IF_PA_enable;
+assign pa_tr       = FPGA_PTT_keyer & (IF_PA_enable | ~IF_TR_disable);
+assign pa_en       = FPGA_PTT_keyer & IF_PA_enable;
 `endif
 
-assign pwr_envpa = FPGA_PTT & IF_PA_enable;
+assign pwr_envpa   = FPGA_PTT_keyer & IF_PA_enable;
 assign rffe_rfsw_sel = IF_PA_enable;
 
 wire scl1_i, scl1_t, scl1_o, sda1_i, sda1_t, sda1_o;
@@ -1717,6 +1769,7 @@ i2c #(.WB_DATA_WIDTH(WB_DATA_WIDTH), .WB_ADDR_WIDTH(WB_ADDR_WIDTH)) i2c_i
   .clock_76p8_mhz(clock_76p8_mhz),
   .rst(clk_i2c_rst),
   .init_start(clk_i2c_start),
+  .IF_Mic_boost(IF_Mic_boost),
 
   .wbs_adr_i(wb_adr),
   .wbs_dat_i(wb_dat),
@@ -1821,5 +1874,91 @@ begin
 end
 endfunction
 
+
+// ============================================================================== //
+//		External Audio Codec
+// ============================================================================== //
+
+wire CPDN     = ~clk_i2c_rst; // Reset ; active "L"
+wire CBCLK    = C122_cbclk;   // I2S BCLK
+wire CDIN;                    // I2S Data Out
+wire CDOUT;                   // I2S Data In
+
+assign io_cn4_7 = CPDN;       // -> AK4951 PDN
+assign io_cn5_2 = CBCLK;	   // -> AK4951 BICK  ; 3072kHz
+assign io_cn5_3 = CLRCLK;     // -> AK4951 LRCLK ; 48kHz
+assign io_db24  = CDIN;       // -> AK4951 SDTI
+assign CDOUT    = io_cn5_6;   // <- AK4951 SDTO
+
+//---------------------------------------------------------
+//		Send L/R audio to AK4951 in I2S format
+//---------------------------------------------------------
+
+assign C122_LR_data = {IF_Left_Data,IF_Right_Data};
+
+wire [31:0] i2s_tx_data ;
+I2S_xmit #(.DATA_BITS(32))  // CLRCLK running at 48KHz
+  LR (.rst(rst), .lrclk(CLRCLK), .clk(clock_76p8_mhz), .CBrise(C122_cbrise),
+		.CBfall(C122_cbfall), .sample(i2s_tx_data), .outbit(CDIN));
+
+//---------------------------------------------------------
+//		Get mic data from AK4951 in I2S format
+//--------------------------------------------------------- 
+
+wire [31:0] C122_mic_LR;
+wire        C122_mic_rdy;
+reg  [15:0] C122_mic_data;
+      
+// Get I2S CDOUT mic data from TLV320.  NOTE: only 16 bits used
+I2S_rcv_24b #(32,2,1) // WARNING: values 2,1 may need adjusting for best capture of data
+    MIC (.xrst(rst), .xclk(clock_76p8_mhz), .BCLK(CBCLK), .LRCLK(CLRCLK), .din(CDOUT),.xData(C122_mic_LR),.xData_rdy(C122_mic_rdy));
+    
+always @(posedge clock_76p8_mhz)
+begin
+  if (C122_mic_rdy) // this happens before LRfall
+    C122_mic_data <= C122_mic_LR[31:16]; // we're only using the Left data
+end
+
+assign IF_mic_Data = C122_mic_data;
+
+
+// ============================================================================== //
+//	Iambic Keyer
+//      IF_Keyer_Mode: 00=Straight, 10=Iambic, 01=PracticeMode, 11=Not defined
+// ============================================================================== //
+
+wire   paddle_dot_n  = io_cn4_2; // active "L"
+wire   paddle_dash_n = io_cn4_6; // active "L"  
+
+wire   host_dot_n  = ~(IF_I_PWM[2] & IF_CW_internal) ; // Active "L"
+wire   host_dash_n = ~(IF_I_PWM[1] & IF_CW_internal) ; // Active "L"
+wire   keyer_cwkey ;
+assign clean_cwkey = (IF_I_PWM[0] | keyer_cwkey) & IF_CW_internal & run ;
+
+KeyerWrapper keyerwapper(
+	.IF_clk(clock_76p8_mhz),         // 48MHz for I/F -> 76.8MHz
+	.IF_rst(rst),
+	.AD9866clkX1(clock_76p8_mhz),	   // 76.8MHz for audio
+	.C122_rst(rst),
+	.C122_LRfall(C122_LRfall),
+	.paddle_dot_n(paddle_dot_n & host_dot_n),    // Dot  Key (Active "L")
+	.paddle_dash_n(paddle_dash_n & host_dash_n), // Dash Key (Active "L")
+	.IF_Keyer_Mode(IF_Keyer_Mode),
+	.IF_CW_keys_reversed(IF_CW_keys_reversed),
+	.IF_Keyer_speed(IF_Keyer_speed),
+	.IF_Keyer_Weight(IF_Keyer_Weight),
+	.IF_CW_Hang_Time(IF_CW_Hang_Time),
+	.IF_CW_Tone_Freq(IF_CW_Tone_Freq),
+	.IF_CW_Sidetone_Vol(IF_CW_Sidetone_Vol),
+	.IF_CW_PTT_delay(IF_CW_PTT_delay),
+	.C122_LR_data(C122_LR_data),     // AudioCodec hook in
+	.i2s_tx_data(i2s_tx_data),	      // AudioCodec hook out
+	.FPGA_PTT(FPGA_PTT),	            // PTT hook in
+	.exp_ptt_n(FPGA_PTT_keyer),      // PTT hook out (Active "H")
+	.clean_cwkey(keyer_cwkey),       // CW lamp up/down control (Active "H")
+	.sidetone()                      // Squarewave ("L" when no sound)
+) ;
+
+// ============================================================================== //
 
 endmodule

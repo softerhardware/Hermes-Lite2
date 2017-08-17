@@ -1,0 +1,129 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:hermeslite
+LIBS:hermeslite-cache
+EELAYER 25 0
+EELAYER END
+$Descr USLetter 11000 8500
+encoding utf-8
+Sheet 1 2
+Title "H-L v2 Companion - AK4951"
+Date "2017-07-17"
+Rev "2.0.1"
+Comp "JI1UDD"
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L TEST_1P MH2
+U 1 1 581A39EB
+P 1950 7325
+F 0 "MH2" H 1950 7525 39  0000 C CNN
+F 1 "DNI" H 1950 7525 50  0001 C CNN
+F 2 "HERMESLITE:m3" H 2150 7325 50  0001 C CNN
+F 3 "" H 2150 7325 50  0000 C CNN
+F 4 "DUMMY" H 1950 7325 60  0001 C CNN "Option"
+F 5 "NOBOM" H 1950 7325 60  0001 C CNN "Key"
+	1    1950 7325
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR01
+U 1 1 581A3AD9
+P 1950 7350
+F 0 "#PWR01" H 1950 7100 50  0001 C CNN
+F 1 "GND" H 1950 7200 50  0000 C CNN
+F 2 "" H 1950 7350 50  0000 C CNN
+F 3 "" H 1950 7350 50  0000 C CNN
+	1    1950 7350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1950 7325 1950 7350
+$Sheet
+S 1150 1100 2700 625 
+U 595FEA2E
+F0 "AudioCodec" 60
+F1 "AudioCodec.sch" 60
+$EndSheet
+$Comp
+L RFD2b DB5
+U 1 1 596AB0D1
+P 2950 7100
+F 0 "DB5" H 2900 6900 39  0000 C CNN
+F 1 "RFD2b" H 2900 7300 39  0001 C CNN
+F 2 "HERMESLITE:2x1" H 2950 6750 60  0001 C CNN
+F 3 "" H 2950 6750 60  0000 C CNN
+	1    2950 7100
+	1    0    0    -1  
+$EndComp
+$Comp
+L RFD2b DB24
+U 1 1 596AB2D5
+P 3500 7100
+F 0 "DB24" H 3450 6900 39  0000 C CNN
+F 1 "RFD2b" H 3450 7300 39  0001 C CNN
+F 2 "HERMESLITE:2x1" H 3500 6750 60  0001 C CNN
+F 3 "" H 3500 6750 60  0000 C CNN
+	1    3500 7100
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR02
+U 1 1 596ABF88
+P 3050 7325
+F 0 "#PWR02" H 3050 7075 50  0001 C CNN
+F 1 "GND" H 3050 7175 50  0001 C CNN
+F 2 "" H 3050 7325 50  0000 C CNN
+F 3 "" H 3050 7325 50  0000 C CNN
+	1    3050 7325
+	-1   0    0    -1  
+$EndComp
+$Comp
+L GND #PWR03
+U 1 1 596ABFAE
+P 3600 7325
+F 0 "#PWR03" H 3600 7075 50  0001 C CNN
+F 1 "GND" H 3600 7175 50  0001 C CNN
+F 2 "" H 3600 7325 50  0000 C CNN
+F 3 "" H 3600 7325 50  0000 C CNN
+	1    3600 7325
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	3600 7325 3600 7200
+Wire Wire Line
+	3050 7325 3050 7200
+NoConn ~ 3600 7000
+NoConn ~ 3050 7000
+$EndSCHEMATC

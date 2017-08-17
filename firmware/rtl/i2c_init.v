@@ -58,7 +58,8 @@ module i2c_init (
     /*
      * Configuration
      */
-    input  wire        start
+    input  wire        IF_Mic_boost,
+    input  wire        init_start
 );
 
 /*
@@ -134,7 +135,7 @@ write 0x11223344 to register 0x0004 on devices at 0x50, 0x51, 0x52, and 0x53
 */
 
 // init_data ROM
-localparam INIT_DATA_LEN = 22; // Change from 22 to 31 for 73.728 MHz 
+localparam INIT_DATA_LEN = 43; // Change from 22 to 31 for 73.728 MHz 
 
 reg [8:0] init_data [INIT_DATA_LEN-1:0];
 
@@ -168,7 +169,7 @@ initial begin
     init_data[19]  = {1'b1, 8'h60};
     init_data[20]  = {1'b1, 8'h3b};
 
-    init_data[21] = 9'd0; // stop
+    //init_data[21] = 9'd0; // stop
 
     //init_data[21]  = {2'b01, 7'h6a}; // Add for 73.728 MHz 
     //init_data[22]  = {1'b1, 8'h22};
@@ -183,7 +184,53 @@ initial begin
     //init_data[29]  = {1'b1, 8'h56};    
 
     //init_data[30] = 9'd0; // stop
+	 
+	 // Audio Codec
+    init_data[21]  = {2'b01, 7'h12}; // Reg(00h) <= 00h Dummy Command
+    init_data[22]  = {1'b1, 8'h00};
+    init_data[23]  = {1'b1, 8'h00};
+
+    init_data[24]  = {2'b01, 7'h12}; // Reg(05h); Mode control 1
+    init_data[25]  = {1'b1, 8'h05};  // | PLL3| PLL2| PLL1| PLL0|| BCKO|CKOFF| DIF1| DIF0|
+    init_data[26]  = {1'b1, 8'h33};  // |  0  |  0  |  1  |  1  ||  0  |  0  |  1  |  1  |
+
+    init_data[27]  = {2'b01, 7'h12}; // Reg(00h); Power Management 1
+    init_data[28]  = {1'b1, 8'h00};  // |PMPFL|PMVCM|PMBP |  0  ||  0  |PMDAC|PMADR|PMADL|
+    init_data[29]  = {1'b1, 8'hc5};  // |  1  |  1  |  0  |  0  ||  0  |  1  |  0  |  1  |
+
+    init_data[30]  = {2'b01, 7'h12}; // Reg(01h); Power Management 2
+    init_data[31] = {1'b1, 8'h01};  // |PMOSC|  0  |PMHPR|PMHPL|| M/S |PMPLL| PMSL|LOSEL|
+    init_data[32] = {1'b1, 8'hb6};  // |  1  |  0  |  1  |  1  ||  0  |  1  |  1* |  0  | // SPK ON
+
+    init_data[33] = {2'b01, 7'h12}; // Reg(04h); Signal Select 3
+    init_data[34] = {1'b1, 8'h04};  // |LVCM1|LVCM0| DACL|  0  || PTS1| PTS0| MON1| MON0|
+    init_data[35] = {1'b1, 8'h47};  // |  0  |  1  |  0  |  0  ||  0  |  1  |  1  |  1  |
+
+    init_data[36] = {2'b01, 7'h12}; // Reg(03h); Signal Select 2
+    init_data[37] = {1'b1, 8'h03};  // |SPKG1|SPKG0|  0  | MICL|| INL1| INL0| INR1| INR0|
+    init_data[38] = {1'b1, 8'h80};  // |  1  |  0  |  0  |  0  ||  0  |  0  |  0  |  0  | // SPK Gain +11.1dB
+
+    init_data[39] = {2'b01, 7'h12}; // Reg(02h); Signal Select 1
+    init_data[40] = {1'b1, 8'h02};  // |SLPSN|MGAN3| DACS|MPSEL|| PMMP|MGAN2|MGAN1|MGAN0|
+    init_data[41] = {1'b1, 8'hae};  // |  1* |  0  |  1* |  0  ||   1 |  1  |  1  |  0  | // SPK ON
+
+    init_data[42] = 9'd0; // stop
 end
+
+
+reg current_boost ;
+always @(posedge clk)
+  current_boost <= IF_Mic_boost ;
+
+wire write = current_boost ^ IF_Mic_boost ;
+wire start = init_start | write ;
+
+always @(posedge clk) begin
+    if (write) begin
+        init_data[41]  = {1'b1, 8'haa | (IF_Mic_boost? 8'h40: 8'h04) };
+    end
+end
+
 
 localparam [3:0]
     STATE_IDLE = 3'd0,
@@ -259,7 +306,7 @@ always @* begin
             STATE_IDLE: begin
                 // wait for start signal
                 if (~start_flag_reg & start) begin
-                    address_next = {AW{1'b0}};
+                    address_next = write ? 6'd39 : {AW{1'b0}};  // Mic boost
                     start_flag_next = 1'b1;
                     state_next = STATE_RUN;
                 end else begin

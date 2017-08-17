@@ -1,0 +1,930 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="D">
+  <design>
+    <source>D:/KiCad/Hermes-Lite/AudioCodec_AK4951_beta3_8th_PCB_rev201/hermeslite.sch</source>
+    <date>2017/07/17 8:48:23</date>
+    <tool>Eeschema 4.0.2-stable</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title>H-L v2 Companion - AK4951</title>
+        <company>JI1UDD</company>
+        <rev>2.0.1</rev>
+        <date>2017-07-17</date>
+        <source>hermeslite.sch</source>
+        <comment number="1" value=""/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+      </title_block>
+    </sheet>
+    <sheet number="2" name="/AudioCodec/" tstamps="/595FEA2E/">
+      <title_block>
+        <title>H-L v2 Companion - AK4951</title>
+        <company/>
+        <rev>2.0.1</rev>
+        <date>2017-07-17</date>
+        <source>AudioCodec.sch</source>
+        <comment number="1" value=""/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="MH2">
+      <value>DNI</value>
+      <footprint>HERMESLITE:m3</footprint>
+      <fields>
+        <field name="Option">DUMMY</field>
+        <field name="Key">NOBOM</field>
+      </fields>
+      <libsource lib="conn" part="TEST_1P"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>581A39EB</tstamp>
+    </comp>
+    <comp ref="DB5">
+      <value>RFD2b</value>
+      <footprint>HERMESLITE:2x1</footprint>
+      <libsource lib="hermeslite" part="RFD2b"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>596AB0D1</tstamp>
+    </comp>
+    <comp ref="DB24">
+      <value>RFD2b</value>
+      <footprint>HERMESLITE:2x1</footprint>
+      <libsource lib="hermeslite" part="RFD2b"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>596AB2D5</tstamp>
+    </comp>
+    <comp ref="R1">
+      <value>2.2k</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="R"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>57194201</tstamp>
+    </comp>
+    <comp ref="C11">
+      <value>10u</value>
+      <footprint>HERMESLITE:TantalC_SizeB_EIA-3528_Wave</footprint>
+      <libsource lib="device" part="CP_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>57194344</tstamp>
+    </comp>
+    <comp ref="C19">
+      <value>0.22u</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="C_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>57196259</tstamp>
+    </comp>
+    <comp ref="C18">
+      <value>1u</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="C_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>571996C9</tstamp>
+    </comp>
+    <comp ref="C20">
+      <value>DNI</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="C_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>57199EC5</tstamp>
+    </comp>
+    <comp ref="FB6">
+      <value>FB</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="hermeslite" part="FB"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>57199EE6</tstamp>
+    </comp>
+    <comp ref="U2">
+      <value>AK4951AEN</value>
+      <footprint>HERMESLITE:QFN-32-1EP_4x4mm_Pitch0.4mm_Handsoldering</footprint>
+      <libsource lib="hermeslite" part="AK4951AEN"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594B544D</tstamp>
+    </comp>
+    <comp ref="P1">
+      <value>CONN_01X02</value>
+      <footprint>HERMESLITE:Pin_Header_Straight_1x02_Pitch2.54mm</footprint>
+      <libsource lib="conn" part="CONN_01X02"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594B75AB</tstamp>
+    </comp>
+    <comp ref="R2">
+      <value>33</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="R"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594B9581</tstamp>
+    </comp>
+    <comp ref="FB5">
+      <value>FB</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="hermeslite" part="FB"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594BB4A5</tstamp>
+    </comp>
+    <comp ref="FB7">
+      <value>FB</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="hermeslite" part="FB"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594C8DEA</tstamp>
+    </comp>
+    <comp ref="FB4">
+      <value>FB</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="hermeslite" part="FB"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594D995F</tstamp>
+    </comp>
+    <comp ref="C14">
+      <value>2.2u</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="C_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594EE577</tstamp>
+    </comp>
+    <comp ref="C12">
+      <value>2.2u</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="C_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594EE6D5</tstamp>
+    </comp>
+    <comp ref="C15">
+      <value>0.1u</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="C_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594EEC62</tstamp>
+    </comp>
+    <comp ref="C13">
+      <value>2.2u</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="C_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594EED78</tstamp>
+    </comp>
+    <comp ref="C9">
+      <value>2.2u</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="C_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594DB429</tstamp>
+    </comp>
+    <comp ref="C10">
+      <value>0.1u</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="C_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594DBD28</tstamp>
+    </comp>
+    <comp ref="C21">
+      <value>0.22u</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="C_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594E25D6</tstamp>
+    </comp>
+    <comp ref="R3">
+      <value>33</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="R"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594E25E2</tstamp>
+    </comp>
+    <comp ref="C4">
+      <value>0.1u</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="C_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594ECD7D</tstamp>
+    </comp>
+    <comp ref="C3">
+      <value>10u</value>
+      <footprint>HERMESLITE:TantalC_SizeB_EIA-3528_Wave</footprint>
+      <libsource lib="device" part="CP_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594EDAE8</tstamp>
+    </comp>
+    <comp ref="C7">
+      <value>0.1u</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="C_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594EDDB5</tstamp>
+    </comp>
+    <comp ref="C6">
+      <value>10u</value>
+      <footprint>HERMESLITE:TantalC_SizeB_EIA-3528_Wave</footprint>
+      <libsource lib="device" part="CP_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594EF1AC</tstamp>
+    </comp>
+    <comp ref="FB1">
+      <value>FB</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="hermeslite" part="FB"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594F32BC</tstamp>
+    </comp>
+    <comp ref="FB2">
+      <value>FB</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="hermeslite" part="FB"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594F33FB</tstamp>
+    </comp>
+    <comp ref="FB3">
+      <value>FB</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="hermeslite" part="FB"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>594F34C1</tstamp>
+    </comp>
+    <comp ref="C1">
+      <value>0.1u</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="C_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>59500C3B</tstamp>
+    </comp>
+    <comp ref="C16">
+      <value>0.1u</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="C_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>59501172</tstamp>
+    </comp>
+    <comp ref="C8">
+      <value>1u</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="C_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>595073B9</tstamp>
+    </comp>
+    <comp ref="CN5">
+      <value>IO8</value>
+      <footprint>HERMESLITE:IO</footprint>
+      <fields>
+        <field name="Option">LVDSIO:CN8R_LVDSSYNC:CN8R</field>
+        <field name="Key">CN8R</field>
+      </fields>
+      <libsource lib="hermeslite" part="IO8"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>5961EE36</tstamp>
+    </comp>
+    <comp ref="DB1">
+      <value>RFD4d</value>
+      <footprint>HERMESLITE:4x1</footprint>
+      <fields>
+        <field name="Key">CN4S</field>
+        <field name="Option">GENERIC</field>
+      </fields>
+      <libsource lib="hermeslite" part="RFD4d"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>59627492</tstamp>
+    </comp>
+    <comp ref="CN4">
+      <value>IO8</value>
+      <footprint>HERMESLITE:IO</footprint>
+      <fields>
+        <field name="Key">CN8R</field>
+        <field name="Option">FRONTIO</field>
+      </fields>
+      <libsource lib="hermeslite" part="IO8"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>5962892E</tstamp>
+    </comp>
+    <comp ref="FB8">
+      <value>FB</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="hermeslite" part="FB"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>59644268</tstamp>
+    </comp>
+    <comp ref="J1">
+      <value>SJ-43514-SMT</value>
+      <footprint>HERMESLITE:SJ-43514-SMT</footprint>
+      <libsource lib="hermeslite" part="SJ-43514-SMT"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>59646A51</tstamp>
+    </comp>
+    <comp ref="J2">
+      <value>SJ-43514-SMT</value>
+      <footprint>HERMESLITE:SJ-43514-SMT</footprint>
+      <libsource lib="hermeslite" part="SJ-43514-SMT"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>5964A43C</tstamp>
+    </comp>
+    <comp ref="R4">
+      <value>0</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="R"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>596632BD</tstamp>
+    </comp>
+    <comp ref="FB10">
+      <value>FB</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="hermeslite" part="FB"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>5966EF62</tstamp>
+    </comp>
+    <comp ref="FB9">
+      <value>FB</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="hermeslite" part="FB"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>5966F024</tstamp>
+    </comp>
+    <comp ref="U1">
+      <value>TPS730</value>
+      <footprint>HERMESLITE:SOT23</footprint>
+      <libsource lib="hermeslite" part="LP2985"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>5968355D</tstamp>
+    </comp>
+    <comp ref="C2">
+      <value>1u</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="C_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>59683A8C</tstamp>
+    </comp>
+    <comp ref="C5">
+      <value>0.1u</value>
+      <footprint>HERMESLITE:C_0603_HandSoldering</footprint>
+      <libsource lib="device" part="C_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>59683B5E</tstamp>
+    </comp>
+    <comp ref="P3">
+      <value>CONN_01X04</value>
+      <footprint>HERMESLITE:Pin_Header_Straight_1x04_Pitch2.54mm</footprint>
+      <libsource lib="conn" part="CONN_01X04"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>59693129</tstamp>
+    </comp>
+    <comp ref="P2">
+      <value>CONN_01X04</value>
+      <footprint>HERMESLITE:Pin_Header_Straight_1x04_Pitch2.54mm</footprint>
+      <libsource lib="conn" part="CONN_01X04"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>59695BD4</tstamp>
+    </comp>
+    <comp ref="C17">
+      <value>10u</value>
+      <footprint>HERMESLITE:TantalC_SizeB_EIA-3528_Wave</footprint>
+      <libsource lib="device" part="CP_Small"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>596BB921</tstamp>
+    </comp>
+    <comp ref="P4">
+      <value>FFC 20pin</value>
+      <footprint>HERMESLITE:FFC_Kyocera_20pin</footprint>
+      <libsource lib="conn" part="CONN_01X22"/>
+      <sheetpath names="/AudioCodec/" tstamps="/595FEA2E/"/>
+      <tstamp>596B2754</tstamp>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="hermeslite" part="AK4951AEN">
+      <description>AK49951AEN</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">AK4951AEN</field>
+      </fields>
+      <pins>
+        <pin num="1" name="LIN3" type="input"/>
+        <pin num="2" name="RIN2" type="input"/>
+        <pin num="3" name="LIN2" type="input"/>
+        <pin num="4" name="MPWR2" type="output"/>
+        <pin num="5" name="MPWR1" type="input"/>
+        <pin num="6" name="RIN1/DMCLK" type="BiDi"/>
+        <pin num="7" name="LIN1/DMDAT" type="input"/>
+        <pin num="8" name="PDN" type="BiDi"/>
+        <pin num="9" name="SCL" type="BiDi"/>
+        <pin num="10" name="SDA" type="BiDi"/>
+        <pin num="11" name="SDTI" type="BiDi"/>
+        <pin num="12" name="SDTO" type="output"/>
+        <pin num="13" name="LRCLK" type="BiDi"/>
+        <pin num="14" name="BICK" type="BiDi"/>
+        <pin num="15" name="MCKI" type="input"/>
+        <pin num="16" name="TVDD" type="power_in"/>
+        <pin num="17" name="VSS3" type="power_in"/>
+        <pin num="18" name="SVDD" type="power_in"/>
+        <pin num="19" name="SPN/ROUT" type="output"/>
+        <pin num="20" name="SPP/LOUT" type="output"/>
+        <pin num="21" name="DVDD" type="power_in"/>
+        <pin num="22" name="HPL" type="output"/>
+        <pin num="23" name="HPR" type="output"/>
+        <pin num="24" name="VEE" type="passive"/>
+        <pin num="25" name="VSS2" type="power_in"/>
+        <pin num="26" name="CP" type="passive"/>
+        <pin num="27" name="CN" type="passive"/>
+        <pin num="28" name="AVDD" type="power_in"/>
+        <pin num="29" name="VSS1" type="power_in"/>
+        <pin num="30" name="VCOM" type="passive"/>
+        <pin num="31" name="REGFIL" type="passive"/>
+        <pin num="32" name="RIN3/BEEP" type="input"/>
+        <pin num="33" name="EP" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="conn" part="CONN_01X02">
+      <description>Connector 01x02</description>
+      <footprints>
+        <fp>Pin_Header_Straight_1X02</fp>
+        <fp>Pin_Header_Angled_1X02</fp>
+        <fp>Socket_Strip_Straight_1X02</fp>
+        <fp>Socket_Strip_Angled_1X02</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">P</field>
+        <field name="Value">CONN_01X02</field>
+      </fields>
+      <pins>
+        <pin num="1" name="P1" type="passive"/>
+        <pin num="2" name="P2" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="conn" part="CONN_01X04">
+      <description>Connector 01x04</description>
+      <footprints>
+        <fp>Pin_Header_Straight_1X04</fp>
+        <fp>Pin_Header_Angled_1X04</fp>
+        <fp>Socket_Strip_Straight_1X04</fp>
+        <fp>Socket_Strip_Angled_1X04</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">P</field>
+        <field name="Value">CONN_01X04</field>
+      </fields>
+      <pins>
+        <pin num="1" name="P1" type="passive"/>
+        <pin num="2" name="P2" type="passive"/>
+        <pin num="3" name="P3" type="passive"/>
+        <pin num="4" name="P4" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="conn" part="CONN_01X22">
+      <description>Connector 01x22</description>
+      <footprints>
+        <fp>Pin_Header_Straight_1X22</fp>
+        <fp>Pin_Header_Angled_1X22</fp>
+        <fp>Socket_Strip_Straight_1X22</fp>
+        <fp>Socket_Strip_Angled_1X22</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">P</field>
+        <field name="Value">CONN_01X22</field>
+      </fields>
+      <pins>
+        <pin num="1" name="P1" type="passive"/>
+        <pin num="2" name="P2" type="passive"/>
+        <pin num="3" name="P3" type="passive"/>
+        <pin num="4" name="P4" type="passive"/>
+        <pin num="5" name="P5" type="passive"/>
+        <pin num="6" name="P6" type="passive"/>
+        <pin num="7" name="P7" type="passive"/>
+        <pin num="8" name="P8" type="passive"/>
+        <pin num="9" name="P9" type="passive"/>
+        <pin num="10" name="P10" type="passive"/>
+        <pin num="11" name="P11" type="passive"/>
+        <pin num="12" name="P12" type="passive"/>
+        <pin num="13" name="P13" type="passive"/>
+        <pin num="14" name="P14" type="passive"/>
+        <pin num="15" name="P15" type="passive"/>
+        <pin num="16" name="P16" type="passive"/>
+        <pin num="17" name="P17" type="passive"/>
+        <pin num="18" name="P18" type="passive"/>
+        <pin num="19" name="P19" type="passive"/>
+        <pin num="20" name="P20" type="passive"/>
+        <pin num="21" name="P21" type="passive"/>
+        <pin num="22" name="P22" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="device" part="CP_Small">
+      <description>Polarised capacitor</description>
+      <footprints>
+        <fp>CP*</fp>
+        <fp>Elko*</fp>
+        <fp>TantalC*</fp>
+        <fp>C*elec</fp>
+        <fp>c_elec*</fp>
+        <fp>SMD*_Pol</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">C</field>
+        <field name="Value">CP_Small</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="device" part="C_Small">
+      <description>Unpolarized capacitor</description>
+      <footprints>
+        <fp>C?</fp>
+        <fp>C_????_*</fp>
+        <fp>C_????</fp>
+        <fp>SMD*_c</fp>
+        <fp>Capacitor*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">C</field>
+        <field name="Value">C_Small</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="hermeslite" part="FB">
+      <fields>
+        <field name="Reference">FB</field>
+        <field name="Value">FB</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="hermeslite" part="IO8">
+      <fields>
+        <field name="Reference">DB</field>
+        <field name="Value">IO8</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="input"/>
+        <pin num="2" name="~" type="input"/>
+        <pin num="3" name="~" type="input"/>
+        <pin num="4" name="~" type="input"/>
+        <pin num="5" name="~" type="input"/>
+        <pin num="6" name="~" type="input"/>
+        <pin num="7" name="~" type="input"/>
+        <pin num="8" name="~" type="input"/>
+      </pins>
+    </libpart>
+    <libpart lib="hermeslite" part="LP2985">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">LP2985</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Vin" type="power_in"/>
+        <pin num="2" name="GND" type="power_in"/>
+        <pin num="3" name="EN" type="input"/>
+        <pin num="4" name="BYP" type="input"/>
+        <pin num="5" name="Vout" type="power_out"/>
+      </pins>
+    </libpart>
+    <libpart lib="device" part="R">
+      <description>Resistor</description>
+      <footprints>
+        <fp>R_*</fp>
+        <fp>Resistor_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">R</field>
+        <field name="Value">R</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="hermeslite" part="RFD2b">
+      <fields>
+        <field name="Reference">DB</field>
+        <field name="Value">RFD2b</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="input"/>
+        <pin num="2" name="~" type="input"/>
+      </pins>
+    </libpart>
+    <libpart lib="hermeslite" part="RFD4d">
+      <fields>
+        <field name="Reference">DB</field>
+        <field name="Value">RFD4d</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="input"/>
+        <pin num="2" name="~" type="input"/>
+        <pin num="3" name="~" type="input"/>
+        <pin num="4" name="~" type="input"/>
+      </pins>
+    </libpart>
+    <libpart lib="hermeslite" part="SJ-43514-SMT">
+      <description>SJ-43514-SMT</description>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">SJ-43514-SMT</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+        <pin num="3" name="~" type="passive"/>
+        <pin num="4" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="conn" part="TEST_1P">
+      <description>point</description>
+      <fields>
+        <field name="Reference">W</field>
+        <field name="Value">TEST_1P</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="passive"/>
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="device">
+      <uri>C:\Application\KiCad\share\kicad\library\device.lib</uri>
+    </library>
+    <library logical="conn">
+      <uri>C:\Application\KiCad\share\kicad\library\conn.lib</uri>
+    </library>
+    <library logical="hermeslite">
+      <uri>D:\KiCad\Hermes-Lite\AudioCodec_AK4951_beta3_8th_PCB_rev201\libs\hermeslite.lib</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="Net-(DB5-Pad1)">
+      <node ref="DB5" pin="1"/>
+    </net>
+    <net code="2" name="Net-(DB24-Pad1)">
+      <node ref="DB24" pin="1"/>
+    </net>
+    <net code="3" name="GND">
+      <node ref="C14" pin="2"/>
+      <node ref="C12" pin="2"/>
+      <node ref="C15" pin="1"/>
+      <node ref="C9" pin="2"/>
+      <node ref="C10" pin="2"/>
+      <node ref="R3" pin="2"/>
+      <node ref="C4" pin="2"/>
+      <node ref="C3" pin="2"/>
+      <node ref="C7" pin="2"/>
+      <node ref="C6" pin="2"/>
+      <node ref="CN5" pin="8"/>
+      <node ref="CN5" pin="1"/>
+      <node ref="C8" pin="1"/>
+      <node ref="C16" pin="2"/>
+      <node ref="C1" pin="2"/>
+      <node ref="C20" pin="2"/>
+      <node ref="C11" pin="2"/>
+      <node ref="R2" pin="2"/>
+      <node ref="U2" pin="29"/>
+      <node ref="U2" pin="17"/>
+      <node ref="U2" pin="25"/>
+      <node ref="U2" pin="15"/>
+      <node ref="U2" pin="33"/>
+      <node ref="P2" pin="3"/>
+      <node ref="CN4" pin="8"/>
+      <node ref="CN4" pin="1"/>
+      <node ref="DB1" pin="4"/>
+      <node ref="R4" pin="1"/>
+      <node ref="J2" pin="4"/>
+      <node ref="J1" pin="1"/>
+      <node ref="MH2" pin="1"/>
+      <node ref="P3" pin="3"/>
+      <node ref="C5" pin="2"/>
+      <node ref="C2" pin="2"/>
+      <node ref="U1" pin="2"/>
+      <node ref="P4" pin="1"/>
+      <node ref="C17" pin="2"/>
+      <node ref="P4" pin="22"/>
+      <node ref="P4" pin="13"/>
+      <node ref="P4" pin="20"/>
+      <node ref="P4" pin="9"/>
+      <node ref="P4" pin="14"/>
+      <node ref="P4" pin="12"/>
+      <node ref="P4" pin="21"/>
+      <node ref="P4" pin="6"/>
+      <node ref="DB24" pin="2"/>
+      <node ref="P4" pin="17"/>
+      <node ref="DB5" pin="2"/>
+    </net>
+    <net code="4" name="/AudioCodec/P3-4">
+      <node ref="P4" pin="8"/>
+      <node ref="P4" pin="7"/>
+      <node ref="FB6" pin="2"/>
+      <node ref="J2" pin="1"/>
+      <node ref="P3" pin="4"/>
+    </net>
+    <net code="5" name="Net-(C5-Pad1)">
+      <node ref="C5" pin="1"/>
+      <node ref="U1" pin="4"/>
+    </net>
+    <net code="6" name="/AudioCodec/P2-1">
+      <node ref="J1" pin="3"/>
+      <node ref="FB5" pin="2"/>
+      <node ref="P2" pin="1"/>
+      <node ref="P4" pin="15"/>
+      <node ref="P4" pin="16"/>
+    </net>
+    <net code="7" name="/AudioCodec/P2-4">
+      <node ref="J1" pin="4"/>
+      <node ref="R4" pin="2"/>
+      <node ref="P4" pin="11"/>
+      <node ref="P2" pin="4"/>
+      <node ref="P4" pin="10"/>
+      <node ref="FB9" pin="1"/>
+    </net>
+    <net code="8" name="Net-(C15-Pad2)">
+      <node ref="C15" pin="2"/>
+      <node ref="U2" pin="28"/>
+      <node ref="FB3" pin="2"/>
+      <node ref="C17" pin="1"/>
+    </net>
+    <net code="9" name="Net-(C9-Pad1)">
+      <node ref="U2" pin="24"/>
+      <node ref="C9" pin="1"/>
+    </net>
+    <net code="10" name="Net-(C10-Pad1)">
+      <node ref="C11" pin="1"/>
+      <node ref="U1" pin="5"/>
+      <node ref="C10" pin="1"/>
+      <node ref="U2" pin="21"/>
+    </net>
+    <net code="11" name="Net-(C18-Pad1)">
+      <node ref="U2" pin="7"/>
+      <node ref="C18" pin="1"/>
+    </net>
+    <net code="12" name="Net-(C19-Pad1)">
+      <node ref="FB8" pin="2"/>
+      <node ref="U2" pin="22"/>
+      <node ref="C19" pin="1"/>
+    </net>
+    <net code="13" name="Net-(C21-Pad1)">
+      <node ref="FB7" pin="1"/>
+      <node ref="C21" pin="1"/>
+      <node ref="U2" pin="23"/>
+    </net>
+    <net code="14" name="Net-(P1-Pad1)">
+      <node ref="P1" pin="1"/>
+      <node ref="U2" pin="20"/>
+    </net>
+    <net code="15" name="Net-(C18-Pad2)">
+      <node ref="R1" pin="1"/>
+      <node ref="C18" pin="2"/>
+      <node ref="C20" pin="1"/>
+      <node ref="FB6" pin="1"/>
+    </net>
+    <net code="16" name="Net-(P1-Pad2)">
+      <node ref="U2" pin="19"/>
+      <node ref="P1" pin="2"/>
+    </net>
+    <net code="17" name="Net-(C12-Pad1)">
+      <node ref="U2" pin="30"/>
+      <node ref="C12" pin="1"/>
+    </net>
+    <net code="18" name="Net-(C14-Pad1)">
+      <node ref="C14" pin="1"/>
+      <node ref="U2" pin="31"/>
+    </net>
+    <net code="19" name="Net-(C13-Pad1)">
+      <node ref="U2" pin="27"/>
+      <node ref="C13" pin="1"/>
+    </net>
+    <net code="20" name="Net-(C13-Pad2)">
+      <node ref="U2" pin="26"/>
+      <node ref="C13" pin="2"/>
+    </net>
+    <net code="21" name="+3V3">
+      <node ref="C2" pin="1"/>
+      <node ref="U1" pin="3"/>
+      <node ref="CN4" pin="5"/>
+      <node ref="CN4" pin="4"/>
+      <node ref="U1" pin="1"/>
+      <node ref="FB1" pin="2"/>
+      <node ref="C16" pin="1"/>
+      <node ref="FB2" pin="2"/>
+      <node ref="FB3" pin="1"/>
+      <node ref="C1" pin="1"/>
+    </net>
+    <net code="22" name="Net-(R1-Pad2)">
+      <node ref="U2" pin="5"/>
+      <node ref="R1" pin="2"/>
+    </net>
+    <net code="23" name="Net-(C8-Pad2)">
+      <node ref="U2" pin="6"/>
+      <node ref="C8" pin="2"/>
+    </net>
+    <net code="24" name="/AudioCodec/SDA">
+      <node ref="DB1" pin="2"/>
+      <node ref="U2" pin="10"/>
+    </net>
+    <net code="25" name="Net-(C6-Pad1)">
+      <node ref="FB2" pin="1"/>
+      <node ref="C7" pin="1"/>
+      <node ref="U2" pin="18"/>
+      <node ref="C6" pin="1"/>
+    </net>
+    <net code="26" name="Net-(C3-Pad1)">
+      <node ref="FB1" pin="1"/>
+      <node ref="C3" pin="1"/>
+      <node ref="C4" pin="1"/>
+      <node ref="U2" pin="16"/>
+    </net>
+    <net code="27" name="/AudioCodec/SCL">
+      <node ref="U2" pin="9"/>
+      <node ref="DB1" pin="3"/>
+    </net>
+    <net code="28" name="Net-(U2-Pad1)">
+      <node ref="U2" pin="1"/>
+    </net>
+    <net code="29" name="Net-(C21-Pad2)">
+      <node ref="R3" pin="1"/>
+      <node ref="C21" pin="2"/>
+    </net>
+    <net code="30" name="Net-(DB1-Pad1)">
+      <node ref="DB1" pin="1"/>
+    </net>
+    <net code="31" name="Net-(CN5-Pad5)">
+      <node ref="CN5" pin="5"/>
+    </net>
+    <net code="32" name="Net-(CN5-Pad4)">
+      <node ref="CN5" pin="4"/>
+    </net>
+    <net code="33" name="Net-(U2-Pad4)">
+      <node ref="U2" pin="4"/>
+    </net>
+    <net code="34" name="Net-(U2-Pad3)">
+      <node ref="U2" pin="3"/>
+    </net>
+    <net code="35" name="Net-(U2-Pad2)">
+      <node ref="U2" pin="2"/>
+    </net>
+    <net code="36" name="Net-(U2-Pad32)">
+      <node ref="U2" pin="32"/>
+    </net>
+    <net code="37" name="/AudioCodec/~PTT">
+      <node ref="FB9" pin="2"/>
+      <node ref="CN4" pin="3"/>
+      <node ref="FB10" pin="2"/>
+    </net>
+    <net code="38" name="Net-(C19-Pad2)">
+      <node ref="C19" pin="2"/>
+      <node ref="R2" pin="1"/>
+    </net>
+    <net code="39" name="/AudioCodec/BCK">
+      <node ref="CN5" pin="2"/>
+      <node ref="U2" pin="14"/>
+    </net>
+    <net code="40" name="/AudioCodec/LRCK">
+      <node ref="U2" pin="13"/>
+      <node ref="CN5" pin="3"/>
+    </net>
+    <net code="41" name="/AudioCodec/DOUT">
+      <node ref="CN5" pin="6"/>
+      <node ref="U2" pin="12"/>
+    </net>
+    <net code="42" name="/AudioCodec/DIN">
+      <node ref="CN5" pin="7"/>
+      <node ref="U2" pin="11"/>
+    </net>
+    <net code="43" name="/AudioCodec/P2-2">
+      <node ref="P4" pin="18"/>
+      <node ref="J1" pin="2"/>
+      <node ref="FB4" pin="2"/>
+      <node ref="P4" pin="19"/>
+      <node ref="P2" pin="2"/>
+    </net>
+    <net code="44" name="/AudioCodec/P3-2">
+      <node ref="J2" pin="2"/>
+      <node ref="P4" pin="2"/>
+      <node ref="P4" pin="3"/>
+      <node ref="FB10" pin="1"/>
+      <node ref="FB8" pin="1"/>
+      <node ref="P3" pin="2"/>
+    </net>
+    <net code="45" name="/AudioCodec/P3-1">
+      <node ref="P4" pin="4"/>
+      <node ref="P4" pin="5"/>
+      <node ref="J2" pin="3"/>
+      <node ref="FB7" pin="2"/>
+      <node ref="P3" pin="1"/>
+    </net>
+    <net code="46" name="/AudioCodec/PDN">
+      <node ref="U2" pin="8"/>
+      <node ref="CN4" pin="7"/>
+    </net>
+    <net code="47" name="/AudioCodec/~DASH">
+      <node ref="FB5" pin="1"/>
+      <node ref="CN4" pin="6"/>
+    </net>
+    <net code="48" name="/AudioCodec/~DOT">
+      <node ref="FB4" pin="1"/>
+      <node ref="CN4" pin="2"/>
+    </net>
+  </nets>
+</export>

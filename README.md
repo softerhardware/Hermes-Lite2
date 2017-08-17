@@ -11,6 +11,32 @@ Hermes-Lite Ver2, Raspberry Pi 2B, 5" HDMI Monitor, Power Control board, Audio c
 
 [TRX Schematic (under making, 16 Jun 2017)](compact-trx/powercontrol/docs/trx_schematic.pdf)
 
+## CW Keyer I/F and AK4951 audio codec board
+
+<img src="compact-trx/Keyer_AK4951/docs/KeyerIF_AK4951_board.JPG" width="480px">
+<img src="compact-trx/Keyer_AK4951/docs/HLv2Beta3_with_KeyerIF_AK4951_board.JPG" width="480px">
+
+In this [Test Video](https://youtu.be/d-YUDK2JaQg), this board was used with HL v2 Beta3.
+
+[Schematic](compact-trx/Keyer_AK4951/docs/AudioCodec_AK4951_r201.pdf)
+[BOM](compact-trx/Keyer_AK4951/docs/BOM_AK4951_Codec_rev2.pdf)
+[Gerber](compact-trx/Keyer_AK4951/gerber/hl2ac4951.zip)
+[Errata](compact-trx/Keyer_AK4951/docs/KeyerIF_AK4951_v2.0.1_PCB_Errata.pdf)
+[Installation guide](compact-trx/Keyer_AK4951/docs/KeyerIF_AK4951_v2.0.1_PCB_Installation guide.pdf)
+
+Verilog-HDL code was released on my git (17 Aug 2017).  
+
+
+## Tx Rx Filter test board (Under making, 17 Jun 2017)
+
+<img src="compact-trx/TX_RX_Filter/docs/filter_test_board.JPG" width="480px">
+
+[Schematic](compact-trx/TX_RX_Filter/docs/Filter_test_board.pdf)
+[BOM](compact-trx/TX_RX_Filter/docs/BOM_FILTER.pdf)
+[Gerber](compact-trx/TX_RX_Filter/gerber/hl2filter.zip)
+[Errata](compact-trx/TX_RX_Filter/docs/Tx_Rx_Filter_v1.0_PCB_Errata.pdf)
+
+
 ## Power control board
 
 ### Purpose

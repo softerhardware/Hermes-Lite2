@@ -1,0 +1,135 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:hermeslite
+LIBS:hermeslite-cache
+EELAYER 25 0
+EELAYER END
+$Descr USLetter 11000 8500
+encoding utf-8
+Sheet 1 3
+Title "Tx/Rx Filter"
+Date "2017-07-29"
+Rev "1.0"
+Comp "JI1UDD"
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L TEST_1P MH1
+U 1 1 581A34C3
+P 1750 7325
+F 0 "MH1" H 1750 7525 39  0000 C CNN
+F 1 "DNI" H 1750 7525 50  0001 C CNN
+F 2 "HERMESLITE:m3" H 1950 7325 50  0001 C CNN
+F 3 "" H 1950 7325 50  0000 C CNN
+F 4 "DUMMY" H 1750 7325 60  0001 C CNN "Option"
+F 5 "NOBOM" H 1750 7325 60  0001 C CNN "Key"
+	1    1750 7325
+	1    0    0    -1  
+$EndComp
+$Comp
+L TEST_1P MH2
+U 1 1 581A39EB
+P 1950 7325
+F 0 "MH2" H 1950 7525 39  0000 C CNN
+F 1 "DNI" H 1950 7525 50  0001 C CNN
+F 2 "HERMESLITE:m3" H 2150 7325 50  0001 C CNN
+F 3 "" H 2150 7325 50  0000 C CNN
+F 4 "DUMMY" H 1950 7325 60  0001 C CNN "Option"
+F 5 "NOBOM" H 1950 7325 60  0001 C CNN "Key"
+	1    1950 7325
+	1    0    0    -1  
+$EndComp
+$Comp
+L TEST_1P MH3
+U 1 1 581A3A22
+P 2150 7325
+F 0 "MH3" H 2150 7525 39  0000 C CNN
+F 1 "DNI" H 2150 7525 50  0001 C CNN
+F 2 "HERMESLITE:m3" H 2350 7325 50  0001 C CNN
+F 3 "" H 2350 7325 50  0000 C CNN
+F 4 "DUMMY" H 2150 7325 60  0001 C CNN "Option"
+F 5 "NOBOM" H 2150 7325 60  0001 C CNN "Key"
+	1    2150 7325
+	1    0    0    -1  
+$EndComp
+$Comp
+L TEST_1P MH4
+U 1 1 581A3A5C
+P 2350 7325
+F 0 "MH4" H 2350 7525 39  0000 C CNN
+F 1 "DNI" H 2350 7525 50  0001 C CNN
+F 2 "HERMESLITE:m3" H 2550 7325 50  0001 C CNN
+F 3 "" H 2550 7325 50  0000 C CNN
+F 4 "DUMMY" H 2350 7325 60  0001 C CNN "Option"
+F 5 "NOBOM" H 2350 7325 60  0001 C CNN "Key"
+	1    2350 7325
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR01
+U 1 1 581A3AD9
+P 1750 7375
+F 0 "#PWR01" H 1750 7125 50  0001 C CNN
+F 1 "GND" H 1750 7225 50  0000 C CNN
+F 2 "" H 1750 7375 50  0000 C CNN
+F 3 "" H 1750 7375 50  0000 C CNN
+	1    1750 7375
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1750 7325 1750 7375
+Wire Wire Line
+	1750 7350 2350 7350
+Wire Wire Line
+	2350 7350 2350 7325
+Wire Wire Line
+	2150 7325 2150 7350
+Connection ~ 2150 7350
+Wire Wire Line
+	1950 7325 1950 7350
+Connection ~ 1950 7350
+Connection ~ 1750 7350
+$Sheet
+S 1150 1175 2700 525 
+U 595C05EF
+F0 "tx-filter" 60
+F1 "tx-filter.sch" 60
+$EndSheet
+$Sheet
+S 1150 2100 2700 475 
+U 595C0B9F
+F0 "rx-filter" 60
+F1 "rx-filter.sch" 60
+$EndSheet
+$EndSCHEMATC

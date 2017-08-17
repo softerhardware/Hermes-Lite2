@@ -10,6 +10,7 @@ module i2c #
     input  logic         clock_76p8_mhz,
     input  logic         rst,
     input  logic         init_start,
+    input  logic         IF_Mic_boost,
 
     // Wishbone slave interface
     input  logic [WB_ADDR_WIDTH-1:0]   wbs_adr_i,
@@ -87,7 +88,8 @@ i2c_init i2c1_init_i (
     /*
      * Configuration
      */
-    .start(init_start)
+    .IF_Mic_boost(IF_Mic_boost),
+    .init_start(init_start)
 );
 
 i2c_master i2c1_master_i (
