@@ -22,7 +22,7 @@ In this [Test Video](https://youtu.be/d-YUDK2JaQg), this board was used with HL 
 [BOM](compact-trx/Keyer_AK4951/docs/BOM_AK4951_Codec_rev2.pdf)
 [Gerber](compact-trx/Keyer_AK4951/gerber/hl2ac4951.zip)
 [Errata](compact-trx/Keyer_AK4951/docs/KeyerIF_AK4951_v2.0.1_PCB_Errata.pdf)
-[Installation guide](compact-trx/Keyer_AK4951/docs/KeyerIF_AK4951_v2.0.1_PCB_Installation guide.pdf)
+[Installation guide](compact-trx/Keyer_AK4951/docs/KeyerIF_AK4951_v2.0.1_PCB_Installation_guide.pdf)
 
 Verilog-HDL code was released on my git (17 Aug 2017).  
 
