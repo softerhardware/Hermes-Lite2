@@ -338,7 +338,7 @@ ethernet #(.MAC(MAC), .IP(IP), .Hermes_serialno(Hermes_serialno)) ethernet_inst 
     // Status
     .this_MAC_o(this_MAC),
     .run_o(run),
-    .dipsw_i({1'b0,io_cn9}),
+    .dipsw_i({io_cn10,io_cn9}),
     .AssignNR(AssignNR),
 
     // MII Ethernet PHY
@@ -1699,12 +1699,13 @@ assign pwr_envbias = FPGA_PTT & IF_PA_enable;
 assign pwr_envop = FPGA_PTT;
 assign pa_exttr = FPGA_PTT;
 assign pa_inttr = FPGA_PTT & (IF_PA_enable | ~IF_TR_disable);
+assign pwr_envpa = FPGA_PTT & IF_PA_enable;
 `else
 assign pa_tr = FPGA_PTT & (IF_PA_enable | ~IF_TR_disable);
 assign pa_en = FPGA_PTT & IF_PA_enable;
+assign pwr_envpa = FPGA_PTT;
 `endif
 
-assign pwr_envpa = FPGA_PTT & IF_PA_enable;
 assign rffe_rfsw_sel = IF_PA_enable;
 
 wire scl1_i, scl1_t, scl1_o, sda1_i, sda1_t, sda1_o;
