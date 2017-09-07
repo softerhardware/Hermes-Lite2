@@ -36,7 +36,7 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 4 7
 Title "Clock"
-Date "2017-07-04"
+Date "2017-09-06"
 Rev "2.0-beta3"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"

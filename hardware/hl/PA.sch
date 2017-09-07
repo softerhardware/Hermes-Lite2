@@ -36,7 +36,7 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 7 7
 Title "Hermes-Lite V2 5W Power Amplifier"
-Date "2017-07-04"
+Date "2017-09-06"
 Rev "2.0-beta3"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
@@ -590,8 +590,8 @@ F 4 "GENERIC" V 5050 4000 60  0001 C CNN "Option"
 	1    5050 4000
 	0    -1   -1   0   
 $EndComp
-Text Notes 6100 4075 0    60   ~ 0
-Hand Wind\nB62152A4X30 or BN43-202\n4T Primary, 1+1T Secondary\nBN43-1502\n8T Primary, 2+2T Secondary\n
+Text Notes 6100 4100 0    60   ~ 0
+Hand Wind\nB62152A4X30 or BN43-202\n4T Primary, 1+1T Secondary\nBN43-1502\n8T Primary, 2+2T Secondary\nB62152A4X30 runs hot, use 24AWG PTFE/FEP Wire
 Text GLabel 8150 1575 0    39   Output ~ 0
 PATRRX
 $Comp
