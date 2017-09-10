@@ -56,15 +56,24 @@ module hermeslite(
 
   // RF Frontend
   output          rffe_ad9866_rst_n,
+
+`ifdef HALFDUPLEX
+  inout   [5:0]   rffe_ad9866_tx,
+  inout   [5:0]   rffe_ad9866_rx,
+  output          rffe_ad9866_rxsync,
+  output          rffe_ad9866_rxclk,  
+`else
   (* useioff = 1 *) output  [5:0]   rffe_ad9866_tx,
   input   [5:0]   rffe_ad9866_rx,
   input           rffe_ad9866_rxsync,
-  (* useioff = 1 *) output          rffe_ad9866_txsync,
+  input           rffe_ad9866_rxclk,  
+`endif
+
   output          rffe_ad9866_txquiet_n,
+  (* useioff = 1 *) output          rffe_ad9866_txsync,
   output          rffe_ad9866_sdio,
   output          rffe_ad9866_sclk,
   output          rffe_ad9866_sen_n,
-  input           rffe_ad9866_rxclk,
   input           rffe_ad9866_clk76p8,
   output          rffe_rfsw_sel,
 
@@ -497,11 +506,34 @@ always @ (posedge clock_76p8_mhz) begin
     //DACDp <= cosv;
 end
 
-
-reg [11:0] ad9866_rx_stage;
 reg [11:0] ad9866_rx_input;
 
-	
+`ifdef HALFDUPLEX
+// AD9866 Code
+// Code for Half duplex
+assign rffe_ad9866_mode = 1'b0;
+
+assign rffe_ad9866_txsync = FPGA_PTT;
+assign rffe_ad9866_rxsync = ~FPGA_PTT;
+
+assign rffe_ad9866_rxclk = clock_76p8_mhz;
+assign rffe_ad9866_txquiet_n = clock_76p8_mhz;
+
+// RX/TX port
+assign rffe_ad9866_tx = FPGA_PTT ? DACDp[11:6] : 6'bZ;
+assign rffe_ad9866_rx = FPGA_PTT ? DACDp[5:0] : 6'bZ;
+
+always @(posedge clock_76p8_mhz) begin
+  ad9866_rx_input[11:6] <= rffe_ad9866_tx;
+  ad9866_rx_input[5:0]  <= rffe_ad9866_rx;
+end
+
+`else
+
+reg [11:0] ad9866_rx_stage;
+
+assign rffe_ad9866_mode = 1'b1;
+
 // Assume that ad9866_rxclk is synchronous to ad9866clk
 // Don't know the phase relation
 always @(posedge clock_153p6_mhz)
@@ -540,15 +572,10 @@ assign rffe_ad9866_txquiet_n = FPGA_PTT_VNAp; //1'b0;
 assign rffe_ad9866_tx = ad9866_txr;
 assign rffe_ad9866_txsync = ad9866_txsyncr;
 
-
-
-//assign userout = IF_OC;
+`endif
 
 
 // Pipeline RX
-
-
-
 always @ (posedge clock_76p8_mhz)
   begin
     temp_ADC <= ad9866_rx_input;
@@ -663,7 +690,7 @@ generate
     //  end
     //end
 
-	assign C122_frequency_HZ[c] = IF_frequency[c+1];
+  assign C122_frequency_HZ[c] = IF_frequency[c+1];
     assign C122_sync_phase_word[c] = C122_frequency_HZ[c];
 
     assign IF_M_IQ_Data[c] = {rx_I[c], rx_Q[c]};
@@ -672,46 +699,46 @@ generate
 
 
 if((c==3 && NR>3) || (c==1 && NR<=3))
-	begin
-	//    wire signed [23:0] psout_data_I2;
-	//   wire signed [23:0] psout_data_Q2;
-	//   assign rx_I[c] = psout_data_I2 <<< (FPGA_PTT? 2:0);
-	//   assign rx_Q[c] = psout_data_Q2 <<< (FPGA_PTT? 2:0);
+  begin
+  //    wire signed [23:0] psout_data_I2;
+  //   wire signed [23:0] psout_data_Q2;
+  //   assign rx_I[c] = psout_data_I2 <<< (FPGA_PTT? 2:0);
+  //   assign rx_Q[c] = psout_data_Q2 <<< (FPGA_PTT? 2:0);
 
-	     receiver #(.CICRATE(CICRATE)) receiver_inst (
-	    //control
-	    .clock(clock_76p8_mhz),
-	    .rate(rate),
-	    .frequency(C122_sync_phase_word[c]),
-	    .out_strobe(strobe[c]),
-	    //input
-	    //.in_data(FPGA_PTT ? DACD : adcpipe[c/8]),
-		.in_data((FPGA_PTT & IF_Pure_signal) ? DACDp : adcpipe[c/8]),
-	   //output
-	  //  .out_data_I(psout_data_I2),
-	  //  .out_data_Q(psout_data_Q2)
-	    .out_data_I(rx_I[c]),
-	    .out_data_Q(rx_Q[c])
-	    );
+       receiver #(.CICRATE(CICRATE)) receiver_inst (
+      //control
+      .clock(clock_76p8_mhz),
+      .rate(rate),
+      .frequency(C122_sync_phase_word[c]),
+      .out_strobe(strobe[c]),
+      //input
+      //.in_data(FPGA_PTT ? DACD : adcpipe[c/8]),
+    .in_data((FPGA_PTT & IF_Pure_signal) ? DACDp : adcpipe[c/8]),
+     //output
+    //  .out_data_I(psout_data_I2),
+    //  .out_data_Q(psout_data_Q2)
+      .out_data_I(rx_I[c]),
+      .out_data_Q(rx_Q[c])
+      );
 
 
     end
 else
-	begin
+  begin
 
-	    receiver #(.CICRATE(CICRATE)) receiver_inst (
-	    //control
-	    .clock(clock_76p8_mhz),
-	    .rate(rate),
-	    .frequency(C122_sync_phase_word[c]),
-	    .out_strobe(strobe[c]),
-	    //input
-	    .in_data(adcpipe[c/8]),
-	    //output
-	    .out_data_I(rx_I[c]),
-	    .out_data_Q(rx_Q[c])
-	    );
-	end
+      receiver #(.CICRATE(CICRATE)) receiver_inst (
+      //control
+      .clock(clock_76p8_mhz),
+      .rate(rate),
+      .frequency(C122_sync_phase_word[c]),
+      .out_strobe(strobe[c]),
+      //input
+      .in_data(adcpipe[c/8]),
+      //output
+      .out_data_I(rx_I[c]),
+      .out_data_Q(rx_Q[c])
+      );
+  end
 end
 endgenerate
 
@@ -1183,24 +1210,24 @@ begin
     IF_SYNC_state <=  IF_SYNC_state_next;
 
   if (rst)
-  	basewrite <= 3'b000;
+    basewrite <= 3'b000;
   else
-  	basewrite <= {basewrite[1:0],IF_PHY_drdy && (IF_SYNC_state == SYNC_RX_3_4)};
+    basewrite <= {basewrite[1:0],IF_PHY_drdy && (IF_SYNC_state == SYNC_RX_3_4)};
 
   if (IF_PHY_drdy && (IF_SYNC_state == SYNC_START) && (IF_PHY_data[15:8] == 8'h7F))
   begin
     resp_rqst <= IF_PHY_data[7];
-  	addr <= IF_PHY_data[6:1];
-  	mox <= IF_PHY_data[0];
+    addr <= IF_PHY_data[6:1];
+    mox <= IF_PHY_data[0];
   end
   if (IF_PHY_drdy && (IF_SYNC_state == SYNC_RX_1_2))
   begin
-  	data[31:16] <= IF_PHY_data;
+    data[31:16] <= IF_PHY_data;
   end
 
   if (IF_PHY_drdy && (IF_SYNC_state == SYNC_RX_3_4))
   begin
-  	data[15:0] <= IF_PHY_data;
+    data[15:0] <= IF_PHY_data;
   end
 
   if (IF_SYNC_state == SYNC_START)
@@ -1335,7 +1362,7 @@ begin
     if (addr == 6'h09)
     begin
       VNA                 <= data[23];      // 1 = enable VNA mode
-      IF_PA_enable 		  <= data[19];
+      IF_PA_enable      <= data[19];
       IF_TR_disable       <= data[18];
     end
     if (addr == 6'h0a)
@@ -1362,7 +1389,7 @@ reg [31:0] freqcompp [0:3];
 reg [5:0] chanp [0:3];
 
 always @ (posedge clock_76p8_mhz) begin
-	// Pipeline to allow 2 cycles for multiply
+  // Pipeline to allow 2 cycles for multiply
     if (basewrite[1]) begin
         freqcompp[0] <= freqcomp[56:25];
         freqcompp[1] <= freqcomp[56:25];
@@ -1422,7 +1449,6 @@ assign FPGA_PTT = (mox | cwkey | clean_ptt) & ~clean_txinhibit; // mox only upda
 
 `ifdef BETA3
 assign rffe_ad9866_pga5 = 1'b0;
-assign rffe_ad9866_mode = 1'b1;
 `else
 assign rffe_ad9866_pga = 6'b000000;
 `endif
