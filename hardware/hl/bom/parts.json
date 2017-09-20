@@ -55,7 +55,7 @@
 	},
 
 "C 22uF 0805": {
-	"mpn":["GRM21BR61E226ME44L","GRT21BR61E226ME13L","CC0805MKX5R8BB226","GRM21BR61C226ME44L"],
+	"mpn":["CL21A226MOCLRNC","GRM21BR61E226ME44L","GRT21BR61E226ME13L","CC0805MKX5R8BB226","GRM21BR61C226ME44L"],
 	"spec":"22uF 0805>=X5R>=16V<=20%",
 	"assembly":"SMT",
 	"pins":2,
@@ -111,7 +111,7 @@
 	"spec":"180pF 0805NP0>=50V<=5%",
 	"assembly":"SMT",
 	"pins":2,
-	"sub":1
+	"sub":0
 	},
 
 "C 160pF 0805": {
@@ -119,7 +119,7 @@
 	"spec":"160pF 0805NP0>=50V<=5%",
 	"assembly":"SMT",
 	"pins":2,
-	"sub":1
+	"sub":0
 	},
 
 "C 150pF 0805": {
@@ -127,7 +127,7 @@
 	"spec":"150pF 0805NP0>=50V<=5%",
 	"assembly":"SMT",
 	"pins":2,
-	"sub":1
+	"sub":0
 	},
 
 "C 100pF 0805": {
@@ -136,7 +136,7 @@
 	"assembly":"SMT",
 	"pins":2,
 	"ecid":2142,
-	"sub":1
+	"sub":0
 	},
 
 "C 75pF 0805": {
@@ -144,7 +144,7 @@
 	"spec":"75pF 0805NP0>=50V<=5%",
 	"assembly":"SMT",
 	"pins":2,
-	"sub":1
+	"sub":0
 	},
 
 "C 15pF 0603": {
