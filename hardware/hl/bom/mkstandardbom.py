@@ -10,7 +10,7 @@ optionset = set(['NOSWCLK','REGPA','PA','LVDS25','ETH25','ETH','VERSA','VBIAS','
 
 bom = BOM.BOM("../hermeslite.xml",optionset=optionset)
 
-pre = """\\section*{Hermes-Lite 2.0beta3 BOM}
+pre = """\\section*{Hermes-Lite 2.0beta4 BOM}
 Standard Build - \\today"""
 
 bom.LaTeXPrint(pre,['Mouser','Digi-Key'])
