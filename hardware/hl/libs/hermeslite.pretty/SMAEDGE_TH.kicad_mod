@@ -1,8 +1,8 @@
-(module SMAEDGE_TH (layer F.Cu) (tedit 594E8505)
-  (fp_text reference REF** (at -3.1 -6.1) (layer F.SilkS)
+(module SMAEDGE_TH (layer F.Cu) (tedit 59C344EC)
+  (fp_text reference RF2 (at -5.8 -5.5 90) (layer F.SilkS)
     (effects (font (size 0.8 0.8) (thickness 0.1)))
   )
-  (fp_text value SMAEDGE (at 2.9 -6.1) (layer F.Fab) hide
+  (fp_text value SMA (at 2.9 -6.1) (layer F.Fab) hide
     (effects (font (size 0.8 0.8) (thickness 0.1)))
   )
   (fp_line (start -5 -0.2) (end -5 -5.4) (layer F.SilkS) (width 0.1))
@@ -18,4 +18,5 @@
   (pad 2 thru_hole circle (at -2.54 -1.4) (size 1.85 1.85) (drill 1) (layers *.Cu *.Mask))
   (pad 2 thru_hole circle (at -2.54 -3.81) (size 1.85 1.85) (drill 1.57) (layers *.Cu *.Mask))
   (pad 2 thru_hole circle (at 2.54 -3.81) (size 1.85 1.85) (drill 1.57) (layers *.Cu *.Mask))
+  (pad 1 thru_hole circle (at 0 -3.81) (size 1.8 1.8) (drill 1) (layers *.Cu *.Mask))
 )
