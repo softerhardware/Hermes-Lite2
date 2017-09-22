@@ -3,7 +3,7 @@
   (general
     (links 1443)
     (no_connects 0)
-    (area 69.924999 39.924999 170.025001 140.075001)
+    (area 49.561905 37.855 205.090477 152.071428)
     (thickness 1.6)
     (drawings 87)
     (tracks 5429)
@@ -15,7 +15,7 @@
   (page USLetter)
   (title_block
     (title "Hermes-Lite 2.0")
-    (date 2017-09-19)
+    (date 2017-09-21)
     (rev 2.0-beta4)
     (company SofterHardware)
     (comment 1 "KF7O Steve Haynal")
@@ -47,7 +47,7 @@
   )
 
   (setup
-    (last_trace_width 0.7)
+    (last_trace_width 0.2)
     (user_trace_width 0.25)
     (user_trace_width 0.3)
     (user_trace_width 0.35)
