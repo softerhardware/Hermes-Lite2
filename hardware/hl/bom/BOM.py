@@ -797,10 +797,27 @@ class BOM:
 
         print >>f,""
 
-        dnis = ' '.join(dni).strip()        
-        if dnis != '':
+        ##dnis = ' '.join(dni).strip()  
+        llen = 30
+        res = ''      
+        if dni != []:
             print >>f,"Do Not Assemble:"
-            print >>f,dnis
+
+            i = 0
+            for ref in dni[:-1]:
+                if i > llen:
+                    res = res + '\n'
+                    i = 0
+                ref = ref[0]+str(ref[1])
+                res = res + ref + ","
+                i = i + 1 + len(ref)
+    
+            if i > llen:
+                res = res + '\n'
+    
+            res = res + dni[-1][0] + str(dni[-1][1])
+
+            print >>f,'"{0}"'.format(res)
 
         f.close()
 
