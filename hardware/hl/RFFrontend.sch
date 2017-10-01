@@ -29,15 +29,14 @@ LIBS:atmel
 LIBS:contrib
 LIBS:valves
 LIBS:hermeslite
-LIBS:hermeslite-cache
 EELAYER 25 0
 EELAYER END
 $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 5 7
 Title "RF Frontend"
-Date "2017-09-20"
-Rev "2.0-beta4"
+Date "2017-10-01"
+Rev "2.0-beta5"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
 Comment2 ""
