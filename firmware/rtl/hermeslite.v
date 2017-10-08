@@ -130,8 +130,12 @@ module hermeslite(
 // PARAMETERS
 
 // Ethernet Interface
+`ifdef BETA3
+localparam MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd};
+`else 
 localparam MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h12,8'hdd};
-localparam IP = {8'd192,8'd168,8'd33,8'd238};
+`endif
+localparam IP = {8'd0,8'd0,8'd0,8'd0};
 
 // ADC Oscillator
 localparam CLK_FREQ = 76800000;
