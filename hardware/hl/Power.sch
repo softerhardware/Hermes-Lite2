@@ -36,7 +36,7 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 2 7
 Title "Power"
-Date "2017-10-01"
+Date "2017-10-08"
 Rev "2.0-beta5"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
@@ -3350,7 +3350,7 @@ Wire Wire Line
 Wire Wire Line
 	1925 3475 2250 3475
 Wire Wire Line
-	1475 3500 1475 3475
+	1475 2950 1475 3500
 Connection ~ 1475 3475
 Wire Wire Line
 	1475 3900 1475 3925
@@ -3497,4 +3497,38 @@ Text Notes 1125 4875 0    39   ~ 0
 DNI
 Text GLabel 2650 4250 0    39   Output ~ 8
 VSUP
+$Comp
+L CONN_01X02 CN7
+U 1 1 59DC8B3A
+P 875 3000
+F 0 "CN7" H 1000 3075 39  0000 C CNN
+F 1 "PS" V 975 3000 50  0001 C CNN
+F 2 "HERMESLITE:PWRBARREL" H 875 3000 50  0001 C CNN
+F 3 "" H 875 3000 50  0000 C CNN
+F 4 "GENERIC" H 875 3000 60  0001 C CNN "Option"
+	1    875  3000
+	-1   0    0    -1  
+$EndComp
+$Comp
+L GND #PWR075
+U 1 1 59DCACDB
+P 1100 3100
+F 0 "#PWR075" H 1100 2850 50  0001 C CNN
+F 1 "GND" H 1100 2950 50  0001 C CNN
+F 2 "" H 1100 3100 50  0000 C CNN
+F 3 "" H 1100 3100 50  0000 C CNN
+	1    1100 3100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1075 3050 1100 3050
+Wire Wire Line
+	1100 3050 1100 3100
+Wire Wire Line
+	1075 2950 1550 2950
+Text Notes 825  3175 0    39   ~ 0
+DNI
+Text GLabel 1550 2950 2    39   Output ~ 0
+VEXT
+Connection ~ 1475 2950
 $EndSCHEMATC
