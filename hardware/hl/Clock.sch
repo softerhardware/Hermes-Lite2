@@ -359,18 +359,6 @@ F 4 "VERSAOSC" H 5350 2775 60  0001 C CNN "Option"
 	1    5350 2775
 	1    0    0    -1  
 $EndComp
-$Comp
-L C_Small B55
-U 1 1 56BFC693
-P 1025 2175
-F 0 "B55" H 1035 2245 39  0000 L CNN
-F 1 "0.1uF" H 1035 2095 39  0000 L CNN
-F 2 "HERMESLITE:SMD-0603" H 1025 2175 50  0001 C CNN
-F 3 "" H 1025 2175 50  0000 C CNN
-F 4 "VCO" H 1025 2175 60  0001 C CNN "Option"
-	1    1025 2175
-	1    0    0    -1  
-$EndComp
 Connection ~ 5150 2650
 $Comp
 L GND #PWR95
@@ -423,7 +411,7 @@ $EndComp
 Wire Wire Line
 	3200 2600 3200 2700
 Wire Wire Line
-	2850 2650 3350 2650
+	2950 2650 3350 2650
 Connection ~ 3200 2650
 Wire Wire Line
 	3200 3000 3200 3100
@@ -443,88 +431,7 @@ SCL1
 Wire Wire Line
 	3200 2050 3200 2300
 Wire Wire Line
-	1025 2050 4550 2050
-$Comp
-L MCP4716 U5
-U 1 1 56C010F3
-P 2400 2550
-F 0 "U5" H 2575 2300 39  0000 C CNN
-F 1 "MCP4716" H 2400 2800 39  0000 C CNN
-F 2 "HERMESLITE:MCP4716" H 2400 2550 60  0001 C CNN
-F 3 "" H 2400 2550 60  0000 C CNN
-F 4 "VCO" H 2400 2550 60  0001 C CNN "Option"
-	1    2400 2550
-	-1   0    0    1   
-$EndComp
-Wire Wire Line
-	2850 2450 2850 2050
-Connection ~ 3200 2050
-$Comp
-L GND #PWR91
-U 1 1 56C0155D
-P 2900 2550
-F 0 "#PWR91" H 2900 2300 39  0001 C CNN
-F 1 "GND" H 2900 2400 39  0001 C CNN
-F 2 "" H 2900 2550 50  0000 C CNN
-F 3 "" H 2900 2550 50  0000 C CNN
-	1    2900 2550
-	0    -1   -1   0   
-$EndComp
-Wire Wire Line
-	2850 2550 2900 2550
-Wire Wire Line
-	1950 2450 1600 2450
-Wire Wire Line
-	1950 2550 1600 2550
-Text Label 1600 2450 0    39   ~ 0
-SDA1
-Text Label 1600 2550 0    39   ~ 0
-SCL1
-$Comp
-L R R35
-U 1 1 56C017C3
-P 1350 2450
-F 0 "R35" H 1200 2450 39  0000 C CNN
-F 1 "3.3K" V 1350 2450 39  0000 C CNN
-F 2 "HERMESLITE:SMD-0603" V 1280 2450 50  0001 C CNN
-F 3 "" H 1350 2450 50  0000 C CNN
-F 4 "VCO" H 1350 2450 60  0001 C CNN "Option"
-	1    1350 2450
-	1    0    0    -1  
-$EndComp
-$Comp
-L R R37
-U 1 1 56C0188E
-P 1350 2850
-F 0 "R37" H 1200 2850 39  0000 C CNN
-F 1 "10K" V 1350 2850 39  0000 C CNN
-F 2 "HERMESLITE:SMD-0603" V 1280 2850 50  0001 C CNN
-F 3 "" H 1350 2850 50  0000 C CNN
-F 4 "VCO" H 1350 2850 60  0001 C CNN "Option"
-	1    1350 2850
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	1350 2050 1350 2300
-Connection ~ 2850 2050
-Wire Wire Line
-	1950 2650 1350 2650
-Wire Wire Line
-	1350 2600 1350 2700
-Connection ~ 1350 2650
-$Comp
-L GND #PWR93
-U 1 1 56C01AF9
-P 1350 3100
-F 0 "#PWR93" H 1350 2850 39  0001 C CNN
-F 1 "GND" H 1350 2950 39  0001 C CNN
-F 2 "" H 1350 3100 50  0000 C CNN
-F 3 "" H 1350 3100 50  0000 C CNN
-	1    1350 3100
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	1350 3000 1350 3100
+	3200 2050 4550 2050
 $Comp
 L C_Small B56
 U 1 1 56C01E82
@@ -611,9 +518,6 @@ Text Notes 925  4475 0    60   ~ 0
 Synchronized radio external clock: \nInclude CL1,B58,R39.\nExclude J23,J25.\n\nSynchronized radio recovered clock:\nInclude J23,J5.\nAdjust R39,R40.\nOptional CL1,B58. 
 Text Notes 4675 2400 0    60   ~ 0
 X2 to support 2.5x2.0 or \n3.2x2.5 or 7.0x5.0 mm\nstandard 4-lead SMD\npackages\n
-Wire Wire Line
-	2950 3250 2950 2650
-Connection ~ 2950 2650
 Wire Wire Line
 	2950 3550 2950 4100
 Wire Wire Line
@@ -778,22 +682,6 @@ Text Notes 1325 850  0    60   ~ 12
 Build Options:
 Text Notes 1325 1550 0    60   ~ 0
 Default Versa with oscillator: Include FB12,C41,B56,B57,X2. Include R36,R38 if required by oscillator. Exclude B55,R35,R37,U5,J3,J4,C42.\nVersa with VCO: Include FB12,C41,B56,B57,X2,U5,R35,R37,B55. Exclude R36,R38,J4,J3,C42.\nVersa with crystal: Include X2 as crystal, B57,J4,J3 as jumper, C42,R38 as 15pF. Exclude FB12,C41,B56,U5,R35,R36,R37,B55.\n\nNo Versa but oscillator to AD9866: Exclude all Versa components, build for oscillator, connect WJ3 to WJ1.\nNo Versa but external clock to AD9866: Exclude all Versa components and oscillator components. Wire from WJ2 to WJ1.\nSee RF Frontend sheet for additional AD9866 clock options 
-Wire Wire Line
-	1025 2050 1025 2075
-Connection ~ 1350 2050
-$Comp
-L GND #PWR90
-U 1 1 578A03E0
-P 1025 2300
-F 0 "#PWR90" H 1025 2050 39  0001 C CNN
-F 1 "GND" H 1025 2150 39  0001 C CNN
-F 2 "" H 1025 2300 50  0000 C CNN
-F 3 "" H 1025 2300 50  0000 C CNN
-	1    1025 2300
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	1025 2275 1025 2300
 $Comp
 L C_Small B114
 U 1 1 57C7D417
@@ -988,12 +876,8 @@ Text Notes 7500 5750 0    60   ~ 0
 Output for synchronized radio: Include R45,CL2.
 Text Notes 5175 6025 0    39   ~ 0
 I2C ADDR 0xD4
-Text Notes 2175 2950 0    39   ~ 0
-I2C ADDR 0x60
 Wire Wire Line
 	2750 4500 2750 4625
-Text Notes 900  2125 0    39   ~ 0
-DNI
 Text Notes 6500 5675 0    39   ~ 0
 DNI
 Text Notes 6975 5525 0    39   ~ 0
@@ -1010,16 +894,12 @@ Text Notes 4625 2850 0    39   ~ 0
 DNI
 Text Notes 3025 3450 0    39   ~ 0
 DNI
-Text Notes 2300 2325 0    39   ~ 0
-DNI
-Text Notes 1150 2550 0    39   ~ 0
-DNI
-Text Notes 1150 2950 0    39   ~ 0
-DNI
 Text Notes 3275 2425 0    39   ~ 0
 DNI
 Text Notes 3275 2825 0    39   ~ 0
 DNI
 Text Notes 4350 3075 0    39   ~ 0
 DNI
+Wire Wire Line
+	2950 2650 2950 3250
 $EndSCHEMATC
