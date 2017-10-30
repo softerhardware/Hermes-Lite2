@@ -297,6 +297,12 @@ always @ (posedge clock_2_5MHz)
 assign rffe_ad9866_rst_n = ad9866_rst_n;
 
 
+reg [20:0] testcounter = 20'h00000;
+always @ (posedge clock_2_5MHz)
+	if (~testcounter[19]) testcounter <= testcounter + 20'h01;
+
+
+
 //---------------------------------------------------------
 //      CLOCKS
 //---------------------------------------------------------
@@ -515,7 +521,9 @@ reg [11:0] ad9866_rx_input;
 `ifdef HALFDUPLEX
 // AD9866 Code
 // Code for Half duplex
-assign rffe_ad9866_mode = 1'b0;
+//assign rffe_ad9866_mode = 1'b0;
+assign rffe_ad9866_mode = testcounter[19];
+
 
 assign rffe_ad9866_txsync = FPGA_PTT;
 assign rffe_ad9866_rxsync = ~FPGA_PTT;
@@ -536,7 +544,8 @@ end
 
 reg [11:0] ad9866_rx_stage;
 
-assign rffe_ad9866_mode = 1'b1;
+//assign rffe_ad9866_mode = 1'b1;
+assign rffe_ad9866_mode = ~testcounter[19];
 
 // Assume that ad9866_rxclk is synchronous to ad9866clk
 // Don't know the phase relation
