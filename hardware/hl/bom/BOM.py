@@ -662,9 +662,9 @@ class BOM:
         f = open("bompost.dat","w")
 
         print >>f,"\\noindent \\textbf{{Total Price:}} \\${0:.2f}\\\\".format(total)
-        print >>f,"\\textbf{{Line Items:}} SMT:{0} Assembled TH:{1} Manual TH:{2} Total:{3}\\\\".format(ipp['SMT'][0],ipp['TH'][0],ipp['MTH'][0],ipp['MTH'][0]+ipp['SMT'][0]+ipp['TH'][0])
-        print >>f,"\\textbf{{Parts:}} SMT:{0} Assembled TH:{1} Manual TH:{2} Total:{3}\\\\".format(ipp['SMT'][1],ipp['TH'][1],ipp['MTH'][1],ipp['MTH'][1]+ipp['SMT'][1]+ipp['TH'][1])
-        print >>f,"\\textbf{{Pins:}} SMT:{0} Assembled TH:{1} Manual TH:{2} Total:{3}\\\\".format(ipp['SMT'][2],ipp['TH'][2],ipp['MTH'][2],ipp['MTH'][2]+ipp['SMT'][2]+ipp['TH'][2])
+        print >>f,"\\textbf{{Line Items:}} SMT:{0} TH:{1} Total:{3}\\\\".format(ipp['SMT'][0],ipp['TH'][0],ipp['MTH'][0],ipp['MTH'][0]+ipp['SMT'][0]+ipp['TH'][0])
+        print >>f,"\\textbf{{Parts:}} SMT:{0} TH:{1} Total:{3}\\\\".format(ipp['SMT'][1],ipp['TH'][1],ipp['MTH'][1],ipp['MTH'][1]+ipp['SMT'][1]+ipp['TH'][1])
+        print >>f,"\\textbf{{Pins:}} SMT:{0} TH:{1} Total:{3}\\\\".format(ipp['SMT'][2],ipp['TH'][2],ipp['MTH'][2],ipp['MTH'][2]+ipp['SMT'][2]+ipp['TH'][2])
         
 
         dnis = ' '.join(dni).strip()        
