@@ -2,7 +2,7 @@
 <export version="D">
   <design>
     <source>C:/cygwin64/home/shaynal/Hermes-Lite2/hardware/hl/hermeslite.sch</source>
-    <date>11/11/2017 10:12:58 AM</date>
+    <date>11/11/2017 10:15:06 PM</date>
     <tool>Eeschema 4.0.6</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -102,6 +102,7 @@
       <fields>
         <field name="Key">PCB</field>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="hermeslite" part="JNO"/>
       <sheetpath names="/" tstamps="/"/>
@@ -112,6 +113,7 @@
       <fields>
         <field name="Key">CASE</field>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="hermeslite" part="JNO"/>
       <sheetpath names="/" tstamps="/"/>
@@ -122,6 +124,7 @@
       <fields>
         <field name="Key">PROG</field>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="hermeslite" part="JNO"/>
       <sheetpath names="/" tstamps="/"/>
@@ -132,6 +135,7 @@
       <footprint>HERMESLITE:GNDTAP</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -142,6 +146,7 @@
       <footprint>HERMESLITE:GNDTAP</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -152,6 +157,7 @@
       <footprint>HERMESLITE:GNDTAP</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -162,6 +168,7 @@
       <footprint>HERMESLITE:GNDTAP</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -172,6 +179,7 @@
       <footprint>HERMESLITE:m3</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -182,6 +190,7 @@
       <footprint>HERMESLITE:m3</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -192,6 +201,7 @@
       <footprint>HERMESLITE:m3</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -202,6 +212,7 @@
       <footprint>HERMESLITE:m3</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -212,6 +223,7 @@
       <footprint>HERMESLITE:m3</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -222,6 +234,7 @@
       <footprint>HERMESLITE:m1d1</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -232,6 +245,7 @@
       <footprint>HERMESLITE:m1d1</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -242,6 +256,7 @@
       <footprint>HERMESLITE:m1d1</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -252,6 +267,7 @@
       <footprint>HERMESLITE:m1d1</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -262,6 +278,7 @@
       <footprint>HERMESLITE:m1d1</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -273,6 +290,7 @@
       <fields>
         <field name="Option">DNI</field>
         <field name="Key">NOBOM</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -283,6 +301,7 @@
       <footprint>HERMESLITE:GNDTAP</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -293,6 +312,7 @@
       <footprint>HERMESLITE:GNDTAP</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -303,6 +323,7 @@
       <footprint>HERMESLITE:GNDTAP</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -313,6 +334,7 @@
       <footprint>HERMESLITE:GNDTAP</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
@@ -323,6 +345,7 @@
       <footprint>HERMESLITE:GNDTAP</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="conn" part="TEST_1P"/>
       <sheetpath names="/" tstamps="/"/>
