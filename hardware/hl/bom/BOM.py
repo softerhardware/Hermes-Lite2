@@ -95,6 +95,8 @@ overrides = {
     "INA199A1DC":[Quote(Decimal(0.84),'Mouser','http://www.mouser.com','','INA199A1DC','INA199A1DC')],
 }
 
+overrides = {}
+
 
 class Octopart:
     db = pickledb.load("octopart.db", False)
@@ -833,6 +835,7 @@ class BOM:
         ## 20 parts at a time
         for i in range(0,len(mpns),20):
             sl = mpns[i:i+20]
+            ##print "SL",sl
             octopart.QueryWeb(sl)
 
     def PrintOptional(self):
