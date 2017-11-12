@@ -19,7 +19,7 @@
 	},
 
 "C 1uF 0603": {
-	"mpn":["GRM188R61E105KA12D","GRM188R61C105KA93D"],
+	"mpn":["GRM188R61E105KA12D","GRM188R61C105KA93D","CL10B105KP8NNNC","LMK107B7105KA-T"],
 	"spec":"1uF 0603>=X5R>=6.3V<=20%",
 	"assembly":"SMT",
 	"pins":2,
@@ -42,15 +42,6 @@
 	"assembly":"SMT",
 	"pins":2,
 	"ecid":16532,
-	"sub":1
-	},
-
-"C 22uF 0805": {
-	"mpn":["GRM21BR60J226ME39L"],
-	"spec":"22uF 0805>=X5R>=6.3V<=20%",
-	"assembly":"SMT",
-	"pins":2,
-	"ecid":46786,
 	"sub":1
 	},
 
@@ -318,7 +309,7 @@
 	},	
 
 "U INA199A1DC": {
-	"mpn":["INA199A1DC"],
+	"mpn":["INA199A1DCKR"],
 	"spec":"Current Sense AMP",
 	"assembly":"SMT",
 	"pins":6,
@@ -522,6 +513,13 @@
 	"ecid":23514
 	},
 
+"R 130 0603": {
+	"mpn":["RC0603FR-07130RL"],
+	"spec":"130 0603<=1%>=1/10W",
+	"assembly":"SMT",
+	"pins":2
+	},
+
 "R 270 0603": {
 	"mpn":["RC0603FR-07270RL"],
 	"spec":"270 0603<=5%>=1/10W",
@@ -631,11 +629,18 @@
 	},
 
 "CN PS": {
-	"mpn":["OSTTC020162","1377g2-bk"],
+	"mpn":["PJ-102AH"],
 	"spec":"Power",
 	"assembly":"TH",
-	"pins":2
+	"pins":3
 	},
+
+"CN STEREO": {
+	"mpn":["SJ1-3525N"],
+	"spec":"CW Jack",
+	"assembly":"TH",
+	"pins":5
+	},	
 
 "CN MagJack": {
 	"mpn":["L829-1J1T-43"],
