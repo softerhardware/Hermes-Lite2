@@ -36,7 +36,7 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 3 7
 Title "Ethernet"
-Date "2017-11-05"
+Date "2017-11-13"
 Rev "2.0-beta5"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
@@ -1071,17 +1071,6 @@ F 3 "" H 2100 2600 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L +3V3 #PWR088
-U 1 1 593BE685
-P 3625 1075
-F 0 "#PWR088" H 3625 925 50  0001 C CNN
-F 1 "+3V3" H 3600 1225 39  0000 C CNN
-F 2 "" H 3625 1075 50  0000 C CNN
-F 3 "" H 3625 1075 50  0000 C CNN
-	1    3625 1075
-	1    0    0    -1  
-$EndComp
-$Comp
 L +3V3 #PWR089
 U 1 1 593BEBA4
 P 1825 2600
@@ -1093,14 +1082,9 @@ F 3 "" H 1825 2600 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 Wire Wire Line
-	3500 1125 3500 1100
+	3500 1050 3500 1125
 Wire Wire Line
-	3500 1100 3750 1100
-Wire Wire Line
-	3750 1100 3750 1125
-Wire Wire Line
-	3625 1075 3625 1100
-Connection ~ 3625 1100
+	3750 1050 3750 1125
 Wire Wire Line
 	2250 2500 2300 2500
 Wire Wire Line
@@ -1133,4 +1117,9 @@ Wire Wire Line
 	6650 2100 8675 2100
 Wire Wire Line
 	8975 2100 9050 2100
+Text GLabel 3425 1050 0    39   Input ~ 8
+Veth
+Wire Wire Line
+	3425 1050 3750 1050
+Connection ~ 3500 1050
 $EndSCHEMATC

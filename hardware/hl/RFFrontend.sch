@@ -36,7 +36,7 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 5 7
 Title "RF Frontend"
-Date "2017-11-05"
+Date "2017-11-13"
 Rev "2.0-beta5"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
