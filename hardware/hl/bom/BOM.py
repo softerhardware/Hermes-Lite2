@@ -793,14 +793,14 @@ class BOM:
         dni.sort()
         dni = [d[0]+str(d[1]) for d in dni]
 
-        print >>f,'"Line Items SMT:", " ", {0}, "Line Items TH:", " ", {1}'.format(ipp['SMT'][0],ipp['TH'][0])
-        print >>f,'"Parts SMT:", " ", {0}, "Parts TH:", " ", {1}'.format(ipp['SMT'][1],ipp['TH'][1])
-        print >>f,'"Pins SMT:", " ", {0}, "Pins TH:", " ", {1}'.format(ipp['SMT'][2],ipp['TH'][2])
+        print >>f,'"Line Items SMT:", {0}, "Line Items TH:", {1}'.format(ipp['SMT'][0],ipp['TH'][0])
+        print >>f,'"Parts SMT:", {0}, "Parts TH:", {1}'.format(ipp['SMT'][1],ipp['TH'][1])
+        print >>f,'"Pins SMT:", {0}, "Pins TH:", {1}'.format(ipp['SMT'][2],ipp['TH'][2])
 
         print >>f,""
 
         ##dnis = ' '.join(dni).strip()  
-        llen = 30
+        llen = 60
         res = ''      
         if dni != []:
             print >>f,"Do Not Assemble:"
