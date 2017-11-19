@@ -51,9 +51,10 @@ reg [SIZE-1:0] q1;
 
 always @(posedge clkb)
 begin
-  if (rstb)
-    {sigb,q1} <= 2'b00;
-  else
+  if (rstb) begin
+    sigb <= {SIZE{1'b0}};
+    q1   <= {SIZE{1'b0}};
+  end else
     {sigb,q1} <= {q1,siga};
 end
 `endif

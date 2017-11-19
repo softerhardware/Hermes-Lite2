@@ -50,20 +50,20 @@ module rgmii_recv (
 //-----------------------------------------------------------------------------
 //                                  clock
 //-----------------------------------------------------------------------------
-//reg slow_rx_clock;
-//reg old_PHY_DV; 
- 
- 
-//slow clock for the 100MBit mode 
-//always @(posedge PHY_RX_CLOCK)
-//  begin
-//  slow_rx_clock <= ~slow_rx_clock | (PHY_DV && !old_PHY_DV);
-//  old_PHY_DV <= PHY_DV;
-//  end
- 
- 
-assign clock = PHY_RX_CLOCK; // 1000T speed only...speed_1Gbit? PHY_RX_CLOCK : slow_rx_clock; 
+reg rx_clock;
+reg old_PHY_DV; 
 
+
+//slow clock for the 100MBit mode 
+always @(posedge PHY_RX_CLOCK)
+  begin
+  rx_clock <= ~rx_clock | (PHY_DV && !old_PHY_DV);
+  old_PHY_DV <= PHY_DV;
+  end
+ 
+ 
+//assign clock = PHY_RX_CLOCK; // 1000T speed only...speed_1Gbit? PHY_RX_CLOCK : rx_clock_100T; 
+assign clock = rx_clock;  // force 100T Rx clock.
 
 
 //-----------------------------------------------------------------------------

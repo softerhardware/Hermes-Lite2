@@ -10,7 +10,10 @@ module i2c #
     input  logic         clock_76p8_mhz,
     input  logic         rst,
     input  logic         init_start,
+    input  logic         IF_SPK_enable,
     input  logic         IF_Mic_boost,
+    input  logic [5:0]   Alex_manual_HPF,
+    input  logic [6:0]   Alex_manual_LPF,
 
     // Wishbone slave interface
     input  logic [WB_ADDR_WIDTH-1:0]   wbs_adr_i,
@@ -53,14 +56,27 @@ logic        i2c2_data_valid, i2c2_data_ready, i2c2_data_last;
 logic        i2c2_busy;
 
 // Wishbone slave
+reg  [31:0]  latched_wbs_dat_i;
+reg          write;
+reg   [1:0]  write_d ;
+
 logic wbs_ack = 0;
 always @(posedge clock_76p8_mhz) begin
-  if (rst | wbs_ack) 
+  if (rst | wbs_ack) begin
     wbs_ack <= 1'b0;
-  else if (~i2c2_busy & wbs_we_i & wbs_stb_i & (wbs_adr_i == 6'h3d) & (wbs_dat_i[31:24] == 8'h06))
+  end else if (rst | write_d[1]) begin
+    write   <= 1'b0;
+  end else if (~i2c2_busy & wbs_we_i & wbs_stb_i & (wbs_adr_i == 6'h3d) & (wbs_dat_i[31:24] == 8'h06)) begin
     wbs_ack <= 1'b1;
+    write   <= 1'b1;
+    latched_wbs_dat_i <= wbs_dat_i;
+  end
 end
 assign wbs_ack_o = wbs_ack;
+
+always @(posedge clk)
+  write_d <= {write_d[0], write} ;
+wire write_req = ~write_d[1] & write_d[0] ;
 
 i2c_init i2c1_init_i (
     .clk(clk),
@@ -88,6 +104,7 @@ i2c_init i2c1_init_i (
     /*
      * Configuration
      */
+    .IF_SPK_enable(IF_SPK_enable),
     .IF_Mic_boost(IF_Mic_boost),
     .init_start(init_start)
 );
@@ -146,7 +163,7 @@ i2c_master i2c1_master_i (
 
 
 i2c2_init i2c2_init_i (
-    .clk(clock_76p8_mhz),
+    .clk(clk),
     .rst(rst),
     /*
      * I2C master interface
@@ -171,12 +188,15 @@ i2c2_init i2c2_init_i (
     /*
      * Configuration
      */
-    .write(wbs_ack_o),
-    .data(wbs_dat_i)
+    .Alex_manual_HPF(Alex_manual_HPF),
+    .Alex_manual_LPF(Alex_manual_LPF),
+    .init_start(init_start),
+    .write(write_req),
+    .data(latched_wbs_dat_i)
 );
 
 i2c_master i2c2_master_i (
-    .clk(clock_76p8_mhz),
+    .clk(clk),
     .rst(rst),
     /*
      * Host interface
@@ -221,7 +241,7 @@ i2c_master i2c2_master_i (
     /*
      * Configuration
      */
-    .prescale(16'h0030),
+    .prescale(16'h0002),
     .stop_on_idle(1'b0)
 );
 

@@ -8,10 +8,10 @@ create_clock -period 76.8MHz [get_ports rffe_ad9866_clk76p8]		-name rffe_ad9866_
 
 create_clock -name phy_clk125 -period 125.000MHz	[get_ports phy_clk125]
 
-create_clock -name phy_rx_clk -period 8.000	-waveform {2 6} [get_ports {phy_rx_clk}]
+create_clock -name phy_rx_clk -period 40	-waveform {5 25} [get_ports {phy_rx_clk}]
 
 #virtual base clocks on required inputs
-create_clock -name virt_phy_rx_clk	-period 8.000
+create_clock -name virt_phy_rx_clk	-period 40
 
 create_clock -name virt_clock_76p8MHz	-period 76.8MHz
 
@@ -21,20 +21,17 @@ create_clock -name virt_ad9866_rxclk_rx -period 153.6MHz
 
 ## run derive_pll_clocks -use_net_name in timing analyzer to generate template for below
 
-create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|inclk[0]} -duty_cycle 50.00 -name clock_125MHz {ethpll_inst|altpll_component|auto_generated|pll1|clk[0]}
+create_generated_clock -name clock_12_5MHz      -divide_by 10           -source [get_pins {ethpll_inst|altpll_component|auto_generated|pll1|inclk[0]}]  [get_pins {ethpll_inst|altpll_component|auto_generated|pll1|clk[0]}]
+create_generated_clock -name clock_25MHz_180deg -divide_by  5 -phase 90 -source [get_pins {ethpll_inst|altpll_component|auto_generated|pll1|inclk[0]}]  [get_pins {ethpll_inst|altpll_component|auto_generated|pll1|clk[1]}]
+create_generated_clock -name clock_2_5MHz       -divide_by 50           -source [get_pins {ethpll_inst|altpll_component|auto_generated|pll1|inclk[0]}]  [get_pins {ethpll_inst|altpll_component|auto_generated|pll1|clk[2]}]
 
-create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|inclk[0]} -phase 90.00 -duty_cycle 50.00 -name clock_90_125MHz {ethpll_inst|altpll_component|auto_generated|pll1|clk[1]}
-
-create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|inclk[0]} -divide_by 50 -duty_cycle 50.00 -name clock_2_5MHz {ethpll_inst|altpll_component|auto_generated|pll1|clk[2]}
-
-
-create_generated_clock -source {ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -duty_cycle 50.00 -name clock_76p8MHz {ad9866pll_inst|altpll_component|auto_generated|pll1|clk[0]}
-
-create_generated_clock -source {ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -multiply_by 2 -duty_cycle 50.00 -name clock_153p6_mhz {ad9866pll_inst|altpll_component|auto_generated|pll1|clk[1]}
+create_generated_clock -name clock_76p8MHz                  -source {ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]}  [get_pins {ad9866pll_inst|altpll_component|auto_generated|pll1|clk[0]}]
+create_generated_clock -name clock_153p6_mhz -multiply_by 2 -source {ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]}  [get_pins {ad9866pll_inst|altpll_component|auto_generated|pll1|clk[1]}]
 
 
 ## Create TX clock version based on pin output
 create_generated_clock -name tx_output_clock -source [get_pins {ethpll_inst|altpll_component|auto_generated|pll1|clk[1]}] [get_ports {phy_tx_clk}]
+create_generated_clock -name rx_clock -master_clock phy_rx_clk -source [get_pins {ethernet_inst|network_inst|rgmii_recv_inst|rx_clock|clk}] -divide_by 2 [get_pins {ethernet_inst|network_inst|rgmii_recv_inst|rx_clock|q}]
 
 create_generated_clock -name BCLK -divide_by 25 -source [get_pins {ad9866pll_inst|altpll_component|auto_generated|pll1|clk[0]}] [get_pins {clrgen|BCLK|q}]
 
@@ -64,10 +61,8 @@ set_input_delay  10  -clock clock_2_5MHz -reference_pin [get_ports phy_mdc] {phy
 # If setup and hold delays are equal then only need to specify once without max or min
 
 #PHY
-set_output_delay  -max 1.0  -clock tx_output_clock [get_ports {phy_tx[*] phy_tx_en}]
-set_output_delay  -min -0.8 -clock tx_output_clock [get_ports {phy_tx[*] phy_tx_en}]  -add_delay
-set_output_delay  -max 1.0  -clock tx_output_clock [get_ports {phy_tx[*] phy_tx_en}]  -clock_fall -add_delay
-set_output_delay  -min -0.8 -clock tx_output_clock [get_ports {phy_tx[*] phy_tx_en}]  -clock_fall -add_delay
+set_output_delay  -max 5  -clock tx_output_clock [get_ports {phy_tx[*] phy_tx_en}]
+set_output_delay  -min -5 -clock tx_output_clock [get_ports {phy_tx[*] phy_tx_en}]  -add_delay
 
 #PHY (2.5MHz)
 set_output_delay  10 -clock clock_2_5MHz -reference_pin [get_ports phy_mdc] {phy_mdio}
@@ -96,12 +91,12 @@ set_output_delay -max -100 -clock virt_clock_76p8MHz [get_ports {io_led_d*}]
 
 
 set_clock_groups -asynchronous -group { \
-					clock_125MHz \
-					clock_90_125MHz \
+					clock_12_5MHz \
+					clock_25MHz_180deg \
 					clock_2_5MHz \
 					tx_output_clock \
 				       } \
-					-group {phy_rx_clk } \
+					-group {phy_rx_clk rx_clock} \
 					-group {clock_153p6_mhz rffe_ad9866_clk76p8 clock_76p8MHz BCLK}
 
 #**************************************************************
@@ -161,9 +156,9 @@ set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|Tx_send:tx_send_i
 
 
 
-set_max_delay -from clock_125MHz -to tx_output_clock 3.3
+set_max_delay -from clock_25MHz_180deg -to tx_output_clock 3.3
 
-set_max_delay -from clock_2_5MHz -to clock_125MHz 22
+set_max_delay -from clock_2_5MHz -to clock_12_5MHz 22
 
 set_max_delay -from BCLK -to rffe_ad9866_clk76p8 16
 
@@ -171,7 +166,7 @@ set_max_delay -from BCLK -to rffe_ad9866_clk76p8 16
 # Set Minimum Delay
 #**************************************************************
 
-set_min_delay -from clock_90_125MHz -to tx_output_clock -2
+set_min_delay -from clock_25MHz_180deg -to tx_output_clock -2
 
 #**************************************************************
 # Set False Paths
@@ -186,10 +181,10 @@ set_false_path -rise_from  virt_phy_rx_clk -fall_to phy_rx_clk -setup
 set_false_path -fall_from  virt_phy_rx_clk -fall_to phy_rx_clk -hold
 set_false_path -rise_from  virt_phy_rx_clk -rise_to phy_rx_clk -hold
 
-set_false_path -fall_from [get_clocks clock_125MHz] -rise_to [get_clocks tx_output_clock] -setup
-set_false_path -rise_from [get_clocks clock_125MHz] -fall_to [get_clocks tx_output_clock] -setup
-set_false_path -fall_from [get_clocks clock_125MHz] -fall_to [get_clocks tx_output_clock] -hold
-set_false_path -rise_from [get_clocks clock_125MHz] -rise_to [get_clocks tx_output_clock] -hold
+#set_false_path -fall_from [get_clocks clock_125MHz] -rise_to [get_clocks tx_output_clock] -setup
+#set_false_path -rise_from [get_clocks clock_125MHz] -fall_to [get_clocks tx_output_clock] -setup
+#set_false_path -fall_from [get_clocks clock_125MHz] -fall_to [get_clocks tx_output_clock] -hold
+#set_false_path -rise_from [get_clocks clock_125MHz] -rise_to [get_clocks tx_output_clock] -hold
 
 ## Multicycle for frequency computation
 set_multicycle_path 2 -from {data[*]} -to {freqcompp[*][*]} -setup -end 

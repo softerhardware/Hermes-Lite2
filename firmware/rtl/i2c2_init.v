@@ -59,6 +59,9 @@ module i2c2_init (
      * Configuration
      */
     /* Values */
+    input  wire        init_start,
+    input  wire [5:0]  Alex_manual_HPF,
+    input  wire [6:0]  Alex_manual_LPF,
     input  wire        write,
     input  wire [31:0] data
 );
@@ -136,7 +139,7 @@ write 0x11223344 to register 0x0004 on devices at 0x50, 0x51, 0x52, and 0x53
 */
 
 // init_data ROM
-localparam INIT_DATA_LEN = 4;
+localparam INIT_DATA_LEN = 20;
 
 reg [8:0] init_data [INIT_DATA_LEN-1:0];
 
@@ -144,12 +147,47 @@ initial begin
     // single address
     init_data[0]  = {2'b01, 7'h28}; // Q3 bias0
     init_data[1]  = {1'b1, 8'h00};
-    init_data[2]  = {1'b1, 8'hfe}; // 1C
+    init_data[2]  = {1'b1, 8'hfe};  // 1C
+    init_data[3]  = {9'b00_1000001};// STOP
 
-    init_data[3] = 9'd0; // stop
+    // LPF,HPF setting
+    init_data[4]  = {2'b01, 7'h20}; // LPF
+    init_data[5]  = {1'b1, 8'h00};  // Direction
+    init_data[6]  = {1'b1, 8'h00};  //  all output
+    init_data[7]  = {9'b00_1000001};// STOP
+
+    init_data[8]  = {2'b01, 7'h20}; // Data
+    init_data[9]  = {1'b1, 8'h0a};
+    init_data[10] = {1'b1, 8'h20};  // TXF5(010_0000) 
+    init_data[11] = {9'b00_1000001};// STOP
+	 
+    init_data[12] = {2'b01, 7'h21}; // HPF
+    init_data[13] = {1'b1, 8'h00};  // Direction
+    init_data[14] = {1'b1, 8'h00};  //  all output
+    init_data[15] = {9'b00_1000001};// STOP
+
+    init_data[16] = {2'b01, 7'h21}; // Data
+    init_data[17] = {1'b1, 8'h0a};
+    init_data[18] = {1'b1, 8'h01};  // RXF0(00_0001)
+
+    init_data[19] = 9'd0; // stop
 end
 
-wire start = write;
+wire [5:0] Alex_manual_HPF_sync;
+wire [6:0] Alex_manual_LPF_sync;
+cdc_sync #(6) hpf_sync (.siga(Alex_manual_HPF), .rstb(rst), .clkb(clk), .sigb(Alex_manual_HPF_sync));
+cdc_sync #(7) lpf_sync (.siga(Alex_manual_LPF), .rstb(rst), .clkb(clk), .sigb(Alex_manual_LPF_sync));
+
+reg [5:0]  current_HPF;
+reg [6:0]  current_LPF;
+always @(posedge clk) begin
+  current_HPF <= Alex_manual_HPF_sync ;
+  current_LPF <= Alex_manual_LPF_sync ;
+end
+
+wire write2 = ((current_HPF != Alex_manual_HPF_sync) |
+               (current_LPF != Alex_manual_LPF_sync) ) ;
+wire start = init_start | write | write2 ;
 
 // FIXME: Always stops, write may not start if busy
 always @(posedge clk) begin
@@ -160,7 +198,26 @@ always @(posedge clk) begin
     end
 end
 
+always @(posedge clk) begin
+    if (write2) begin
+        init_data[10] = {1'b1, 1'b0,
+                         Alex_manual_LPF[4],  // 6M
+                         Alex_manual_LPF[5],  // 10/10M
+                         Alex_manual_LPF[6],  // 17/15M
+                         Alex_manual_LPF[0],  // 30/20M
+                         Alex_manual_LPF[1],  // 60/40M
+                         Alex_manual_LPF[2],  // 80M
+                         Alex_manual_LPF[3]}; // 160M
 
+        init_data[18] = {1'b1, 2'b0,
+                         Alex_manual_HPF[0],  // 13M
+                         Alex_manual_HPF[1],  // 20M
+                         Alex_manual_HPF[2],  // 9.5M
+                         Alex_manual_HPF[3],  // 6.5M
+                         Alex_manual_HPF[4],  // 1.5M
+                         Alex_manual_HPF[5]}; // Bypass
+    end
+end
 
 localparam [3:0]
     STATE_IDLE = 3'd0,
@@ -236,7 +293,7 @@ always @* begin
             STATE_IDLE: begin
                 // wait for start signal
                 if (~start_flag_reg & start) begin
-                    address_next = {AW{1'b0}};
+                    address_next = write? {AW{1'b0}} : 5'd4;
                     start_flag_next = 1'b1;
                     state_next = STATE_RUN;
                 end else begin

@@ -58,6 +58,7 @@ module i2c_init (
     /*
      * Configuration
      */
+    input  wire        IF_SPK_enable,
     input  wire        IF_Mic_boost,
     input  wire        init_start
 );
@@ -217,17 +218,23 @@ initial begin
     init_data[42] = 9'd0; // stop
 end
 
+wire IF_Mic_boost_sync, IF_SPK_enable_sync ;
+cdc_sync #(1) mic_sync (.siga(IF_Mic_boost), .rstb(rst), .clkb(clk), .sigb(IF_Mic_boost_sync));
+cdc_sync #(1) spk_sync (.siga(IF_SPK_enable), .rstb(rst), .clkb(clk), .sigb(IF_SPK_enable_sync));
 
 reg current_boost ;
-always @(posedge clk)
-  current_boost <= IF_Mic_boost ;
+reg current_sp_enb ;
+always @(posedge clk) begin
+  current_boost  <= IF_Mic_boost_sync ;
+  current_sp_enb <= IF_SPK_enable_sync ;
+end
 
-wire write = current_boost ^ IF_Mic_boost ;
+wire write = (current_boost ^ IF_Mic_boost_sync) | (current_sp_enb ^ IF_SPK_enable_sync) ;
 wire start = init_start | write ;
 
 always @(posedge clk) begin
     if (write) begin
-        init_data[41]  = {1'b1, 8'haa | (IF_Mic_boost? 8'h40: 8'h04) };
+        init_data[41]  = {1'b1, 8'h2a | (IF_Mic_boost_sync? 8'h40: 8'h04) | (IF_SPK_enable_sync? 8'h80 : 8'h00) };
     end
 end
 
@@ -306,7 +313,7 @@ always @* begin
             STATE_IDLE: begin
                 // wait for start signal
                 if (~start_flag_reg & start) begin
-                    address_next = write ? 6'd39 : {AW{1'b0}};  // Mic boost
+                    address_next = write ? 6'd39 : {AW{1'b0}};  // Mic boost, Speaker
                     start_flag_next = 1'b1;
                     state_next = STATE_RUN;
                 end else begin

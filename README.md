@@ -1,6 +1,6 @@
-# <span style="color: brue; "> ji1udd Hermes-Lite Ver2 compact tranceiver</span>
+# <span style="color: brue; "> ji1udd Hermes-Lite Ver2 (beta3) compact tranceiver</span>
 ## Outline
-This is HF QRP SDR compact transceiver that consists of Hermes-Lite Ver2 and Raspberry Pi. (Under making, 16 Jun 2017)
+This is HF QRP SDR compact transceiver that consists of Hermes-Lite Ver2 beta3 and Raspberry Pi. (updated: 19 Oct 2017)
 <img src="compact-trx/powercontrol/docs/compact-trx.JPG" width="480px">
 
 ### Enclosure
@@ -9,7 +9,10 @@ Hammond 1455Q2201 (220mm x 125mm x 51.5mm)
 ### Main parts 
 Hermes-Lite Ver2, Raspberry Pi 2B, 5" HDMI Monitor, Power Control board, Audio codec board, KY-040 rotary encoder(x3), 600ppr rotary encoder
 
-[TRX Schematic (under making, 16 Jun 2017)](compact-trx/powercontrol/docs/trx_schematic.pdf)
+### Photos
+<img src="compact-trx/powercontrol/docs/compact-trx-photos.jpg" width="480px">
+
+[TRX Schematic (updated: 19 Oct 2017)](compact-trx/powercontrol/docs/trx_schematic.pdf)
 
 ## CW Keyer I/F and AK4951 audio codec board
 
@@ -24,10 +27,10 @@ In this [Test Video](https://youtu.be/d-YUDK2JaQg), this board was used with HL 
 [Errata](compact-trx/Keyer_AK4951/docs/KeyerIF_AK4951_v2.0.1_PCB_Errata.pdf)
 [Installation guide](compact-trx/Keyer_AK4951/docs/KeyerIF_AK4951_v2.0.1_PCB_Installation_guide.pdf)
 
-Verilog-HDL code was released on my git (17 Aug 2017).  
+Verilog-HDL code was released on my git (updated: 19 Oct 2017).  
 
 
-## Tx Rx Filter test board (Under making, 17 Jun 2017)
+## Tx Rx Filter test board (updated: 19 Oct 2017)
 
 <img src="compact-trx/TX_RX_Filter/docs/filter_test_board.JPG" width="480px">
 

@@ -69,11 +69,11 @@ network #(.MAC(MAC), .IP(IP)) network_inst(
 	.udp_tx_data(udp_tx_data),
 	.udp_tx_enable(udp_tx_enable),
 	.udp_tx_active(udp_tx_active),
-	.speed(1'b1),
+	.speed(1'b0),	// 1G:1'b1, 100M:1'b0
 	.set_ip(1'b0),
 	.assign_ip(32'h00000000),
 	.port_ID(8'h00),
-	.run(run),
+	.run(run_sync),
   .dst_unreachable(dst_unreachable),
 
 	.tx_clock(tx_clock),
@@ -95,7 +95,7 @@ network #(.MAC(MAC), .IP(IP)) network_inst(
 	.macbit(dipsw_i[1]),
   .PHY_MDIO(PHY_MDIO),
   .PHY_MDC(PHY_MDC),
-  .MODE2(1'b1),
+  .MODE2(1'b0),	// 1G:1'b1, 100M:1'b0
   .network_status(network_status),
   .network_state(network_state)
 );
@@ -119,11 +119,15 @@ wire discovery_reply_sync;
 sync sync_inst1(.clock(tx_clock), .sig_in(discovery_reply), .sig_out(discovery_reply_sync));
 wire Tx_reset;
 
+wire run_sync, wide_spectrum_sync ;
+sync sync_inst2(.clock(tx_clock), .sig_in(run), .sig_out(run_sync));
+sync sync_inst3(.clock(tx_clock), .sig_in(wide_spectrum), .sig_out(wide_spectrum_sync));
+
 Tx_send tx_send_inst(
 	.tx_clock(tx_clock),
 	.Tx_reset(Tx_reset),
-	.run(run),
-	.wide_spectrum(wide_spectrum),
+	.run(run_sync),
+	.wide_spectrum(wide_spectrum_sync),
 	.IP_valid(1'b1),
 	.Hermes_serialno(Hermes_serialno),
 	.IDHermesLite(dipsw_i[0]),
