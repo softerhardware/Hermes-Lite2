@@ -27,6 +27,24 @@ create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1
 
 create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|inclk[0]} -divide_by 50 -duty_cycle 50.00 -name clock_2_5MHz {ethpll_inst|altpll_component|auto_generated|pll1|clk[2]}
 
+create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|inclk[0]} -divide_by 5 -duty_cycle 50.00 -name clock_25MHz {ethpll_inst|altpll_component|auto_generated|pll1|clk[3]}
+
+create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|inclk[0]} -divide_by 10 -duty_cycle 50.00 -name clock_12p5MHz {ethpll_inst|altpll_component|auto_generated|pll1|clk[4]}
+
+
+create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|clk[1]} -name clock_ethtxextfast {ethtxext_clkmux_i|auto_generated|clkctrl1|outclk}
+
+create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|clk[3]} -name clock_ethtxextslow {ethtxext_clkmux_i|auto_generated|clkctrl1|outclk} -add
+
+set_clock_groups -exclusive -group {clock_ethtxextslow} -group {clock_ethtxextfast} 
+
+create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|clk[0]} -name clock_ethtxintfast {ethtxint_clkmux_i|auto_generated|clkctrl1|outclk}
+
+create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|clk[4]} -name clock_ethtxintslow {ethtxint_clkmux_i|auto_generated|clkctrl1|outclk} -add
+
+set_clock_groups -exclusive -group {clock_ethtxintslow} -group {clock_ethtxintfast} 
+
+
 
 create_generated_clock -source {ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -duty_cycle 50.00 -name clock_76p8MHz {ad9866pll_inst|altpll_component|auto_generated|pll1|clk[0]}
 
@@ -34,7 +52,7 @@ create_generated_clock -source {ad9866pll_inst|altpll_component|auto_generated|p
 
 
 ## Create TX clock version based on pin output
-create_generated_clock -name tx_output_clock -source [get_pins {ethpll_inst|altpll_component|auto_generated|pll1|clk[1]}] [get_ports {phy_tx_clk}]
+create_generated_clock -name tx_output_clock -source [get_pins {ethtxext_clkmux_i|auto_generated|clkctrl1|outclk}] [get_ports {phy_tx_clk}]
 
 derive_clock_uncertainty
 
@@ -92,6 +110,10 @@ set_output_delay -max -100 -clock virt_clock_76p8MHz [get_ports {io_led_d*}]
 
 
 set_clock_groups -asynchronous -group { \
+					clock_ethtxintfast \
+					clock_ethtxintslow \
+					clock_ethtxextfast \
+					clock_ethtxextslow \
 					clock_125MHz \
 					clock_90_125MHz \
 					clock_2_5MHz \
@@ -157,16 +179,16 @@ set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|Tx_send:tx_send_i
 
 
 
-set_max_delay -from clock_125MHz -to tx_output_clock 3.3
+set_max_delay -from clock_ethtxintfast -to tx_output_clock 3.3
 
-set_max_delay -from clock_2_5MHz -to clock_125MHz 22
+set_max_delay -from clock_2_5MHz -to clock_ethtxintfast 22
 
 
 #**************************************************************
 # Set Minimum Delay
 #**************************************************************
 
-set_min_delay -from clock_90_125MHz -to tx_output_clock -2
+set_min_delay -from clock_ethtxextfast -to tx_output_clock -2
 
 #**************************************************************
 # Set False Paths
@@ -181,10 +203,10 @@ set_false_path -rise_from  virt_phy_rx_clk -fall_to phy_rx_clk -setup
 set_false_path -fall_from  virt_phy_rx_clk -fall_to phy_rx_clk -hold
 set_false_path -rise_from  virt_phy_rx_clk -rise_to phy_rx_clk -hold
 
-set_false_path -fall_from [get_clocks clock_125MHz] -rise_to [get_clocks tx_output_clock] -setup
-set_false_path -rise_from [get_clocks clock_125MHz] -fall_to [get_clocks tx_output_clock] -setup
-set_false_path -fall_from [get_clocks clock_125MHz] -fall_to [get_clocks tx_output_clock] -hold
-set_false_path -rise_from [get_clocks clock_125MHz] -rise_to [get_clocks tx_output_clock] -hold
+set_false_path -fall_from [get_clocks clock_ethtxintfast] -rise_to [get_clocks tx_output_clock] -setup
+set_false_path -rise_from [get_clocks clock_ethtxintfast] -fall_to [get_clocks tx_output_clock] -setup
+set_false_path -fall_from [get_clocks clock_ethtxintfast] -fall_to [get_clocks tx_output_clock] -hold
+set_false_path -rise_from [get_clocks clock_ethtxintfast] -rise_to [get_clocks tx_output_clock] -hold
 
 ## Multicycle for frequency computation
 set_multicycle_path 2 -from {data[*]} -to {freqcompp[*][*]} -setup -end 

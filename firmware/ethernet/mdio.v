@@ -47,7 +47,7 @@ module mdio(
 
 
 //bits to send
-`ifdef OLDBETA3
+`ifdef BETA3
 wire [63:0] wr_bits = {32'hFFFFFFFF, 9'b010100111, addr, 2'b10, wr_data};  // PHYAD[4:0]=5'h7
 wire [63:0] rd_bits = {32'hFFFFFFFF, 9'b011000111, addr, 2'bxx, 16'hFFFF}; // PHYAD[4:0]=5'h7
 `else

@@ -244,15 +244,58 @@ wire response_inp_tvalid, response_inp_tready, response_out_tready;
 wire clock_125_mhz_0_deg;
 wire clock_125_mhz_90_deg;
 wire clock_2_5MHz;
+wire clock_25_mhz;
+wire clock_12p5_mhz;
 wire ethpll_locked;
+wire clock_ethtxint;
+wire clock_ethtxext;
 
 ethpll ethpll_inst (
     .inclk0   (phy_clk125),   //  refclk.clk
     .c0 (clock_125_mhz_0_deg), // outclk0.clk
     .c1 (clock_125_mhz_90_deg), // outclk1.clk
     .c2 (clock_2_5MHz), // outclk2.clk
+    .c3 (clock_25_mhz),
+    .c4 (clock_12p5_mhz),
     .locked (ethpll_locked)
 );
+
+
+altclkctrl #(
+    .clock_type("GLOBAL CLOCK"),
+    .intended_device_family("Cyclone IV E"),
+    .ena_register_mode("always enabled"),
+    .implement_in_les("OFF"),
+    .number_of_clocks(2),
+    .use_glitch_free_switch_over_implementation("ON"),
+    .width_clkselect(1),
+    .lpm_type("altclkctrl"),
+    .lpm_hint("unused")) ethtxint_clkmux_i 
+(
+    .clkselect(io_cn9),
+    .ena(1'b1),
+    .inclk({clock_125_mhz_0_deg,clock_12p5_mhz}),
+    .outclk(clock_ethtxint)
+);
+
+altclkctrl #(
+    .clock_type("GLOBAL CLOCK"),
+    .intended_device_family("Cyclone IV E"),
+    .ena_register_mode("always enabled"),
+    .implement_in_les("OFF"),
+    .number_of_clocks(2),
+    .use_glitch_free_switch_over_implementation("ON"),
+    .width_clkselect(1),
+    .lpm_type("altclkctrl"),
+    .lpm_hint("unused")) ethtxext_clkmux_i 
+(
+    .clkselect(io_cn9),
+    .ena(1'b1),
+    .inclk({clock_125_mhz_90_deg,clock_25_mhz}),
+    .outclk(clock_ethtxext)
+);
+
+
 
 wire ethup;
 
@@ -319,7 +362,7 @@ wire run;
 
 
 
-assign phy_tx_clk = clock_125_mhz_90_deg;
+assign phy_tx_clk = clock_ethtxext;
 
 wire cwkey_i;
 wire ptt_i;
@@ -334,7 +377,7 @@ ethernet #(.MAC(MAC), .IP(IP), .Hermes_serialno(Hermes_serialno)) ethernet_inst 
 
     // Send to ethernet
     .clock_2_5MHz(clock_2_5MHz),
-    .tx_clock(clock_125_mhz_0_deg),
+    .tx_clock(clock_ethtxint),
     .Tx_fifo_rdreq_o(Tx_fifo_rdreq),
     .PHY_Tx_data_i(PHY_Tx_data),
     .PHY_Tx_rdused_i(PHY_Tx_rdused),
@@ -429,7 +472,7 @@ PHY_Rx_fifo PHY_Rx_fifo_inst(.wrclk (PHY_data_clock),.rdreq (IF_PHY_drdy),.rdclk
     sp_fifo_rdreq   |rdreq         q[7:0]| sp_fifo_rddata
                         |                    |
                         |                        |
-        clock_125_mhz_0_deg  |>rdclk              |
+        clock_ethtxint  |>rdclk              |
                         |                      |
                         ---------------------
                         |                    |
@@ -458,7 +501,7 @@ wire have_sp_data;
 wire C122_rst;
 cdc_sync #(1) reset_C122 (.siga(rst), .rstb(rst), .clkb(clock_76p8_mhz), .sigb(C122_rst));
 
-SP_fifo  SPF (.aclr(C122_rst | !run), .wrclk (clock_76p8_mhz), .rdclk(clock_125_mhz_0_deg),
+SP_fifo  SPF (.aclr(C122_rst | !run), .wrclk (clock_76p8_mhz), .rdclk(clock_ethtxint),
              .wrreq (sp_fifo_wrreq), .data ({{4{temp_ADC[11]}},temp_ADC}), .rdreq (sp_fifo_rdreq),
              .q(sp_fifo_rddata), .wrfull(sp_fifo_wrfull), .wrempty(sp_fifo_wrempty));
 
@@ -474,9 +517,10 @@ wire sp_data_ready;
 
 // rate is 125e6/2**19
 reg [18:0]sp_delay;
-always @ (posedge clock_125_mhz_0_deg)
+always @ (posedge clock_ethtxint)
     sp_delay <= sp_delay + 15'd1;
-assign sp_data_ready = (sp_delay == 0 && have_sp_data);
+
+assign sp_data_ready = ( (io_cn9 ? sp_delay == 0 : sp_delay[15:0] == 0) && have_sp_data);
 
 
 assign IF_mic_Data = 0;
@@ -1145,7 +1189,7 @@ Hermes_Tx_fifo_ctrl #(RX_FIFO_SZ, TX_FIFO_SZ) TXFC
                            ---------------------
     Tx_fifo_rdreq       |rdreq         q[7:0]| PHY_Tx_data
                            |                          |
-       clock_125_mhz_0_deg       |>rdclk       rdempty|
+       clock_ethtxint       |>rdclk       rdempty|
                            |          rdusedw[10:0]| PHY_Tx_rdused  (0 to 2047 bytes)
                            ---------------------
                            |                    |
@@ -1156,7 +1200,7 @@ Hermes_Tx_fifo_ctrl #(RX_FIFO_SZ, TX_FIFO_SZ) TXFC
 
 */
 
-Tx_fifo Tx_fifo_inst(.wrclk (clock_76p8_mhz),.rdreq (Tx_fifo_rdreq),.rdclk (clock_125_mhz_0_deg),.wrreq (IF_tx_fifo_wreq),
+Tx_fifo Tx_fifo_inst(.wrclk (clock_76p8_mhz),.rdreq (Tx_fifo_rdreq),.rdclk (clock_ethtxint),.wrreq (IF_tx_fifo_wreq),
                 .data ({IF_tx_fifo_wdata[7:0], IF_tx_fifo_wdata[15:8]}),.q (PHY_Tx_data),.wrusedw(IF_tx_fifo_used), .wrfull(IF_tx_fifo_full),
                 .rdempty(),.rdusedw(PHY_Tx_rdused),.wrempty(IF_tx_fifo_empty),.aclr(rst || IF_tx_fifo_clr ));
 

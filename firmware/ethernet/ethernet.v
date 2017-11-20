@@ -69,7 +69,7 @@ network #(.MAC(MAC), .IP(IP)) network_inst(
 	.udp_tx_data(udp_tx_data),
 	.udp_tx_enable(udp_tx_enable),
 	.udp_tx_active(udp_tx_active),
-	.speed(1'b1),
+	.speed(dipsw_i[0]),
 	.set_ip(1'b0),
 	.assign_ip(32'h00000000),
 	.port_ID(8'h00),
@@ -95,7 +95,7 @@ network #(.MAC(MAC), .IP(IP)) network_inst(
 	.macbit(dipsw_i[1]),
   .PHY_MDIO(PHY_MDIO),
   .PHY_MDC(PHY_MDC),
-  .MODE2(1'b1),
+  .MODE2(dipsw_i[0]),
   .network_status(network_status),
   .network_state(network_state)
 );
@@ -126,7 +126,7 @@ Tx_send tx_send_inst(
 	.wide_spectrum(wide_spectrum),
 	.IP_valid(1'b1),
 	.Hermes_serialno(Hermes_serialno),
-	.IDHermesLite(dipsw_i[0]),
+	.IDHermesLite(1'b1),
 	.AssignNR(AssignNR),
 	.PHY_Tx_data(PHY_Tx_data_i),
 	.PHY_Tx_rdused(PHY_Tx_rdused_i),
