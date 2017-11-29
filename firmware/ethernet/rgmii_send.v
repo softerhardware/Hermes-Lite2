@@ -22,7 +22,6 @@
 
 
 module rgmii_send (
-  input speed_1Gbit,
   input [7:0] data,
   input tx_enable,
   output active,

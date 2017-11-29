@@ -27,7 +27,7 @@ create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1
 
 create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|inclk[0]} -divide_by 50 -duty_cycle 50.00 -name clock_2_5MHz {ethpll_inst|altpll_component|auto_generated|pll1|clk[2]}
 
-create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|inclk[0]} -divide_by 5 -duty_cycle 50.00 -name clock_25MHz {ethpll_inst|altpll_component|auto_generated|pll1|clk[3]}
+create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|inclk[0]} -phase 180.0 -divide_by 5 -duty_cycle 50.00 -name clock_25MHz {ethpll_inst|altpll_component|auto_generated|pll1|clk[3]}
 
 create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|inclk[0]} -divide_by 10 -duty_cycle 50.00 -name clock_12p5MHz {ethpll_inst|altpll_component|auto_generated|pll1|clk[4]}
 
@@ -44,15 +44,16 @@ create_generated_clock -source {ethpll_inst|altpll_component|auto_generated|pll1
 
 set_clock_groups -exclusive -group {clock_ethtxintslow} -group {clock_ethtxintfast} 
 
-
-
 create_generated_clock -source {ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -duty_cycle 50.00 -name clock_76p8MHz {ad9866pll_inst|altpll_component|auto_generated|pll1|clk[0]}
 
 create_generated_clock -source {ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -multiply_by 2 -duty_cycle 50.00 -name clock_153p6_mhz {ad9866pll_inst|altpll_component|auto_generated|pll1|clk[1]}
 
 
 ## Create TX clock version based on pin output
-create_generated_clock -name tx_output_clock -source [get_pins {ethtxext_clkmux_i|auto_generated|clkctrl1|outclk}] [get_ports {phy_tx_clk}]
+create_generated_clock -name tx_output_clock -master_clock [get_clocks {clock_ethtxextfast}] -source [get_pins {ethtxext_clkmux_i|auto_generated|clkctrl1|outclk}] [get_ports {phy_tx_clk}]
+##create_generated_clock -name tx_output_clock -source {ethpll_inst|altpll_component|auto_generated|pll1|clk[0]} [get_ports {phy_tx_clk}]
+##create_generated_clock -name tx_output_clock -source [get_clocks clock_ethtxextfast] [get_ports {phy_tx_clk}]
+
 
 derive_clock_uncertainty
 
@@ -196,6 +197,9 @@ set_min_delay -from clock_ethtxextfast -to tx_output_clock -2
 
 # Set false path to generated clocks that feed output pins
 set_false_path -to [get_ports {phy_mdc}]
+
+set_false_path -from {ethtxint_clkmux_i|auto_generated|ena_reg}
+set_false_path -from {ethtxext_clkmux_i|auto_generated|ena_reg}
 
 # Set false paths to remove irrelevant setup and hold analysis
 set_false_path -fall_from  virt_phy_rx_clk -rise_to phy_rx_clk -setup
