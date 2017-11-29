@@ -10,10 +10,9 @@
 
 module rgmii_recv (
   input reset, 
-  input speed_1Gbit, 
 
   //receive: data and active are valid at posedge of clock
-  output clock, 
+  input  clock, 
   output reg [7:0] data,
   output active,
   
@@ -38,31 +37,6 @@ module rgmii_recv (
 //-----------------------------------------------------------------------------
 
 
-
-//PHY_RX_CLOCK must be delayed by ~2 ns in respect to PHY_RX and PHY_DV
-//by programming the skew registers in phy 
-
-
-
-
-
-
-//-----------------------------------------------------------------------------
-//                                  clock
-//-----------------------------------------------------------------------------
-reg slow_rx_clock;
-reg old_PHY_DV; 
- 
- 
-//slow clock for the 100MBit mode 
-always @(posedge PHY_RX_CLOCK)
-  begin
-  slow_rx_clock <= ~slow_rx_clock | (PHY_DV && !old_PHY_DV);
-  old_PHY_DV <= PHY_DV;
-  end
- 
- 
-assign clock = speed_1Gbit ? PHY_RX_CLOCK : slow_rx_clock; // 1000T speed only...speed_1Gbit? PHY_RX_CLOCK : slow_rx_clock; 
 
 
 

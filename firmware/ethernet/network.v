@@ -30,14 +30,13 @@ module network (
 	input udp_tx_request,
 	input [15:0] udp_tx_length,
 	input [7:0] udp_tx_data,
-	input speed,
 	input set_ip,
 	input [31:0] assign_ip,
 	input [7:0] port_ID,
   input run,
 
 	//output
-	output rx_clock,
+	input  rx_clock,
 	input  tx_clock,
 	output udp_rx_active,
 	output udp_tx_enable,
@@ -51,7 +50,7 @@ module network (
 
 
   //status output
-  output speed_1Gbit,
+  output speed_1gb,
   output [3:0] network_state,
   output [7:0] network_status,
   output static_ip_assigned,
@@ -65,7 +64,6 @@ module network (
   output PHY_TX_EN,
   input  [3:0]PHY_RX,
   input  PHY_DV,
-  input  PHY_RX_CLOCK,
   input  PHY_INT_N,
   input macbit,
 
@@ -389,12 +387,10 @@ rgmii_recv rgmii_recv_inst (
   .active(rgmii_rx_active),
 
   .reset(rx_reset),
-  .speed_1Gbit(speed),
   .clock(rx_clock),
   .data(rx_data),
   .PHY_RX(PHY_RX),
-  .PHY_DV(PHY_DV),
-  .PHY_RX_CLOCK(PHY_RX_CLOCK)
+  .PHY_DV(PHY_DV)
   );
 
 mac_recv mac_recv_inst(
@@ -618,7 +614,6 @@ rgmii_send rgmii_send_inst (
   .data(rgmii_tx_data_in),
   .tx_enable(rgmii_tx_enable),
   .active(rgmii_tx_active),
-  .speed_1Gbit(speed),
   .clock(tx_clock),
   .PHY_TX(PHY_TX),
   .PHY_TX_EN(PHY_TX_EN),
@@ -630,7 +625,7 @@ rgmii_send rgmii_send_inst (
 //                              debug output
 //-----------------------------------------------------------------------------
 assign network_state = state;
-assign speed_1Gbit = phy_speed[1];
+assign speed_1gb = phy_speed[1];
 assign network_status = {phy_connected,phy_speed[1],phy_speed[0], udp_rx_active, udp_rx_enable, rgmii_rx_active, rgmii_tx_active, mac_rx_active};
 
 

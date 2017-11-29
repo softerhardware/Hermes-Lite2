@@ -249,6 +249,8 @@ wire clock_12p5_mhz;
 wire ethpll_locked;
 wire clock_ethtxint;
 wire clock_ethtxext;
+wire clock_ethrxint;
+wire speed_1gb;
 
 ethpll ethpll_inst (
     .inclk0   (phy_clk125),   //  refclk.clk
@@ -272,7 +274,7 @@ altclkctrl #(
     .lpm_type("altclkctrl"),
     .lpm_hint("unused")) ethtxint_clkmux_i 
 (
-    .clkselect(io_cn9),
+    .clkselect(speed_1gb),
     .ena(1'b1),
     .inclk({clock_125_mhz_0_deg,clock_12p5_mhz}),
     .outclk(clock_ethtxint)
@@ -289,11 +291,45 @@ altclkctrl #(
     .lpm_type("altclkctrl"),
     .lpm_hint("unused")) ethtxext_clkmux_i 
 (
-    .clkselect(io_cn9),
+    .clkselect(speed_1gb),
     .ena(1'b1),
     .inclk({clock_125_mhz_90_deg,clock_25_mhz}),
     .outclk(clock_ethtxext)
 );
+
+
+reg phy_rx_clk_div2;
+reg last_phy_rx_dv; 
+ 
+ 
+always @(posedge phy_rx_clk)
+  begin
+    phy_rx_clk_div2 <= ~phy_rx_clk_div2 | (phy_rx_dv & ~last_phy_rx_dv);
+    last_phy_rx_dv <= phy_rx_dv;
+  end
+ 
+ 
+assign clock_ethrxint = speed_1gb ? phy_rx_clk : phy_rx_clk_div2; // 1000T speed only...speed_1Gbit? PHY_RX_CLOCK : slow_rx_clock; 
+
+//altclkctrl #(
+//    .clock_type("GLOBAL CLOCK"),
+//    .intended_device_family("Cyclone IV E"),
+//    .ena_register_mode("always enabled"),
+//    .implement_in_les("OFF"),
+//    .number_of_clocks(2),
+//    .use_glitch_free_switch_over_implementation("ON"),
+//    .width_clkselect(1),
+//    .lpm_type("altclkctrl"),
+//    .lpm_hint("unused")) ethrxint_clkmux_i 
+//(
+//    .clkselect(io_cn9),
+//    .ena(1'b1),
+//    .inclk({phy_rx_clk,phy_rx_clk_div2}),
+//    .outclk(clock_ethrxint)
+//);
+
+
+
 
 
 
@@ -353,20 +389,19 @@ Hermes_clk_lrclk_gen #(.CLK_FREQ(CLK_FREQ)) clrgen (.reset(rst), .CLK_IN(clock_7
 
 wire Tx_fifo_rdreq;
 wire [10:0] PHY_Tx_rdused;
-wire PHY_data_clock;
 wire Rx_enable;
 wire [7:0] Rx_fifo_data;
 
 wire this_MAC;
 wire run;
 
-
-
 assign phy_tx_clk = clock_ethtxext;
 
 wire cwkey_i;
 wire ptt_i;
 wire [7:0] leds;
+
+
 
 
 assign cwkey_i = io_cn4_2;
@@ -378,6 +413,7 @@ ethernet #(.MAC(MAC), .IP(IP), .Hermes_serialno(Hermes_serialno)) ethernet_inst 
     // Send to ethernet
     .clock_2_5MHz(clock_2_5MHz),
     .tx_clock(clock_ethtxint),
+    .rx_clock(clock_ethrxint),
     .Tx_fifo_rdreq_o(Tx_fifo_rdreq),
     .PHY_Tx_data_i(PHY_Tx_data),
     .PHY_Tx_rdused_i(PHY_Tx_rdused),
@@ -387,7 +423,6 @@ ethernet #(.MAC(MAC), .IP(IP), .Hermes_serialno(Hermes_serialno)) ethernet_inst 
     .sp_fifo_rdreq_o(sp_fifo_rdreq),
 
     // Receive from ethernet
-    .PHY_data_clock_o(PHY_data_clock),
     .Rx_enable_o(Rx_enable),
     .Rx_fifo_data_o(Rx_fifo_data),
 
@@ -396,13 +431,13 @@ ethernet #(.MAC(MAC), .IP(IP), .Hermes_serialno(Hermes_serialno)) ethernet_inst 
     .run_o(run),
     .dipsw_i({io_cn10,io_cn9}),
     .AssignNR(AssignNR),
+    .speed_1gb(speed_1gb),
 
     // MII Ethernet PHY
     .PHY_TX(phy_tx),
     .PHY_TX_EN(phy_tx_en),              //PHY Tx enable
     .PHY_RX(phy_rx),
     .RX_DV(phy_rx_dv),                  //PHY has data flag
-    .PHY_RX_CLOCK(phy_rx_clk),           //PHY Rx data clock
     .PHY_MDIO(phy_mdio),
     .PHY_MDC(phy_mdc)
 );
@@ -421,7 +456,7 @@ ethernet #(.MAC(MAC), .IP(IP), .Hermes_serialno(Hermes_serialno)) ethernet_inst 
                         |                        |
         Rx_enable   |wrreq                 |
                         |                         |
-    PHY_data_clock  |>wrclk                |
+    clock_ethrxint  |>wrclk                |
                         ---------------------
   IF_PHY_drdy     |rdreq          q[15:0]| IF_PHY_data [swap Endian]
                        |                          |
@@ -444,7 +479,7 @@ wire IF_PHY_rdempty;
 wire IF_PHY_drdy;
 
 
-PHY_Rx_fifo PHY_Rx_fifo_inst(.wrclk (PHY_data_clock),.rdreq (IF_PHY_drdy),.rdclk (clock_76p8_mhz),.wrreq(Rx_enable),
+PHY_Rx_fifo PHY_Rx_fifo_inst(.wrclk (clock_ethrxint),.rdreq (IF_PHY_drdy),.rdclk (clock_76p8_mhz),.wrreq(Rx_enable),
                 .data (Rx_fifo_data),.q ({IF_PHY_data[7:0],IF_PHY_data[15:8]}), .rdempty(IF_PHY_rdempty),
                 .wrfull(PHY_wrfull),.aclr(rst | PHY_wrfull));
 
@@ -520,7 +555,7 @@ reg [18:0]sp_delay;
 always @ (posedge clock_ethtxint)
     sp_delay <= sp_delay + 15'd1;
 
-assign sp_data_ready = ( (io_cn9 ? sp_delay == 0 : sp_delay[15:0] == 0) && have_sp_data);
+assign sp_data_ready = ( (speed_1gb ? sp_delay == 0 : sp_delay[15:0] == 0) && have_sp_data);
 
 
 assign IF_mic_Data = 0;
