@@ -25,28 +25,28 @@
 
 module network (
 
-	//input
-	input clock_2_5MHz,
-	input udp_tx_request,
-	input [15:0] udp_tx_length,
-	input [7:0] udp_tx_data,
-	input set_ip,
-	input [31:0] assign_ip,
-	input [7:0] port_ID,
-  input run,
+    //input
+    input clock_2_5MHz,
+    input udp_tx_request,
+    input [15:0] udp_tx_length,
+    input [7:0] udp_tx_data,
+    input set_ip,
+    input [31:0] assign_ip,
+    input [7:0] port_ID,
+    input run,
 
-	//output
-	input  rx_clock,
-	input  tx_clock,
-	output udp_rx_active,
-	output udp_tx_enable,
-	output [7:0] udp_rx_data,
-	output udp_tx_active,
-	output [47:0] local_mac,
-	output broadcast,
-	//output IP_write_done,
-	output [15:0]to_port,
-	output dst_unreachable,
+    //output
+    input  rx_clock,
+    input  tx_clock,
+    output udp_rx_active,
+    output udp_tx_enable,
+    output [7:0] udp_rx_data,
+    output udp_tx_active,
+    output [47:0] local_mac,
+    output broadcast,
+    //output IP_write_done,
+    output [15:0]to_port,
+    output dst_unreachable,
 
 
   //status output
@@ -118,7 +118,7 @@ reg [21:0] settle_cnt;
 reg [21:0] dhcp_timer;
 reg dhcp_tx_enable;
 reg [37:0] dhcp_renew_timer;  // holds number of seconds before DHCP IP address must be renewed
-reg [3:0] dhcp_seconds_timer;	// number of seconds since the DHCP request started
+reg [3:0] dhcp_seconds_timer;   // number of seconds since the DHCP request started
 
 
 
@@ -146,9 +146,9 @@ always @(negedge clock_2_5MHz)
       //wait for eeprom
       ST_EEPROM_READ:
         begin
-			 		local_ip <= static_ip;
-			 		dhcp_timer <= 22'd2_500_000;	// set dhcp timer to one second
-			 		dhcp_seconds_timer <= 4'd0;	// zero seconds have elapsed
+                    local_ip <= static_ip;
+                    dhcp_timer <= 22'd2_500_000;    // set dhcp timer to one second
+                    dhcp_seconds_timer <= 4'd0; // zero seconds have elapsed
           state <= ST_PHY_INIT;
         end
 
@@ -169,63 +169,63 @@ always @(negedge clock_2_5MHz)
         begin
         //when network has settled, get ip address, if static IP assigned then use it else try DHCP
         if (settle_cnt == 0) begin
-			  if (static_ip_assigned) state <= ST_RUNNING;
-			  else begin
-				local_ip <= 32'h00_00_00_00;				// needs to be 0.0.0.0 for DHCP
-				state <= ST_DHCP_REQUEST;
-			  end
-		  end
+              if (static_ip_assigned) state <= ST_RUNNING;
+              else begin
+                local_ip <= 32'h00_00_00_00;                // needs to be 0.0.0.0 for DHCP
+                state <= ST_DHCP_REQUEST;
+              end
+          end
         settle_cnt <= settle_cnt - 22'b1;          //no time out yet, count down
         end
 
       // send dhcp request
       ST_DHCP_REQUEST:
-		  begin
-		  dhcp_tx_enable <= 1'b1;			// set dhcp flag
-		  dhcp_enable <= 1'b1;				// enable dhcp receive
-		  state <= ST_DHCP;
-		  end
+          begin
+          dhcp_tx_enable <= 1'b1;           // set dhcp flag
+          dhcp_enable <= 1'b1;              // enable dhcp receive
+          state <= ST_DHCP;
+          end
 
       // wait for dhcp success, fail or time out.  Do time out here since same clock speed for 100/1000T
-		  // If DHCP provided IP address then set lease timeout to lease/2 seconds.
-	ST_DHCP:
-		begin
-			dhcp_tx_enable <= 1'b0;			// clear dhcp flag
-			if (dhcp_success) begin
-				local_ip <= ip_accept;
-				dhcp_timer <= 22'd2_500_000;	// reset dhcp timers for next Renewal
-				dhcp_seconds_timer <= 4'd0;
-				if (lease == 32'd0) dhcp_renew_timer <= 43_200 * 2_500_000;  // use 43,200 seconds (12 hours) if no lease time set
-				else dhcp_renew_timer <= (lease * 2_500_000) >> 1;  // set timer to half lease time.
-				state <= ST_DHCP_RENEW;
-			end
-			else if (dhcp_timer == 0) begin  // another second has elapsed
-				dhcp_renew_timer <= 38'h020000; // delay 50 ms
-				dhcp_timer <= 22'd2_500_000;	// reset dhcp timer to one second
-				dhcp_seconds_timer <= dhcp_seconds_timer + 4'd1;	// dhcp_seconds_timer still has its old value
-				// Retransmit Discover at 1, 3, 7 seconds
-				if (dhcp_seconds_timer == 0 || dhcp_seconds_timer == 2 || dhcp_seconds_timer == 6) begin
-					state <= ST_DHCP_RENEW;		// retransmit the Discover request
-				end
-				else if (dhcp_seconds_timer == 14) begin	// no DHCP Offer received in 15 seconds; use apipa
-					local_ip <= apipa_ip;
-					state <= ST_RUNNING;
-				end
-			end
-			else dhcp_timer <= dhcp_timer - 22'd1;
-		end
+          // If DHCP provided IP address then set lease timeout to lease/2 seconds.
+    ST_DHCP:
+        begin
+            dhcp_tx_enable <= 1'b0;         // clear dhcp flag
+            if (dhcp_success) begin
+                local_ip <= ip_accept;
+                dhcp_timer <= 22'd2_500_000;    // reset dhcp timers for next Renewal
+                dhcp_seconds_timer <= 4'd0;
+                if (lease == 32'd0) dhcp_renew_timer <= 43_200 * 2_500_000;  // use 43,200 seconds (12 hours) if no lease time set
+                else dhcp_renew_timer <= (lease * 2_500_000) >> 1;  // set timer to half lease time.
+                state <= ST_DHCP_RENEW;
+            end
+            else if (dhcp_timer == 0) begin  // another second has elapsed
+                dhcp_renew_timer <= 38'h020000; // delay 50 ms
+                dhcp_timer <= 22'd2_500_000;    // reset dhcp timer to one second
+                dhcp_seconds_timer <= dhcp_seconds_timer + 4'd1;    // dhcp_seconds_timer still has its old value
+                // Retransmit Discover at 1, 3, 7 seconds
+                if (dhcp_seconds_timer == 0 || dhcp_seconds_timer == 2 || dhcp_seconds_timer == 6) begin
+                    state <= ST_DHCP_RENEW;     // retransmit the Discover request
+                end
+                else if (dhcp_seconds_timer == 14) begin    // no DHCP Offer received in 15 seconds; use apipa
+                    local_ip <= apipa_ip;
+                    state <= ST_RUNNING;
+                end
+            end
+            else dhcp_timer <= dhcp_timer - 22'd1;
+        end
 
-	  ST_DHCP_RENEW:  // DHCP IP address obtained
-		  begin
-				dhcp_enable <= 1'b0;				// disable dhcp receive
-				if (dhcp_renew_timer == 0)
-					state <= ST_DHCP_REQUEST;
-				else
-					dhcp_renew_timer <= dhcp_renew_timer - 38'd1;
-		  end
+      ST_DHCP_RENEW:  // DHCP IP address obtained
+          begin
+                dhcp_enable <= 1'b0;                // disable dhcp receive
+                if (dhcp_renew_timer == 0)
+                    state <= ST_DHCP_REQUEST;
+                else
+                    dhcp_renew_timer <= dhcp_renew_timer - 38'd1;
+          end
 
       // static or APIPA ip address obtained
-      ST_RUNNING: dhcp_enable <= 1'b0;	  // disable dhcp receive
+      ST_RUNNING: dhcp_enable <= 1'b0;    // disable dhcp receive
 
     endcase
 
@@ -314,11 +314,15 @@ wire [15:0] icmp_length;
 wire [47:0] icmp_destination_mac;
 wire [31:0] icmp_destination_ip;
 
+reg [15:0] run_destination_port;
+reg [31:0] run_destination_ip;
+reg [47:0] run_destination_mac;
+
 //ip_send in
 wire ip_tx_enable = icmp_tx_active || udp_tx_active;
 wire [7:0] ip_tx_data_in = tx_is_icmp? icmp_data : udp_data;
 wire [15:0] ip_tx_length = tx_is_icmp? icmp_length : udp_length;
-wire [31:0] destination_ip = tx_is_icmp? icmp_destination_ip : (tx_is_dhcp ? dhcp_destination_ip : (run ? run_destination_ip :udp_destination_ip_sync));
+wire [31:0] destination_ip = tx_is_icmp? icmp_destination_ip : (tx_is_dhcp ? dhcp_destination_ip : udp_destination_ip_sync);
 
 //ip_send out
 wire [7:0] ip_tx_data;
@@ -328,8 +332,8 @@ wire ip_tx_active;
 wire mac_tx_enable = arp_tx_active || ip_tx_active;
 wire [7:0] mac_tx_data_in = tx_is_arp? arp_tx_data : ip_tx_data;
 wire [47:0] destination_mac = tx_is_arp  ? arp_destination_mac  :
-										tx_is_icmp ? icmp_destination_mac :
-										tx_is_dhcp ? dhcp_destination_mac : (run ? run_destination_mac : udp_destination_mac_sync);
+                                        tx_is_icmp ? icmp_destination_mac :
+                                        tx_is_dhcp ? dhcp_destination_mac : udp_destination_mac_sync;
 //mac_send out
 wire [7:0] mac_tx_data;
 wire mac_tx_active;
@@ -344,21 +348,19 @@ wire rgmii_tx_active;
 wire       dhcp_udp_tx_request       = tx_is_dhcp ? dhcp_tx_request       : udp_tx_request;
 wire [15:0]dhcp_udp_tx_length        = tx_is_dhcp ? dhcp_tx_length        : udp_tx_length;
 wire [7:0] dhcp_udp_tx_data          = tx_is_dhcp ? dhcp_tx_data          : udp_tx_data;
-wire [15:0]local_port				    = tx_is_dhcp ? 16'd68 		           : 16'd1024;
+wire [15:0]local_port                   = tx_is_dhcp ? 16'd68                  : 16'd1024;
 
-reg [15:0] run_destination_port;
-reg [31:0] run_destination_ip;
-reg [47:0] run_destination_mac;
+
 
 // Hold destination port once run is set
 always @(posedge tx_clock)
-	if (!run) begin
-		run_destination_port <= udp_destination_port_sync;
-		run_destination_ip <= udp_destination_ip_sync;
-		run_destination_mac <= udp_destination_mac_sync;
-	end
+    if (!run) begin
+        run_destination_port <= udp_destination_port_sync;
+        run_destination_ip <= udp_destination_ip_sync;
+        run_destination_mac <= udp_destination_mac_sync;
+    end
 
-wire [15:0]dhcp_udp_destination_port = tx_is_dhcp ? dhcp_destination_port : (run ? run_destination_port : udp_destination_port_sync);
+wire [15:0]dhcp_udp_destination_port = tx_is_dhcp ? dhcp_destination_port : udp_destination_port_sync;
 wire dhcp_rx_active;
 wire mac_rx_active;
 
@@ -374,7 +376,7 @@ always @(posedge tx_clock)
     begin
     if (arp_tx_request) begin tx_protocol <= PT_ARP; tx_ready <= true; end
     else if (icmp_tx_request) begin tx_protocol <= PT_ICMP; tx_ready <= true; end
-	 else if (dhcp_udp_tx_request) begin tx_protocol <= PT_UDP; tx_ready <= true; end;
+     else if (dhcp_udp_tx_request) begin tx_protocol <= PT_UDP; tx_ready <= true; end;
     end
 
 
@@ -423,24 +425,24 @@ ip_recv ip_recv_inst(
   );
 
 udp_recv udp_recv_inst(
-	//in
-	.clock(rx_clock),
-	.rx_enable(udp_rx_enable),
-	.data(rx_data),
-	.to_ip(to_ip),
+    //in
+    .clock(rx_clock),
+    .rx_enable(udp_rx_enable),
+    .data(rx_data),
+    .to_ip(to_ip),
    .local_ip(local_ip),
    .broadcast(broadcast),
-	.remote_mac(remote_mac),
+    .remote_mac(remote_mac),
    .remote_ip(remote_ip),
 
-	//out
-	.active(udp_rx_active),
-	.dhcp_active(dhcp_rx_active),
-	.to_port(to_port),
-	.udp_destination_ip(udp_destination_ip),
+    //out
+    .active(udp_rx_active),
+    .dhcp_active(dhcp_rx_active),
+    .to_port(to_port),
+    .udp_destination_ip(udp_destination_ip),
    .udp_destination_mac(udp_destination_mac),
-	.udp_destination_port(udp_destination_port)
-	);
+    .udp_destination_port(udp_destination_port)
+    );
 
 //-----------------------------------------------------------------------------
 //                           receive/reply
@@ -491,9 +493,9 @@ wire [15:0] dhcp_tx_length;
 wire [47:0] dhcp_destination_mac;
 wire [31:0] dhcp_destination_ip;
 wire [15:0] dhcp_destination_port;
-wire [31:0] ip_accept;					// DHCP provided IP address
-wire [31:0] lease;						// time in seconds that DHCP supplied IP address is valid
-wire [31:0] server_ip;					// IP address of the DHCP that provided the IP address
+wire [31:0] ip_accept;                  // DHCP provided IP address
+wire [31:0] lease;                      // time in seconds that DHCP supplied IP address is valid
+wire [31:0] server_ip;                  // IP address of the DHCP that provided the IP address
 wire erase;
 wire EPCS_FIFO_enable;
 wire [47:0]remote_mac;
@@ -517,15 +519,15 @@ dhcp dhcp_inst(
   .udp_tx_enable(udp_tx_enable),
   .tx_enable(dhcp_tx_enable),
   .udp_tx_active(udp_tx_active),
-  .remote_mac(remote_mac_sync),				// MAC address of DHCP server
-  .remote_ip(remote_ip_sync),				// IP address of DHCP server
+  .remote_mac(remote_mac_sync),             // MAC address of DHCP server
+  .remote_ip(remote_ip_sync),               // IP address of DHCP server
   .dhcp_seconds_timer(dhcp_seconds_timer),
 
   // tx_out
   .dhcp_tx_request(dhcp_tx_request),
   .tx_data(dhcp_tx_data),
   .length(dhcp_tx_length),
-  .ip_accept(ip_accept),				// IP address from DHCP server
+  .ip_accept(ip_accept),                // IP address from DHCP server
 
   //constants
   .local_mac(local_mac),

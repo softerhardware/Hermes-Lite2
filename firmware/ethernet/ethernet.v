@@ -121,11 +121,11 @@ Rx_recv rx_recv_inst(
 
 sync sync_inst1(.clock(tx_clock), .sig_in(discovery_reply), .sig_out(discovery_reply_sync));
 
-//sync sync_inst2(.clock(tx_clock), .sig_in(run), .sig_out(run_sync));
-assign run_sync = run;
+sync sync_inst2(.clock(tx_clock), .sig_in(run), .sig_out(run_sync));
+//assign run_sync = run;
 
-//sync sync_inst3(.clock(tx_clock), .sig_in(wide_spectrum), .sig_out(wide_spectrum_sync));
-assign wide_spectrum_sync = wide_spectrum;
+sync sync_inst3(.clock(tx_clock), .sig_in(wide_spectrum), .sig_out(wide_spectrum_sync));
+//assign wide_spectrum_sync = wide_spectrum;
 
 wire Tx_reset;
 
@@ -156,7 +156,8 @@ Tx_send tx_send_inst(
 //assign This_MAC_o = local_mac;
 assign this_MAC_o = network_status[0];
 
-assign run_o = run;
+// FIXME: run_sync is in eth tx clock domain but used in 76 domain outside
+assign run_o = run_sync;
 
 // Set Tx_reset (no sdr send) if not in RUNNING or DHCP RENEW state
 assign Tx_reset = network_state[3:1] != 3'b100;

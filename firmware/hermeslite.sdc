@@ -64,10 +64,15 @@ derive_clock_uncertainty
 # If setup and hold delays are equal then only need to specify once without max or min
 
 #PHY Data in
-set_input_delay  -max 0.8  -clock virt_phy_rx_clk [get_ports {phy_rx[*] phy_rx_dv}]
-set_input_delay  -min -0.8 -clock virt_phy_rx_clk -add_delay [get_ports {phy_rx[*] phy_rx_dv}]
-set_input_delay  -max 0.8 -clock virt_phy_rx_clk -clock_fall -add_delay [get_ports {phy_rx[*] phy_rx_dv}]
-set_input_delay  -min -0.8 -clock virt_phy_rx_clk -clock_fall -add_delay [get_ports {phy_rx[*] phy_rx_dv}]
+set_input_delay  -max 0.8  -clock virt_phy_rx_clk [get_ports {phy_rx[*]}]
+set_input_delay  -min 1.0 -clock virt_phy_rx_clk -add_delay [get_ports {phy_rx[*]}]
+set_input_delay  -max 0.8 -clock virt_phy_rx_clk -clock_fall -add_delay [get_ports {phy_rx[*]}]
+set_input_delay  -min 1.0 -clock virt_phy_rx_clk -clock_fall -add_delay [get_ports {phy_rx[*]}]
+
+set_input_delay  -max 0.8  -clock virt_phy_rx_clk [get_ports {phy_rx_dv}]
+set_input_delay  -min 1.8 -clock virt_phy_rx_clk -add_delay [get_ports {phy_rx_dv}]
+set_input_delay  -max 0.8 -clock virt_phy_rx_clk -clock_fall -add_delay [get_ports {phy_rx_dv}]
+set_input_delay  -min 1.8 -clock virt_phy_rx_clk -clock_fall -add_delay [get_ports {phy_rx_dv}]
 
 
 #PHY PHY_MDIO Data in +/- 10nS setup and hold
@@ -93,15 +98,15 @@ set_output_delay  10 -clock clock_2_5MHz -reference_pin [get_ports phy_mdc] {phy
 
 ## IO
 
-set_input_delay -min 100 -clock virt_clock_76p8MHz [get_ports io_cn4_2]
-set_input_delay -max -100 -clock virt_clock_76p8MHz [get_ports io_cn4_2]
-set_input_delay -min 100 -clock virt_clock_76p8MHz [get_ports io_cn4_3]
-set_input_delay -max -100 -clock virt_clock_76p8MHz [get_ports io_cn4_3]
+set_input_delay -min 100 -clock virt_clock_76p8MHz [get_ports io_phone_tip]
+set_input_delay -max -100 -clock virt_clock_76p8MHz [get_ports io_phone_tip]
+set_input_delay -min 100 -clock virt_clock_76p8MHz [get_ports io_phone_ring]
+set_input_delay -max -100 -clock virt_clock_76p8MHz [get_ports io_phone_ring]
 set_input_delay -min 100 -clock virt_clock_76p8MHz [get_ports io_cn8]
 set_input_delay -max -100 -clock virt_clock_76p8MHz [get_ports io_cn8]
 
-set_output_delay -min 100 -clock virt_clock_76p8MHz [get_ports io_cn4_6]
-set_output_delay -max -100 -clock virt_clock_76p8MHz [get_ports io_cn4_6]
+set_output_delay -min 100 -clock virt_clock_76p8MHz [get_ports io_db1_5]
+set_output_delay -max -100 -clock virt_clock_76p8MHz [get_ports io_db1_5]
 set_output_delay -min 100 -clock virt_clock_76p8MHz [get_ports {io_led_d*}]
 set_output_delay -max -100 -clock virt_clock_76p8MHz [get_ports {io_led_d*}]
 
@@ -139,8 +144,8 @@ set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_i
 set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|cdc_sync:cdc_sync_inst7|sigb[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 1
 
 
-set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|run_destination_ip[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 2
-set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|run_destination_ip[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 1
+#set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|run_destination_ip[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 2
+#set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|run_destination_ip[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 1
 
 
 set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|arp:arp_inst|tx_byte_no[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|mac_send:mac_send_inst|shift_reg[*]}] -setup -start 2
@@ -180,7 +185,8 @@ set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|Tx_send:tx_send_i
 
 
 
-set_max_delay -from clock_ethtxintfast -to tx_output_clock 3.3
+set_max_delay -from clock_ethtxintfast -to tx_output_clock 4.5
+set_max_delay -from clock_ethtxintslow -to tx_output_clock 4.5
 
 set_max_delay -from clock_2_5MHz -to clock_ethtxintfast 22
 
