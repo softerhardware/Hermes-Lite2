@@ -28,13 +28,13 @@ module hermeslite(
   // Power
   output          pwr_clk3p3,
   output          pwr_clk1p2,
-  output          pwr_envpa,
+  output          pwr_envpa, 
 
-`ifdef BETA3
+`ifdef BETA2
+  output          pwr_clkvpa,
+`else
   output          pwr_envop,
   output          pwr_envbias,
-`else 
-  output          pwr_clkvpa,
 `endif
 
   // Ethernet PHY
@@ -77,52 +77,51 @@ module hermeslite(
   input           rffe_ad9866_clk76p8,
   output          rffe_rfsw_sel,
 
-`ifdef BETA3
+`ifdef BETA2
+  output  [5:0]   rffe_ad9866_pga,
+`else
   output          rffe_ad9866_mode,
   output          rffe_ad9866_pga5,
-`else
-  output  [5:0]   rffe_ad9866_pga,
 `endif
-
 
   // IO
   output          io_led_d2,
   output          io_led_d3,
   output          io_led_d4,
   output          io_led_d5,
-  input           io_cn4_2,
-  input           io_cn4_3,
-  output          io_cn4_6,
-  input           io_cn4_7,
-  input           io_cn5_2,
-  input           io_cn5_3,
-  input           io_cn5_6,
-  input           io_cn5_7,
-  input           io_db22_2,
-  input           io_db22_3,
-  inout           io_adc_scl,
-  inout           io_adc_sda,
+  input           io_lvds_rxn,
+  input           io_lvds_rxp,
+  input           io_lvds_txn,
+  input           io_lvds_txp,
   input           io_cn8,
   input           io_cn9,
   input           io_cn10,
+  inout           io_adc_scl,
+  inout           io_adc_sda,
   inout           io_scl2,
   inout           io_sda2,
+  input           io_db1_2,       // BETA2,BETA3: io_db24
+  input           io_db1_3,       // BETA2,BETA3: io_db22_3
+  input           io_db1_4,       // BETA2,BETA3: io_db22_2
+  output          io_db1_5,       // BETA2,BETA3: io_cn4_6
+  input           io_db1_6,       // BETA2,BETA3: io_cn4_7    
+  input           io_phone_tip,   // BETA2,BETA3: io_cn4_2
+  input           io_phone_ring,  // BETA2,BETA3: io_cn4_3
   input           io_tp2,
-  input           io_db24,
-
-`ifdef BETA3
+  
+`ifndef BETA2
   input           io_tp7,
   input           io_tp8,  
   input           io_tp9,
 `endif
 
   // PA
-`ifdef BETA3
-  output          pa_inttr,
-  output          pa_exttr
-`else
+`ifdef BETA2
   output          pa_tr,
   output          pa_en
+`else
+  output          pa_inttr,
+  output          pa_exttr
 `endif
 );
 
@@ -130,10 +129,10 @@ module hermeslite(
 // PARAMETERS
 
 // Ethernet Interface
-`ifdef BETA3
-localparam MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd};
-`else 
+`ifdef BETA2
 localparam MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h12,8'hdd};
+`else 
+localparam MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd};
 `endif
 localparam IP = {8'd0,8'd0,8'd0,8'd0};
 
@@ -172,10 +171,10 @@ localparam NT = 1;
 // Experimental Predistort On=1 Off=0
 localparam PREDISTORT = 0;
 
-`ifdef BETA3
-  localparam  Hermes_serialno = 8'd60;     // Serial number of this version
-`else
+`ifdef BETA2
   localparam  Hermes_serialno = 8'd40;     // Serial number of this version
+`else
+  localparam  Hermes_serialno = 8'd60;     // Serial number of this version
 `endif
 
 localparam Penny_serialno = 8'd00;      // Use same value as equ1valent Penny code
@@ -225,7 +224,7 @@ assign AssignNR = NR;
 assign pwr_clk3p3 = 1'b0;
 assign pwr_clk1p2 = 1'b0;
 
-`ifndef BETA3
+`ifdef BETA2
 assign pwr_clkvpa = 1'b0;
 `endif
 
@@ -404,8 +403,8 @@ wire [7:0] leds;
 
 
 
-assign cwkey_i = io_cn4_2;
-assign ptt_i = io_cn4_3;
+assign cwkey_i = io_phone_tip;
+assign ptt_i = io_phone_ring;
 
 
 ethernet #(.MAC(MAC), .IP(IP), .Hermes_serialno(Hermes_serialno)) ethernet_inst (
@@ -1531,10 +1530,10 @@ debounce de_txinhibit(.clean_pb(clean_txinhibit), .pb(~io_cn8), .clk(clock_76p8_
 assign FPGA_PTT = (mox | cwkey | clean_ptt) & ~clean_txinhibit; // mox only updated when we get correct sync sequence
 
 
-`ifdef BETA3
-assign rffe_ad9866_pga5 = 1'b0;
-`else
+`ifdef BETA2
 assign rffe_ad9866_pga = 6'b000000;
+`else
+assign rffe_ad9866_pga5 = 1'b0;
 `endif
 
 
@@ -1739,7 +1738,7 @@ always @(posedge clock_76p8_mhz)
 
 assign cwkey = cwstate != cwrx;
 
-assign io_cn4_6 = cwkey;
+assign io_db1_5 = cwkey;
 
 //---------------------------------------------------------
 //  Debounce dot key - active low
@@ -1804,16 +1803,16 @@ ad9866 #(.WB_DATA_WIDTH(WB_DATA_WIDTH), .WB_ADDR_WIDTH(WB_ADDR_WIDTH)) ad9866_i
 
 // FIXME: Sequence power
 // FIXME: External TR won't work in low power mode
-`ifdef BETA3
+`ifdef BETA2
+assign pa_tr = FPGA_PTT & (IF_PA_enable | ~IF_TR_disable);
+assign pa_en = FPGA_PTT & IF_PA_enable;
+assign pwr_envpa = FPGA_PTT;
+`else
 assign pwr_envbias = FPGA_PTT & IF_PA_enable;
 assign pwr_envop = FPGA_PTT;
 assign pa_exttr = FPGA_PTT;
 assign pa_inttr = FPGA_PTT & (IF_PA_enable | ~IF_TR_disable);
 assign pwr_envpa = FPGA_PTT & IF_PA_enable;
-`else
-assign pa_tr = FPGA_PTT & (IF_PA_enable | ~IF_TR_disable);
-assign pa_en = FPGA_PTT & IF_PA_enable;
-assign pwr_envpa = FPGA_PTT;
 `endif
 
 assign rffe_rfsw_sel = IF_PA_enable;
