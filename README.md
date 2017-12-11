@@ -117,4 +117,19 @@ If you want to adjust turn off delay time after SBC status stop, adjust paramete
 #### 4) Start PiHPSDR after RPi boot up
     Please refer to official PiHPSDR installation document.
 
+## piHPSDR customize
+
+### 1) Slider: RX GAIN
+RX GAIN (AD9866 RxPGA) can be used instead of not-implemented Attenuator function.
+Slider position 0 means -12dB setting, position 60 means +48dB.
+<img src="compact-trx/piHPSDR/docs/RX_GAIN_mod.jpg" width="480px">
+
+[Modification document](compact-trx/piHPSDR/docs/Slider_RxGAIN_Mod_171210.pdf)
+
+### 2) FWD analog meter: Full scale 10 Watts
+FWD analog meter was optimized for Hermes-Lite v2 RF output power(5W).
+<img src="compact-trx/piHPSDR/docs/FWD_meter_mod.jpg" width="480px">
+
+[Modification document](compact-trx/piHPSDR/docs/FWD_Analog_Meter_Mod_171210.pdf)
+
 ---
