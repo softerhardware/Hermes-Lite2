@@ -121,7 +121,8 @@ If you want to adjust turn off delay time after SBC status stop, adjust paramete
 
 ### 1) Slider: RX GAIN
 RX GAIN (AD9866 RxPGA) can be used instead of not-implemented Attenuator function.
-Slider position 0 means -12dB setting, position 60 means +48dB.
+Slider position 0 means -12dB setting,60 means +48dB.
+
 <img src="compact-trx/piHPSDR/docs/RX_GAIN_mod.jpg" width="480px">
 
 [Modification document](compact-trx/piHPSDR/docs/Slider_RxGAIN_Mod_171210.pdf)
