@@ -202,8 +202,8 @@ set_false_path -to [get_ports {io_led_*}]
 set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_lvds_*}] 
 set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_lvds_*}] 
 
-set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_cn*}] 
-set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_cn*}] 
+#set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_cn*}] 
+#set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_cn*}] 
 
 set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_adc_s*}] 
 set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_adc_s*}] 
