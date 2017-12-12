@@ -86,6 +86,8 @@ wire eeprom_ready;
 wire [1:0] phy_speed;
 wire phy_duplex;
 wire phy_connected = phy_duplex && (phy_speed[1] != phy_speed[0]);
+
+reg speed_1gb_i = 1'b0;
 assign dhcp_timeout = (dhcp_seconds_timer == 15);
 
 
@@ -94,7 +96,7 @@ assign dhcp_timeout = (dhcp_seconds_timer == 15);
 //-----------------------------------------------------------------------------
 //IP addresses
 reg  [31:0] local_ip;
-wire [31:0] apipa_ip = {8'd169, 8'd254, local_mac[15:0]};
+wire [31:0] apipa_ip = {8'd192, 8'd168, 8'd20, local_mac[7:0]};
 //wire [31:0] ip_to_write;
 assign static_ip_assigned = (static_ip != 32'hFFFFFFFF) && (static_ip != 32'd0);
 
@@ -137,8 +139,10 @@ always @(negedge clock_2_5MHz)
     case (state)
       //set eeprom read request
       ST_START:
-        state <= ST_EEPROM_START;
-
+        begin
+          speed_1gb_i <= 0;
+          state <= ST_EEPROM_START;
+        end
       //clear eeprom read request
       ST_EEPROM_START:
         state <= ST_EEPROM_READ;
@@ -162,6 +166,7 @@ always @(negedge clock_2_5MHz)
         if (phy_connected) begin
           settle_cnt <= 22'd2500000; //1 second
           state <= ST_PHY_SETTLE;
+          speed_1gb_i <= phy_speed[1];
          end
 
       //wait for connection to settle
@@ -274,8 +279,10 @@ wire [31:0] to_ip;
 
 
 //rgmii_recv out
-wire rgmii_rx_active;
-wire [7:0] rx_data;
+wire          rgmii_rx_active_pipe;
+wire [7:0]    rx_data_pipe;
+reg           rgmii_rx_active;
+reg [7:0]     rx_data;
 
 //mac_recv in
 wire mac_rx_enable = rgmii_rx_active;
@@ -322,7 +329,7 @@ reg [47:0] run_destination_mac;
 wire ip_tx_enable = icmp_tx_active || udp_tx_active;
 wire [7:0] ip_tx_data_in = tx_is_icmp? icmp_data : udp_data;
 wire [15:0] ip_tx_length = tx_is_icmp? icmp_length : udp_length;
-wire [31:0] destination_ip = tx_is_icmp? icmp_destination_ip : (tx_is_dhcp ? dhcp_destination_ip : udp_destination_ip_sync);
+wire [31:0] destination_ip = tx_is_icmp? icmp_destination_ip : (tx_is_dhcp ? dhcp_destination_ip : run_destination_ip); //udp_destination_ip_sync);
 
 //ip_send out
 wire [7:0] ip_tx_data;
@@ -333,7 +340,7 @@ wire mac_tx_enable = arp_tx_active || ip_tx_active;
 wire [7:0] mac_tx_data_in = tx_is_arp? arp_tx_data : ip_tx_data;
 wire [47:0] destination_mac = tx_is_arp  ? arp_destination_mac  :
                                         tx_is_icmp ? icmp_destination_mac :
-                                        tx_is_dhcp ? dhcp_destination_mac : udp_destination_mac_sync;
+                                        tx_is_dhcp ? dhcp_destination_mac : run_destination_mac; //udp_destination_mac_sync;
 //mac_send out
 wire [7:0] mac_tx_data;
 wire mac_tx_active;
@@ -341,8 +348,14 @@ wire mac_tx_active;
 //rgmii_send in
 wire [7:0] rgmii_tx_data_in = mac_tx_data;
 wire rgmii_tx_enable = mac_tx_active;
+
+reg  [7:0]  rgmii_tx_data_in_pipe;
+reg         rgmii_tx_enable_pipe = 1'b0;
+
+
+
 //rgmii_send out
-wire rgmii_tx_active;
+wire        rgmii_tx_active;
 
 //dhcp
 wire       dhcp_udp_tx_request       = tx_is_dhcp ? dhcp_tx_request       : udp_tx_request;
@@ -360,7 +373,7 @@ always @(posedge tx_clock)
         run_destination_mac <= udp_destination_mac_sync;
     end
 
-wire [15:0]dhcp_udp_destination_port = tx_is_dhcp ? dhcp_destination_port : udp_destination_port_sync;
+wire [15:0]dhcp_udp_destination_port = tx_is_dhcp ? dhcp_destination_port : run_destination_port; //udp_destination_port_sync;
 wire dhcp_rx_active;
 wire mac_rx_active;
 
@@ -384,13 +397,19 @@ always @(posedge tx_clock)
 //-----------------------------------------------------------------------------
 //                               receive
 //-----------------------------------------------------------------------------
+
+always @(posedge rx_clock) begin
+  rx_data <= rx_data_pipe;
+  rgmii_rx_active <= rgmii_rx_active_pipe;
+end
+
 rgmii_recv rgmii_recv_inst (
   //out
-  .active(rgmii_rx_active),
+  .active(rgmii_rx_active_pipe),
 
   .reset(rx_reset),
   .clock(rx_clock),
-  .data(rx_data),
+  .data(rx_data_pipe),
   .PHY_RX(PHY_RX),
   .PHY_DV(PHY_DV)
   );
@@ -610,11 +629,15 @@ mac_send mac_send_inst (
   .reset(tx_reset)
   );
 
+always @(posedge tx_clock) begin
+  rgmii_tx_data_in_pipe <= rgmii_tx_data_in;
+  rgmii_tx_enable_pipe <= rgmii_tx_enable;
+end
 
 rgmii_send rgmii_send_inst (
   //in
-  .data(rgmii_tx_data_in),
-  .tx_enable(rgmii_tx_enable),
+  .data(rgmii_tx_data_in_pipe),
+  .tx_enable(rgmii_tx_enable_pipe),
   .active(rgmii_tx_active),
   .clock(tx_clock),
   .PHY_TX(PHY_TX),
@@ -627,7 +650,7 @@ rgmii_send rgmii_send_inst (
 //                              debug output
 //-----------------------------------------------------------------------------
 assign network_state = state;
-assign speed_1gb = phy_speed[1];
+assign speed_1gb = speed_1gb_i; //phy_speed[1];
 assign network_status = {phy_connected,phy_speed[1],phy_speed[0], udp_rx_active, udp_rx_enable, rgmii_rx_active, rgmii_tx_active, mac_rx_active};
 
 

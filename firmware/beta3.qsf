@@ -188,7 +188,6 @@ set_location_assignment M9K_X33_Y5_N0 -to "ethernet:ethernet_inst|network:networ
 
 set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
 set_global_assignment -name VERILOG_MACRO "BETA3=1"
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to io_cn10
 set_global_assignment -name SDC_FILE hermeslite.sdc
 set_global_assignment -name VERILOG_FILE rtl/hermeslite.v
 set_global_assignment -name VERILOG_FILE rtl/ad9866.v
