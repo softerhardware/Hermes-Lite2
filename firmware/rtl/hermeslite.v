@@ -63,14 +63,14 @@ module hermeslite(
   output          rffe_ad9866_rxsync,
   output          rffe_ad9866_rxclk,  
 `else
-  (* useioff = 1 *) output  [5:0]   rffe_ad9866_tx,
+  output  [5:0]   rffe_ad9866_tx,
   input   [5:0]   rffe_ad9866_rx,
   input           rffe_ad9866_rxsync,
   input           rffe_ad9866_rxclk,  
 `endif
 
   output          rffe_ad9866_txquiet_n,
-  (* useioff = 1 *) output          rffe_ad9866_txsync,
+  output          rffe_ad9866_txsync,
   output          rffe_ad9866_sdio,
   output          rffe_ad9866_sclk,
   output          rffe_ad9866_sen_n,
@@ -613,7 +613,9 @@ end
 
 `else
 
-reg [11:0] ad9866_rx_stage;
+reg [5:0] ad9866_rx_stage;
+reg [5:0] rffe_ad9866_rx_pipe;
+reg       rffe_ad9866_rxsync_pipe;
 
 assign rffe_ad9866_mode = 1'b1;
 
@@ -621,11 +623,16 @@ assign rffe_ad9866_mode = 1'b1;
 // Don't know the phase relation
 always @(posedge clock_153p6_mhz)
     begin
-        if (rffe_ad9866_rxsync) begin
-            ad9866_rx_stage[5:0] <= rffe_ad9866_rx;
+        rffe_ad9866_rx_pipe <= rffe_ad9866_rx;
+        rffe_ad9866_rxsync_pipe <= rffe_ad9866_rxsync;
+    end
+
+always @(posedge clock_153p6_mhz)
+    begin
+        if (rffe_ad9866_rxsync_pipe) begin
+            ad9866_rx_input <= {ad9866_rx_stage,rffe_ad9866_rx_pipe};
         end else begin
-            ad9866_rx_stage[11:6] <= rffe_ad9866_rx;
-            ad9866_rx_input <= ad9866_rx_stage;
+            ad9866_rx_stage <= rffe_ad9866_rx_pipe;
         end
     end
 
