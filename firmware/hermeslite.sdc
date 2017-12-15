@@ -174,8 +174,9 @@ set_false_path -to [get_ports {phy_mdc}]
 set_false_path -from {ethtxint_clkmux_i|auto_generated|ena_reg}
 set_false_path -from {ethtxext_clkmux_i|auto_generated|ena_reg}
 
-set_input_delay -clock clock_2_5MHz -max 3 [get_ports {phy_rst_n}] 
-set_input_delay -clock clock_2_5MHz -min 2 [get_ports {phy_rst_n}] 
+#set_input_delay -clock clock_2_5MHz -max 3 [get_ports {phy_rst_n}] 
+#set_input_delay -clock clock_2_5MHz -min 2 [get_ports {phy_rst_n}] 
+set_false_path -from [get_ports {phy_rst_n}]
 
 set_false_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|phy_cfg:phy_cfg_inst|speed[1]}] 
 
@@ -187,45 +188,56 @@ set_false_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|p
 #set_output_delay -clock clock_76p8MHz -min 2 [get_ports {pwr_*}] 
 set_false_path -to [get_ports {pwr_*}]
 
-set_output_delay -clock clock_76p8MHz -max 3 [get_ports {clk_*}] 
-set_output_delay -clock clock_76p8MHz -min 2 [get_ports {clk_*}] 
-set_input_delay -clock clock_76p8MHz -max 3 [get_ports {clk_s*}] 
-set_input_delay -clock clock_76p8MHz -min 2 [get_ports {clk_s*}] 
+#set_output_delay -clock clock_76p8MHz -max 3 [get_ports {clk_*}] 
+#set_output_delay -clock clock_76p8MHz -min 2 [get_ports {clk_*}] 
+#set_input_delay -clock clock_76p8MHz -max 3 [get_ports {clk_s*}] 
+#set_input_delay -clock clock_76p8MHz -min 2 [get_ports {clk_s*}] 
+set_false_path -to [get_ports {clk_*}] 
+set_false_path -from [get_ports {clk_s*}] 
 
 #set_output_delay -clock clock_76p8MHz -max 3 [get_ports {io_led_*}] 
 #set_output_delay -clock clock_76p8MHz -min 2 [get_ports {io_led_*}] 
 set_false_path -to [get_ports {io_led_*}]
 
-set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_lvds_*}] 
-set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_lvds_*}] 
+#set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_lvds_*}] 
+#set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_lvds_*}] 
+set_false_path -from [get_ports {io_lvds_*}]
 
 #set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_cn*}] 
 #set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_cn*}] 
+set_false_path -from [get_ports {io_cn*}]
 
-set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_adc_s*}] 
-set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_adc_s*}] 
+#set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_adc_s*}] 
+#set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_adc_s*}] 
 #set_output_delay -clock clock_76p8MHz -max 3 [get_ports {io_adc_s*}] 
 #set_output_delay -clock clock_76p8MHz -min 2 [get_ports {io_adc_s*}] 
 set_false_path -to [get_ports {io_adc_s*}]
+set_false_path -from [get_ports {io_adc_s*}]
 
-set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_s*}] 
-set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_s*}] 
+#set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_s*}] 
+#set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_s*}] 
 #set_output_delay -clock clock_76p8MHz -max 3 [get_ports {io_s*}] 
 #set_output_delay -clock clock_76p8MHz -min 2 [get_ports {io_s*}] 
 set_false_path -to [get_ports {io_s*}]
+set_false_path -from [get_ports {io_s*}]
 
-set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_db1*}] 
-set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_db1*}] 
-
+#set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_db1*}] 
+#set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_db1*}] 
 #set_output_delay -clock clock_76p8MHz -max 3 [get_ports {io_db1_5}] 
 #set_output_delay -clock clock_76p8MHz -min 2 [get_ports {io_db1_5}] 
 set_false_path -to [get_ports {io_db1_5}]
+set_false_path -from [get_ports {io_db1_2}]
+set_false_path -from [get_ports {io_db1_3}]
+set_false_path -from [get_ports {io_db1_4}]
+set_false_path -from [get_ports {io_db1_5}]
 
-set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_phone_*}] 
-set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_phone_*}] 
+#set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_phone_*}] 
+#set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_phone_*}] 
+set_false_path -from [get_ports {io_phone_*}]
 
-set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_tp*}] 
-set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_tp*}] 
+#set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_tp*}] 
+#set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_tp*}] 
+set_false_path -from [get_ports {io_tp*}]
 
 #set_output_delay -clock clock_76p8MHz -max 5 [get_ports {pa_*}] 
 #set_output_delay -clock clock_76p8MHz -min 2 [get_ports {pa_*}] 
@@ -288,6 +300,7 @@ set_multicycle_path 1 -from {data[*]} -to {freqcompp[*][*]} -hold -end
 
 set_false_path -from [get_ports {rffe_ad9866_rxsync}]
 set_false_path -from [get_ports {rffe_ad9866_rx[*]}]
+set_false_path -from [get_ports {rffe_ad9866_rxclk}]
 
 #set_input_delay -add_delay -max -clock virt_ad9866_rxclk_rx 3.0 [get_ports {rffe_ad9866_rxsync}]
 #set_input_delay -add_delay -min -clock virt_ad9866_rxclk_rx 0.0 [get_ports {rffe_ad9866_rxsync}]
@@ -336,27 +349,11 @@ set_false_path -to [get_ports {rffe_ad9866_tx[*]}]
 
 ## AD9866 Other IO
 
-set_output_delay -clock clock_76p8MHz -max 3 [get_ports {rffe_ad9866_rst_n}] 
-set_output_delay -clock clock_76p8MHz -min 2 [get_ports {rffe_ad9866_rst_n}] 
-
-set_output_delay -clock clock_76p8MHz -max 3 [get_ports {rffe_ad9866_txquiet_n}] 
-set_output_delay -clock clock_76p8MHz -min 2 [get_ports {rffe_ad9866_txquiet_n}] 
-
-#set_output_delay -clock clock_76p8MHz -max 3 [get_ports {rffe_ad9866_sdio}] 
-#set_output_delay -clock clock_76p8MHz -min 2 [get_ports {rffe_ad9866_sdio}] 
-
-#set_output_delay -clock clock_76p8MHz -max 3 [get_ports {rffe_ad9866_sclk}] 
-#set_output_delay -clock clock_76p8MHz -min 2 [get_ports {rffe_ad9866_sclk}]
-
-#set_output_delay -clock clock_76p8MHz -max 3 [get_ports {rffe_ad9866_sen_n}] 
-#set_output_delay -clock clock_76p8MHz -min 2 [get_ports {rffe_ad9866_sen_n}]
-
-#set_output_delay -clock clock_76p8MHz -max 3 [get_ports {rffe_rfsw_sel}] 
-#set_output_delay -clock clock_76p8MHz -min 2 [get_ports {rffe_rfsw_sel}]
-set_false_path -to [get_ports {rffe_ad9866_s*}]
-
-set_output_delay -clock clock_76p8MHz -max 3 [get_ports {rffe_ad9866_mode}] 
-set_output_delay -clock clock_76p8MHz -min 2 [get_ports {rffe_ad9866_mode}]
-
-set_output_delay -clock clock_76p8MHz -max 3 [get_ports {rffe_ad9866_pga*}] 
-set_output_delay -clock clock_76p8MHz -min 2 [get_ports {rffe_ad9866_pga*}]
+set_false_path -to [get_ports {rffe_ad9866_rst_n}]
+set_false_path -to [get_ports {rffe_ad9866_txquiet_n}]
+set_false_path -to [get_ports {rffe_ad9866_sdio}]
+set_false_path -to [get_ports {rffe_ad9866_sclk}]
+set_false_path -to [get_ports {rffe_ad9866_sen_n}]
+set_false_path -to [get_ports {rffe_rfsw_sel}]
+set_false_path -to [get_ports {rffe_ad9866_mode}]
+set_false_path -to [get_ports {rffe_ad9866_pga*}]
