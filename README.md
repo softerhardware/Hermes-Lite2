@@ -133,4 +133,10 @@ FWD analog meter was optimized for Hermes-Lite v2 RF output power(5W).
 
 [Modification document](compact-trx/piHPSDR/docs/FWD_Analog_Meter_Mod_171210.pdf)
 
+### 3) Temperature / PA Ammeter
+Temperature monitor and Ammeter were added to analog meter.
+<img src="compact-trx/piHPSDR/docs/Temperature_Ammeter_Mod.jpg" width="480px">
+
+[Modification document](compact-trx/piHPSDR/docs/Temperature_Ammeter_Mod_171217.pdf)
+
 ---
