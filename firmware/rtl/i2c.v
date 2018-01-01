@@ -44,23 +44,6 @@ logic [7:0]  i2c1_data;
 logic        i2c1_data_valid, i2c1_data_ready, i2c1_data_last;
 
 
-logic [6:0]  i2c2_cmd_address;
-logic        i2c2_cmd_start, i2c2_cmd_read, i2c2_cmd_write, i2c2_cmd_write_multiple, i2c2_cmd_stop, i2c2_cmd_valid, i2c2_cmd_ready;
-logic [7:0]  i2c2_data;
-logic        i2c2_data_valid, i2c2_data_ready, i2c2_data_last;
-
-logic        i2c2_busy;
-
-// Wishbone slave
-logic wbs_ack = 0;
-always @(posedge clock_76p8_mhz) begin
-  if (rst | wbs_ack) 
-    wbs_ack <= 1'b0;
-  else if (~i2c2_busy & wbs_we_i & wbs_stb_i & (wbs_adr_i == 6'h3d) & (wbs_dat_i[31:24] == 8'h06))
-    wbs_ack <= 1'b1;
-end
-assign wbs_ack_o = wbs_ack;
-
 i2c_init i2c1_init_i (
     .clk(clk),
     .rst(rst),
@@ -140,87 +123,23 @@ i2c_master i2c1_master_i (
     .stop_on_idle(1'b0)
 );
 
+i2c_bus2 i2c_bus2_i (
+  .clk(clock_76p8_mhz),
+  .rst(rst),
 
+  .wbs_adr_i(wbs_adr_i),
+  .wbs_dat_i(wbs_dat_i),
+  .wbs_we_i(wbs_we_i),
+  .wbs_stb_i(wbs_stb_i),
+  .wbs_ack_o(wbs_ack_o),   
+  .wbs_cyc_i(wbs_cyc_i),  
 
-
-i2c2_init i2c2_init_i (
-    .clk(clock_76p8_mhz),
-    .rst(rst),
-    /*
-     * I2C master interface
-     */
-    .cmd_address(i2c2_cmd_address),
-    .cmd_start(i2c2_cmd_start),
-    .cmd_read(i2c2_cmd_read),
-    .cmd_write(i2c2_cmd_write),
-    .cmd_write_multiple(i2c2_cmd_write_multiple),
-    .cmd_stop(i2c2_cmd_stop),
-    .cmd_valid(i2c2_cmd_valid),
-    .cmd_ready(i2c2_cmd_ready),
-
-    .data_out(i2c2_data),
-    .data_out_valid(i2c2_data_valid),
-    .data_out_ready(i2c2_data_ready),
-    .data_out_last(i2c2_data_last),
-    /*
-     * Status
-     */
-    .busy(i2c2_busy),
-    /*
-     * Configuration
-     */
-    .write(wbs_ack_o),
-    .data(wbs_dat_i)
-);
-
-i2c_master i2c2_master_i (
-    .clk(clock_76p8_mhz),
-    .rst(rst),
-    /*
-     * Host interface
-     */
-    .cmd_address(i2c2_cmd_address),
-    .cmd_start(i2c2_cmd_start),
-    .cmd_read(i2c2_cmd_read),
-    .cmd_write(i2c2_cmd_write),
-    .cmd_write_multiple(i2c2_cmd_write_multiple),
-    .cmd_stop(i2c2_cmd_stop),
-    .cmd_valid(i2c2_cmd_valid),
-    .cmd_ready(i2c2_cmd_ready),
-
-    .data_in(i2c2_data),
-    .data_in_valid(i2c2_data_valid),
-    .data_in_ready(i2c2_data_ready),
-    .data_in_last(i2c2_data_last),
-
-    .data_out(),
-    .data_out_valid(),
-    .data_out_ready(1'b1),
-    .data_out_last(),
-
-    /*
-     * I2C interface
-     */
-    .scl_i(scl2_i),
-    .scl_o(scl2_o),
-    .scl_t(scl2_t),
-    .sda_i(sda2_i),
-    .sda_o(sda2_o),
-    .sda_t(sda2_t),
-
-    /*
-     * Status
-     */
-    .busy(),
-    .bus_control(),
-    .bus_active(),
-    .missed_ack(),
-
-    /*
-     * Configuration
-     */
-    .prescale(16'h0030),
-    .stop_on_idle(1'b0)
+  .scl_i(scl2_i),
+  .scl_o(scl2_o),
+  .scl_t(scl2_t),
+  .sda_i(sda2_i),
+  .sda_o(sda2_o),
+  .sda_t(sda2_t)
 );
 
 endmodule

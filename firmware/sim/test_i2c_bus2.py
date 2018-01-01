@@ -236,6 +236,27 @@ def bench():
     for i in range(0,6000):
       yield clk.posedge
 
+    wbs_adr_i.next = 0x00
+    wbs_dat_i.next = 0x12345678
+    wbs_we_i.next = 0x1
+    wbs_stb_i.next = 0x1
+    wbs_cyc_i.next = 0x1
+    print("Set values")
+
+    for i in range(0,20):
+      yield clk.posedge
+      if wbs_ack_o: break
+
+    wbs_adr_i.next = 0x0
+    wbs_dat_i.next = 0x0
+    wbs_we_i.next = 0x0
+    wbs_stb_i.next = 0x0
+    wbs_cyc_i.next = 0x0
+    print("Reset values")
+
+    for i in range(0,10000):
+      yield clk.posedge
+
     raise StopSimulation
 
   return dut, i2c_mem_logic1, bus, clkgen, check

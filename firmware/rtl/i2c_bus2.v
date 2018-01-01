@@ -60,7 +60,7 @@ logic         data_out_valid;
 logic         data_out_ready;
 logic         data_out_last;
 
-logic [1:0]   state, state_next;
+logic [2:0]   state, state_next;
 logic         busy, missed_ack;
 
 logic [6:0]   cmd_reg, cmd_next;
@@ -68,14 +68,22 @@ logic [7:0]   data0_reg, data0_next, data1_reg, data1_next;
 
 logic         wbs_ack_reg, wbs_ack_next;
 
+logic [6:0]   filter_select_reg, filter_select_next;
+
+
 
 
 // Control
-localparam [1:0]
-  STATE_IDLE        = 2'h0,
-  STATE_CMDADDR     = 2'h1,
-  STATE_WRITE_DATA0 = 2'h2,
-  STATE_WRITE_DATA1 = 2'h3;
+localparam [2:0]
+  STATE_IDLE          = 3'h0,
+  STATE_CMDADDR       = 3'h1,
+  STATE_WRITE_DATA0   = 3'h2,
+  STATE_WRITE_DATA1   = 3'h3,
+  STATE_FCMDADDR      = 3'h5,
+  STATE_WRITE_FDATA0  = 3'h6,
+  STATE_WRITE_FDATA1  = 3'h7,
+  STATE_WRITE_FDATA2  = 3'h4;
+
 
 
 always @(posedge clk) begin
@@ -85,12 +93,14 @@ always @(posedge clk) begin
     data0_reg <= 'h0;
     data1_reg <= 'h0;
     wbs_ack_reg <= 1'b0;
+    filter_select_reg <= 'h0;
   end else begin
     state <= state_next;
     cmd_reg <= cmd_next;
     data0_reg <= data0_next;
     data1_reg <= data1_next;
     wbs_ack_reg <= wbs_ack_next;
+    filter_select_reg <= filter_select_next;
   end
 end
 
@@ -118,6 +128,12 @@ always @* begin
   data_in = data0_reg;
   data_in_valid = 1'b0;
 
+  filter_select_next = filter_select_reg;
+
+  cmd_next = cmd_reg;
+  data0_next = data0_reg;
+  data1_next = data1_reg; 
+  
   case(state)
 
     STATE_IDLE: begin
@@ -129,15 +145,24 @@ always @* begin
           wbs_ack_next = 1'b1;
           state_next = STATE_CMDADDR;
         end
+
+        // Filter select update
+        if (wbs_adr_i == 6'h00) begin
+          filter_select_next = wbs_dat_i[23:17];
+          if (wbs_dat_i[23:17] != filter_select_reg) begin
+            cmd_next = 'h20;
+            data0_next = 'h0a;
+            data1_next = {1'b0,wbs_dat_i[23:17]};
+            wbs_ack_next = 1'b1;
+            state_next = STATE_FCMDADDR;
+          end
+        end
       end
     end
 
     STATE_CMDADDR: begin
       cmd_valid = 1'b1;
       cmd_write = 1'b1;
-      //if (missed_ack) begin
-      //  state_next = STATE_IDLE;
-      //  cmd_stop = 1'b1;
       if (cmd_ready) state_next = STATE_WRITE_DATA0;
     end
 
@@ -146,7 +171,6 @@ always @* begin
       cmd_write = 1'b1;
       data_in_valid = 1'b1;
       data_in = data0_reg;
-      //if (missed_ack) state_next = STATE_IDLE;
       if (data_in_ready) state_next = STATE_WRITE_DATA1;
     end
 
@@ -155,9 +179,39 @@ always @* begin
       cmd_write = 1'b1;
       data_in_valid = 1'b1;
       data_in = data1_reg;
-      //if (missed_ack) state_next = STATE_IDLE;
       if (data_in_ready) state_next = STATE_IDLE;
     end
+
+    STATE_FCMDADDR: begin
+      cmd_valid = 1'b1;
+      cmd_write = 1'b1;
+      if (cmd_ready) state_next = STATE_WRITE_FDATA0;
+    end
+
+    STATE_WRITE_FDATA0: begin
+      cmd_valid = 1'b1;
+      cmd_write = 1'b1;
+      data_in_valid = 1'b1;
+      data_in = data0_reg;
+      if (data_in_ready) state_next = STATE_WRITE_FDATA1;
+    end
+
+    STATE_WRITE_FDATA1: begin
+      cmd_valid = 1'b1;
+      cmd_write = 1'b1;
+      data_in_valid = 1'b1;
+      data_in = data1_reg;
+      if (data_in_ready) state_next = STATE_WRITE_FDATA2;
+    end
+
+    STATE_WRITE_FDATA2: begin
+      cmd_valid = 1'b1;
+      cmd_write = 1'b1;
+      data_in_valid = 1'b1;
+      data_in = 'h00;
+      if (data_in_ready) state_next = STATE_IDLE;
+    end
+
   endcase
 end
 

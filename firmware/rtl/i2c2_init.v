@@ -149,7 +149,13 @@ initial begin
     init_data[3] = 9'd0; // stop
 end
 
-wire start = write;
+
+reg start = 1'b0;
+
+// Delay start to allow latching of init data
+always @(posedge clk) begin
+	start <= write;
+end
 
 // FIXME: Always stops, write may not start if busy
 always @(posedge clk) begin
