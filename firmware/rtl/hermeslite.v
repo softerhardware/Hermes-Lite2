@@ -298,14 +298,20 @@ altclkctrl #(
 
 
 reg phy_rx_clk_div2;
-reg last_phy_rx_dv; 
+reg phy_rx_dv_d1;
+reg phy_rx_dv_d2;
+
+always @(posedge phy_rx_clk) begin
+  phy_rx_clk_div2 <= (phy_rx_dv_d1 & ~phy_rx_dv_d2) ? 1'b0 : ~phy_rx_clk_div2;
+  phy_rx_dv_d2 <= phy_rx_dv_d1;
+  phy_rx_dv_d1 <= phy_rx_dv;
+end
  
- 
-always @(posedge phy_rx_clk)
-  begin
-    phy_rx_clk_div2 <= ~phy_rx_clk_div2 | (phy_rx_dv & ~last_phy_rx_dv);
-    last_phy_rx_dv <= phy_rx_dv;
-  end
+//always @(posedge phy_rx_clk)
+//  begin
+//    phy_rx_clk_div2 <= ~phy_rx_clk_div2 | (phy_rx_dv & ~phy_rx_dv_last);
+//    phy_rx_dv_last <= phy_rx_dv;
+//  end
  
  
 assign clock_ethrxint = speed_1gb ? phy_rx_clk : phy_rx_clk_div2; // 1000T speed only...speed_1Gbit? PHY_RX_CLOCK : slow_rx_clock; 
