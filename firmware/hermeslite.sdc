@@ -45,9 +45,7 @@ set_clock_groups -exclusive -group {virt_phy_rx_clk_fast} -group {virt_phy_rx_cl
 create_clock -name phy_rx_clk -period 8.000	-waveform {2 6} [get_ports {phy_rx_clk}]
 
 create_generated_clock -name clock_ethrxintfast -source [get_ports {phy_rx_clk}] {clock_ethrxint}
-
-create_generated_clock -name clock_ethrxintslow -source [get_ports {phy_rx_clk}] {clock_ethrxint} -divide_by 5 -add
-
+create_generated_clock -name clock_ethrxintslow -source [get_ports {phy_rx_clk}] {clock_ethrxint} -divide_by 10 -add
 set_clock_groups -exclusive -group {clock_ethrxintslow} -group {clock_ethrxintfast} 
 
 
@@ -120,14 +118,14 @@ set_false_path -from [get_clocks {clock_ethtxintslow}] -to [get_clocks {clock_tx
 
 ## Ethernet PHY RX per AN477, with PHY delay for RX enabled
 
-set_input_delay  -max 1.0  -clock virt_phy_rx_clk_fast [get_ports {phy_rx[*]}]
+set_input_delay  -max 1.3  -clock virt_phy_rx_clk_fast [get_ports {phy_rx[*]}]
 set_input_delay  -min -0.6 -clock virt_phy_rx_clk_fast -add_delay [get_ports {phy_rx[*]}]
-set_input_delay  -max 1.0 -clock virt_phy_rx_clk_fast -clock_fall -add_delay [get_ports {phy_rx[*]}]
+set_input_delay  -max 1.6 -clock virt_phy_rx_clk_fast -clock_fall -add_delay [get_ports {phy_rx[*]}]
 set_input_delay  -min -0.6 -clock virt_phy_rx_clk_fast -clock_fall -add_delay [get_ports {phy_rx[*]}]
 
-set_input_delay  -max 0.8  -clock virt_phy_rx_clk_fast [get_ports {phy_rx_dv}]
-set_input_delay  -min -0.8 -clock virt_phy_rx_clk_fast -add_delay [get_ports {phy_rx_dv}]
-set_input_delay  -max 0.8 -clock virt_phy_rx_clk_fast -clock_fall -add_delay [get_ports {phy_rx_dv}]
+set_input_delay  -max 1.3  -clock virt_phy_rx_clk_fast [get_ports {phy_rx_dv}]
+set_input_delay  -min -4.8 -clock virt_phy_rx_clk_fast -add_delay [get_ports {phy_rx_dv}]
+set_input_delay  -max 5.3 -clock virt_phy_rx_clk_fast -clock_fall -add_delay [get_ports {phy_rx_dv}]
 set_input_delay  -min -0.8 -clock virt_phy_rx_clk_fast -clock_fall -add_delay [get_ports {phy_rx_dv}]
 
 set_false_path -fall_from  virt_phy_rx_clk_fast -rise_to clock_ethrxintfast -setup
@@ -137,14 +135,14 @@ set_false_path -rise_from  virt_phy_rx_clk_fast -rise_to clock_ethrxintfast -hol
 
 set_false_path -from [get_clocks {virt_phy_rx_clk_fast}] -to [get_clocks {clock_ethrxintslow}]
 
-set_input_delay  -max 1.0  -clock virt_phy_rx_clk_slow [get_ports {phy_rx[*]}] -add_delay
-set_input_delay  -min -0.6 -clock virt_phy_rx_clk_slow -add_delay [get_ports {phy_rx[*]}]
-set_input_delay  -max 1.0 -clock virt_phy_rx_clk_slow -clock_fall -add_delay [get_ports {phy_rx[*]}]
-set_input_delay  -min -0.6 -clock virt_phy_rx_clk_slow -clock_fall -add_delay [get_ports {phy_rx[*]}]
+set_input_delay  -max 1.6  -clock virt_phy_rx_clk_slow [get_ports {phy_rx[*]}] -add_delay
+set_input_delay  -min -36.6 -clock virt_phy_rx_clk_slow -add_delay [get_ports {phy_rx[*]}]
+set_input_delay  -max 21.6 -clock virt_phy_rx_clk_slow -clock_fall -add_delay [get_ports {phy_rx[*]}]
+set_input_delay  -min -16.6 -clock virt_phy_rx_clk_slow -clock_fall -add_delay [get_ports {phy_rx[*]}]
 
-set_input_delay  -max 0.8  -clock virt_phy_rx_clk_slow [get_ports {phy_rx_dv}] -add_delay
-set_input_delay  -min -0.8 -clock virt_phy_rx_clk_slow -add_delay [get_ports {phy_rx_dv}]
-set_input_delay  -max 0.8 -clock virt_phy_rx_clk_slow -clock_fall -add_delay [get_ports {phy_rx_dv}]
+set_input_delay  -max 1.3  -clock virt_phy_rx_clk_slow [get_ports {phy_rx_dv}] -add_delay
+set_input_delay  -min -4.8 -clock virt_phy_rx_clk_slow -add_delay [get_ports {phy_rx_dv}]
+set_input_delay  -max 5.3 -clock virt_phy_rx_clk_slow -clock_fall -add_delay [get_ports {phy_rx_dv}]
 set_input_delay  -min -0.8 -clock virt_phy_rx_clk_slow -clock_fall -add_delay [get_ports {phy_rx_dv}]
 
 set_false_path -fall_from  virt_phy_rx_clk_slow -rise_to clock_ethrxintslow -setup
