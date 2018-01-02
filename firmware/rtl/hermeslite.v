@@ -1877,7 +1877,7 @@ assign io_sda2 = sda2_t ? 1'bz : sda2_o;
 
 slow_adc slow_adc_i (
   .clk(clock_76p8_mhz),
-  .rst(clk_i2c_rst),
+  .rst(rst),
   .ain0(AIN1),
   .ain1(AIN5),
   .ain2(AIN3),
