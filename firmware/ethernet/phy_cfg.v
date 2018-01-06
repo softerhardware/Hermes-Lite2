@@ -61,19 +61,19 @@ assign values[14] = {6'b0, allow_1Gbit, 9'b0};
 assign values[13] = 16'h0002;
 assign values[12] = 16'h0004;
 assign values[11] = 16'h4002;
-assign values[10] = 16'h0027;
+assign values[10] = 16'h0077;
 
 // program address 2 register 5
 assign values[9] = 16'h0002;
 assign values[8] = 16'h0005;
 assign values[7] = 16'h4002;
-assign values[6] = 16'h2222;
+assign values[6] = 16'h7777;
 
 // program address 2 register 8
 assign values[5] = 16'h0002;
 assign values[4] = 16'h0008;
 assign values[3] = 16'h4002;
-assign values[2] = 16'b0000000111111000;
+assign values[2] = 16'b0000000111101111;
 
 assign values[1] = 16'h1300;
 assign values[0] = 16'hxxxx;

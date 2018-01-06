@@ -118,7 +118,7 @@ module ethpll (
 		altpll_component.clk1_divide_by = 1,
 		altpll_component.clk1_duty_cycle = 50,
 		altpll_component.clk1_multiply_by = 1,
-		altpll_component.clk1_phase_shift = "2000",
+		altpll_component.clk1_phase_shift = "3000",
 		altpll_component.clk2_divide_by = 50,
 		altpll_component.clk2_duty_cycle = 50,
 		altpll_component.clk2_multiply_by = 1,
@@ -126,7 +126,7 @@ module ethpll (
 		altpll_component.clk3_divide_by = 5,
 		altpll_component.clk3_duty_cycle = 50,
 		altpll_component.clk3_multiply_by = 1,
-		altpll_component.clk3_phase_shift = "20000",
+		altpll_component.clk3_phase_shift = "11000",
 		altpll_component.clk4_divide_by = 10,
 		altpll_component.clk4_duty_cycle = 50,
 		altpll_component.clk4_multiply_by = 1,
@@ -273,9 +273,9 @@ endmodule
 // Retrieval info: PRIVATE: PHASE_RECONFIG_FEATURE_ENABLED STRING "1"
 // Retrieval info: PRIVATE: PHASE_RECONFIG_INPUTS_CHECK STRING "0"
 // Retrieval info: PRIVATE: PHASE_SHIFT0 STRING "0.00000000"
-// Retrieval info: PRIVATE: PHASE_SHIFT1 STRING "90.00000000"
+// Retrieval info: PRIVATE: PHASE_SHIFT1 STRING "135.00000000"
 // Retrieval info: PRIVATE: PHASE_SHIFT2 STRING "0.00000000"
-// Retrieval info: PRIVATE: PHASE_SHIFT3 STRING "180.00000000"
+// Retrieval info: PRIVATE: PHASE_SHIFT3 STRING "99.00000000"
 // Retrieval info: PRIVATE: PHASE_SHIFT4 STRING "0.00000000"
 // Retrieval info: PRIVATE: PHASE_SHIFT_STEP_ENABLED_CHECK STRING "0"
 // Retrieval info: PRIVATE: PHASE_SHIFT_UNIT0 STRING "deg"
@@ -333,7 +333,7 @@ endmodule
 // Retrieval info: CONSTANT: CLK1_DIVIDE_BY NUMERIC "1"
 // Retrieval info: CONSTANT: CLK1_DUTY_CYCLE NUMERIC "50"
 // Retrieval info: CONSTANT: CLK1_MULTIPLY_BY NUMERIC "1"
-// Retrieval info: CONSTANT: CLK1_PHASE_SHIFT STRING "2000"
+// Retrieval info: CONSTANT: CLK1_PHASE_SHIFT STRING "3000"
 // Retrieval info: CONSTANT: CLK2_DIVIDE_BY NUMERIC "50"
 // Retrieval info: CONSTANT: CLK2_DUTY_CYCLE NUMERIC "50"
 // Retrieval info: CONSTANT: CLK2_MULTIPLY_BY NUMERIC "1"
@@ -341,7 +341,7 @@ endmodule
 // Retrieval info: CONSTANT: CLK3_DIVIDE_BY NUMERIC "5"
 // Retrieval info: CONSTANT: CLK3_DUTY_CYCLE NUMERIC "50"
 // Retrieval info: CONSTANT: CLK3_MULTIPLY_BY NUMERIC "1"
-// Retrieval info: CONSTANT: CLK3_PHASE_SHIFT STRING "20000"
+// Retrieval info: CONSTANT: CLK3_PHASE_SHIFT STRING "11000"
 // Retrieval info: CONSTANT: CLK4_DIVIDE_BY NUMERIC "10"
 // Retrieval info: CONSTANT: CLK4_DUTY_CYCLE NUMERIC "50"
 // Retrieval info: CONSTANT: CLK4_MULTIPLY_BY NUMERIC "1"

@@ -250,6 +250,7 @@ wire clock_ethtxint;
 wire clock_ethtxext;
 wire clock_ethrxint;
 wire speed_1gb;
+reg  speed_1gb_clksel = 1'b0;
 
 ethpll ethpll_inst (
     .inclk0   (phy_clk125),   //  refclk.clk
@@ -261,51 +262,57 @@ ethpll ethpll_inst (
     .locked (ethpll_locked)
 );
 
+always @(posedge clock_2_5MHz)
+  speed_1gb_clksel <= speed_1gb;
 
 altclkctrl #(
-    .clock_type("GLOBAL CLOCK"),
-    .intended_device_family("Cyclone IV E"),
-    .ena_register_mode("always enabled"),
-    .implement_in_les("OFF"),
+    .clock_type("AUTO"),
+    //.intended_device_family("Cyclone IV E"),
+    //.ena_register_mode("none"),
+    //.implement_in_les("OFF"),
     .number_of_clocks(2),
-    .use_glitch_free_switch_over_implementation("ON"),
-    .width_clkselect(1),
-    .lpm_type("altclkctrl"),
-    .lpm_hint("unused")) ethtxint_clkmux_i 
+    //.use_glitch_free_switch_over_implementation("OFF"),
+    .width_clkselect(1)
+    //.lpm_type("altclkctrl"),
+    //.lpm_hint("unused")
+    ) ethtxint_clkmux_i 
 (
-    .clkselect(speed_1gb),
+    .clkselect(speed_1gb_clksel),
     .ena(1'b1),
     .inclk({clock_125_mhz_0_deg,clock_12p5_mhz}),
     .outclk(clock_ethtxint)
 );
 
+
+
+//assign clock_ethtxint = speed_1gb_clksel ? clock_125_mhz_0_deg : clock_12p5_mhz;
+
 altclkctrl #(
-    .clock_type("GLOBAL CLOCK"),
-    .intended_device_family("Cyclone IV E"),
-    .ena_register_mode("always enabled"),
-    .implement_in_les("OFF"),
+    .clock_type("AUTO"),
+    //.intended_device_family("Cyclone IV E"),
+    //.ena_register_mode("none"),
+    //.implement_in_les("OFF"),
     .number_of_clocks(2),
-    .use_glitch_free_switch_over_implementation("ON"),
-    .width_clkselect(1),
-    .lpm_type("altclkctrl"),
-    .lpm_hint("unused")) ethtxext_clkmux_i 
+    //.use_glitch_free_switch_over_implementation("OFF"),
+    .width_clkselect(1)
+    //.lpm_type("altclkctrl"),
+    //.lpm_hint("unused")
+    ) ethtxext_clkmux_i 
 (
-    .clkselect(speed_1gb),
+    .clkselect(speed_1gb_clksel),
     .ena(1'b1),
     .inclk({clock_125_mhz_90_deg,clock_25_mhz}),
     .outclk(clock_ethtxext)
 );
 
+//assign clock_ethtxext = speed_1gb_clksel ? clock_125_mhz_90_deg : clock_25_mhz;
 
 reg phy_rx_clk_div2;
-reg phy_rx_dv_d1;
-reg phy_rx_dv_d2;
 
 always @(posedge phy_rx_clk) begin
-  phy_rx_clk_div2 <= (phy_rx_dv_d1 & ~phy_rx_dv_d2) ? 1'b0 : ~phy_rx_clk_div2;
-  phy_rx_dv_d2 <= phy_rx_dv_d1;
-  phy_rx_dv_d1 <= phy_rx_dv;
+  phy_rx_clk_div2 <= ~phy_rx_clk_div2;
 end
+
  
 //always @(posedge phy_rx_clk)
 //  begin
@@ -314,28 +321,25 @@ end
 //  end
  
  
-assign clock_ethrxint = speed_1gb ? phy_rx_clk : phy_rx_clk_div2; // 1000T speed only...speed_1Gbit? PHY_RX_CLOCK : slow_rx_clock; 
+assign clock_ethrxint = speed_1gb_clksel ? phy_rx_clk : phy_rx_clk_div2; // 1000T speed only...speed_1Gbit? PHY_RX_CLOCK : slow_rx_clock; 
 
 //altclkctrl #(
-//    .clock_type("GLOBAL CLOCK"),
-//    .intended_device_family("Cyclone IV E"),
-//    .ena_register_mode("always enabled"),
-//    .implement_in_les("OFF"),
+//    .clock_type("AUTO"),
+//    //.intended_device_family("Cyclone IV E"),
+//    //.ena_register_mode("none"),
+//    //.implement_in_les("OFF"),
 //    .number_of_clocks(2),
-//    .use_glitch_free_switch_over_implementation("ON"),
-//    .width_clkselect(1),
-//    .lpm_type("altclkctrl"),
-//    .lpm_hint("unused")) ethrxint_clkmux_i 
+//    //.use_glitch_free_switch_over_implementation("OFF"),
+//    .width_clkselect(1)
+//    //.lpm_type("altclkctrl"),
+//    //.lpm_hint("unused")
+//    ) ethrxint_clkmux_i 
 //(
-//    .clkselect(io_cn9),
+//    .clkselect(speed_1gb_clksel),
 //    .ena(1'b1),
 //    .inclk({phy_rx_clk,phy_rx_clk_div2}),
 //    .outclk(clock_ethrxint)
 //);
-
-
-
-
 
 
 wire ethup;
