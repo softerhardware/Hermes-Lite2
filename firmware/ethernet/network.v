@@ -409,6 +409,7 @@ rgmii_recv rgmii_recv_inst (
 
   .reset(rx_reset),
   .clock(rx_clock),
+  .speed_1gb(speed_1gb_i),
   .data(rx_data_pipe),
   .PHY_RX(PHY_RX),
   .PHY_DV(PHY_DV)

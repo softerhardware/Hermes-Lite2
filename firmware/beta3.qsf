@@ -297,6 +297,6 @@ set_global_assignment -name QIP_FILE cycloneip/PHY_Rx_fifo.qip
 set_location_assignment CLKCTRL_G17 -to clock_ethrxint~clkctrl
 set_location_assignment CLKCTRL_G19 -to ethtxext_clkmux_i|auto_generated|clkctrl1
 set_location_assignment CLKCTRL_G15 -to ethtxint_clkmux_i|auto_generated|clkctrl1
-set_location_assignment LCCOMB_X1_Y16_N4 -to altclkctrl:ethtxint_clkmux_i|altclkctrl_kct:auto_generated|outclk
+#set_location_assignment LCCOMB_X1_Y16_N4 -to altclkctrl:ethtxint_clkmux_i|altclkctrl_kct:auto_generated|outclk
 set_location_assignment LCCOMB_X28_Y1_N28 -to clock_ethrxint
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
