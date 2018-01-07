@@ -1,6 +1,9 @@
 # <span style="color: brue; "> ji1udd Hermes-Lite Ver2 (beta3) compact tranceiver</span>
 ## Outline
 This is HF QRP SDR compact transceiver that consists of Hermes-Lite Ver2 beta3 and Raspberry Pi. (updated: 19 Oct 2017)
+
+Note: My audio codec board and filter board are not compatible with beta5.
+
 <img src="compact-trx/powercontrol/docs/compact-trx.JPG" width="480px">
 
 ### Enclosure
@@ -29,6 +32,12 @@ In this [Test Video](https://youtu.be/d-YUDK2JaQg), this board was used with HL 
 
 Verilog-HDL code was released on my git (updated: 19 Oct 2017).  
 
+## Interface board
+<img src="compact-trx/IF_board/docs/IF_board.JPG" width="240px">
+
+[Schematic](compact-trx/IF_board/docs/IF_board.pdf)
+[BOM](compact-trx/IF_board/docs/BOM_IF_board.pdf)
+[Gerber](compact-trx/IF_board/gerber/hl2acif.zip)
 
 ## Tx Rx Filter test board (updated: 19 Oct 2017)
 
