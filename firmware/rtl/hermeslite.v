@@ -17,7 +17,7 @@
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 // (C) Phil Harman VK6APH, Kirk Weedman KD7IRS  2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014
-// (C) Steve Haynal KF7O 2014-2017
+// (C) Steve Haynal KF7O 2014-2018
 
 
 // This RTL originated from www.openhpsdr.org and has been modified to support
@@ -507,7 +507,7 @@ PHY_Rx_fifo PHY_Rx_fifo_inst(.wrclk (clock_ethrxint),.rdreq (IF_PHY_drdy),.rdclk
 
                                SP_fifo
                         ---------------------
-          temp_ADC |data[15:0]     wrfull| sp_fifo_wrfull
+          rx_data |data[15:0]     wrfull| sp_fifo_wrfull
                         |                        |
     sp_fifo_wrreq   |wrreq       wrempty| sp_fifo_wrempty
                         |                        |
@@ -546,7 +546,7 @@ wire C122_rst;
 cdc_sync #(1) reset_C122 (.siga(rst), .rstb(rst), .clkb(clock_76p8_mhz), .sigb(C122_rst));
 
 SP_fifo  SPF (.aclr(C122_rst | !run), .wrclk (clock_76p8_mhz), .rdclk(clock_ethtxint),
-             .wrreq (sp_fifo_wrreq), .data ({{4{temp_ADC[11]}},temp_ADC}), .rdreq (sp_fifo_rdreq),
+             .wrreq (sp_fifo_wrreq), .data ({{4{rx_data[11]}},rx_data}), .rdreq (sp_fifo_rdreq),
              .q(sp_fifo_rddata), .wrfull(sp_fifo_wrfull), .wrempty(sp_fifo_wrempty));
 
 
@@ -570,116 +570,42 @@ assign sp_data_ready = ( (speed_1gb ? sp_delay == 0 : sp_delay[15:0] == 0) && ha
 assign IF_mic_Data = 0;
 
 
+// AD9866 Interface
+
+wire  [11:0]  rx_data;
+reg   [11:0]  tx_data;
+
+ad9866 ad9866_i (
+  .clk_ad9866(clock_76p8_mhz),
+  .clk_ad9866_2x(clock_153p6_mhz),
+
+  .tx_data(tx_data),
+  .rx_data(rx_data),
+  .tx_en(FPGA_PTT | VNA),
+
+  //rffe_ad9866_rst_n,
+  .rffe_ad9866_tx(rffe_ad9866_tx),
+  .rffe_ad9866_rx(rffe_ad9866_rx),
+  .rffe_ad9866_rxsync(rffe_ad9866_rxsync),
+  .rffe_ad9866_rxclk(rffe_ad9866_rxclk),  
+  .rffe_ad9866_txquiet_n(rffe_ad9866_txquiet_n),
+  .rffe_ad9866_txsync(rffe_ad9866_txsync),
+  //rffe_ad9866_sdio,
+  //rffe_ad9866_sclk,
+  //rffe_ad9866_sen_n,
+  //rffe_ad9866_pga,
+  .rffe_ad9866_mode(rffe_ad9866_mode)
+);
 
 
-
-reg [11:0]temp_ADC;
-//reg [15:0] temp_DACD; // for pre-distortion Tx tests
-//reg ad9866clipp, ad9866clipn;
-//reg ad9866nearclip;
-//reg ad9866goodlvlp, ad9866goodlvln;
-
-//assign temp_DACD = 0;
-
-wire rxclipp = (temp_ADC == 12'b011111111111);
-wire rxclipn = (temp_ADC == 12'b100000000000);
+wire rxclipp = (rx_data == 12'b011111111111);
+wire rxclipn = (rx_data == 12'b100000000000);
 
 // Like above but 2**11.585 = (4096-1024) = 3072
-wire rxgoodlvlp = (temp_ADC[11:9] == 3'b011);
-wire rxgoodlvln = (temp_ADC[11:9] == 3'b100);
+wire rxgoodlvlp = (rx_data[11:9] == 3'b011);
+wire rxgoodlvln = (rx_data[11:9] == 3'b100);
 
 
-// Pipeline DACD just before IO, negedge as in historical RTL
-reg [11:0] DACDp;
-reg FPGA_PTT_VNAp;
-always @ (posedge clock_76p8_mhz) begin
-    DACDp <= DACD;
-    FPGA_PTT_VNAp <= (FPGA_PTT | VNA) ;
-    //DACDp <= cosv;
-end
-
-reg [11:0] ad9866_rx_input;
-
-`ifdef HALFDUPLEX
-// AD9866 Code
-// Code for Half duplex
-assign rffe_ad9866_mode = 1'b0;
-
-
-assign rffe_ad9866_txsync = FPGA_PTT;
-assign rffe_ad9866_rxsync = ~FPGA_PTT;
-
-assign rffe_ad9866_rxclk = clock_76p8_mhz;
-assign rffe_ad9866_txquiet_n = clock_76p8_mhz;
-
-// RX/TX port
-assign rffe_ad9866_tx = FPGA_PTT ? DACDp[11:6] : 6'bZ;
-assign rffe_ad9866_rx = FPGA_PTT ? DACDp[5:0] : 6'bZ;
-
-always @(posedge clock_76p8_mhz) begin
-  ad9866_rx_input[11:6] <= rffe_ad9866_tx;
-  ad9866_rx_input[5:0]  <= rffe_ad9866_rx;
-end
-
-`else
-
-reg [5:0] ad9866_rx_stage;
-reg [5:0] rffe_ad9866_rx_pipe;
-reg       rffe_ad9866_rxsync_pipe;
-
-assign rffe_ad9866_mode = 1'b1;
-
-// Assume that ad9866_rxclk is synchronous to ad9866clk
-// Don't know the phase relation
-always @(posedge clock_153p6_mhz)
-    begin
-        rffe_ad9866_rx_pipe <= rffe_ad9866_rx;
-        rffe_ad9866_rxsync_pipe <= rffe_ad9866_rxsync;
-    end
-
-always @(posedge clock_153p6_mhz)
-    begin
-        if (rffe_ad9866_rxsync_pipe) begin
-            ad9866_rx_input <= {ad9866_rx_stage,rffe_ad9866_rx_pipe};
-        end else begin
-            ad9866_rx_stage <= rffe_ad9866_rx_pipe;
-        end
-    end
-
-reg iad9866_txsync;
-reg [11:0] ad9866_tx_stage;
-// TX path
-always @(posedge clock_153p6_mhz)
-    begin
-        if (iad9866_txsync) begin
-            iad9866_txsync <= 1'b0;
-            ad9866_tx_stage <= FPGA_PTT_VNAp ? DACDp : 12'h000;
-        end else begin
-            iad9866_txsync <= 1'b1;
-        end
-    end
-
-reg [5:0] ad9866_txr;
-reg ad9866_txsyncr;
-
-always @(posedge clock_153p6_mhz)
-    begin
-        ad9866_txr <= iad9866_txsync ? ad9866_tx_stage[5:0] : ad9866_tx_stage[11:6];
-        ad9866_txsyncr <= FPGA_PTT_VNAp ? iad9866_txsync : 1'b0;
-    end
-
-assign rffe_ad9866_txquiet_n = FPGA_PTT_VNAp; //1'b0;
-assign rffe_ad9866_tx = ad9866_txr;
-assign rffe_ad9866_txsync = ad9866_txsyncr;
-
-`endif
-
-
-// Pipeline RX
-always @ (posedge clock_76p8_mhz)
-  begin
-    temp_ADC <= ad9866_rx_input;
-  end
 
 wire  [31:0] C122_LR_data;
 
@@ -747,10 +673,10 @@ wire             test_strobe3;
 // Pipeline for adc fanout
 reg [11:0] adcpipe [0:3];
 always @ (posedge clock_76p8_mhz) begin
-    adcpipe[0] <= temp_ADC;
-    adcpipe[1] <= temp_ADC;
-    adcpipe[2] <= temp_ADC;
-    adcpipe[3] <= temp_ADC;
+    adcpipe[0] <= rx_data;
+    adcpipe[1] <= rx_data;
+    adcpipe[2] <= rx_data;
+    adcpipe[3] <= rx_data;
 end
 
 
@@ -813,7 +739,7 @@ if((c==3 && NR>3) || (c==1 && NR<=3))
       .out_strobe(strobe[c]),
       //input
       //.in_data(FPGA_PTT ? DACD : adcpipe[c/8]),
-    .in_data((FPGA_PTT & IF_Pure_signal) ? DACDp : adcpipe[c/8]),
+    .in_data((FPGA_PTT & IF_Pure_signal) ? tx_data : adcpipe[c/8]), //tx_data was pipelined here once
      //output
     //  .out_data_I(psout_data_I2),
     //  .out_data_Q(psout_data_Q2)
@@ -987,8 +913,6 @@ cpl_cordic #(.OUT_WIDTH(16))
 
 // the CORDIC output is stable on the negative edge of the clock
 
-reg [11:0] DACD;
-
 
 
 wire signed [15:0] txsum;
@@ -1100,16 +1024,16 @@ end
 
 always @ (posedge clock_76p8_mhz)
 case( IF_Predistortion[1:0] )
-    0: DACD <= txsum[11:0];
-    1: DACD <= distorted_dac[11:0];
+    0: tx_data <= txsum[11:0];
+    1: tx_data <= distorted_dac[11:0];
     //other modes
-    default: DACD <= txsum[11:0];
+    default: tx_data <= txsum[11:0];
 endcase
 
 end else
 
 always @ (posedge clock_76p8_mhz)
-    DACD <= txsum[11:0]; // + {10'h0,lfsr[2:1]};
+    tx_data <= txsum[11:0]; // + {10'h0,lfsr[2:1]};
 
 endgenerate
 
@@ -1799,7 +1723,7 @@ assign io_led_d5 = leds[3];
 
 logic wb_ack_ad9866;
 
-ad9866 #(.WB_DATA_WIDTH(WB_DATA_WIDTH), .WB_ADDR_WIDTH(WB_ADDR_WIDTH)) ad9866_i
+ad9866_cmd #(.WB_DATA_WIDTH(WB_DATA_WIDTH), .WB_ADDR_WIDTH(WB_ADDR_WIDTH)) ad9866_cmd_i
 (
   .clk(clock_76p8_mhz),
   .rst(~ad9866_rst_n), 
