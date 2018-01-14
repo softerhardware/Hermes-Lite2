@@ -96,7 +96,8 @@ assign dhcp_timeout = (dhcp_seconds_timer == 15);
 //-----------------------------------------------------------------------------
 //IP addresses
 reg  [31:0] local_ip;
-wire [31:0] apipa_ip = {8'd192, 8'd168, 8'd22, 8'd248};
+//wire [31:0] apipa_ip = {8'd192, 8'd168, 8'd22, 8'd248};
+wire [31:0] apipa_ip = {8'd169, 8'd254, local_mac[15:0]};
 //wire [31:0] ip_to_write;
 assign static_ip_assigned = (static_ip != 32'hFFFFFFFF) && (static_ip != 32'd0);
 
