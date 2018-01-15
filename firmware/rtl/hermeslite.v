@@ -351,15 +351,15 @@ assign ethup = ethpll_locked & phy_rst_n;
 // ethup starts I2C configuration of the Versa
 // the PLL may lock twice the frequency changes
 
-wire clock_76p8_mhz;
-wire clock_153p6_mhz;
+wire clk_ad9866;
+wire clk_ad9866_2x;
 wire ad9866pll_locked;
 
 ad9866pll ad9866pll_inst (
   .inclk0   (rffe_ad9866_clk76p8),   //  refclk.clk
   .areset   (~ethup),      //   reset.reset
-  .c0 (clock_76p8_mhz), // outclk0.clk
-  .c1 (clock_153p6_mhz), // outclk1.clk
+  .c0 (clk_ad9866), // outclk0.clk
+  .c1 (clk_ad9866_2x), // outclk1.clk
   .locked (ad9866pll_locked)
 );
 
@@ -382,9 +382,6 @@ reg ad9866_rst_n = 1'b0;
 always @ (posedge clock_2_5MHz)
   if (resetcounter[15] & ad9866pll_locked) ad9866_rst_n <= 1'b1;
 
-assign rffe_ad9866_rst_n = ad9866_rst_n;
-
-
 //---------------------------------------------------------
 //      CLOCKS
 //---------------------------------------------------------
@@ -392,7 +389,7 @@ assign rffe_ad9866_rst_n = ad9866_rst_n;
 wire CLRCLK;
 
 wire C122_cbclk, C122_cbrise, C122_cbfall;
-Hermes_clk_lrclk_gen #(.CLK_FREQ(CLK_FREQ)) clrgen (.reset(rst), .CLK_IN(clock_76p8_mhz), .BCLK(C122_cbclk),
+Hermes_clk_lrclk_gen #(.CLK_FREQ(CLK_FREQ)) clrgen (.reset(rst), .CLK_IN(clk_ad9866), .BCLK(C122_cbclk),
                              .Brise(C122_cbrise), .Bfall(C122_cbfall), .LRCLK(CLRCLK));
 
 
@@ -471,7 +468,7 @@ ethernet #(.MAC(MAC), .IP(IP), .Hermes_serialno(Hermes_serialno)) ethernet_inst 
                        |                          |
                     |                rdempty| IF_PHY_rdempty
                      |                    |
-             clock_76p8_mhz |>rdclk rdusedw[12:0]|
+             clk_ad9866 |>rdclk rdusedw[12:0]|
                        ---------------------
                        |                    |
              rst  |aclr                |
@@ -488,7 +485,7 @@ wire IF_PHY_rdempty;
 wire IF_PHY_drdy;
 
 
-PHY_Rx_fifo PHY_Rx_fifo_inst(.wrclk (clock_ethrxint),.rdreq (IF_PHY_drdy),.rdclk (clock_76p8_mhz),.wrreq(Rx_enable),
+PHY_Rx_fifo PHY_Rx_fifo_inst(.wrclk (clock_ethrxint),.rdreq (IF_PHY_drdy),.rdclk (clk_ad9866),.wrreq(Rx_enable),
                 .data (Rx_fifo_data),.q ({IF_PHY_data[7:0],IF_PHY_data[15:8]}), .rdempty(IF_PHY_rdempty),
                 .wrfull(PHY_wrfull),.aclr(rst | PHY_wrfull));
 
@@ -543,14 +540,14 @@ wire have_sp_data;
 // Reset fifo when !run so the data always starts at a known state.
 
 wire C122_rst;
-cdc_sync #(1) reset_C122 (.siga(rst), .rstb(rst), .clkb(clock_76p8_mhz), .sigb(C122_rst));
+cdc_sync #(1) reset_C122 (.siga(rst), .rstb(rst), .clkb(clk_ad9866), .sigb(C122_rst));
 
-SP_fifo  SPF (.aclr(C122_rst | !run), .wrclk (clock_76p8_mhz), .rdclk(clock_ethtxint),
+SP_fifo  SPF (.aclr(C122_rst | !run), .wrclk (clk_ad9866), .rdclk(clock_ethtxint),
              .wrreq (sp_fifo_wrreq), .data ({{4{rx_data[11]}},rx_data}), .rdreq (sp_fifo_rdreq),
              .q(sp_fifo_rddata), .wrfull(sp_fifo_wrfull), .wrempty(sp_fifo_wrempty));
 
 
-sp_rcv_ctrl SPC (.clk(clock_76p8_mhz), .reset(C122_rst), .sp_fifo_wrempty(sp_fifo_wrempty),
+sp_rcv_ctrl SPC (.clk(clk_ad9866), .reset(C122_rst), .sp_fifo_wrempty(sp_fifo_wrempty),
                  .sp_fifo_wrfull(sp_fifo_wrfull), .write(sp_fifo_wrreq), .have_sp_data(have_sp_data));
 
 // the wideband data is presented too fast for the PC to swallow so slow down
@@ -571,30 +568,44 @@ assign IF_mic_Data = 0;
 
 
 // AD9866 Interface
-
-wire  [11:0]  rx_data;
-reg   [11:0]  tx_data;
+logic 			wb_ack_ad9866;
+logic [11:0]  	rx_data;
+logic [11:0]  	tx_data;
 
 ad9866 ad9866_i (
-  .clk_ad9866(clock_76p8_mhz),
-  .clk_ad9866_2x(clock_153p6_mhz),
+  .clk_ad9866(clk_ad9866),
+  .clk_ad9866_2x(clk_ad9866_2x),
+  .rst_n(ad9866_rst_n),
 
   .tx_data(tx_data),
   .rx_data(rx_data),
   .tx_en(FPGA_PTT | VNA),
 
-  //rffe_ad9866_rst_n,
+  .rffe_ad9866_rst_n(rffe_ad9866_rst_n),
   .rffe_ad9866_tx(rffe_ad9866_tx),
   .rffe_ad9866_rx(rffe_ad9866_rx),
   .rffe_ad9866_rxsync(rffe_ad9866_rxsync),
   .rffe_ad9866_rxclk(rffe_ad9866_rxclk),  
   .rffe_ad9866_txquiet_n(rffe_ad9866_txquiet_n),
   .rffe_ad9866_txsync(rffe_ad9866_txsync),
-  //rffe_ad9866_sdio,
-  //rffe_ad9866_sclk,
-  //rffe_ad9866_sen_n,
-  //rffe_ad9866_pga,
-  .rffe_ad9866_mode(rffe_ad9866_mode)
+  .rffe_ad9866_sdio(rffe_ad9866_sdio),
+  .rffe_ad9866_sclk(rffe_ad9866_sclk),
+  .rffe_ad9866_sen_n(rffe_ad9866_sen_n),
+
+`ifdef BETA2
+  .rffe_ad9866_mode(),
+  .rffe_ad9866_pga(rffe_ad9866_pga),
+`else
+  .rffe_ad9866_mode(rffe_ad9866_mode),
+  .rffe_ad9866_pga5(rffe_ad9866_pga5),
+`endif
+
+  .wbs_adr_i(wb_adr),
+  .wbs_dat_i(wb_dat),
+  .wbs_we_i(wb_we),
+  .wbs_stb_i(wb_stb),
+  .wbs_ack_o(wb_ack_ad9866),
+  .wbs_cyc_i(wb_cyc)
 );
 
 
@@ -619,9 +630,9 @@ wire C122_ce_out_q;
 //------------------------------------------------------------------------------
 
 
-//  Create short pulse from posedge of CLRCLK synced to clock_76p8_mhz for RXF read timing
+//  Create short pulse from posedge of CLRCLK synced to clk_ad9866 for RXF read timing
 
-pulsegen cdc_m   (.sig(CLRCLK), .rst(rst), .clk(clock_76p8_mhz), .pulse(IF_get_samples));
+pulsegen cdc_m   (.sig(CLRCLK), .rst(rst), .clk(clk_ad9866), .pulse(IF_get_samples));
 
 
 //---------------------------------------------------------
@@ -672,7 +683,7 @@ wire             test_strobe3;
 
 // Pipeline for adc fanout
 reg [11:0] adcpipe [0:3];
-always @ (posedge clock_76p8_mhz) begin
+always @ (posedge clk_ad9866) begin
     adcpipe[0] <= rx_data;
     adcpipe[1] <= rx_data;
     adcpipe[2] <= rx_data;
@@ -706,7 +717,7 @@ generate
    // Note: We add 1/2 M2 (M3) so that we end up with a rounded 32 bit integer below.
     //assign C122_ratio[c] = C122_frequency_HZ[c] * M2 + M3; // B0 * B57 number = B57 number
 
-    //always @ (posedge clock_76p8_mhz)
+    //always @ (posedge clk_ad9866)
     //begin
     //  if (C122_cbrise) // time between C122_cbrise is enough for ratio calculation to settle
     //  begin
@@ -733,7 +744,7 @@ if((c==3 && NR>3) || (c==1 && NR<=3))
 
        receiver #(.CICRATE(CICRATE)) receiver_inst (
       //control
-      .clock(clock_76p8_mhz),
+      .clock(clk_ad9866),
       .rate(rate),
       .frequency(C122_sync_phase_word[c]),
       .out_strobe(strobe[c]),
@@ -754,7 +765,7 @@ else
 
       receiver #(.CICRATE(CICRATE)) receiver_inst (
       //control
-      .clock(clock_76p8_mhz),
+      .clock(clk_ad9866),
       .rate(rate),
       .frequency(C122_sync_phase_word[c]),
       .out_strobe(strobe[c]),
@@ -774,7 +785,7 @@ endgenerate
 // Note: We add 1/2 M2 (M3) so that we end up with a rounded 32 bit integer below.
 //assign C122_ratio_Tx = IF_frequency[0] * M2 + M3;
 
-//always @ (posedge clock_76p8_mhz)
+//always @ (posedge clk_ad9866)
 //begin
 //  if (C122_cbrise)
 //  begin
@@ -852,7 +863,7 @@ reg signed [15:0]C122_fir_i;
 reg signed [15:0]C122_fir_q;
 
 // latch I&Q data on strobe from FIR
-always @ (posedge clock_76p8_mhz)
+always @ (posedge clk_ad9866)
 begin
     if (req1) begin
         C122_fir_i = IF_I_PWM;
@@ -867,10 +878,10 @@ wire req1, req2;
 wire [19:0] y1_r, y1_i;
 wire [15:0] y2_r, y2_i;
 
-FirInterp8_1024 fi (clock_76p8_mhz, req2, req1, C122_fir_i, C122_fir_q, y1_r, y1_i);  // req2 enables an output sample, req1 requests next input sample.
+FirInterp8_1024 fi (clk_ad9866, req2, req1, C122_fir_i, C122_fir_q, y1_r, y1_i);  // req2 enables an output sample, req1 requests next input sample.
 
 // GBITS reduced to 30
-CicInterpM5 #(.RRRR(RRRR), .IBITS(20), .OBITS(16), .GBITS(GBITS)) in2 ( clock_76p8_mhz, 1'd1, req2, y1_r, y1_i, y2_r, y2_i);
+CicInterpM5 #(.RRRR(RRRR), .IBITS(20), .OBITS(16), .GBITS(GBITS)) in2 ( clk_ad9866, 1'd1, req2, y1_r, y1_i, y2_r, y2_i);
 
 
 
@@ -896,7 +907,7 @@ assign                  Q = (VNA | cwkey) ? 0 : y2_r;                   // takin
 // NOTE:  I and Q inputs reversed to give correct sideband out
 
 cpl_cordic #(.OUT_WIDTH(16))
-        cordic_inst (.clock(clock_76p8_mhz), .frequency(C122_phase_word_Tx), .in_data_I(I),
+        cordic_inst (.clock(clk_ad9866), .frequency(C122_phase_word_Tx), .in_data_I(I),
         .in_data_Q(Q), .out_data_I(C122_cordic_i_out), .out_data_Q(C122_cordic_q_out));
 
 /*
@@ -931,7 +942,7 @@ generate
 
         // Hardwire second TX frequency to second RX
         cpl_cordic #(.OUT_WIDTH(16))
-            cordic_tx2_inst (.clock(clock_76p8_mhz), .frequency(C122_sync_phase_word[1]), .in_data_I(I),
+            cordic_tx2_inst (.clock(clk_ad9866), .frequency(C122_sync_phase_word[1]), .in_data_I(I),
             .in_data_Q(Q), .out_data_I(C122_cordic_tx2_i_out), .out_data_Q(C122_cordic_tx2_q_out));
 
         assign txsum = (C122_cordic_i_out + C122_cordic_tx2_i_out) >>> 3;
@@ -944,7 +955,7 @@ endgenerate
 
 // LFSR for dither
 //reg [15:0] lfsr = 16'h0001;
-//always @ (negedge clock_76p8_mhz or negedge extreset)
+//always @ (negedge clk_ad9866 or negedge extreset)
 //    if (~extreset) lfsr <= 16'h0001;
 //    else lfsr <= {lfsr[0],lfsr[15],lfsr[14] ^ lfsr[0], lfsr[13] ^ lfsr[0], lfsr[12], lfsr[11] ^ lfsr[0], lfsr[10:1]};
 
@@ -1000,7 +1011,7 @@ reg signed [15:0] iplusqr;
 
 assign iplusq = txsum+txsumq;
 
-always @ (posedge clock_76p8_mhz)
+always @ (posedge clk_ad9866)
 begin
     txsumr<=txsum;
     txsumqr<=txsumq;
@@ -1014,7 +1025,7 @@ reg signed [15:0] txsumqr2;
 reg signed [15:0] iplusq_over_root2r;
 
 
-always @ (posedge clock_76p8_mhz)
+always @ (posedge clk_ad9866)
 begin
     txsumr2<=txsumr;
     txsumqr2<=txsumqr;
@@ -1022,7 +1033,7 @@ begin
 end
     assign distorted_dac = DACLUTI[txsumr2[11:0]]-DACLUTI[txsumqr2[11:0]]+DACLUTQ[iplusq_over_root2r[12:1]];
 
-always @ (posedge clock_76p8_mhz)
+always @ (posedge clk_ad9866)
 case( IF_Predistortion[1:0] )
     0: tx_data <= txsum[11:0];
     1: tx_data <= distorted_dac[11:0];
@@ -1032,7 +1043,7 @@ endcase
 
 end else
 
-always @ (posedge clock_76p8_mhz)
+always @ (posedge clk_ad9866)
     tx_data <= txsum[11:0]; // + {10'h0,lfsr[2:1]};
 
 endgenerate
@@ -1044,11 +1055,11 @@ endgenerate
 //------------------------------------------------------------
 
 // PWM DAC to set drive current to DAC. PWM_count increments
-// using clock_76p8_mhz. If the count is less than the drive
+// using clk_ad9866. If the count is less than the drive
 // level set by the PC then DAC_ALC will be high, otherwise low.
 
 //reg [7:0] PWM_count;
-//always @ (posedge clock_76p8_mhz)
+//always @ (posedge clk_ad9866)
 //begin
 //  PWM_count <= PWM_count + 1'b1;
 //  if (IF_Drive_Level >= PWM_count)
@@ -1137,7 +1148,7 @@ assign OVERFLOW = (~leds[0] | ~leds[3]) ;
 
 
 Hermes_Tx_fifo_ctrl #(RX_FIFO_SZ, TX_FIFO_SZ) TXFC
-           (rst, clock_76p8_mhz, IF_tx_fifo_wdata, IF_tx_fifo_wreq, IF_tx_fifo_full,
+           (rst, clk_ad9866, IF_tx_fifo_wdata, IF_tx_fifo_wreq, IF_tx_fifo_full,
             IF_tx_fifo_used, IF_tx_fifo_clr, IF_tx_IQ_mic_rdy,
             IF_tx_IQ_mic_data, IF_chan, IF_last_chan, clean_dash, clean_dot, (cwkey | clean_ptt), OVERFLOW,
             Penny_serialno, Merc_serialno, Hermes_serialno, Penny_ALC, AIN1, AIN2,
@@ -1160,7 +1171,7 @@ Hermes_Tx_fifo_ctrl #(RX_FIFO_SZ, TX_FIFO_SZ) TXFC
                            |                         |
     IF_tx_fifo_wreq |wreq            wrempty| IF_tx_fifo_empty
                            |                       |
-        clock_76p8_mhz          |>wrclk  wrused[9:0]| IF_tx_fifo_used
+        clk_ad9866          |>wrclk  wrused[9:0]| IF_tx_fifo_used
                            ---------------------
     Tx_fifo_rdreq       |rdreq         q[7:0]| PHY_Tx_data
                            |                          |
@@ -1175,7 +1186,7 @@ Hermes_Tx_fifo_ctrl #(RX_FIFO_SZ, TX_FIFO_SZ) TXFC
 
 */
 
-Tx_fifo Tx_fifo_inst(.wrclk (clock_76p8_mhz),.rdreq (Tx_fifo_rdreq),.rdclk (clock_ethtxint),.wrreq (IF_tx_fifo_wreq),
+Tx_fifo Tx_fifo_inst(.wrclk (clk_ad9866),.rdreq (Tx_fifo_rdreq),.rdclk (clock_ethtxint),.wrreq (IF_tx_fifo_wreq),
                 .data ({IF_tx_fifo_wdata[7:0], IF_tx_fifo_wdata[15:8]}),.q (PHY_Tx_data),.wrusedw(IF_tx_fifo_used), .wrfull(IF_tx_fifo_full),
                 .rdempty(),.rdusedw(PHY_Tx_rdused),.wrempty(IF_tx_fifo_empty),.aclr(rst || IF_tx_fifo_clr ));
 
@@ -1196,7 +1207,7 @@ wire [15:0] IF_PHY_data;
 wire [15:0] IF_Rx_fifo_wdata;
 reg         IF_Rx_fifo_wreq;
 
-FIFO #(RX_FIFO_SZ) RXF (.rst(rst), .clk (clock_76p8_mhz), .full(IF_Rx_fifo_full), .usedw(IF_Rx_fifo_used),
+FIFO #(RX_FIFO_SZ) RXF (.rst(rst), .clk (clk_ad9866), .full(IF_Rx_fifo_full), .usedw(IF_Rx_fifo_used),
           .wrreq (IF_Rx_fifo_wreq), .data (IF_PHY_data),
           .rdreq (IF_Rx_fifo_rreq), .q (IF_Rx_fifo_rdata) );
 
@@ -1226,7 +1237,7 @@ localparam SYNC_IDLE   = 1'd0,
            SYNC_RX_3_4 = 2'd3,
            SYNC_FINISH = 3'd4;
 
-always @ (posedge clock_76p8_mhz)
+always @ (posedge clk_ad9866)
 begin
   if (rst)
     IF_SYNC_state <=  SYNC_IDLE;
@@ -1353,7 +1364,7 @@ reg         IF_PA_enable;
 reg         IF_TR_disable;
 
 
-always @ (posedge clock_76p8_mhz)
+always @ (posedge clk_ad9866)
 begin
   if (rst)
   begin // set up default values - 0 for now
@@ -1412,7 +1423,7 @@ assign freqcomp = data * M2 + M3;
 reg [31:0] freqcompp [0:3];
 reg [5:0] chanp [0:3];
 
-always @ (posedge clock_76p8_mhz) begin
+always @ (posedge clk_ad9866) begin
   // Pipeline to allow 2 cycles for multiply
     if (basewrite[1]) begin
         freqcompp[0] <= freqcomp[56:25];
@@ -1427,7 +1438,7 @@ always @ (posedge clock_76p8_mhz) begin
 end
 
 
-always @ (posedge clock_76p8_mhz)
+always @ (posedge clk_ad9866)
 begin
   if (rst)
   begin // set up default values - 0 for now
@@ -1451,7 +1462,7 @@ end
 
 generate
   for (c = 1; c < NR; c = c + 1) begin: RXIFFREQ
-    always @ (posedge clock_76p8_mhz) begin
+    always @ (posedge clk_ad9866) begin
         if (rst) IF_frequency[c+1] <= 32'd0;
         else if (basewrite[2]) begin
             if (chanp[c/8] == ((c < 7) ? c+2 : c+11)) begin
@@ -1466,16 +1477,9 @@ endgenerate
 
 
 wire clean_txinhibit;
-debounce de_txinhibit(.clean_pb(clean_txinhibit), .pb(~io_cn8), .clk(clock_76p8_mhz));
+debounce de_txinhibit(.clean_pb(clean_txinhibit), .pb(~io_cn8), .clk(clk_ad9866));
 
 assign FPGA_PTT = (mox | cwkey | clean_ptt) & ~clean_txinhibit; // mox only updated when we get correct sync sequence
-
-
-`ifdef BETA2
-assign rffe_ad9866_pga = 6'b000000;
-`else
-assign rffe_ad9866_pga5 = 1'b0;
-`endif
 
 
 //---------------------------------------------------------
@@ -1515,7 +1519,7 @@ generate
 
 if(PREDISTORT==1) begin: PD2
 
-always @ (posedge clock_76p8_mhz)
+always @ (posedge clk_ad9866)
 begin
   if (rst)
     IF_PWM_state   <=  PWM_IDLE;
@@ -1552,7 +1556,7 @@ end
 end else begin
 
 
-always @ (posedge clock_76p8_mhz)
+always @ (posedge clk_ad9866)
 begin
   if (rst)
     IF_PWM_state   <=  PWM_IDLE;
@@ -1647,10 +1651,10 @@ reg [1:0] cwstate;
 localparam  cwrx = 2'b00, cwkeydown = 2'b01, cwkeyup = 2'b11;
 
 // 5 ms debounce with 48 MHz clock
-debounce de_cwkey(.clean_pb(clean_cwkey), .pb(~cwkey_i), .clk(clock_76p8_mhz));
+debounce de_cwkey(.clean_pb(clean_cwkey), .pb(~cwkey_i), .clk(clk_ad9866));
 
 // CW state machine
-always @(posedge clock_76p8_mhz)
+always @(posedge clk_ad9866)
     begin case (cwstate)
         cwrx:
             begin
@@ -1685,34 +1689,34 @@ assign io_db1_5 = cwkey;
 //  Debounce dot key - active low
 //---------------------------------------------------------
 
-//debounce de_dot(.clean_pb(clean_dot), .pb(~KEY_DOT), .clk(clock_76p8_mhz));
+//debounce de_dot(.clean_pb(clean_dot), .pb(~KEY_DOT), .clk(clk_ad9866));
 assign clean_dot = 0;
 
 //---------------------------------------------------------
 //  Debounce dash key - active low
 //---------------------------------------------------------
 
-//debounce de_dash(.clean_pb(clean_dash), .pb(~KEY_DASH), .clk(clock_76p8_mhz));
+//debounce de_dash(.clean_pb(clean_dash), .pb(~KEY_DASH), .clk(clk_ad9866));
 assign clean_dash = 0;
 
 
 
 // 5 ms debounce with 48 MHz clock
 wire clean_ptt;
-debounce de_ptt(.clean_pb(clean_ptt), .pb(~ptt_i), .clk(clock_76p8_mhz));
+debounce de_ptt(.clean_pb(clean_ptt), .pb(~ptt_i), .clk(clk_ad9866));
 
 
 // Really 0.16 seconds at Hermes-Lite 61.44 MHz clock
 localparam half_second = 24'd10000000; // at 48MHz clock rate
 
-Led_flash Flash_LED0(.clock(clock_76p8_mhz), .signal(rxclipp), .LED(leds[0]), .period(half_second));
-Led_flash Flash_LED1(.clock(clock_76p8_mhz), .signal(rxgoodlvlp), .LED(leds[1]), .period(half_second));
-Led_flash Flash_LED2(.clock(clock_76p8_mhz), .signal(rxgoodlvln), .LED(leds[2]), .period(half_second));
-Led_flash Flash_LED3(.clock(clock_76p8_mhz), .signal(rxclipn), .LED(leds[3]), .period(half_second));
+Led_flash Flash_LED0(.clock(clk_ad9866), .signal(rxclipp), .LED(leds[0]), .period(half_second));
+Led_flash Flash_LED1(.clock(clk_ad9866), .signal(rxgoodlvlp), .LED(leds[1]), .period(half_second));
+Led_flash Flash_LED2(.clock(clk_ad9866), .signal(rxgoodlvln), .LED(leds[2]), .period(half_second));
+Led_flash Flash_LED3(.clock(clk_ad9866), .signal(rxclipn), .LED(leds[3]), .period(half_second));
 
-Led_flash Flash_LED4(.clock(clock_76p8_mhz), .signal(this_MAC), .LED(leds[4]), .period(half_second));
-Led_flash Flash_LED5(.clock(clock_76p8_mhz), .signal(run), .LED(leds[5]), .period(half_second));
-Led_flash Flash_LED6(.clock(clock_76p8_mhz), .signal(IF_SYNC_state == SYNC_RX_1_2), .LED(leds[6]), .period(half_second));
+Led_flash Flash_LED4(.clock(clk_ad9866), .signal(this_MAC), .LED(leds[4]), .period(half_second));
+Led_flash Flash_LED5(.clock(clk_ad9866), .signal(run), .LED(leds[5]), .period(half_second));
+Led_flash Flash_LED6(.clock(clk_ad9866), .signal(IF_SYNC_state == SYNC_RX_1_2), .LED(leds[6]), .period(half_second));
 
 
 assign io_led_d2 = leds[4];
@@ -1721,25 +1725,6 @@ assign io_led_d4 = leds[0];
 assign io_led_d5 = leds[3];
 
 
-logic wb_ack_ad9866;
-
-ad9866_cmd #(.WB_DATA_WIDTH(WB_DATA_WIDTH), .WB_ADDR_WIDTH(WB_ADDR_WIDTH)) ad9866_cmd_i
-(
-  .clk(clock_76p8_mhz),
-  .rst(~ad9866_rst_n), 
-  .sclk(rffe_ad9866_sclk),
-  .sdio(rffe_ad9866_sdio),
-  .sdo(1'b0),
-  .sen_n(rffe_ad9866_sen_n),
-  .dataout(),
-
-  .wbs_adr_i(wb_adr),
-  .wbs_dat_i(wb_dat),
-  .wbs_we_i(wb_we),
-  .wbs_stb_i(wb_stb),
-  .wbs_ack_o(wb_ack_ad9866),
-  .wbs_cyc_i(wb_cyc)
-);
 
 
 // FIXME: Sequence power
@@ -1765,7 +1750,7 @@ wire scl3_i, scl3_t, scl3_o, sda3_i, sda3_t, sda3_o;
 i2c #(.WB_DATA_WIDTH(WB_DATA_WIDTH), .WB_ADDR_WIDTH(WB_ADDR_WIDTH)) i2c_i
 (
   .clk(clock_2_5MHz),
-  .clock_76p8_mhz(clock_76p8_mhz),
+  .clock_76p8_mhz(clk_ad9866),
   .rst(clk_i2c_rst),
   .init_start(clk_i2c_start),
 
@@ -1804,7 +1789,7 @@ assign io_sda2 = sda2_t ? 1'bz : sda2_o;
 
 
 slow_adc slow_adc_i (
-  .clk(clock_76p8_mhz),
+  .clk(clk_ad9866),
   .rst(rst),
   .ain0(AIN1),
   .ain1(AIN5),
@@ -1826,7 +1811,7 @@ assign io_adc_sda = sda3_t ? 1'bz : sda3_o;
 assign response_inp_tvalid = response_inp_tready & wb_tga & wb_stb & wb_ack & wb_we;
 
 axis_fifo #(.ADDR_WIDTH(1), .DATA_WIDTH(38)) response_fifo (
-  .clk(clock_76p8_mhz),
+  .clk(clk_ad9866),
   .rst(rst),
   .input_axis_tdata({wb_adr,wb_dat}),
   .input_axis_tvalid(response_inp_tvalid),
@@ -1843,7 +1828,7 @@ axis_fifo #(.ADDR_WIDTH(1), .DATA_WIDTH(38)) response_fifo (
 
 
 cmd_wbm #(.WB_DATA_WIDTH(WB_DATA_WIDTH), .WB_ADDR_WIDTH(WB_ADDR_WIDTH)) cmd_wbm_i (
-  .clk(clock_76p8_mhz),
+  .clk(clk_ad9866),
   .rst(rst),
 
   .wbm_adr_o(wb_adr), 
