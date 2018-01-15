@@ -56,7 +56,7 @@ wire [10:0] udp_tx_length;
 wire udp_tx_enable;
 wire udp_tx_active;
 
-wire [3:0] network_state;
+wire network_state;
 wire [47:0] local_mac;
 
 wire discovery_reply_sync;
@@ -160,7 +160,7 @@ assign this_MAC_o = network_status[0];
 assign run_o = run_sync;
 
 // Set Tx_reset (no sdr send) if not in RUNNING or DHCP RENEW state
-assign Tx_reset = network_state[3:1] != 3'b100;
+assign Tx_reset = network_state;
 
 
 endmodule
