@@ -209,7 +209,7 @@ initial begin
 
     init_data[36] = {2'b01, 7'h12}; // Reg(03h); Signal Select 2
     init_data[37] = {1'b1, 8'h03};  // |SPKG1|SPKG0|  0  | MICL|| INL1| INL0| INR1| INR0|
-    init_data[38] = {1'b1, 8'h80};  // |  1  |  0  |  0  |  0  ||  0  |  0  |  0  |  0  | // SPK Gain +11.1dB
+    init_data[38] = {1'b1, 8'h00};  // |  0  |  0  |  0  |  0  ||  0  |  0  |  0  |  0  | // SPK Gain +6.4dB(default)
 
     init_data[39] = {2'b01, 7'h12}; // Reg(02h); Signal Select 1
     init_data[40] = {1'b1, 8'h02};  // |SLPSN|MGAN3| DACS|MPSEL|| PMMP|MGAN2|MGAN1|MGAN0|

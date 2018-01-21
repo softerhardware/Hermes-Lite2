@@ -82,8 +82,14 @@ set_input_delay -max -100 -clock virt_clock_76p8MHz [get_ports io_cn8]
 
 #set_output_delay -min 100 -clock virt_clock_76p8MHz [get_ports io_cn4_6]
 #set_output_delay -max -100 -clock virt_clock_76p8MHz [get_ports io_cn4_6]
-set_output_delay -min 100 -clock virt_clock_76p8MHz [get_ports {io_led_d*}]
-set_output_delay -max -100 -clock virt_clock_76p8MHz [get_ports {io_led_d*}]
+#set_output_delay -min 100 -clock virt_clock_76p8MHz [get_ports {io_led_d*}]
+#set_output_delay -max -100 -clock virt_clock_76p8MHz [get_ports {io_led_d*}]
+set_output_delay -min 100 -clock virt_clock_76p8MHz [get_ports {io_led_d2}]
+set_output_delay -max -100 -clock virt_clock_76p8MHz [get_ports {io_led_d2}]
+#set_output_delay -min 100 -clock virt_clock_76p8MHz [get_ports {io_led_d3}]
+#set_output_delay -max -100 -clock virt_clock_76p8MHz [get_ports {io_led_d3}]
+set_output_delay -min 100 -clock virt_clock_76p8MHz [get_ports {io_led_d4}]
+set_output_delay -max -100 -clock virt_clock_76p8MHz [get_ports {io_led_d4}]
 
 #*************************************************************************************
 # Set Clock Groups

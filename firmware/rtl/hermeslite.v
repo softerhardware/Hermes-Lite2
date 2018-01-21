@@ -50,7 +50,7 @@ module hermeslite(
   output          phy_mdc,
 
   // Clock
-  output          clk_recovered,
+  output          clk_recovered, // io_db5, Cooling fan enable
   inout           clk_sda1,
   inout           clk_scl1,
 
@@ -77,10 +77,10 @@ module hermeslite(
 
 
   // IO
-  output          io_led_d2,
-  output          io_led_d3,
-  output          io_led_d4,
-  output          io_led_d5,
+  output          io_led_d2,  // ExtAMP TxD  (BAND)
+  input           io_led_d3,  // ExtAMP RxD  (Pull up)
+  output          io_led_d4,  // ATU Start
+  input           io_led_d5,  // ATU Status  (Pull Up)
   input           io_cn4_2,   // CW Paddle Dot
   input           io_cn4_3,
   input           io_cn4_6,   // CW Paddle Dash
@@ -220,7 +220,7 @@ assign pwr_clkvpa = 1'b0;
 //assign io_adc_sda = 1'b0;
 
 
-assign clk_recovered = 1'b0;
+//assign clk_recovered = 1'b0;
 
 
 
@@ -1310,6 +1310,7 @@ assign  IF_PHY_drdy = have_room & ~IF_PHY_rdempty;
 
 
 reg   [6:0] IF_OC;                  // open collectors on Hermes
+reg   [2:0] IF_Cooling;             // Cooling fan 0:off
 reg         IF_SPK_enable;          // Speaker 1:enable
 reg         Preamp;                 // selects input attenuator setting, 0 = 20dB, 1 = 0dB (preamp ON)
 reg  [31:0] IF_frequency[0:NR];     // Tx, Rx1, Rx2, Rx3
@@ -1317,11 +1318,14 @@ reg         IF_duplex;
 reg   [4:0] IF_last_chan;
 reg         IF_DFS1;
 reg         IF_DFS0;
+reg         IF_autoTune;            // Apollo auto-tune
 reg         VNA;                    // Selects VNA mode when set.
 reg         IF_Pure_signal;              
 reg   [3:0] IF_Predistortion;             
-reg         IF_PA_enable;
-reg         IF_TR_disable;
+//reg         IF_PA_enable;
+//reg         IF_TR_disable;
+wire        IF_PA_enable  = 1'b1 ;
+wire        IF_TR_disable = 1'b0 ;
 reg         IF_Mic_boost;           // Mic boost 0 = 0dB, 1 = 20dB
 reg	      IF_CW_keys_reversed ;   // 0:disable, 1:enable
 reg	[5:0]	IF_Keyer_speed ;        // 1 - 60 WPM
@@ -1344,15 +1348,17 @@ begin
     IF_DFS1 <= 1'b0; // decode speed
     IF_DFS0 <= 1'b0;
     IF_OC              <= 7'b0;     // decode open collectors on Hermes
+    IF_Cooling         <= 3'b0;     // default off
     IF_SPK_enable      <= 1'b1;     // default enable Speaker 
     Preamp             <= 1'b1;     // decode Preamp (Attenuator), default on
     IF_duplex          <= 1'b0;     // not in duplex mode
     IF_last_chan       <= 5'b00000;    // default single receiver
+    IF_autoTune        <= 1'b0;      // Apollo auto-tune disabled
     VNA                <= 1'b0;      // VNA disabled
     IF_Pure_signal     <= 1'b0;      // default disable pure signal
     IF_Predistortion   <= 4'b0000;   // default disable predistortion
-    IF_PA_enable       <= 1'b0;
-    IF_TR_disable      <= 1'b0;
+//    IF_PA_enable       <= 1'b0;
+//    IF_TR_disable      <= 1'b0;
     IF_Mic_boost       <= 1'b0;     // mic boost off
     IF_CW_keys_reversed <= 1'b0 ;   // default disable keys reverse
     IF_Keyer_speed     <= 6'd25 ;   // default 25WPM
@@ -1376,6 +1382,7 @@ begin
       IF_DFS1  <= data[25]; // decode speed
       IF_DFS0  <= data[24]; // decode speed
       IF_OC               <= data[23:17]; // decode open collectors on Penelope
+      IF_Cooling          <= data[15:13]; // reuse Alex Rx out/Antenna
       IF_SPK_enable       <= data[12];  // reuse IF_RAND
       Preamp              <= data[10];  // decode Preamp (Attenuator)  1 = On (0dB atten), 0 = Off (20dB atten)
       IF_duplex           <= data[2];   // save duplex mode
@@ -1385,8 +1392,9 @@ begin
     begin
       VNA                 <= data[23];     // 1 = enable VNA mode
       Alex_manual         <= data[22];     // manual Alex filter selection (0 = disable, 1 = enable)
-      IF_PA_enable 		  <= data[19];
-      IF_TR_disable       <= data[18];
+      IF_autoTune         <= data[20];     // 1 = begin Apollo auto-tune
+//      IF_PA_enable 		  <= data[19];
+//      IF_TR_disable       <= data[18];
       IF_Mic_boost        <= data[16];     // decode mic boost 0 = 0dB, 1 = 20dB
 	   Alex_manual_HPF     <= data[13:8];
       Alex_manual_LPF     <= data[6:0];
@@ -1488,7 +1496,8 @@ endgenerate
 wire clean_txinhibit;
 debounce de_txinhibit(.clean_pb(clean_txinhibit), .pb(~io_cn8), .clk(clock_76p8_mhz));
 
-assign FPGA_PTT = (mox | cwkey | clean_ptt) & ~clean_txinhibit; // mox only updated when we get correct sync sequence
+wire mox_out;
+assign FPGA_PTT = (mox_out | cwkey | clean_ptt) & ~clean_txinhibit; // mox only updated when we get correct sync sequence
 
 
 `ifdef BETA3
@@ -1744,10 +1753,10 @@ Led_flash Flash_LED5(.clock(clock_76p8_mhz), .signal(run_sync_76p8), .LED(leds[5
 Led_flash Flash_LED6(.clock(clock_76p8_mhz), .signal(IF_SYNC_state == SYNC_RX_1_2), .LED(leds[6]), .period(half_second));
 
 
-assign io_led_d2 = leds[4];
-assign io_led_d3 = leds[5];
-assign io_led_d4 = leds[0];
-assign io_led_d5 = leds[3];
+//assign io_led_d2 = leds[4];
+//assign io_led_d3 = leds[5];
+//assign io_led_d4 = leds[0];
+//assign io_led_d5 = leds[3];
 
 
 logic wb_ack_ad9866;
@@ -2036,6 +2045,58 @@ end
 
 assign select_LPF = Alex_manual ? Alex_manual_LPF : Alex_auto_LPF;  // to i2c
 assign select_HPF = Alex_manual ? Alex_manual_HPF : Alex_auto_HPF;  // to i2c
+
+// ============================================================================== //
+//		Cooling Fan control
+// ============================================================================== //
+
+reg cooling_enb ;
+always @(posedge clock_76p8_mhz)
+  case (IF_Cooling) 
+    6: begin
+        cooling_enb <= (AIN5 <= 12'd942 )? 1'b0: // <25C,OFF
+                       (AIN5 >= 12'd1005)? 1'b1: // >30C,ON
+                       cooling_enb ;
+	    end
+    5: begin
+        cooling_enb <= (AIN5 <= 12'd1005)? 1'b0: // <30C,OFF
+                       (AIN5 >= 12'd1068)? 1'b1: // >35C,ON
+                       cooling_enb ;
+		 end
+	 7:
+        cooling_enb <= 1'b1 ; // always ON
+   default:
+        cooling_enb <= 1'b0 ;	// always OFF
+  endcase
+
+assign clk_recovered = cooling_enb ;
+
+// ============================================================================== //
+//     External Amplifier Band Control 
+// ============================================================================== //
+reg [31:0] TxFreq ;
+always @ (posedge clock_76p8_mhz) begin
+  if (basewrite[0] && (addr==6'h01))
+    TxFreq <= data;
+end
+
+ExtAmp ExtAmp(
+  .clk(clock_76p8_mhz),
+  .freq(TxFreq),
+  .uart_txd(io_led_d2)  // BAND (TxD)
+) ;
+
+// ============================================================================== //
+//     External ATU Control 
+// ============================================================================== //
+ExtTuner ExtTuner(
+  .clk(clock_76p8_mhz),
+  .auto_tune(IF_autoTune),
+  .ATU_Status(io_led_d5),   // ATU Status
+  .ATU_Start(io_led_d4),    // ATU Start
+  .mox_in(mox),             // mox from PC
+  .mox_out(mox_out)
+);
 
 // ============================================================================== //
 

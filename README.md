@@ -1,6 +1,6 @@
 # <span style="color: brue; "> ji1udd Hermes-Lite Ver2 (beta3) compact tranceiver</span>
 ## Outline
-This is HF QRP SDR compact transceiver that consists of Hermes-Lite Ver2 beta3 and Raspberry Pi. (updated: 19 Oct 2017)
+This is HF QRP SDR compact transceiver that consists of Hermes-Lite Ver2 beta3 and Raspberry Pi.
 
 Note: My audio codec board and filter board are not compatible with beta5.
 
@@ -15,7 +15,7 @@ Hermes-Lite Ver2, Raspberry Pi 2B, 5" HDMI Monitor, Power Control board, Audio c
 ### Photos
 <img src="compact-trx/powercontrol/docs/compact-trx-photos.jpg" width="480px">
 
-[TRX Schematic (updated: 19 Oct 2017)](compact-trx/powercontrol/docs/trx_schematic.pdf)
+[TRX Schematic](compact-trx/powercontrol/docs/trx_schematic.pdf)
 
 ## CW Keyer I/F and AK4951 audio codec board
 
@@ -125,6 +125,34 @@ If you want to adjust turn off delay time after SBC status stop, adjust paramete
 
 #### 4) Start PiHPSDR after RPi boot up
     Please refer to official PiHPSDR installation document.
+
+## Cooling Fan control
+Control the cooling fan using the temperature sensor installed in HLv2.
+The signal for controlling Cooling fan is DB 5-1 in Beta3 (FPGA pin72) .
+The following four operation modes are available.
+
+- always OFF
+- turns on when it exceeds 30 C and turns off when below 25 C.
+- turns on when it exceeds 35 C and turns off when below 20 C.
+- always ON
+
+Unused Alex-Rx-out/Alex-Rx-Antenna selection bits on the openHPSDR protocol are used to select these modes from software.
+
+If piHPSDR, ANT panel is used:
+<img src="compact-trx/powercontrol/docs/Fan_Control_setting.jpg" width="480px">
+
+## External Linear Amprifier BAND control
+Elecraft serial command "FA(VFO A frequency)"  is used to switch the LPFs in an external linear amplifier (eg. Hardrock-50) .
+The command is sent when HL Tx frequency is changed.
+
+## External ATU control
+Activating TUNE starts ATU (eg. ICOM AH-4) tuning operation if Apollo is enabled on piHPSDR.
+When the ATU tuning operation is completed, transmission is automatically stopped by the internal circuit.
+Deactivate TUNE on piHPSDR manually to retuen to receiving.
+
+Typical control sequence:
+<img src="compact-trx/powercontrol/docs/ATU_timing_chart.jpg" width="480px">
+
 
 ## piHPSDR customize
 

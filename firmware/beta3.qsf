@@ -181,6 +181,8 @@ set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
 set_global_assignment -name VERILOG_MACRO "BETA3=1"
 set_global_assignment -name ENABLE_SIGNALTAP ON
 set_global_assignment -name USE_SIGNALTAP_FILE build/stp1.stp
+set_global_assignment -name VERILOG_FILE rtl/ExtTuner.v
+set_global_assignment -name VERILOG_FILE rtl/ExtAmp.v
 set_global_assignment -name VERILOG_FILE rtl/cdc_sync_rst.v
 set_global_assignment -name VERILOG_FILE rtl/KeyerWrapper.v
 set_global_assignment -name VERILOG_FILE rtl/Keyer.v
@@ -267,5 +269,7 @@ set_global_assignment -name QIP_FILE cycloneip/sin8k8r.qip
 set_global_assignment -name QIP_FILE cycloneip/div11_8.qip
 set_global_assignment -name QIP_FILE cycloneip/div18_9.qip
 set_global_assignment -name QIP_FILE cycloneip/mult16_8.qip
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_led_d5
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_led_d3
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_global_assignment -name SLD_FILE db/stp1_auto_stripped.stp
