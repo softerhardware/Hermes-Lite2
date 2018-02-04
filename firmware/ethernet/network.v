@@ -22,75 +22,59 @@
 //  April 2016, N2ADR: Added dhcp_seconds_timer
 //  January 2017, N2ADR: Added remote_mac_sync to the dhcp module
 //  January 2017, N2ADR: Added ST_DHCP_RENEW states to allow IO to continue during DHCP lease renewal
+//  2018 Steve Haynal KF7O
 
 
 module network (
 
-  //input
+  // dhcp and mdio clock
   input clock_2_5MHz,
-  input udp_tx_request,
-  input [15:0] udp_tx_length,
-  input [7:0] udp_tx_data,
-  input set_ip,
-  input [31:0] assign_ip,
-  input [7:0] port_ID,
-  input run,
 
-  //output
-  input  rx_clock,
-  input  tx_clock,
-  output udp_rx_active,
-  output udp_tx_enable,
-  output [7:0] udp_rx_data,
-  output udp_tx_active,
-  output [47:0] local_mac,
-  output broadcast,
-  //output IP_write_done,
-  output [15:0]to_port,
-  output dst_unreachable,
+  // upstream
+  input         tx_clock,
+  input         udp_tx_request,
+  input [15:0]  udp_tx_length,
+  input [7:0]   udp_tx_data,
+  output        udp_tx_enable,
+  output        udp_tx_active,
+  input         run,
+  input [7:0]   port_id,
 
+  // downstream
+  input         rx_clock,
+  output [15:0] to_port,
+  output [7:0]  udp_rx_data,
+  output        udp_rx_active,
+  output        broadcast,
+  output        dst_unreachable,
 
-  //status output
-  output speed_1gb,
-  //output [3:0] network_state,
-  output network_state,
-  output [7:0] network_status,
-  output static_ip_assigned,
-  output dhcp_timeout,
-  output dhcp_success,
-  output dhcp_failed,
-  output icmp_rx_enable,  // *** test for ping bug
+  // status and control
+  input  [31:0] static_ip,
+  input  [47:0] local_mac,
+  output        speed_1gb,
+  output        network_state,
+  output [7:0]  network_status,
 
-  //hardware pins
-  output [3:0]PHY_TX,
-  output PHY_TX_EN,
-  input  [3:0]PHY_RX,
-  input  PHY_DV,
-  input  PHY_INT_N,
-  input macbit,
+  // phy
+  output [3:0]  PHY_TX,
+  output        PHY_TX_EN,
+  input  [3:0]  PHY_RX,
+  input         PHY_DV,
 
-  inout  PHY_MDIO,
-  output PHY_MDC,
-
-  //output SCK,
-  //output SI,
-  //input  SO,
-  //output CS,
-
-  input MODE2
+  inout         PHY_MDIO,
+  output        PHY_MDC
 );
 
-parameter MAC;
-parameter IP;
-
-wire [31:0] static_ip;
 wire eeprom_ready;
 wire [1:0] phy_speed;
 wire phy_duplex;
+wire dhcp_success;
+wire icmp_rx_enable;
+wire static_ip_assigned;
 wire phy_connected = phy_duplex && (phy_speed[1] != phy_speed[0]);
 
 reg speed_1gb_i = 1'b0;
-assign dhcp_timeout = (dhcp_seconds_timer == 15);
+//assign dhcp_timeout = (dhcp_seconds_timer == 15);
 
 
 //-----------------------------------------------------------------------------
@@ -301,22 +285,19 @@ always @(negedge clock_2_5MHz)
 
   endcase
 
-assign static_ip = IP;
-assign local_mac =  {MAC[47:2],~macbit,MAC[0]};
-
 
 //-----------------------------------------------------------------------------
 // writes configuration words to the phy registers, reads phy state
 //-----------------------------------------------------------------------------
 phy_cfg phy_cfg_inst(
-          .clock(clock_2_5MHz),
-          .init_request(state == ST_PHY_INIT),
-          .allow_1Gbit(MODE2),
-          .speed(phy_speed),
-          .duplex(phy_duplex),
-          .mdio_pin(PHY_MDIO),
-          .mdc_pin(PHY_MDC)
-        );
+  .clock(clock_2_5MHz),
+  .init_request(state == ST_PHY_INIT),
+  .allow_1Gbit(1'b1),
+  .speed(phy_speed),
+  .duplex(phy_duplex),
+  .mdio_pin(PHY_MDIO),
+  .mdc_pin(PHY_MDC)
+);
 
 
 
@@ -636,7 +617,7 @@ dhcp dhcp_inst(
 
   // result
   .dhcp_success(dhcp_success),
-  .dhcp_failed(dhcp_failed)
+  .dhcp_failed()
 
 );
 
@@ -676,7 +657,7 @@ udp_send udp_send_inst (
   .active(udp_tx_active),
   .data_out(udp_data),
   .length_out(udp_length),
-  .port_ID(port_ID)
+  .port_ID(port_id)
 );
 
 ip_send ip_send_inst (
@@ -721,8 +702,7 @@ rgmii_send rgmii_send_inst (
   .active(rgmii_tx_active),
   .clock(tx_clock),
   .PHY_TX(PHY_TX),
-  .PHY_TX_EN(PHY_TX_EN),
-  .PHY_INT_N(PHY_INT_N)
+  .PHY_TX_EN(PHY_TX_EN)
 );
 
 
