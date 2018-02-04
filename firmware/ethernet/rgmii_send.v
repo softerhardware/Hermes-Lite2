@@ -29,8 +29,7 @@ module rgmii_send (
 
   //hardware pins
   output [3:0]PHY_TX,
-  output PHY_TX_EN,
-  input  PHY_INT_N
+  output PHY_TX_EN
   );
 
 

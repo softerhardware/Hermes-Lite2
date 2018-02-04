@@ -63,51 +63,51 @@ wire discovery_reply_sync;
 wire run_sync;
 wire wide_spectrum_sync;
 
-network #(.MAC(MAC), .IP(IP)) network_inst(
+wire [31:0] static_ip;
 
-    //input
-    .clock_2_5MHz(clock_2_5MHz),
-    .udp_tx_request(udp_tx_request),
-    .udp_tx_length({5'h00,udp_tx_length}),
-    .udp_tx_data(udp_tx_data),
-    .udp_tx_enable(udp_tx_enable),
-    .udp_tx_active(udp_tx_active),
-    .set_ip(1'b0),
-    .assign_ip(32'h00000000),
-    .port_ID(8'h00),
-    .run(run_sync),
-    .dst_unreachable(dst_unreachable),
+assign static_ip = IP;
+assign local_mac =  {MAC[47:2],~dipsw_i[1],MAC[0]};
 
-    .tx_clock(tx_clock),
-    .rx_clock(rx_clock),
+network network_inst(
 
-    .local_mac(local_mac),
-    .to_port(to_port),
-    .broadcast(broadcast),
-    .udp_rx_active(udp_rx_active),
-    .udp_rx_data(udp_rx_data),
+  .clock_2_5MHz(clock_2_5MHz),
 
-    //hardware pins
-    .PHY_TX(PHY_TX),
-    .PHY_TX_EN(PHY_TX_EN),
-    .PHY_RX(PHY_RX),
-    .PHY_DV(RX_DV),
+  .tx_clock(tx_clock),
+  .udp_tx_request(udp_tx_request),
+  .udp_tx_length({5'h00,udp_tx_length}),
+  .udp_tx_data(udp_tx_data),
+  .udp_tx_enable(udp_tx_enable),
+  .udp_tx_active(udp_tx_active),
+  .run(run_sync),
+  .port_id(8'h00),
 
-    .PHY_INT_N(1'b1),
-    .macbit(dipsw_i[1]),
-  .PHY_MDIO(PHY_MDIO),
-  .PHY_MDC(PHY_MDC),
-  .MODE2(1'b1),
-  .network_status(network_status),
+  .rx_clock(rx_clock),
+  .to_port(to_port),
+  .udp_rx_data(udp_rx_data),
+  .udp_rx_active(udp_rx_active),
+  .broadcast(broadcast),
+  .dst_unreachable(dst_unreachable),
+
+  .static_ip(static_ip),
+  .local_mac(local_mac),
+  .speed_1gb(speed_1gb),
   .network_state(network_state),
-  .speed_1gb(speed_1gb)
+  .network_status(network_status),
+
+  .PHY_TX(PHY_TX),
+  .PHY_TX_EN(PHY_TX_EN),
+  .PHY_RX(PHY_RX),
+  .PHY_DV(RX_DV),
+    
+  .PHY_MDIO(PHY_MDIO),
+  .PHY_MDC(PHY_MDC)
 );
 
 Rx_recv rx_recv_inst(
     .rx_clk(rx_clock),
     .run(run),
     .wide_spectrum(wide_spectrum),
-  .dst_unreachable(dst_unreachable),
+    .dst_unreachable(dst_unreachable),
     .discovery_reply(discovery_reply),
     .to_port(to_port),
     .broadcast(broadcast),
