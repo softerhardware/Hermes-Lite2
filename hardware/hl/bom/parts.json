@@ -664,6 +664,14 @@
 	"pins":2
 	},
 
+
+"CN2Ss": {
+	"mpn":["M20-9990245"],
+	"spec":"2x1 M 0.1in HDR S smt",
+	"assembly":"SMT",
+	"pins":2
+	},
+
 "CN2R": {
 	"mpn":["M20-9960245"],
 	"spec":"2x1 M 0.1in HDR RA",

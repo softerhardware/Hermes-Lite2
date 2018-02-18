@@ -36,8 +36,8 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 3 7
 Title "Ethernet"
-Date "2017-11-13"
-Rev "2.0-beta5"
+Date "2018-02-18"
+Rev "2.0-build6"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
 Comment2 ""
@@ -1071,10 +1071,10 @@ F 3 "" H 2100 2600 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L +3V3 #PWR089
+L +3V3 #PWR088
 U 1 1 593BEBA4
 P 1825 2600
-F 0 "#PWR089" H 1825 2450 50  0001 C CNN
+F 0 "#PWR088" H 1825 2450 50  0001 C CNN
 F 1 "+3V3" V 1900 2650 39  0000 C CNN
 F 2 "" H 1825 2600 50  0000 C CNN
 F 3 "" H 1825 2600 50  0000 C CNN

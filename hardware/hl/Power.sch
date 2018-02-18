@@ -36,8 +36,8 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 2 7
 Title "Power"
-Date "2017-11-13"
-Rev "2.0-beta5"
+Date "2018-02-18"
+Rev "2.0-build6"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
 Comment2 ""
@@ -3472,4 +3472,6 @@ Wire Wire Line
 	3925 5875 3925 5900
 Wire Wire Line
 	3925 6200 3925 6225
+Text Notes 700  4100 0    60   ~ 0
+>=2A Power \nSupply Required
 $EndSCHEMATC
