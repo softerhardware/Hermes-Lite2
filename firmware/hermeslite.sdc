@@ -175,7 +175,7 @@ set_false_path -to [get_ports {phy_mdc}]
 #set_input_delay -clock clock_2_5MHz -min 2 [get_ports {phy_rst_n}] 
 set_false_path -from [get_ports {phy_rst_n}]
 
-set_false_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|phy_cfg:phy_cfg_inst|speed[1]}] 
+set_false_path -from [get_keepers {network:network_inst|phy_cfg:phy_cfg_inst|speed[1]}] 
 
 
 
@@ -243,44 +243,44 @@ set_false_path -to [get_ports {pa_*}]
 
 ## Multicycle in MAC
 
-set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|dhcp:dhcp_inst|length[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
-set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|dhcp:dhcp_inst|length[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 2
+set_multicycle_path -from [get_keepers {network:network_inst|dhcp:dhcp_inst|length[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
+set_multicycle_path -from [get_keepers {network:network_inst|dhcp:dhcp_inst|length[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 2
 
-set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|tx_protocol*}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
-set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|tx_protocol*}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 2
+set_multicycle_path -from [get_keepers {network:network_inst|tx_protocol*}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
+set_multicycle_path -from [get_keepers {network:network_inst|tx_protocol*}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 2
 
-set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|cdc_sync:cdc_sync_inst7|sigb[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 2
-set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|cdc_sync:cdc_sync_inst7|sigb[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 1
+set_multicycle_path -from [get_keepers {network:network_inst|cdc_sync:cdc_sync_inst7|sigb[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 2
+set_multicycle_path -from [get_keepers {network:network_inst|cdc_sync:cdc_sync_inst7|sigb[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 1
 
-set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|run_destination_ip[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 2
-set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|run_destination_ip[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 1
+set_multicycle_path -from [get_keepers {network:network_inst|run_destination_ip[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 2
+set_multicycle_path -from [get_keepers {network:network_inst|run_destination_ip[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 1
 
-set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|arp:arp_inst|tx_byte_no[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|mac_send:mac_send_inst|shift_reg[*]}] -setup -start 2
-set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|arp:arp_inst|tx_byte_no[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|mac_send:mac_send_inst|shift_reg[*]}] -hold -start 1
+set_multicycle_path -from [get_keepers {network:network_inst|arp:arp_inst|tx_byte_no[*]}] -to [get_keepers {network:network_inst|mac_send:mac_send_inst|shift_reg[*]}] -setup -start 2
+set_multicycle_path -from [get_keepers {network:network_inst|arp:arp_inst|tx_byte_no[*]}] -to [get_keepers {network:network_inst|mac_send:mac_send_inst|shift_reg[*]}] -hold -start 1
 
-set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|Tx_send:tx_send_inst|udp_tx_length[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
-set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|Tx_send:tx_send_inst|udp_tx_length[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 2
+set_multicycle_path -from [get_keepers {Tx_send:tx_send_inst|udp_tx_length[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
+set_multicycle_path -from [get_keepers {Tx_send:tx_send_inst|udp_tx_length[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 2
 
-#set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|icmp:icmp_inst|length[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
-#set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|icmp:icmp_inst|length[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 2
+#set_multicycle_path -from [get_keepers {network:network_inst|icmp:icmp_inst|length[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
+#set_multicycle_path -from [get_keepers {network:network_inst|icmp:icmp_inst|length[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 2
 
-#set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|icmp:icmp_inst|destination_ip[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
-#set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|icmp:icmp_inst|destination_ip[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 2
+#set_multicycle_path -from [get_keepers {network:network_inst|icmp:icmp_inst|destination_ip[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
+#set_multicycle_path -from [get_keepers {network:network_inst|icmp:icmp_inst|destination_ip[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 2
 
-#set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|dhcp:dhcp_inst|destination_ip[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
-#set_multicycle_path -from [get_keepers {ethernet:ethernet_inst|network:network_inst|dhcp:dhcp_inst|destination_ip[*]}] -to [get_keepers {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 2
+#set_multicycle_path -from [get_keepers {network:network_inst|dhcp:dhcp_inst|destination_ip[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
+#set_multicycle_path -from [get_keepers {network:network_inst|dhcp:dhcp_inst|destination_ip[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 2
 
-#set_multicycle_path -from {ethernet:ethernet_inst|network:network_inst|icmp:icmp_inst|icmp_fifo:icmp_fifo_inst|*} -to {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]} -setup -start 2
-#set_multicycle_path -from {ethernet:ethernet_inst|network:network_inst|icmp:icmp_inst|icmp_fifo:icmp_fifo_inst|*} -to {ethernet:ethernet_inst|network:network_inst|ip_send:ip_send_inst|shift_reg[*]} -hold -start 1
+#set_multicycle_path -from {network:network_inst|icmp:icmp_inst|icmp_fifo:icmp_fifo_inst|*} -to {network:network_inst|ip_send:ip_send_inst|shift_reg[*]} -setup -start 2
+#set_multicycle_path -from {network:network_inst|icmp:icmp_inst|icmp_fifo:icmp_fifo_inst|*} -to {network:network_inst|ip_send:ip_send_inst|shift_reg[*]} -hold -start 1
 
-#set_multicycle_path -from {ethernet:ethernet_inst|network:network_inst|udp_send:udp_send_inst|byte_no[*]} -to {ethernet:ethernet_inst|network:network_inst|mac_send:mac_send_inst|shift_reg[*]} -setup -start 2
-#set_multicycle_path -from {ethernet:ethernet_inst|network:network_inst|udp_send:udp_send_inst|byte_no[*]} -to {ethernet:ethernet_inst|network:network_inst|mac_send:mac_send_inst|shift_reg[*]} -hold -start 1
+#set_multicycle_path -from {network:network_inst|udp_send:udp_send_inst|byte_no[*]} -to {network:network_inst|mac_send:mac_send_inst|shift_reg[*]} -setup -start 2
+#set_multicycle_path -from {network:network_inst|udp_send:udp_send_inst|byte_no[*]} -to {network:network_inst|mac_send:mac_send_inst|shift_reg[*]} -hold -start 1
 
-#set_multicycle_path -from {ethernet:ethernet_inst|network:network_inst|tx_protocol*} -to {ethernet:ethernet_inst|network:network_inst|mac_send:mac_send_inst|shift_reg[*]} -setup -start 2
-#set_multicycle_path -from {ethernet:ethernet_inst|network:network_inst|tx_protocol*} -to {ethernet:ethernet_inst|network:network_inst|mac_send:mac_send_inst|shift_reg[*]} -hold -start 1
+#set_multicycle_path -from {network:network_inst|tx_protocol*} -to {network:network_inst|mac_send:mac_send_inst|shift_reg[*]} -setup -start 2
+#set_multicycle_path -from {network:network_inst|tx_protocol*} -to {network:network_inst|mac_send:mac_send_inst|shift_reg[*]} -hold -start 1
 
-#set_multicycle_path -from {ethernet:ethernet_inst|network:network_inst|icmp:icmp_inst|sending*} -to {ethernet:ethernet_inst|network:network_inst|mac_send:mac_send_inst|shift_reg[*]} -setup -start 2
-#set_multicycle_path -from {ethernet:ethernet_inst|network:network_inst|icmp:icmp_inst|sending*} -to {ethernet:ethernet_inst|network:network_inst|mac_send:mac_send_inst|shift_reg[*]} -hold -start 1
+#set_multicycle_path -from {network:network_inst|icmp:icmp_inst|sending*} -to {network:network_inst|mac_send:mac_send_inst|shift_reg[*]} -setup -start 2
+#set_multicycle_path -from {network:network_inst|icmp:icmp_inst|sending*} -to {network:network_inst|mac_send:mac_send_inst|shift_reg[*]} -hold -start 1
 
 
 

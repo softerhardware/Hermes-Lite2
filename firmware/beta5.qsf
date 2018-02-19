@@ -271,7 +271,6 @@ set_global_assignment -name VERILOG_FILE ethernet/sync.v
 set_global_assignment -name VERILOG_FILE ethernet/rgmii_send.v
 set_global_assignment -name VERILOG_FILE ethernet/rgmii_recv.v
 set_global_assignment -name VERILOG_FILE ethernet/phy_cfg.v
-set_global_assignment -name VERILOG_FILE ethernet/ethernet.v
 set_global_assignment -name VERILOG_FILE ethernet/network.v
 set_global_assignment -name VERILOG_FILE ethernet/mdio.v
 set_global_assignment -name VERILOG_FILE ethernet/mac_send.v

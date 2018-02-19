@@ -414,39 +414,131 @@ assign cwkey_i = io_phone_tip;
 assign ptt_i = io_phone_ring;
 
 
-ethernet #(.MAC(MAC), .IP(IP), .Hermes_serialno(Hermes_serialno)) ethernet_inst (
 
-    // Send to ethernet
-    .clock_2_5MHz(clock_2_5MHz),
-    .tx_clock(clock_ethtxint),
-    .rx_clock(clock_ethrxint),
-    .Tx_fifo_rdreq_o(Tx_fifo_rdreq),
-    .PHY_Tx_data_i(PHY_Tx_data),
-    .PHY_Tx_rdused_i(PHY_Tx_rdused),
+wire [7:0] network_status;
 
-    .sp_fifo_rddata_i(sp_fifo_rddata),
-    .sp_data_ready_i(sp_data_ready),
-    .sp_fifo_rdreq_o(sp_fifo_rdreq),
+wire dst_unreachable;
+wire udp_tx_request;
+wire wide_spectrum;
+wire discovery_reply;
+wire [15:0] to_port;
+wire broadcast;
+wire udp_rx_active;
+wire [7:0] udp_rx_data;
+wire rx_fifo_enable;
+wire [7:0] rx_fifo_data;
 
-    // Receive from ethernet
-    .Rx_enable_o(Rx_enable),
-    .Rx_fifo_data_o(Rx_fifo_data),
+wire [7:0] udp_tx_data;
+wire [10:0] udp_tx_length;
+wire udp_tx_enable;
+wire udp_tx_active;
 
-    // Status
-    .this_MAC_o(this_MAC),
-    .run_o(run),
-    .dipsw_i({io_cn10,io_cn9}),
-    .AssignNR(AssignNR),
-    .speed_1gb(speed_1gb),
+wire network_state;
+wire [47:0] local_mac;
 
-    // MII Ethernet PHY
-    .PHY_TX(phy_tx),
-    .PHY_TX_EN(phy_tx_en),              //PHY Tx enable
-    .PHY_RX(phy_rx),
-    .RX_DV(phy_rx_dv),                  //PHY has data flag
-    .PHY_MDIO(phy_mdio),
-    .PHY_MDC(phy_mdc)
+wire discovery_reply_sync;
+wire run_sync;
+wire wide_spectrum_sync;
+
+wire [31:0] static_ip;
+
+assign static_ip = IP;
+assign local_mac =  {MAC[47:2],~io_cn10,MAC[0]};
+
+network network_inst(
+
+  .clock_2_5MHz(clock_2_5MHz),
+
+  .tx_clock(clock_ethtxint),
+  .udp_tx_request(udp_tx_request),
+  .udp_tx_length({5'h00,udp_tx_length}),
+  .udp_tx_data(udp_tx_data),
+  .udp_tx_enable(udp_tx_enable),
+  .udp_tx_active(udp_tx_active),
+  .run(run_sync),
+  .port_id(8'h00),
+
+  .rx_clock(clock_ethrxint),
+  .to_port(to_port),
+  .udp_rx_data(udp_rx_data),
+  .udp_rx_active(udp_rx_active),
+  .broadcast(broadcast),
+  .dst_unreachable(dst_unreachable),
+
+  .static_ip(static_ip),
+  .local_mac(local_mac),
+  .speed_1gb(speed_1gb),
+  .network_state(network_state),
+  .network_status(network_status),
+
+  .PHY_TX(phy_tx),
+  .PHY_TX_EN(phy_tx_en),
+  .PHY_RX(phy_rx),
+  .PHY_DV(phy_rx_dv),
+    
+  .PHY_MDIO(phy_mdio),
+  .PHY_MDC(phy_mdc)
 );
+
+Rx_recv rx_recv_inst(
+    .rx_clk(clock_ethrxint),
+    .run(run),
+    .wide_spectrum(wide_spectrum),
+    .dst_unreachable(dst_unreachable),
+    .discovery_reply(discovery_reply),
+    .to_port(to_port),
+    .broadcast(broadcast),
+    .rx_valid(udp_rx_active),
+    .rx_data(udp_rx_data),
+    .rx_fifo_data(Rx_fifo_data),
+    .rx_fifo_enable(Rx_enable)
+);
+
+// Only synchronizing one signal as run and wide_spectrum can take time to resolve meta stable state
+
+sync sync_inst1(.clock(clock_ethtxint), .sig_in(discovery_reply), .sig_out(discovery_reply_sync));
+
+sync sync_inst2(.clock(clock_ethtxint), .sig_in(run), .sig_out(run_sync));
+//assign run_sync = run;
+
+sync sync_inst3(.clock(clock_ethtxint), .sig_in(wide_spectrum), .sig_out(wide_spectrum_sync));
+//assign wide_spectrum_sync = wide_spectrum;
+
+wire Tx_reset;
+
+Tx_send tx_send_inst(
+    .tx_clock(clock_ethtxint),
+    .Tx_reset(Tx_reset),
+    .run(run_sync),
+    .wide_spectrum(wide_spectrum_sync),
+    .IP_valid(1'b1),
+    .Hermes_serialno(Hermes_serialno),
+    .IDHermesLite(io_cn9),
+    .AssignNR(AssignNR),
+    .PHY_Tx_data(PHY_Tx_data),
+    .PHY_Tx_rdused(PHY_Tx_rdused),
+    .Tx_fifo_rdreq(Tx_fifo_rdreq),
+    .This_MAC(local_mac),
+    .discovery(discovery_reply_sync),
+    .sp_fifo_rddata(sp_fifo_rddata),
+    .have_sp_data(sp_data_ready),
+    .sp_fifo_rdreq(sp_fifo_rdreq),
+    .udp_tx_enable(udp_tx_enable),
+    .udp_tx_active(udp_tx_active),
+    .udp_tx_request(udp_tx_request),
+    .udp_tx_data(udp_tx_data),
+    .udp_tx_length(udp_tx_length)
+);
+
+//assign This_MAC_o = local_mac;
+assign this_MAC = network_status[0];
+
+// FIXME: run_sync is in eth tx clock domain but used in 76 domain outside
+//assign run = run_sync;
+
+// Set Tx_reset (no sdr send) if not in RUNNING or DHCP RENEW state
+assign Tx_reset = network_state;
+
 
 
 
@@ -542,7 +634,7 @@ wire have_sp_data;
 wire C122_rst;
 cdc_sync #(1) reset_C122 (.siga(rst), .rstb(rst), .clkb(clk_ad9866), .sigb(C122_rst));
 
-SP_fifo  SPF (.aclr(C122_rst | !run), .wrclk (clk_ad9866), .rdclk(clock_ethtxint),
+SP_fifo  SPF (.aclr(C122_rst | !run_sync), .wrclk (clk_ad9866), .rdclk(clock_ethtxint),
              .wrreq (sp_fifo_wrreq), .data ({{4{rx_data[11]}},rx_data}), .rdreq (sp_fifo_rdreq),
              .q(sp_fifo_rddata), .wrfull(sp_fifo_wrfull), .wrempty(sp_fifo_wrempty));
 
@@ -1715,7 +1807,7 @@ Led_flash Flash_LED2(.clock(clk_ad9866), .signal(rxgoodlvln), .LED(leds[2]), .pe
 Led_flash Flash_LED3(.clock(clk_ad9866), .signal(rxclipn), .LED(leds[3]), .period(half_second));
 
 Led_flash Flash_LED4(.clock(clk_ad9866), .signal(this_MAC), .LED(leds[4]), .period(half_second));
-Led_flash Flash_LED5(.clock(clk_ad9866), .signal(run), .LED(leds[5]), .period(half_second));
+Led_flash Flash_LED5(.clock(clk_ad9866), .signal(run_sync), .LED(leds[5]), .period(half_second));
 Led_flash Flash_LED6(.clock(clk_ad9866), .signal(IF_SYNC_state == SYNC_RX_1_2), .LED(leds[6]), .period(half_second));
 
 
