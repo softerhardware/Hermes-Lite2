@@ -1,5 +1,5 @@
-(module ST1S10nohole (layer F.Cu) (tedit 5A89F3D0)
-  (fp_text reference REF** (at -3.86 0 90) (layer F.SilkS)
+(module ST1S10nohole (layer F.Cu) (tedit 5A91A74E)
+  (fp_text reference REF** (at -3.8 -1.55) (layer F.SilkS)
     (effects (font (size 0.8 0.8) (thickness 0.1)))
   )
   (fp_text value SOIC-8 (at 4.4 -0.1 90) (layer F.Fab)

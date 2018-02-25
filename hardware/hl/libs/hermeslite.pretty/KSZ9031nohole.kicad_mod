@@ -1,5 +1,5 @@
-(module KSZ9031nohole (layer F.Cu) (tedit 5A89F262)
-  (fp_text reference REF** (at 0 -4.95) (layer F.SilkS)
+(module KSZ9031nohole (layer F.Cu) (tedit 5A91A493)
+  (fp_text reference REF** (at -4.52 4.68) (layer F.SilkS)
     (effects (font (size 0.8 0.8) (thickness 0.1)))
   )
   (fp_text value QFP_48 (at 0 4.95) (layer F.Fab)

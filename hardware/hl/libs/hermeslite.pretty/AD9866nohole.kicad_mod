@@ -1,5 +1,5 @@
-(module AD9866nohole (layer F.Cu) (tedit 5A89F0EB)
-  (fp_text reference REF** (at 0 -6.1) (layer F.SilkS)
+(module AD9866nohole (layer F.Cu) (tedit 5A91A282)
+  (fp_text reference REF** (at -5.9 -4.8 90) (layer F.SilkS)
     (effects (font (size 0.8 0.8) (thickness 0.1)))
   )
   (fp_text value QFP_64 (at 0 6.1) (layer F.Fab)

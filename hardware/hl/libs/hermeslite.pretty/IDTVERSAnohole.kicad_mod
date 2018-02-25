@@ -1,5 +1,5 @@
-(module IDTVERSAnohole (layer F.Cu) (tedit 5A89F1A9)
-  (fp_text reference REF** (at 0 -3.6) (layer F.SilkS)
+(module IDTVERSAnohole (layer F.Cu) (tedit 5A91A3FC)
+  (fp_text reference REF** (at 2.82 2.54 90) (layer F.SilkS)
     (effects (font (size 0.8 0.8) (thickness 0.1)))
   )
   (fp_text value QFP_24 (at 0 3.6) (layer F.Fab)
