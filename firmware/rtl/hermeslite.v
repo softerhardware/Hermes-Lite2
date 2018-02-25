@@ -150,12 +150,6 @@ localparam M2 = (CLK_FREQ == 61440000) ? 32'd2345640077 : (CLK_FREQ == 79872000)
 // M3 = 2^24 to round as version 2.7
 localparam M3 = 32'd16777216;
 
-// Decimation rates
-localparam RATE48  = (CLK_FREQ == 61440000) ? 6'd16 : (CLK_FREQ == 79872000) ? 6'd16 : (CLK_FREQ == 76800000) ? 6'd40 : 6'd24;
-localparam RATE96  =  RATE48  >> 1;
-localparam RATE192 =  RATE96  >> 1;
-localparam RATE384 =  RATE192 >> 1;
-
 localparam CICRATE = (CLK_FREQ == 61440000) ? 6'd10 : (CLK_FREQ == 79872000) ? 6'd13 : (CLK_FREQ == 76800000) ? 6'd05 : 6'd08;
 localparam GBITS = (CLK_FREQ == 61440000) ? 30 : (CLK_FREQ == 79872000) ? 31 : (CLK_FREQ == 76800000) ? 31 : 31;
 localparam RRRR = (CLK_FREQ == 61440000) ? 160 : (CLK_FREQ == 79872000) ? 208 : (CLK_FREQ == 76800000) ? 200 : 192;
@@ -726,169 +720,38 @@ wire C122_ce_out_q;
 
 pulsegen cdc_m   (.sig(CLRCLK), .rst(rst), .clk(clk_ad9866), .pulse(IF_get_samples));
 
-
-//---------------------------------------------------------
-//      Convert frequency to phase word
-//---------------------------------------------------------
-
-/*
-     Calculates  ratio = fo/fs = frequency/122.88Mhz where frequency is in MHz
-     Each calculation should take no more than 1 CBCLK
-
-     B scalar multiplication will be used to do the F/122.88Mhz function
-     where: F * C = R
-     0 <= F <= 65,000,000 hz
-     C = 1/122,880,000 hz
-     0 <= R < 1
-
-     This method will use a 32 bit by 32 bit multiply to obtain the answer as follows:
-     1. F will never be larger than 65,000,000 and it takes 26 bits to hold this value. This will
-        be a B0 number since we dont need more resolution than 1 Hz - i.e. fractions of a hertz.
-     2. C is a constant.  Notice that the largest value we could multiply this constant by is B26
-        and have a signed value less than 1.  Multiplying again by B31 would give us the biggest
-        signed value we could hold in a 32 bit number.  Therefore we multiply by B57 (26+31).
-        This gives a value of M2 = 1,172,812,403 (B57/122880000)
-     3. Now if we multiply the B0 number by the B57 number (M2) we get a result that is a B57 number.
-        This is the result of the desire single 32 bit by 32 bit multiply.  Now if we want a scaled
-        32 bit signed number that has a range -1 <= R < 1, then we want a B31 number.  Thus we shift
-        the 64 bit result right 32 bits (B57 -> B31) or merely select the appropriate bits of the
-        64 bit result. Sweet!  However since R is always >= 0 we will use an unsigned B32 result
-*/
-
-//------------------------------------------------------------------------------
-//                 All DSP code is in the Receiver module
-//------------------------------------------------------------------------------
-
-reg       [31:0] C122_frequency_HZ [0:NR-1];   // frequency control bits for CORDIC
-reg       [31:0] C122_last_freq [0:NR-1];
-reg       [31:0] C122_last_freq_Tx;
-wire      [31:0] C122_sync_phase_word [0:NR-1];
-wire      [31:0] C122_sync_phase_word_Tx;
-wire      [63:0] C122_ratio [0:NR-1];
-wire      [63:0] C122_ratio_Tx;
-wire      [23:0] rx_I [0:NR-1];
-wire      [23:0] rx_Q [0:NR-1];
-wire             strobe [0:NR-1];
-wire              IF_IQ_Data_rdy;
-wire         [47:0] IF_IQ_Data;
-wire             test_strobe3;
-
-// Pipeline for adc fanout
-reg [11:0] adcpipe [0:3];
-always @ (posedge clk_ad9866) begin
-    adcpipe[0] <= rx_data;
-    adcpipe[1] <= rx_data;
-    adcpipe[2] <= rx_data;
-    adcpipe[3] <= rx_data;
-end
+wire   [23:0]     rx_I [0:NR-1];
+wire   [23:0]     rx_Q [0:NR-1];
+wire              strobe [0:NR-1];
+reg    [31:0]     rx_phase [0:NR-1];
+reg    [31:0]     tx_phase [0:NT-1];
+wire   [47:0]     IF_IQ_Data;
 
 
-// set the decimation rate 40 = 48k.....2 = 960k
+radio #(.NR(NR), .NT(NT), .CICRATE(CICRATE), .GBITS(GBITS), .RRRR(RRRR), .PREDISTORT(PREDISTORT), .CLK_FREQ(CLK_FREQ)) radio_i (
 
-    reg [5:0] rate;
+  .clk_ad9866(clk_ad9866),
 
-    always @ ({IF_DFS1, IF_DFS0})
-    begin
-        case ({IF_DFS1, IF_DFS0})
+  .vna(VNA),
+  .ptt(FPGA_PTT),
+  .pure_signal(IF_Pure_signal),
 
-        0: rate <= RATE48;     //  48ksps
-        1: rate <= RATE96;     //  96ksps
-        2: rate <= RATE192;     //  192ksps
-        3: rate <= RATE384;      //  384ksps
-        default: rate <= RATE48;
+  // Transmit
+  .tx_predistort(IF_Predistortion[1:0]),
+  .tx_data_i(IF_I_PWM),
+  .tx_data_q(IF_Q_PWM),
+  .tx_cw_key(cwkey),
+  .tx_cw_level(cwlevel),
+  .tx_phase(tx_phase),
+  .tx_data_dac(tx_data),
 
-        endcase
-    end
-
-genvar c;
-generate
-  for (c = 0; c < NR; c = c + 1) // calc freq phase word for 4 freqs (Rx1, Rx2, Rx3, Rx4)
-   begin: MDC
-    //  assign C122_ratio[c] = C122_frequency_HZ[c] * M2; // B0 * B57 number = B57 number
-
-   // Note: We add 1/2 M2 (M3) so that we end up with a rounded 32 bit integer below.
-    //assign C122_ratio[c] = C122_frequency_HZ[c] * M2 + M3; // B0 * B57 number = B57 number
-
-    //always @ (posedge clk_ad9866)
-    //begin
-    //  if (C122_cbrise) // time between C122_cbrise is enough for ratio calculation to settle
-    //  begin
-    //    C122_last_freq[c] <= C122_frequency_HZ[c];
-    //    if (C122_last_freq[c] != C122_frequency_HZ[c]) // frequency changed)
-    //      C122_sync_phase_word[c] <= C122_ratio[c][56:25]; // B57 -> B32 number since R is always >= 0
-    //  end
-    //end
-
-  assign C122_frequency_HZ[c] = IF_frequency[c+1];
-    assign C122_sync_phase_word[c] = C122_frequency_HZ[c];
-
-    assign IF_M_IQ_Data[c] = {rx_I[c], rx_Q[c]};
-    assign IF_M_IQ_Data_rdy[c] = strobe[c];
-
-
-
-if((c==3 && NR>3) || (c==1 && NR<=3))
-  begin
-  //    wire signed [23:0] psout_data_I2;
-  //   wire signed [23:0] psout_data_Q2;
-  //   assign rx_I[c] = psout_data_I2 <<< (FPGA_PTT? 2:0);
-  //   assign rx_Q[c] = psout_data_Q2 <<< (FPGA_PTT? 2:0);
-
-       receiver #(.CICRATE(CICRATE)) receiver_inst (
-      //control
-      .clock(clk_ad9866),
-      .rate(rate),
-      .frequency(C122_sync_phase_word[c]),
-      .out_strobe(strobe[c]),
-      //input
-      //.in_data(FPGA_PTT ? DACD : adcpipe[c/8]),
-    .in_data((FPGA_PTT & IF_Pure_signal) ? tx_data : adcpipe[c/8]), //tx_data was pipelined here once
-     //output
-    //  .out_data_I(psout_data_I2),
-    //  .out_data_Q(psout_data_Q2)
-      .out_data_I(rx_I[c]),
-      .out_data_Q(rx_Q[c])
-      );
-
-
-    end
-else
-  begin
-
-      receiver #(.CICRATE(CICRATE)) receiver_inst (
-      //control
-      .clock(clk_ad9866),
-      .rate(rate),
-      .frequency(C122_sync_phase_word[c]),
-      .out_strobe(strobe[c]),
-      //input
-      .in_data(adcpipe[c/8]),
-      //output
-      .out_data_I(rx_I[c]),
-      .out_data_Q(rx_Q[c])
-      );
-  end
-end
-endgenerate
-
-
-// calc frequency phase word for Tx
-//assign C122_ratio_Tx = IF_frequency[0] * M2;
-// Note: We add 1/2 M2 (M3) so that we end up with a rounded 32 bit integer below.
-//assign C122_ratio_Tx = IF_frequency[0] * M2 + M3;
-
-//always @ (posedge clk_ad9866)
-//begin
-//  if (C122_cbrise)
-//  begin
-//    C122_last_freq_Tx <= IF_frequency[0];
-//   if (C122_last_freq_Tx != IF_frequency[0])
-//    C122_sync_phase_word_Tx <= C122_ratio_Tx[56:25];
-//  end
-//end
-
-assign C122_sync_phase_word_Tx = IF_frequency[0];
-
+  // Receive
+  .rx_data_adc(rx_data),
+  .rx_phase(rx_phase),
+  .rx_rate({IF_DFS1, IF_DFS0}),
+  .rx_data_rdy(IF_M_IQ_Data_rdy),
+  .rx_data_iq(IF_M_IQ_Data)
+);
 
 
 //---------------------------------------------------------
@@ -907,260 +770,6 @@ assign AIN6 = 1000;
 
 
 
-//reg IF_Filter;
-//reg IF_Tuner;
-//reg IF_autoTune;
-
-//---------------------------------------------------------
-//                 Transmitter code
-//---------------------------------------------------------
-
-/*
-    The gain distribution of the transmitter code is as follows.
-    Since the CIC interpolating filters do not interpolate by 2^n they have an overall loss.
-
-    The overall gain in the interpolating filter is ((RM)^N)/R.  So in this case its 2560^4.
-    This is normalised by dividing by ceil(log2(2560^4)).
-
-    In which case the normalized gain would be (2560^4)/(2^46) = .6103515625
-
-    The CORDIC has an overall gain of 1.647.
-
-    Since the CORDIC takes 16 bit I & Q inputs but output needs to be truncated to 14 bits, in order to
-    interface to the DAC, the gain is reduced by 1/4 to 0.41175
-
-    We need to be able to drive to DAC to its full range in order to maximise the S/N ratio and
-    minimise the amount of PA gain.  We can increase the output of the CORDIC by multiplying it by 4.
-    This is simply achieved by setting the CORDIC output width to 16 bits and assigning bits [13:0] to the DAC.
-
-    The gain distripution is now:
-
-    0.61 * 0.41174 * 4 = 1.00467
-
-    This means that the DAC output will wrap if a full range 16 bit I/Q signal is received.
-    This can be prevented by reducing the output of the CIC filter.
-
-    If we subtract 1/128 of the CIC output from itself the level becomes
-
-    1 - 1/128 = 0.9921875
-
-    Hence the overall gain is now
-
-    0.61 * 0.9921875 * 0.41174 * 4 = 0.996798
-
-
-*/
-
-reg signed [15:0]C122_fir_i;
-reg signed [15:0]C122_fir_q;
-
-// latch I&Q data on strobe from FIR
-always @ (posedge clk_ad9866)
-begin
-    if (req1) begin
-        C122_fir_i = IF_I_PWM;
-        C122_fir_q = IF_Q_PWM;
-    end
-end
-
-
-// Interpolate I/Q samples from 48 kHz to the clock frequency
-
-wire req1, req2;
-wire [19:0] y1_r, y1_i;
-wire [15:0] y2_r, y2_i;
-
-FirInterp8_1024 fi (clk_ad9866, req2, req1, C122_fir_i, C122_fir_q, y1_r, y1_i);  // req2 enables an output sample, req1 requests next input sample.
-
-// GBITS reduced to 30
-CicInterpM5 #(.RRRR(RRRR), .IBITS(20), .OBITS(16), .GBITS(GBITS)) in2 ( clk_ad9866, 1'd1, req2, y1_r, y1_i, y2_r, y2_i);
-
-
-
-//---------------------------------------------------------
-//    CORDIC NCO
-//---------------------------------------------------------
-
-// Code rotates input at set frequency and produces I & Q
-
-wire signed [15:0] C122_cordic_i_out;
-wire signed [15:0] C122_cordic_q_out;
-wire signed [31:0] C122_phase_word_Tx;
-
-wire signed [15:0] I;
-wire signed [15:0] Q;
-
-// if in VNA mode use the Rx[0] phase word for the Tx
-assign C122_phase_word_Tx = VNA ? C122_sync_phase_word[0] : C122_sync_phase_word_Tx;
-assign                  I = VNA ? 16'h4d80 : (cwkey ? {1'b0, cwlevel[17:3]} : y2_i);    // select VNA mode if active. Set CORDIC for max DAC output
-assign                  Q = (VNA | cwkey) ? 0 : y2_r;                   // taking into account CORDICs gain i.e. 0x7FFF/1.7
-
-
-// NOTE:  I and Q inputs reversed to give correct sideband out
-
-cpl_cordic #(.OUT_WIDTH(16))
-        cordic_inst (.clock(clk_ad9866), .frequency(C122_phase_word_Tx), .in_data_I(I),
-        .in_data_Q(Q), .out_data_I(C122_cordic_i_out), .out_data_Q(C122_cordic_q_out));
-
-/*
-  We can use either the I or Q output from the CORDIC directly to drive the DAC.
-
-    exp(jw) = cos(w) + j sin(w)
-
-  When multplying two complex sinusoids f1 and f2, you get only f1 + f2, no
-  difference frequency.
-
-      Z = exp(j*f1) * exp(j*f2) = exp(j*(f1+f2))
-        = cos(f1 + f2) + j sin(f1 + f2)
-*/
-
-// the CORDIC output is stable on the negative edge of the clock
-
-
-
-wire signed [15:0] txsum;
-wire signed [15:0] txsumq;
-
-generate
-    if (NT == 1) begin: SINGLETX
-
-        //gain of 4
-        assign txsum = (C122_cordic_i_out  >>> 2); // + {15'h0000, C122_cordic_i_out[1]};
-          assign txsumq = (C122_cordic_q_out  >>> 2);
-
-    end else begin: DUALTX
-        wire signed [15:0] C122_cordic_tx2_i_out;
-        wire signed [15:0] C122_cordic_tx2_q_out;
-
-        // Hardwire second TX frequency to second RX
-        cpl_cordic #(.OUT_WIDTH(16))
-            cordic_tx2_inst (.clock(clk_ad9866), .frequency(C122_sync_phase_word[1]), .in_data_I(I),
-            .in_data_Q(Q), .out_data_I(C122_cordic_tx2_i_out), .out_data_Q(C122_cordic_tx2_q_out));
-
-        assign txsum = (C122_cordic_i_out + C122_cordic_tx2_i_out) >>> 3;
-        assign txsumq = (C122_cordic_q_out + C122_cordic_tx2_q_out) >>> 3;
-
-    end
-endgenerate
-
-
-
-// LFSR for dither
-//reg [15:0] lfsr = 16'h0001;
-//always @ (negedge clk_ad9866 or negedge extreset)
-//    if (~extreset) lfsr <= 16'h0001;
-//    else lfsr <= {lfsr[0],lfsr[15],lfsr[14] ^ lfsr[0], lfsr[13] ^ lfsr[0], lfsr[12], lfsr[11] ^ lfsr[0], lfsr[10:1]};
-
-
-
-// apply amplitude & phase linearity correction
-
-/*
-Lookup tables
-These are sent continuously in the unused audio out packets sent to the radio.
-The left channel is an index into the table and the right channel has the value.
-Indexes 0-4097 go into DACLUTI and 4096-8191 go to DACLUTQ.
-The values are sent as signed 16bit numbers but the value is never bigger than 13 bits.
-
-DACLUTI has the out of phase distortion and DACLUTQ has the in phase distortion.
-
-The tables can represent arbitary functions, for now my console software just uses a power series
-
-DACLUTI[x] = 0x + gain2*sin(phase2)*x^2 +  gain3*sin(phase3)*x^3 + gain4*sin(phase4)*x^4 + gain5*sin(phase5)*x^5
-DACLUTQ[x] = 1x + gain2*cos(phase2)*x^2 +  gain3*cos(phase3)*x^3 + gain4*cos(phase4)*x^4 + gain5*cos(phase5)*x^5
-
-The table indexes are signed so the tables are in 2's complement order ie. 0,1,2...2047,-2048,-2047...-1.
-
-The table values are scaled to keep the output of DACLUTI[I]-DACLUTI[Q]+DACLUTQ[(I+Q)/root2] to fit in 12 bits,
-the intermediate values and table values can be larger.
-Zero input produces centre of the dac range output(signed 0) so with some settings one end or the other of the dac range is not used.
-
-The predistortion is turned on and off by a new command and control packet this follows the last of the 32 receiver frequencies.
-There is a sub index so this can be used for many other things.
-control cc packet
-
-c0 101011x
-c1 sub index 0 for predistortion control-
-c2 mode 0 off 1 on, (higher numbers can be used to experiment without so much fpga recompilation).
-
-*/
-
-generate
-if (PREDISTORT == 1) begin: PD1
-
-// lookup tables for dac phase and amplitude linearity correction
-reg signed [12:0] DACLUTI[4096];
-reg signed [12:0] DACLUTQ[4096];
-
-wire signed [15:0] distorted_dac;
-
-wire signed [15:0] iplusq;
-wire signed [15:0] iplusq_over_root2;
-
-reg signed [15:0] txsumr;
-reg signed [15:0] txsumqr;
-reg signed [15:0] iplusqr;
-
-assign iplusq = txsum+txsumq;
-
-always @ (posedge clk_ad9866)
-begin
-    txsumr<=txsum;
-    txsumqr<=txsumq;
-    iplusqr<=iplusq;
-end
-//approximation to dividing by root 2 to reduce lut size, the error can be corrected in the lut data
-assign iplusq_over_root2 = iplusqr+(iplusqr>>>2)+(iplusqr>>>3)+(iplusqr>>>5);
-
-reg signed [15:0] txsumr2;
-reg signed [15:0] txsumqr2;
-reg signed [15:0] iplusq_over_root2r;
-
-
-always @ (posedge clk_ad9866)
-begin
-    txsumr2<=txsumr;
-    txsumqr2<=txsumqr;
-    iplusq_over_root2r<=iplusq_over_root2;
-end
-    assign distorted_dac = DACLUTI[txsumr2[11:0]]-DACLUTI[txsumqr2[11:0]]+DACLUTQ[iplusq_over_root2r[12:1]];
-
-always @ (posedge clk_ad9866)
-case( IF_Predistortion[1:0] )
-    0: tx_data <= txsum[11:0];
-    1: tx_data <= distorted_dac[11:0];
-    //other modes
-    default: tx_data <= txsum[11:0];
-endcase
-
-end else
-
-always @ (posedge clk_ad9866)
-    tx_data <= txsum[11:0]; // + {10'h0,lfsr[2:1]};
-
-endgenerate
-
-
-
-//------------------------------------------------------------
-//  Set Power Output
-//------------------------------------------------------------
-
-// PWM DAC to set drive current to DAC. PWM_count increments
-// using clk_ad9866. If the count is less than the drive
-// level set by the PC then DAC_ALC will be high, otherwise low.
-
-//reg [7:0] PWM_count;
-//always @ (posedge clk_ad9866)
-//begin
-//  PWM_count <= PWM_count + 1'b1;
-//  if (IF_Drive_Level >= PWM_count)
-//      DAC_ALC <= 1'b1;
-//  else
-//      DAC_ALC <= 1'b0;
-//end
-
-
 //---------------------------------------------------------
 //  Receive DOUT and CDOUT data to put in TX FIFO
 //---------------------------------------------------------
@@ -1168,7 +777,7 @@ endgenerate
 wire   [15:0] IF_P_mic_Data;
 wire          IF_P_mic_Data_rdy;
 wire   [47:0] IF_M_IQ_Data [0:NR-1];
-wire [NR-1:0] IF_M_IQ_Data_rdy;
+wire          IF_M_IQ_Data_rdy [0:NR-1];
 wire   [63:0] IF_tx_IQ_mic_data;
 reg           IF_tx_IQ_mic_rdy;
 wire   [15:0] IF_mic_Data;
@@ -1239,13 +848,49 @@ assign IO8 = 1'b1;
 assign OVERFLOW = (~leds[0] | ~leds[3]) ;
 
 
-Hermes_Tx_fifo_ctrl #(RX_FIFO_SZ, TX_FIFO_SZ) TXFC
-           (rst, clk_ad9866, IF_tx_fifo_wdata, IF_tx_fifo_wreq, IF_tx_fifo_full,
-            IF_tx_fifo_used, IF_tx_fifo_clr, IF_tx_IQ_mic_rdy,
-            IF_tx_IQ_mic_data, IF_chan, IF_last_chan, clean_dash, clean_dot, (cwkey | clean_ptt), OVERFLOW,
-            Penny_serialno, Merc_serialno, Hermes_serialno, Penny_ALC, AIN1, AIN2,
-            AIN3, AIN4, AIN6, IO4, IO5, IO6, IO8, VNA_start, VNA,
-            response_out_tdata, response_out_tvalid, response_out_tready );
+Hermes_Tx_fifo_ctrl #(RX_FIFO_SZ, TX_FIFO_SZ) TXFC (
+  .IF_reset(rst), 
+  .IF_clk(clk_ad9866), 
+
+  .Tx_fifo_wdata(IF_tx_fifo_wdata), 
+  .Tx_fifo_wreq(IF_tx_fifo_wreq), 
+  .Tx_fifo_full(IF_tx_fifo_full),
+  .Tx_fifo_used(IF_tx_fifo_used), 
+  .Tx_fifo_clr(IF_tx_fifo_clr), 
+
+  // Receiver data to transmit to host PC via ethernet
+  .Tx_IQ_mic_rdy(IF_tx_IQ_mic_rdy),
+  .Tx_IQ_mic_data(IF_tx_IQ_mic_data), 
+
+  // Channel select
+  .IF_chan(IF_chan), 
+  .IF_last_chan(IF_last_chan), 
+
+  .clean_dash(clean_dash), 
+  .clean_dot(clean_dot), 
+  .clean_PTT_in(cwkey | clean_ptt), 
+  .ADC_OVERLOAD(OVERFLOW),
+  .Penny_serialno(Penny_serialno), 
+  .Merc_serialno(Merc_serialno), 
+  .Hermes_serialno(Hermes_serialno), 
+  .Penny_ALC(Penny_ALC), 
+  .AIN1(AIN1), 
+  .AIN2(AIN2),
+  .AIN3(AIN3), 
+  .AIN4(AIN4),
+  .AIN6(AIN6), 
+  .IO4(IO4),
+  .IO5(IO5),
+  .IO6(IO6),
+  .IO8(IO8),
+  .VNA_start(VNA_start),
+  .VNA(VNA),
+
+  // Protocol extension response
+  .response_out_tdata(response_out_tdata),
+  .response_out_tvalid(response_out_tvalid),
+  .response_out_tready(response_out_tready) 
+);
 
 
 //------------------------------------------------------------------------
@@ -1445,7 +1090,7 @@ assign  IF_PHY_drdy = have_room & ~IF_PHY_rdempty;
 
 reg   [6:0] IF_OC;                  // open collectors on Hermes
 reg         Preamp;                 // selects input attenuator setting, 0 = 20dB, 1 = 0dB (preamp ON)
-reg  [31:0] IF_frequency[0:NR];     // Tx, Rx1, Rx2, Rx3
+//reg  [31:0] IF_frequency[0:NR];     // Tx, Rx1, Rx2, Rx3
 reg         IF_duplex;
 reg         IF_DFS1;
 reg         IF_DFS0;
@@ -1529,38 +1174,49 @@ always @ (posedge clk_ad9866) begin
     end
 end
 
-
-always @ (posedge clk_ad9866)
-begin
-  if (rst)
-  begin // set up default values - 0 for now
-    IF_frequency[0] <= 32'd0;
-    IF_frequency[1] <= 32'd0;
+// TX0 and RX0
+always @ (posedge clk_ad9866) begin
+  if (rst) begin
+    tx_phase[0] <= 32'd0;
+    rx_phase[0] <= 32'd0;
   end
-  else if (basewrite[2])
-  begin
-    if (chanp[0] == 6'h01) begin // decode IF_frequency[0]
-        IF_frequency[0]   <= freqcompp[0]; //freqcomp[56:25];
-        if (!IF_duplex && (IF_last_chan == 5'b00000)) IF_frequency[1] <= IF_frequency[0];
+  else if (basewrite[2]) begin
+    if (chanp[0] == 6'h01) begin 
+        tx_phase[0] <= freqcompp[0]; 
+        if (!IF_duplex && (IF_last_chan == 5'b00000)) rx_phase[0] <= freqcompp[0];
     end
 
-    if (chanp[0] == 6'h02) begin // decode Rx1 frequency
-        if (!IF_duplex && (IF_last_chan == 5'b00000)) IF_frequency[1] <= IF_frequency[0];
-        else IF_frequency[1] <= freqcompp[0]; //freqcomp[56:25];
+    if (chanp[0] == 6'h02) begin 
+        if (!IF_duplex && (IF_last_chan == 5'b00000)) rx_phase[0] <= tx_phase[0];
+        else rx_phase[0] <= freqcompp[0];
     end
   end
 end
 
+// TX > 1
+genvar c;
+generate
+  for (c = 1; c < NT; c = c + 1) begin: TXIFFREQ
+    always @ (posedge clk_ad9866) begin
+      if (rst) tx_phase[c] <= 32'd0;
+      else if (basewrite[2]) begin
+        if (chanp[c/8] == ((c < 7) ? c+2 : c+11)) begin
+          tx_phase[c] <= freqcompp[c/8]; 
+        end
+      end
+    end
+  end
+endgenerate
 
+
+// RX > 1
 generate
   for (c = 1; c < NR; c = c + 1) begin: RXIFFREQ
     always @ (posedge clk_ad9866) begin
-        if (rst) IF_frequency[c+1] <= 32'd0;
+        if (rst) rx_phase[c] <= 32'd0;
         else if (basewrite[2]) begin
             if (chanp[c/8] == ((c < 7) ? c+2 : c+11)) begin
-              //if (IF_last_chan >= c)
-                IF_frequency[c+1] <= freqcompp[c/8]; //freqcomp[56:25];
-              //else IF_frequency[c+1] <= IF_frequency[0];
+                rx_phase[c] <= freqcompp[c/8]; 
             end
         end
     end
@@ -1628,9 +1284,9 @@ begin
     //IF_Right_Data  <=  IF_Rx_fifo_rdata;
 
      if(IF_Left_Data[12] )
-        PD1.DACLUTQ[IF_Left_Data[11:0]]<= IF_Rx_fifo_rdata[12:0];
+        radio_i.PD1.DACLUTQ[IF_Left_Data[11:0]]<= IF_Rx_fifo_rdata[12:0];
     else
-        PD1.DACLUTI[IF_Left_Data[11:0]]<= IF_Rx_fifo_rdata[12:0];
+        radio_i.PD1.DACLUTI[IF_Left_Data[11:0]]<= IF_Rx_fifo_rdata[12:0];
 
     end
 

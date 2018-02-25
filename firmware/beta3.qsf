@@ -219,6 +219,7 @@ set_global_assignment -name VERILOG_MACRO "BETA3=1"
 set_global_assignment -name SDC_FILE hermeslite.sdc
 set_global_assignment -name VERILOG_FILE rtl/hermeslite.v
 set_global_assignment -name VERILOG_FILE rtl/ad9866.v
+set_global_assignment -name VERILOG_FILE rtl/radio/radio.v
 set_global_assignment -name VERILOG_FILE Polyphase_FIR/firfilt.v
 set_global_assignment -name VERILOG_FILE Polyphase_FIR/CicInterpM5.v
 set_global_assignment -name VERILOG_FILE Polyphase_FIR/firromI_1024.v
