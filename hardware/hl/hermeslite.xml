@@ -2,14 +2,14 @@
 <export version="D">
   <design>
     <source>C:/cygwin64/home/shaynal/Hermes-Lite2/hardware/hl/hermeslite.sch</source>
-    <date>11/13/2017 7:52:31 PM</date>
+    <date>2/25/2018 1:51:14 PM</date>
     <tool>Eeschema 4.0.6</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
         <title>Hermes-Lite</title>
         <company>SofterHardware</company>
-        <rev>2.0-beta5</rev>
-        <date>2017-11-13</date>
+        <rev>2.0-build6</rev>
+        <date>2018-02-18</date>
         <source>hermeslite.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -21,8 +21,8 @@
       <title_block>
         <title>Power</title>
         <company>SofterHardware</company>
-        <rev>2.0-beta5</rev>
-        <date>2017-11-13</date>
+        <rev>2.0-build6</rev>
+        <date>2018-02-18</date>
         <source>Power.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -34,8 +34,8 @@
       <title_block>
         <title>Ethernet</title>
         <company>SofterHardware</company>
-        <rev>2.0-beta5</rev>
-        <date>2017-11-13</date>
+        <rev>2.0-build6</rev>
+        <date>2018-02-18</date>
         <source>Ethernet.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -47,8 +47,8 @@
       <title_block>
         <title>Clock</title>
         <company>SofterHardware</company>
-        <rev>2.0-beta5</rev>
-        <date>2017-11-13</date>
+        <rev>2.0-build6</rev>
+        <date>2018-02-18</date>
         <source>Clock.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -60,8 +60,8 @@
       <title_block>
         <title>RF Frontend</title>
         <company>SofterHardware</company>
-        <rev>2.0-beta5</rev>
-        <date>2017-11-13</date>
+        <rev>2.0-build6</rev>
+        <date>2018-02-18</date>
         <source>RFFrontend.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -73,8 +73,8 @@
       <title_block>
         <title>Hermes-Lite Input Output</title>
         <company>SofterHardware</company>
-        <rev>2.0-beta5</rev>
-        <date>2017-11-13</date>
+        <rev>2.0-build6</rev>
+        <date>2018-02-18</date>
         <source>InputOutput.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -86,8 +86,8 @@
       <title_block>
         <title>Hermes-Lite V2 5W Power Amplifier</title>
         <company>SofterHardware</company>
-        <rev>2.0-beta5</rev>
-        <date>2017-11-13</date>
+        <rev>2.0-build6</rev>
+        <date>2018-02-18</date>
         <source>PA.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -2726,9 +2726,9 @@
     </comp>
     <comp ref="DB6">
       <value>RFD2b</value>
-      <footprint>HERMESLITE:2x1</footprint>
+      <footprint>HERMESLITE:2x1smt</footprint>
       <fields>
-        <field name="Key">CN2S</field>
+        <field name="Key">CN2Ss</field>
         <field name="Option">DNI</field>
       </fields>
       <libsource lib="hermeslite" part="RFD2b"/>
@@ -4992,14 +4992,14 @@
     </libpart>
   </libparts>
   <libraries>
+    <library logical="linear">
+      <uri>C:\Program Files\KiCad\share\kicad\library\linear.lib</uri>
+    </library>
     <library logical="hermeslite">
       <uri>C:\cygwin64\home\shaynal\Hermes-Lite2\hardware\hl\libs\hermeslite.lib</uri>
     </library>
     <library logical="device">
       <uri>C:\Program Files\KiCad\share\kicad\library\device.lib</uri>
-    </library>
-    <library logical="linear">
-      <uri>C:\Program Files\KiCad\share\kicad\library\linear.lib</uri>
     </library>
     <library logical="conn">
       <uri>C:\Program Files\KiCad\share\kicad\library\conn.lib</uri>
