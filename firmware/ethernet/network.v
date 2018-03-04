@@ -222,7 +222,7 @@ always @(negedge clock_2_5MHz)
       if (dhcp_renew_timer == 0)
         state <= ST_DHCP_REQUEST;
       else
-        dhcp_renew_timer <= dhcp_renew_timer - 'd1;
+        dhcp_renew_timer <= dhcp_renew_timer - 18'h01;
     end
 
     // static ,DHCP or APIPA ip address obtained
@@ -237,11 +237,11 @@ always @(negedge clock_2_5MHz)
       dhcp_enable <= 1'b0;        // disable dhcp receive
 
       if (dhcp_timer == 0) begin // another second has elapsed
-        dhcp_renew_timer <= dhcp_renew_timer - 'd1;
+        dhcp_renew_timer <= dhcp_renew_timer - 18'h01;
         dhcp_timer <= 22'd2_500_000;    // reset dhcp timer to one second
       end
       else begin
-        dhcp_timer <= dhcp_timer - 'd1;
+        dhcp_timer <= dhcp_timer - 22'h01;
       end
 
       if (dhcp_renew_timer == 0)
@@ -274,11 +274,11 @@ always @(negedge clock_2_5MHz)
 
       end
       else if (dhcp_renew_timer == 0) begin
-        dhcp_renew_timer <= 5 * 60; // time between renewal requests
+        dhcp_renew_timer <= 18'd300; // time between renewal requests
         state <= ST_DHCP_RENEW_WAIT;
       end
       else begin
-        dhcp_timer <= dhcp_timer - 'd1;
+        dhcp_timer <= dhcp_timer - 18'h01;
       end
 
     end

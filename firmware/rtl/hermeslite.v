@@ -138,29 +138,9 @@ localparam IP = {8'd0,8'd0,8'd0,8'd0};
 
 // ADC Oscillator
 localparam CLK_FREQ = 76800000;
-//parameter CLK_FREQ = 73728000;
-
-// B57 = 2^57.   M2 = B57/OSC
-// 61440000
-//localparam M2 = 32'd2345624805;
-// 61440000-400
-//localparam M2 = 32'd2345640077;
-localparam M2 = (CLK_FREQ == 61440000) ? 32'd2345640077 : (CLK_FREQ == 79872000) ? 32'd1804326773 : (CLK_FREQ == 76800000) ? 32'd1876499845 : 32'd1954687338;
-
-// M3 = 2^24 to round as version 2.7
-localparam M3 = 32'd16777216;
-
-localparam CICRATE = (CLK_FREQ == 61440000) ? 6'd10 : (CLK_FREQ == 79872000) ? 6'd13 : (CLK_FREQ == 76800000) ? 6'd05 : 6'd08;
-localparam GBITS = (CLK_FREQ == 61440000) ? 30 : (CLK_FREQ == 79872000) ? 31 : (CLK_FREQ == 76800000) ? 31 : 31;
-localparam RRRR = (CLK_FREQ == 61440000) ? 160 : (CLK_FREQ == 79872000) ? 208 : (CLK_FREQ == 76800000) ? 200 : 192;
 
 
-// Number of Receivers
-localparam NR = 3;     // number of receivers to implement
 
-
-// Number of transmitters Be very careful when using more than 1 transmitter!
-localparam NT = 1;
 
 // Experimental Predistort On=1 Off=0
 localparam PREDISTORT = 0;
@@ -182,6 +162,9 @@ localparam SP_FIFO_SZ = 2048;           // 16 by 8192 deep SP FIFO, was 16384 bu
 localparam WB_DATA_WIDTH = 32;
 localparam WB_ADDR_WIDTH = 6;
 
+localparam NR = 3; // Recievers
+localparam NT = 1; // Transmitters
+
 
 logic [WB_ADDR_WIDTH-1:0]   wb_adr;
 logic [WB_DATA_WIDTH-1:0]   wb_dat;
@@ -193,6 +176,7 @@ logic                       wb_tga;
 
 // Individual acknowledges
 logic                       wb_ack_i2c;
+logic             wb_ack_radio;
 
 
 
@@ -205,7 +189,7 @@ reg resp_rqst = 1'b0;
 reg [5:0] addr = 6'h0;
 reg [31:0] data = 32'h00;
 
-assign AssignNR = NR;
+assign AssignNR = NR[7:0];
 
 // Based on dip switch
 // SDK has just two dip switches, dipsw[2]==dipsw[1] in SDK, dipsw[1]
@@ -654,9 +638,9 @@ assign IF_mic_Data = 0;
 
 
 // AD9866 Interface
-logic 			wb_ack_ad9866;
-logic [11:0]  	rx_data;
-logic [11:0]  	tx_data;
+logic       wb_ack_ad9866;
+logic [11:0]    rx_data;
+logic [11:0]    tx_data;
 
 ad9866 ad9866_i (
   .clk_ad9866(clk_ad9866),
@@ -723,34 +707,45 @@ pulsegen cdc_m   (.sig(CLRCLK), .rst(rst), .clk(clk_ad9866), .pulse(IF_get_sampl
 wire   [23:0]     rx_I [0:NR-1];
 wire   [23:0]     rx_Q [0:NR-1];
 wire              strobe [0:NR-1];
-reg    [31:0]     rx_phase [0:NR-1];
-reg    [31:0]     tx_phase [0:NT-1];
+
 wire   [47:0]     IF_IQ_Data;
 
 
-radio #(.NR(NR), .NT(NT), .CICRATE(CICRATE), .GBITS(GBITS), .RRRR(RRRR), .PREDISTORT(PREDISTORT), .CLK_FREQ(CLK_FREQ)) radio_i (
 
+radio #(
+  .WB_DATA_WIDTH(WB_DATA_WIDTH),
+  .WB_ADDR_WIDTH(WB_ADDR_WIDTH),
+  .NR(NR), 
+  .NT(NT),
+  .PREDISTORT(PREDISTORT),
+  .CLK_FREQ(CLK_FREQ)
+) 
+radio_i 
+(
   .clk_ad9866(clk_ad9866),
 
-  .vna(VNA),
   .ptt(FPGA_PTT),
-  .pure_signal(IF_Pure_signal),
 
   // Transmit
-  .tx_predistort(IF_Predistortion[1:0]),
   .tx_data_i(IF_I_PWM),
   .tx_data_q(IF_Q_PWM),
   .tx_cw_key(cwkey),
   .tx_cw_level(cwlevel),
-  .tx_phase(tx_phase),
   .tx_data_dac(tx_data),
 
   // Receive
   .rx_data_adc(rx_data),
-  .rx_phase(rx_phase),
-  .rx_rate({IF_DFS1, IF_DFS0}),
   .rx_data_rdy(IF_M_IQ_Data_rdy),
-  .rx_data_iq(IF_M_IQ_Data)
+  .rx_data_iq(IF_M_IQ_Data),
+
+  // Wishbone Slave
+  .wbs_adr_i(wb_adr),
+  .wbs_dat_i(wb_dat),
+  .wbs_we_i(wb_we),
+  .wbs_stb_i(wb_stb),
+  .wbs_ack_o(wb_ack_radio),
+  .wbs_cyc_i(wb_cyc)
+
 );
 
 
@@ -1086,17 +1081,7 @@ assign have_room = (IF_Rx_fifo_used < RX_FIFO_SZ - ((512-8)/2)) ? 1'b1 : 1'b0;  
 assign  IF_PHY_drdy = have_room & ~IF_PHY_rdempty;
 
 
-
-
-reg   [6:0] IF_OC;                  // open collectors on Hermes
-reg         Preamp;                 // selects input attenuator setting, 0 = 20dB, 1 = 0dB (preamp ON)
-//reg  [31:0] IF_frequency[0:NR];     // Tx, Rx1, Rx2, Rx3
-reg         IF_duplex;
-reg         IF_DFS1;
-reg         IF_DFS0;
 reg         VNA;                    // Selects VNA mode when set.
-reg         IF_Pure_signal;              
-reg   [3:0] IF_Predistortion;             
 reg         IF_PA_enable;
 reg         IF_TR_disable;
 
@@ -1106,15 +1091,8 @@ begin
   if (rst)
   begin // set up default values - 0 for now
     // RX_CONTROL_1
-    IF_DFS1 <= 1'b0; // decode speed
-    IF_DFS0 <= 1'b0;
-    IF_OC              <= 7'b0;     // decode open collectors on Hermes
-    Preamp             <= 1'b1;     // decode Preamp (Attenuator), default on
-    IF_duplex          <= 1'b0;     // not in duplex mode
     IF_last_chan       <= 5'b00000;    // default single receiver
     VNA                <= 1'b0;      // VNA disabled
-    IF_Pure_signal     <= 1'b0;      // default disable pure signal
-    IF_Predistortion   <= 4'b0000;   // default disable predistortion
     IF_PA_enable       <= 1'b0;
     IF_TR_disable      <= 1'b0;
 
@@ -1124,11 +1102,6 @@ begin
     if (addr == 6'h00)
     begin
       // RX_CONTROL_1
-      IF_DFS1  <= data[25]; // decode speed
-      IF_DFS0  <= data[24]; // decode speed
-      IF_OC               <= data[23:17]; // decode open collectors on Penelope
-      Preamp              <= data[10];  // decode Preamp (Attenuator)  1 = On (0dB atten), 0 = Off (20dB atten)
-      IF_duplex           <= data[2];   // save duplex mode
       IF_last_chan        <= data[7:3]; // number of IQ streams to send to PC
     end
     if (addr == 6'h09)
@@ -1137,91 +1110,9 @@ begin
       IF_PA_enable      <= data[19];
       IF_TR_disable       <= data[18];
     end
-    if (addr == 6'h0a)
-    begin
-      IF_Pure_signal    <= data[22];       // decode pure signal setting
-    end
-    if (addr == 6'h2b)
-    begin
-      if(data[31:24]==8'h00)//predistortion control sub index
-      begin
-      IF_Predistortion <= data[19:16];
-      end
-     end
   end
 end
 
-// Always compute frequency
-// This really should be done on the PC....
-wire [63:0] freqcomp;
-assign freqcomp = data * M2 + M3;
-
-// Pipeline freqcomp
-reg [31:0] freqcompp [0:3];
-reg [5:0] chanp [0:3];
-
-always @ (posedge clk_ad9866) begin
-  // Pipeline to allow 2 cycles for multiply
-    if (basewrite[1]) begin
-        freqcompp[0] <= freqcomp[56:25];
-        freqcompp[1] <= freqcomp[56:25];
-        freqcompp[2] <= freqcomp[56:25];
-        freqcompp[3] <= freqcomp[56:25];
-        chanp[0] <= addr;
-        chanp[1] <= addr;
-        chanp[2] <= addr;
-        chanp[3] <= addr;
-    end
-end
-
-// TX0 and RX0
-always @ (posedge clk_ad9866) begin
-  if (rst) begin
-    tx_phase[0] <= 32'd0;
-    rx_phase[0] <= 32'd0;
-  end
-  else if (basewrite[2]) begin
-    if (chanp[0] == 6'h01) begin 
-        tx_phase[0] <= freqcompp[0]; 
-        if (!IF_duplex && (IF_last_chan == 5'b00000)) rx_phase[0] <= freqcompp[0];
-    end
-
-    if (chanp[0] == 6'h02) begin 
-        if (!IF_duplex && (IF_last_chan == 5'b00000)) rx_phase[0] <= tx_phase[0];
-        else rx_phase[0] <= freqcompp[0];
-    end
-  end
-end
-
-// TX > 1
-genvar c;
-generate
-  for (c = 1; c < NT; c = c + 1) begin: TXIFFREQ
-    always @ (posedge clk_ad9866) begin
-      if (rst) tx_phase[c] <= 32'd0;
-      else if (basewrite[2]) begin
-        if (chanp[c/8] == ((c < 7) ? c+2 : c+11)) begin
-          tx_phase[c] <= freqcompp[c/8]; 
-        end
-      end
-    end
-  end
-endgenerate
-
-
-// RX > 1
-generate
-  for (c = 1; c < NR; c = c + 1) begin: RXIFFREQ
-    always @ (posedge clk_ad9866) begin
-        if (rst) rx_phase[c] <= 32'd0;
-        else if (basewrite[2]) begin
-            if (chanp[c/8] == ((c < 7) ? c+2 : c+11)) begin
-                rx_phase[c] <= freqcompp[c/8]; 
-            end
-        end
-    end
-  end
-endgenerate
 
 
 wire clean_txinhibit;
@@ -1594,7 +1485,7 @@ cmd_wbm #(.WB_DATA_WIDTH(WB_DATA_WIDTH), .WB_ADDR_WIDTH(WB_ADDR_WIDTH)) cmd_wbm_
 );
 
 // OR acknowledge from all slaves
-assign wb_ack = wb_ack_i2c | wb_ack_ad9866;
+assign wb_ack = wb_ack_i2c | wb_ack_ad9866 | wb_ack_radio;
 
 
 function integer clogb2;

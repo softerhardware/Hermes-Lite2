@@ -192,7 +192,7 @@ assign rffe_ad9866_txquiet_n = clk_ad9866;
 always @(posedge clk_ad9866_2x) begin
   tx_sync <= ~tx_sync;
   if (tx_sync) begin 
-    tx_data_d1 <= tx_en_d1 ? tx_data : 'h0;
+    tx_data_d1 <= tx_en_d1 ? tx_data : 12'h0;
     rffe_ad9866_tx <= tx_data_d1[5:0];
   end else begin
     rffe_ad9866_tx <= tx_data_d1[11:6];
@@ -373,7 +373,7 @@ always @(posedge clk_ad9866) begin: AD9866_DUT2_FSM
         end
         else begin
           dut2_data <= {dut2_data[15-1:0], sdo};
-          dut2_bitcount <= (dut2_bitcount - 1);
+          dut2_bitcount <= (dut2_bitcount - 4'h1);
           rffe_ad9866_sclk <= 0;
           if ((dut2_bitcount == 0)) begin
             dut2_state <= 2'b00;
