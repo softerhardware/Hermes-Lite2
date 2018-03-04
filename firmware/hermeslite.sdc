@@ -286,8 +286,8 @@ set_multicycle_path -from [get_keepers {Tx_send:tx_send_inst|udp_tx_length[*]}] 
 
 ## Multicycle for frequency computation
 
-set_multicycle_path 2 -from {data[*]} -to {freqcompp[*][*]} -setup -end 
-set_multicycle_path 1 -from {data[*]} -to {freqcompp[*][*]} -hold -end 
+set_multicycle_path 2 -from {radio_i|wbs_dat_i[*]} -to {radio_i|freqcompp[*][*]} -setup -end 
+set_multicycle_path 1 -from {radio_i|wbs_dat_i[*]} -to {radio_i|freqcompp[*][*]} -hold -end 
 
 
 
