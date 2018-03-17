@@ -63,11 +63,9 @@ module Hermes_Tx_fifo_ctrl(IF_reset, IF_clk, Tx_fifo_wdata, Tx_fifo_wreq, Tx_fif
                     AIN4, AIN6, IO4, IO5, IO6, IO8, VNA_start, VNA, 
                     response_out_tdata, response_out_tvalid, response_out_tready );
                     
-parameter RX_FIFO_SZ = 2048;
 parameter TX_FIFO_SZ = 1024;
 parameter IF_TPD = 1;
 
-localparam RFSZ = clogb2(RX_FIFO_SZ-1);  // number of bits needed to hold 0 - (RX_FIFO_SZ-1)
 localparam TFSZ = clogb2(TX_FIFO_SZ-1);  // number of bits needed to hold 0 - (TX_FIFO_SZ-1)
 
 input  wire            IF_reset;
