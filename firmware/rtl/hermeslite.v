@@ -154,7 +154,7 @@ localparam PREDISTORT = 0;
 localparam Penny_serialno = 8'd00;      // Use same value as equ1valent Penny code
 localparam Merc_serialno = 8'd00;       // Use same value as equivalent Mercury code
 
-localparam RX_FIFO_SZ  = 4096;          // 16 by 4096 deep RX FIFO
+localparam RX_FIFO_SZ  = 1024;          // 16 by 4096 deep RX FIFO
 localparam TX_FIFO_SZ  = 1024;          // 16 by 1024 deep TX FIFO
 localparam SP_FIFO_SZ = 2048;           // 16 by 8192 deep SP FIFO, was 16384 but wouldn't fit
 
@@ -180,14 +180,43 @@ logic             wb_ack_radio;
 
 
 
-wire FPGA_PTT;
-wire [7:0] AssignNR;         // IP address read from EEPROM
+logic FPGA_PTT;
+logic [7:0] AssignNR;         // IP address read from EEPROM
 
 
-reg mox = 1'b0;
-reg resp_rqst = 1'b0;
-reg [5:0] addr = 6'h0;
-reg [31:0] data = 32'h00;
+logic           mox = 1'b0;
+logic           mox_next;
+
+logic           resp_rqst = 1'b0;
+logic           resp_rqst_next;
+
+logic   [5:0]   addr = 6'h0;
+logic   [5:0]   addr_next;
+
+logic   [31:0]  data = 32'h00;
+logic   [31:0]  data_next;
+
+logic   [2:0]   IF_SYNC_state;
+logic   [2:0]   IF_SYNC_state_next;
+
+logic   [7:0]   IF_SYNC_frame_cnt;  // 256-4 words = 252 words
+logic   [7:0]   IF_SYNC_frame_cnt_next;
+
+logic   [2:0]   basewrite = 3'b000; // Shift register to delay write 
+logic           basewrite_next;
+
+
+localparam SYNC_IDLE    = 3'h0,
+           SYNC_START   = 3'h1,
+           SYNC_RX_1_2  = 3'h2,
+           SYNC_RX_3_4  = 3'h3,
+           SYNC_FINISH1 = 3'h4,
+           SYNC_FINISH2 = 3'h5,
+           SYNC_FINISH3 = 3'h6,
+           SYNC_FINISH4 = 3'h7;
+
+
+
 
 assign AssignNR = NR[7:0];
 
@@ -843,7 +872,7 @@ assign IO8 = 1'b1;
 assign OVERFLOW = (~leds[0] | ~leds[3]) ;
 
 
-Hermes_Tx_fifo_ctrl #(RX_FIFO_SZ, TX_FIFO_SZ) TXFC (
+Hermes_Tx_fifo_ctrl #(.TX_FIFO_SZ(TX_FIFO_SZ)) TXFC (
   .IF_reset(rst), 
   .IF_clk(clk_ad9866), 
 
@@ -939,9 +968,41 @@ wire [15:0] IF_PHY_data;
 wire [15:0] IF_Rx_fifo_wdata;
 reg         IF_Rx_fifo_wreq;
 
-FIFO #(RX_FIFO_SZ) RXF (.rst(rst), .clk (clk_ad9866), .full(IF_Rx_fifo_full), .usedw(IF_Rx_fifo_used),
+FIFO #(.SZ(RX_FIFO_SZ)) RXF (.rst(rst), .clk (clk_ad9866), .full(IF_Rx_fifo_full), .usedw(IF_Rx_fifo_used),
           .wrreq (IF_Rx_fifo_wreq), .data (IF_PHY_data),
           .rdreq (IF_Rx_fifo_rreq), .q (IF_Rx_fifo_rdata) );
+
+
+//dcfifo_mixed_widths #(
+//  .intended_device_family("Cyclone IV E"),
+//  .lpm_numwords(2048),
+//  .lpm_showahead ("ON"),
+//  .lpm_type("dcfifo_mixed_widths"),
+//  .lpm_width(18),
+//  .lpm_widthu(11),
+//  .lpm_widthu_r(11),
+//  .lpm_width_r(18),
+//  .overflow_checking("ON"),
+//  .rdsync_delaypipe(4),
+//  .underflow_checking("ON"),
+//  .use_eab("ON"),
+//  .wrsync_delaypipe(4)
+//) RXF (
+//  .data ({2'b10,IF_PHY_data}),
+//  .rdclk (clk_ad9866),
+//  .rdreq (IF_Rx_fifo_rreq),
+//  .wrclk (clk_ad9866),
+//  .wrreq (IF_Rx_fifo_wreq),
+//  .q (IF_Rx_fifo_rdata),
+//  .rdempty (),
+//  .wrfull (IF_Rx_fifo_full),
+//  .wrusedw (IF_Rx_fifo_used),
+//  .aclr (1'b0),
+//  .eccstatus (),
+//  .rdfull (),
+//  .rdusedw (),
+//  .wrempty ()
+//);
 
 
 //------------------------------------------------------------
@@ -949,129 +1010,135 @@ FIFO #(RX_FIFO_SZ) RXF (.rst(rst), .clk (clk_ad9866), .full(IF_Rx_fifo_full), .u
 //------------------------------------------------------------
 
 /*
-
   Read the value of IF_PHY_data whenever IF_PHY_drdy is set.
   Look for sync and if found decode the C&C data.
   Then send subsequent data to Rx FIF0 until end of frame.
 
 */
 
-reg   [2:0] IF_SYNC_state;
-reg   [2:0] IF_SYNC_state_next;
-reg   [7:0] IF_SYNC_frame_cnt;  // 256-4 words = 252 words
-
-reg   [2:0] basewrite; // Shift register to delay write 
-
-
-localparam SYNC_IDLE   = 1'd0,
-           SYNC_START  = 1'd1,
-           SYNC_RX_1_2 = 2'd2,
-           SYNC_RX_3_4 = 2'd3,
-           SYNC_FINISH = 3'd4;
-
-always @ (posedge clk_ad9866)
-begin
-  if (rst)
+// State
+always @ (posedge clk_ad9866) begin
+  if (rst) begin
     IF_SYNC_state <=  SYNC_IDLE;
-  else
+  end else begin
     IF_SYNC_state <=  IF_SYNC_state_next;
-
-  if (rst)
-    basewrite <= 3'b000;
-  else
-    basewrite <= {basewrite[1:0],IF_PHY_drdy && (IF_SYNC_state == SYNC_RX_3_4)};
-
-  if (IF_PHY_drdy && (IF_SYNC_state == SYNC_START) && (IF_PHY_data[15:8] == 8'h7F))
-  begin
-    resp_rqst <= IF_PHY_data[7];
-    addr <= IF_PHY_data[6:1];
-    mox <= IF_PHY_data[0];
-  end
-  if (IF_PHY_drdy && (IF_SYNC_state == SYNC_RX_1_2))
-  begin
-    data[31:16] <= IF_PHY_data;
   end
 
-  if (IF_PHY_drdy && (IF_SYNC_state == SYNC_RX_3_4))
-  begin
-    data[15:0] <= IF_PHY_data;
-  end
+  resp_rqst <= resp_rqst_next;
+  addr <= addr_next;
+  mox <= mox_next;
+  data <= data_next;
+  basewrite <= {basewrite[1:0],basewrite_next};
+  IF_SYNC_frame_cnt <= IF_SYNC_frame_cnt_next;
 
-  if (IF_SYNC_state == SYNC_START)
-    IF_SYNC_frame_cnt <= 0;                                         // reset sync counter
-  else if (IF_PHY_drdy && (IF_SYNC_state == SYNC_FINISH))
-    IF_SYNC_frame_cnt <= IF_SYNC_frame_cnt + 1'b1;          // increment if we have data to store
 end
 
-always @*
-begin
+// FSM Combinational
+always @* begin
+
+  // Next State
+  resp_rqst_next = resp_rqst;
+  addr_next = addr;
+  mox_next = mox;
+  data_next = data;
+  IF_SYNC_frame_cnt_next = IF_SYNC_frame_cnt;
+  IF_SYNC_state_next = IF_SYNC_state;
+  basewrite_next = 1'b0;
+
+  // Combinational output
+  IF_Rx_fifo_wreq = 1'b0; // Note: Sync bytes not saved in Rx_fifo
+
   case (IF_SYNC_state)
     // state SYNC_IDLE  - loop until we find start of sync sequence
-    SYNC_IDLE:
-    begin
-      IF_Rx_fifo_wreq  = 1'b0;             // Note: Sync bytes not saved in Rx_fifo
-
-      if (rst || !IF_PHY_drdy)
-        IF_SYNC_state_next = SYNC_IDLE;    // wait till we get data from PC
-      else if (IF_PHY_data == 16'h7F7F)
+    SYNC_IDLE: begin
+      if (IF_PHY_drdy & (IF_PHY_data == 16'h7F7F)) begin
         IF_SYNC_state_next = SYNC_START;   // possible start of sync
-      else
-        IF_SYNC_state_next = SYNC_IDLE;
+      end
     end
 
     // check for 0x7F  sync character & get Rx control_0
-    SYNC_START:
-    begin
-      IF_Rx_fifo_wreq  = 1'b0;             // Note: Sync bytes not saved in Rx_fifo
-
-      if (!IF_PHY_drdy)
-        IF_SYNC_state_next = SYNC_START;   // wait till we get data from PC
-      else if (IF_PHY_data[15:8] == 8'h7F)
-        IF_SYNC_state_next = SYNC_RX_1_2;  // have sync so continue
-      else
-        IF_SYNC_state_next = SYNC_IDLE;    // start searching for sync sequence again
+    SYNC_START: begin
+      if (IF_PHY_drdy) begin
+        if (IF_PHY_data[15:8] == 8'h7F) begin
+          resp_rqst_next = IF_PHY_data[7];
+          addr_next = IF_PHY_data[6:1];
+          mox_next = IF_PHY_data[0];
+          IF_SYNC_state_next = SYNC_RX_1_2;  // have sync so continue
+        end else begin
+          IF_SYNC_state_next = SYNC_IDLE;    // start searching for sync sequence again
+        end
+      end
+      IF_SYNC_frame_cnt_next = 0;
     end
 
-
-    SYNC_RX_1_2:                             // save Rx control 1 & 2
-    begin
-      IF_Rx_fifo_wreq  = 1'b0;             // Note: Rx control 1 & 2 not saved in Rx_fifo
-
-      if (!IF_PHY_drdy)
-        IF_SYNC_state_next = SYNC_RX_1_2;  // wait till we get data from PC
-      else
+    SYNC_RX_1_2: begin
+      if (IF_PHY_drdy) begin
+        data_next = {IF_PHY_data,data[15:0]};
         IF_SYNC_state_next = SYNC_RX_3_4;
+      end
     end
 
-    SYNC_RX_3_4:                             // save Rx control 3 & 4
-    begin
-      IF_Rx_fifo_wreq  = 1'b0;             // Note: Rx control 3 & 4 not saved in Rx_fifo
-
-      if (!IF_PHY_drdy)
-        IF_SYNC_state_next = SYNC_RX_3_4;  // wait till we get data from PC
-      else
-        IF_SYNC_state_next = SYNC_FINISH;
+    SYNC_RX_3_4: begin
+      if (IF_PHY_drdy) begin
+        data_next = {data[31:16],IF_PHY_data};
+        basewrite_next = 1'b1;
+        IF_SYNC_state_next = SYNC_FINISH1;
+      end
     end
 
     // Remainder of data goes to Rx_fifo, re-start looking
     // for a new SYNC at end of this frame.
     // Note: due to the use of IF_PHY_drdy data will only be written to the
     // Rx fifo if there is room. Also the frame_count will only be incremented if IF_PHY_drdy is true.
-    SYNC_FINISH:
-    begin
+    SYNC_FINISH1: begin
       IF_Rx_fifo_wreq  = IF_PHY_drdy;
-      if (IF_PHY_drdy & (IF_SYNC_frame_cnt == ((512-8)/2)-1)) begin  // frame ended, go get sync again
-        IF_SYNC_state_next = SYNC_IDLE;
+      if (IF_PHY_drdy) begin
+        if (IF_SYNC_frame_cnt == ((512-8)/2)-1) begin  // frame ended, go get sync again
+          IF_SYNC_state_next = SYNC_IDLE;
+        end else begin
+          IF_SYNC_frame_cnt_next = IF_SYNC_frame_cnt + 1'b1;
+          IF_SYNC_state_next = SYNC_FINISH2;
+        end
       end
-      else IF_SYNC_state_next = SYNC_FINISH;
     end
 
-    default:
-    begin
-      IF_Rx_fifo_wreq  = 1'b0;
-      IF_SYNC_state_next = SYNC_IDLE;
+    SYNC_FINISH2: begin
+      IF_Rx_fifo_wreq  = IF_PHY_drdy;
+      if (IF_PHY_drdy) begin
+        if (IF_SYNC_frame_cnt == ((512-8)/2)-1) begin  // frame ended, go get sync again
+          IF_SYNC_state_next = SYNC_IDLE;
+        end else begin
+          IF_SYNC_frame_cnt_next = IF_SYNC_frame_cnt + 1'b1;
+          IF_SYNC_state_next = SYNC_FINISH3;
+        end
+      end
     end
-    endcase
+
+    SYNC_FINISH3: begin
+      IF_Rx_fifo_wreq  = IF_PHY_drdy;
+      if (IF_PHY_drdy) begin
+        if (IF_SYNC_frame_cnt == ((512-8)/2)-1) begin  // frame ended, go get sync again
+          IF_SYNC_state_next = SYNC_IDLE;
+        end else begin
+          IF_SYNC_frame_cnt_next = IF_SYNC_frame_cnt + 1'b1;
+          IF_SYNC_state_next = SYNC_FINISH4;
+        end
+      end
+    end
+
+    SYNC_FINISH4: begin
+      IF_Rx_fifo_wreq  = IF_PHY_drdy;
+      if (IF_PHY_drdy) begin
+        if (IF_SYNC_frame_cnt == ((512-8)/2)-1) begin  // frame ended, go get sync again
+          IF_SYNC_state_next = SYNC_IDLE;
+        end else begin
+          IF_SYNC_frame_cnt_next = IF_SYNC_frame_cnt + 1'b1;
+          IF_SYNC_state_next = SYNC_FINISH1;
+        end
+      end
+    end
+
+  endcase
 end
 
 wire have_room;
@@ -1086,8 +1153,9 @@ reg         IF_PA_enable;
 reg         IF_TR_disable;
 
 
-always @ (posedge clk_ad9866)
-begin
+always 
+@ (posedge clk_ad9866)
+begin   
   if (rst)
   begin // set up default values - 0 for now
     // RX_CONTROL_1
