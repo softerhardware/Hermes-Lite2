@@ -5,8 +5,12 @@ module radio (
   ptt,
 
   // Transmit
-  tx_data_i,
-  tx_data_q,
+  tx_tdata_iq,
+  tx_tid,
+  tx_tlast,
+  tx_tready,
+  tx_tvalid,
+
   tx_cw_key,
   tx_cw_level,
   tx_data_dac,
@@ -59,8 +63,12 @@ input             clk_ad9866;
 
 input             ptt;
 
-input   [15:0]    tx_data_i;
-input   [15:0]    tx_data_q;
+input   [31:0]    tx_tdata_iq;
+input   [ 2:0]    tx_tid;
+input             tx_tlast;
+output            tx_tready;
+input             tx_tvalid;
+
 
 input             tx_cw_key;
 input   [17:0]    tx_cw_level;
@@ -116,8 +124,6 @@ logic signed [15:0] tx_q;
 
 logic signed [15:0] txsum;
 logic signed [15:0] txsumq;
-
-logic         tx_data_rqst;
 
 logic [23:0]  rx_data_i [0:NR-1];
 logic [23:0]  rx_data_q [0:NR-1];
@@ -368,15 +374,16 @@ endgenerate
 */
 
 // latch I&Q data on strobe from FIR
+// FIXME: no backpressure from FIR for now
 always @ (posedge clk_ad9866) begin
-  if (tx_data_rqst) begin
-    tx_fir_i = tx_data_i;
-    tx_fir_q = tx_data_q;
+  if (tx_tready & tx_tvalid) begin
+    tx_fir_i = tx_tdata_iq[31:16];
+    tx_fir_q = tx_tdata_iq[15:0];
   end
 end
 
 // Interpolate I/Q samples from 48 kHz to the clock frequency
-FirInterp8_1024 fi (clk_ad9866, req2, tx_data_rqst, tx_fir_i, tx_fir_q, y1_r, y1_i);  // req2 enables an output sample, tx_data_rqst requests next input sample.
+FirInterp8_1024 fi (clk_ad9866, req2, tx_tready, tx_fir_i, tx_fir_q, y1_r, y1_i);  // req2 enables an output sample, tx_tready requests next input sample.
 
 // GBITS reduced to 30
 CicInterpM5 #(.RRRR(RRRR), .IBITS(20), .OBITS(16), .GBITS(GBITS)) in2 ( clk_ad9866, 1'd1, req2, y1_r, y1_i, y2_r, y2_i);
