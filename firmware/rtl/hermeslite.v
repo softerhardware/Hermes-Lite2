@@ -154,7 +154,7 @@ localparam PREDISTORT = 0;
 localparam Penny_serialno = 8'd00;      // Use same value as equ1valent Penny code
 localparam Merc_serialno = 8'd00;       // Use same value as equivalent Mercury code
 
-localparam RX_FIFO_SZ  = 1024;          // 16 by 4096 deep RX FIFO
+localparam RX_FIFO_SZ  = 512;          // 16 by 4096 deep RX FIFO
 localparam TX_FIFO_SZ  = 1024;          // 16 by 1024 deep TX FIFO
 localparam SP_FIFO_SZ = 2048;           // 16 by 8192 deep SP FIFO, was 16384 but wouldn't fit
 
@@ -393,11 +393,11 @@ always @ (posedge clock_2_5MHz)
 //      CLOCKS
 //---------------------------------------------------------
 
-wire CLRCLK;
+//wire CLRCLK;
 
-wire C122_cbclk, C122_cbrise, C122_cbfall;
-Hermes_clk_lrclk_gen #(.CLK_FREQ(CLK_FREQ)) clrgen (.reset(rst), .CLK_IN(clk_ad9866), .BCLK(C122_cbclk),
-                             .Brise(C122_cbrise), .Bfall(C122_cbfall), .LRCLK(CLRCLK));
+//wire C122_cbclk, C122_cbrise, C122_cbfall;
+//Hermes_clk_lrclk_gen #(.CLK_FREQ(CLK_FREQ)) clrgen (.reset(rst), .CLK_IN(clk_ad9866), .BCLK(C122_cbclk),
+//                             .Brise(C122_cbrise), .Bfall(C122_cbfall), .LRCLK(CLRCLK));
 
 
 wire Tx_fifo_rdreq;
@@ -731,7 +731,7 @@ wire C122_ce_out_q;
 
 //  Create short pulse from posedge of CLRCLK synced to clk_ad9866 for RXF read timing
 
-pulsegen cdc_m   (.sig(CLRCLK), .rst(rst), .clk(clk_ad9866), .pulse(IF_get_samples));
+//pulsegen cdc_m   (.sig(CLRCLK), .rst(rst), .clk(clk_ad9866), .pulse(IF_get_samples));
 
 wire   [23:0]     rx_I [0:NR-1];
 wire   [23:0]     rx_Q [0:NR-1];
@@ -756,8 +756,12 @@ radio_i
   .ptt(FPGA_PTT),
 
   // Transmit
-  .tx_data_i(IF_I_PWM),
-  .tx_data_q(IF_Q_PWM),
+  .tx_tdata_iq({IF_Rx_fifo_rdata[15:0],IF_Rx_fifo_rdata[33:18]}),
+  .tx_tid({IF_Rx_fifo_rdata[34],IF_Rx_fifo_rdata[17:16]}),
+  .tx_tlast(IF_Rx_fifo_rdata[35]),
+  .tx_tready(IF_Rx_fifo_rreq),
+  .tx_tvalid(~IF_Rx_fifo_rempty),
+
   .tx_cw_key(cwkey),
   .tx_cw_level(cwlevel),
   .tx_data_dac(tx_data),
@@ -958,52 +962,53 @@ wire PHY_Tx_rdempty;
 
 
 //---------------------------------------------------------
-//   Rx_fifo  (2048 words) single clock FIFO
+//   
 //---------------------------------------------------------
 
-wire [15:0] IF_Rx_fifo_rdata;
-reg         IF_Rx_fifo_rreq;    // controls reading of fifo
+wire [35:0] IF_Rx_fifo_rdata;
+wire        IF_Rx_fifo_rreq;    // controls reading of fifo
+wire        IF_Rx_fifo_rempty;
 wire [15:0] IF_PHY_data;
 
 wire [15:0] IF_Rx_fifo_wdata;
-reg         IF_Rx_fifo_wreq;
+wire        IF_Rx_fifo_wreq;
 
-FIFO #(.SZ(RX_FIFO_SZ)) RXF (.rst(rst), .clk (clk_ad9866), .full(IF_Rx_fifo_full), .usedw(IF_Rx_fifo_used),
-          .wrreq (IF_Rx_fifo_wreq), .data (IF_PHY_data),
-          .rdreq (IF_Rx_fifo_rreq), .q (IF_Rx_fifo_rdata) );
+//FIFO #(.SZ(RX_FIFO_SZ)) RXF (.rst(rst), .clk (clk_ad9866), .full(IF_Rx_fifo_full), .usedw(IF_Rx_fifo_used),
+//          .wrreq (IF_Rx_fifo_wreq), .data (IF_PHY_data),
+//          .rdreq (IF_Rx_fifo_rreq), .q (IF_Rx_fifo_rdata) );
 
 
-//dcfifo_mixed_widths #(
-//  .intended_device_family("Cyclone IV E"),
-//  .lpm_numwords(2048),
-//  .lpm_showahead ("ON"),
-//  .lpm_type("dcfifo_mixed_widths"),
-//  .lpm_width(18),
-//  .lpm_widthu(11),
-//  .lpm_widthu_r(11),
-//  .lpm_width_r(18),
-//  .overflow_checking("ON"),
-//  .rdsync_delaypipe(4),
-//  .underflow_checking("ON"),
-//  .use_eab("ON"),
-//  .wrsync_delaypipe(4)
-//) RXF (
-//  .data ({2'b10,IF_PHY_data}),
-//  .rdclk (clk_ad9866),
-//  .rdreq (IF_Rx_fifo_rreq),
-//  .wrclk (clk_ad9866),
-//  .wrreq (IF_Rx_fifo_wreq),
-//  .q (IF_Rx_fifo_rdata),
-//  .rdempty (),
-//  .wrfull (IF_Rx_fifo_full),
-//  .wrusedw (IF_Rx_fifo_used),
-//  .aclr (1'b0),
-//  .eccstatus (),
-//  .rdfull (),
-//  .rdusedw (),
-//  .wrempty ()
-//);
-
+dcfifo_mixed_widths #(
+  .intended_device_family("Cyclone IV E"),
+  .lpm_numwords(512),
+  .lpm_showahead ("ON"),
+  .lpm_type("dcfifo_mixed_widths"),
+  .lpm_width(18),
+  .lpm_widthu(9),
+  .lpm_widthu_r(8),
+  .lpm_width_r(36),
+  .overflow_checking("ON"),
+  .rdsync_delaypipe(4),
+  .underflow_checking("ON"),
+  .use_eab("ON"),
+  .wrsync_delaypipe(4)
+) radio_upstream_fifo_i (
+  .data ({2'b10,IF_PHY_data}),
+  .rdclk (clk_ad9866),
+  .rdreq (IF_Rx_fifo_rreq),
+  .wrclk (clk_ad9866),
+  .wrreq (IF_Rx_fifo_wreq),
+  .q (IF_Rx_fifo_rdata),
+  .rdempty (IF_Rx_fifo_rempty),
+  .rdusedw (),
+  .wrfull (IF_Rx_fifo_full),
+  .wrusedw (IF_Rx_fifo_used),
+  .aclr (1'b0),
+  .eccstatus (),
+  .rdfull (),
+  .rdusedw (),
+  .wrempty ()
+);
 
 //------------------------------------------------------------
 //   Sync and  C&C  Detector
@@ -1091,7 +1096,7 @@ always @* begin
     // Note: due to the use of IF_PHY_drdy data will only be written to the
     // Rx fifo if there is room. Also the frame_count will only be incremented if IF_PHY_drdy is true.
     SYNC_FINISH1: begin
-      IF_Rx_fifo_wreq  = IF_PHY_drdy;
+      //IF_Rx_fifo_wreq  = IF_PHY_drdy;
       if (IF_PHY_drdy) begin
         if (IF_SYNC_frame_cnt == ((512-8)/2)-1) begin  // frame ended, go get sync again
           IF_SYNC_state_next = SYNC_IDLE;
@@ -1103,7 +1108,7 @@ always @* begin
     end
 
     SYNC_FINISH2: begin
-      IF_Rx_fifo_wreq  = IF_PHY_drdy;
+      //IF_Rx_fifo_wreq  = IF_PHY_drdy;
       if (IF_PHY_drdy) begin
         if (IF_SYNC_frame_cnt == ((512-8)/2)-1) begin  // frame ended, go get sync again
           IF_SYNC_state_next = SYNC_IDLE;
@@ -1203,145 +1208,146 @@ assign FPGA_PTT = (mox | cwkey | clean_ptt) & ~clean_txinhibit; // mox only upda
     of the A/D converters (48kHz) so is synced to the negative edge of the CLRCLK (via IF_get_rx_data).
 */
 
-reg   [2:0] IF_PWM_state;      // state for PWM
-reg   [2:0] IF_PWM_state_next; // next state for PWM
-reg  [15:0] IF_Left_Data;      // Left 16 bit PWM data for D/A converter
+//reg   [2:0] IF_PWM_state;      // state for PWM
+//reg   [2:0] IF_PWM_state_next; // next state for PWM
+//reg  [15:0] IF_Left_Data;      // Left 16 bit PWM data for D/A converter
 //reg  [15:0] IF_Right_Data;     // Right 16 bit PWM data for D/A converter
-reg  [15:0] IF_I_PWM;          // I 16 bit PWM data for D/A conveter
-reg  [15:0] IF_Q_PWM;          // Q 16 bit PWM data for D/A conveter
-wire        IF_get_samples;
-wire        IF_get_rx_data;
+//reg  [15:0] IF_I_PWM;          // I 16 bit PWM data for D/A conveter
+//reg  [15:0] IF_Q_PWM;          // Q 16 bit PWM data for D/A conveter
 
-assign IF_get_rx_data = IF_get_samples;
+//wire        IF_get_samples;
+//wire        IF_get_rx_data;
 
-localparam PWM_IDLE     = 0,
-           PWM_START    = 1,
-           PWM_LEFT     = 2,
-           PWM_RIGHT    = 3,
-           PWM_I_AUDIO  = 4,
-           PWM_Q_AUDIO  = 5;
+//assign IF_get_rx_data = IF_get_samples;
+
+//localparam PWM_IDLE     = 0,
+//           PWM_START    = 1,
+//           PWM_LEFT     = 2,
+//           PWM_RIGHT    = 3,
+//           PWM_I_AUDIO  = 4,
+//           PWM_Q_AUDIO  = 5;
+//
+//
+//generate
+//
+//if(PREDISTORT==1) begin: PD2
+//
+//always @ (posedge clk_ad9866)
+//begin
+//  if (rst)
+//    IF_PWM_state   <=  PWM_IDLE;
+//  else
+//    IF_PWM_state   <=  IF_PWM_state_next;
+//
+//  // get Left audio
+//  if (IF_PWM_state == PWM_LEFT)
+//    IF_Left_Data   <=  IF_Rx_fifo_rdata;
+//
+//  // get Right audio
+//  if (IF_PWM_state == PWM_RIGHT)
+//  begin
+//    //IF_Right_Data  <=  IF_Rx_fifo_rdata;
+//
+//     if(IF_Left_Data[12] )
+//        radio_i.PD1.DACLUTQ[IF_Left_Data[11:0]]<= IF_Rx_fifo_rdata[12:0];
+//    else
+//        radio_i.PD1.DACLUTI[IF_Left_Data[11:0]]<= IF_Rx_fifo_rdata[12:0];
+//
+//    end
+//
+//  // get I audio
+//  if (IF_PWM_state == PWM_I_AUDIO)
+//    IF_I_PWM       <=  IF_Rx_fifo_rdata;
+//
+//  // get Q audio
+//  if (IF_PWM_state == PWM_Q_AUDIO)
+//    IF_Q_PWM       <=  IF_Rx_fifo_rdata;
+//
+//end
+//
+//
+//end else begin
+//
+//
+//always @ (posedge clk_ad9866)
+//begin
+//  if (rst)
+//    IF_PWM_state   <=  PWM_IDLE;
+//  else
+//    IF_PWM_state   <=  IF_PWM_state_next;
+//
+//  // get I audio
+//  if (IF_PWM_state == PWM_I_AUDIO)
+//    IF_I_PWM       <=  IF_Rx_fifo_rdata;
+//
+//  // get Q audio
+//  if (IF_PWM_state == PWM_Q_AUDIO)
+//    IF_Q_PWM       <=  IF_Rx_fifo_rdata;
+//
+//end
+//
+//end
+//
+//endgenerate
 
 
-generate
-
-if(PREDISTORT==1) begin: PD2
-
-always @ (posedge clk_ad9866)
-begin
-  if (rst)
-    IF_PWM_state   <=  PWM_IDLE;
-  else
-    IF_PWM_state   <=  IF_PWM_state_next;
-
-  // get Left audio
-  if (IF_PWM_state == PWM_LEFT)
-    IF_Left_Data   <=  IF_Rx_fifo_rdata;
-
-  // get Right audio
-  if (IF_PWM_state == PWM_RIGHT)
-  begin
-    //IF_Right_Data  <=  IF_Rx_fifo_rdata;
-
-     if(IF_Left_Data[12] )
-        radio_i.PD1.DACLUTQ[IF_Left_Data[11:0]]<= IF_Rx_fifo_rdata[12:0];
-    else
-        radio_i.PD1.DACLUTI[IF_Left_Data[11:0]]<= IF_Rx_fifo_rdata[12:0];
-
-    end
-
-  // get I audio
-  if (IF_PWM_state == PWM_I_AUDIO)
-    IF_I_PWM       <=  IF_Rx_fifo_rdata;
-
-  // get Q audio
-  if (IF_PWM_state == PWM_Q_AUDIO)
-    IF_Q_PWM       <=  IF_Rx_fifo_rdata;
-
-end
 
 
-end else begin
-
-
-always @ (posedge clk_ad9866)
-begin
-  if (rst)
-    IF_PWM_state   <=  PWM_IDLE;
-  else
-    IF_PWM_state   <=  IF_PWM_state_next;
-
-  // get I audio
-  if (IF_PWM_state == PWM_I_AUDIO)
-    IF_I_PWM       <=  IF_Rx_fifo_rdata;
-
-  // get Q audio
-  if (IF_PWM_state == PWM_Q_AUDIO)
-    IF_Q_PWM       <=  IF_Rx_fifo_rdata;
-
-end
-
-end
-
-endgenerate
-
-
-
-
-always @*
-begin
-  case (IF_PWM_state)
-    PWM_IDLE:
-    begin
-      IF_Rx_fifo_rreq = 1'b0;
-
-      if (!IF_get_rx_data  || RX_USED[RFSZ:2] == 1'b0 ) // RX_USED < 4
-        IF_PWM_state_next = PWM_IDLE;    // wait until time to get the donuts every 48kHz from oven (RX_FIFO)
-      else
-        IF_PWM_state_next = PWM_START;   // ah! now it's time to get the donuts
-    end
-
-    // Start packaging the donuts
-    PWM_START:
-    begin
-      IF_Rx_fifo_rreq    = 1'b1;
-      IF_PWM_state_next  = PWM_LEFT;
-    end
-
-    // get Left audio
-    PWM_LEFT:
-    begin
-      IF_Rx_fifo_rreq    = 1'b1;
-      IF_PWM_state_next  = PWM_RIGHT;
-    end
-
-    // get Right audio
-    PWM_RIGHT:
-    begin
-      IF_Rx_fifo_rreq    = 1'b1;
-      IF_PWM_state_next  = PWM_I_AUDIO;
-    end
-
-    // get I audio
-   PWM_I_AUDIO:
-    begin
-      IF_Rx_fifo_rreq    = 1'b1;
-      IF_PWM_state_next  = PWM_Q_AUDIO;
-    end
-
-    // get Q audio
-    PWM_Q_AUDIO:
-    begin
-      IF_Rx_fifo_rreq    = 1'b0;
-      IF_PWM_state_next  = PWM_IDLE; // truck has left the shipping dock
-    end
-
-   default:
-    begin
-      IF_Rx_fifo_rreq    = 1'b0;
-      IF_PWM_state_next  = PWM_IDLE;
-    end
-  endcase
-end
+//always @*
+//begin
+//  case (IF_PWM_state)
+//    PWM_IDLE:
+//    begin
+//      IF_Rx_fifo_rreq = 1'b0;
+//
+//      if (!IF_get_rx_data  || RX_USED[RFSZ:2] == 1'b0 ) // RX_USED < 4
+//        IF_PWM_state_next = PWM_IDLE;    // wait until time to get the donuts every 48kHz from oven (RX_FIFO)
+//      else
+//        IF_PWM_state_next = PWM_START;   // ah! now it's time to get the donuts
+//    end
+//
+//    // Start packaging the donuts
+//    PWM_START:
+//    begin
+//      IF_Rx_fifo_rreq    = 1'b1;
+//      IF_PWM_state_next  = PWM_LEFT;
+//    end
+//
+//    // get Left audio
+//    PWM_LEFT:
+//    begin
+//      IF_Rx_fifo_rreq    = 1'b1;
+//      IF_PWM_state_next  = PWM_RIGHT;
+//    end
+//
+//    // get Right audio
+//    PWM_RIGHT:
+//    begin
+//      IF_Rx_fifo_rreq    = 1'b1;
+//      IF_PWM_state_next  = PWM_I_AUDIO;
+//    end
+//
+//    // get I audio
+//   PWM_I_AUDIO:
+//    begin
+//      IF_Rx_fifo_rreq    = 1'b1;
+//      IF_PWM_state_next  = PWM_Q_AUDIO;
+//    end
+//
+//    // get Q audio
+//    PWM_Q_AUDIO:
+//    begin
+//      IF_Rx_fifo_rreq    = 1'b0;
+//      IF_PWM_state_next  = PWM_IDLE; // truck has left the shipping dock
+//    end
+//
+//   default:
+//    begin
+//      IF_Rx_fifo_rreq    = 1'b0;
+//      IF_PWM_state_next  = PWM_IDLE;
+//    end
+//  endcase
+//end
 
 //---------------------------------------------------------
 //  Debounce CWKEY input - active low
