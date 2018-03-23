@@ -389,15 +389,7 @@ reg ad9866_rst_n = 1'b0;
 always @ (posedge clock_2_5MHz)
   if (resetcounter[15] & ad9866pll_locked) ad9866_rst_n <= 1'b1;
 
-//---------------------------------------------------------
-//      CLOCKS
-//---------------------------------------------------------
 
-//wire CLRCLK;
-
-//wire C122_cbclk, C122_cbrise, C122_cbfall;
-//Hermes_clk_lrclk_gen #(.CLK_FREQ(CLK_FREQ)) clrgen (.reset(rst), .CLK_IN(clk_ad9866), .BCLK(C122_cbclk),
-//                             .Brise(C122_cbrise), .Bfall(C122_cbfall), .LRCLK(CLRCLK));
 
 
 wire Tx_fifo_rdreq;
@@ -724,14 +716,6 @@ reg signed [15:0]C122_cic_q;
 wire C122_ce_out_i;
 wire C122_ce_out_q;
 
-//------------------------------------------------------------------------------
-//                 Pulse generators
-//------------------------------------------------------------------------------
-
-
-//  Create short pulse from posedge of CLRCLK synced to clk_ad9866 for RXF read timing
-
-//pulsegen cdc_m   (.sig(CLRCLK), .rst(rst), .clk(clk_ad9866), .pulse(IF_get_samples));
 
 wire   [23:0]     rx_I [0:NR-1];
 wire   [23:0]     rx_Q [0:NR-1];
@@ -972,10 +956,6 @@ wire [15:0] IF_PHY_data;
 
 wire [15:0] IF_Rx_fifo_wdata;
 wire        IF_Rx_fifo_wreq;
-
-//FIFO #(.SZ(RX_FIFO_SZ)) RXF (.rst(rst), .clk (clk_ad9866), .full(IF_Rx_fifo_full), .usedw(IF_Rx_fifo_used),
-//          .wrreq (IF_Rx_fifo_wreq), .data (IF_PHY_data),
-//          .rdreq (IF_Rx_fifo_rreq), .q (IF_Rx_fifo_rdata) );
 
 
 dcfifo_mixed_widths #(
