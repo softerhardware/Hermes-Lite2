@@ -1,4 +1,5 @@
-   0         4    0.00000608          4.08
+
+scoeffs = """ 0         4    0.00000608          4.08
    1         3    0.00000403          2.70
    2         3    0.00000377          2.53
    3         1    0.00000174          1.17
@@ -973,6 +974,48 @@
  972         1    0.00000174          1.17
  973         3    0.00000377          2.53
  974         3    0.00000403          2.70
- 975         4    0.00000608          4.08
-sum 0.99528147291 big 0.123079149857 asum 2.51787120844 sym SYM isum 667720
-factor:  big 82574.73  asum 1689258.79  asum/big 20.46
+ 975         4    0.00000608          4.08"""
+
+mifpreamble = """DEPTH = 256;
+WIDTH = 18;
+ADDRESS_RADIX = HEX;
+DATA_RADIX = HEX;
+CONTENT
+BEGIN
+"""
+
+def do(filename,modulus):
+  f1 = open(filename+".txt","w")
+  f2 = open(filename+".mif","w")
+  f2.write(mifpreamble)
+  coeffs = scoeffs.split('\n')
+  i = 0
+  k = 0
+  for coeff in coeffs:
+    if i%8 == modulus: 
+      coeff = coeff.split()[3]
+      fv = float(coeff)
+      iv = int(round(fv))
+      hv = 0x3ffff & iv
+      f1.write("{0:018b} // {1} {2}\n".format(hv,iv,fv))
+      f2.write("{0:02X} : {1:05X}; --  {2} {3}\n".format(k,hv,iv,fv))
+      k = k + 1
+    i = i + 1
+
+  for j in range(k,256):
+    f1.write("000000000000000000\n")
+    f2.write("{0:02X} : 00000;\n".format(j))
+
+  f2.write("END;\n")
+
+  f1.close()
+  f2.close()
+
+do("coefL8A",7)
+do("coefL8B",6)
+do("coefL8C",5)
+do("coefL8D",4)
+do("coefL8E",3)
+do("coefL8F",2)
+do("coefL8G",1)
+do("coefL8H",0)
