@@ -206,6 +206,17 @@ logic   [2:0]   basewrite = 3'b000; // Shift register to delay write
 logic           basewrite_next;
 
 
+logic   [35:0]  dsiq_rdata;
+logic           dsiq_rreq;    // controls reading of fifo
+logic           dsiq_rempty;
+logic   [15:0]  IF_PHY_data;
+
+logic   [15:0]  dsiq_wdata;
+logic           dsiq_wreq;
+logic   [1:0]   dsiq_tlasttid;
+
+
+
 localparam SYNC_IDLE    = 3'h0,
            SYNC_START   = 3'h1,
            SYNC_RX_1_2  = 3'h2,
@@ -740,11 +751,11 @@ radio_i
   .ptt(FPGA_PTT),
 
   // Transmit
-  .tx_tdata_iq({IF_Rx_fifo_rdata[15:0],IF_Rx_fifo_rdata[33:18]}),
-  .tx_tid({IF_Rx_fifo_rdata[34],IF_Rx_fifo_rdata[17:16]}),
-  .tx_tlast(IF_Rx_fifo_rdata[35]),
-  .tx_tready(IF_Rx_fifo_rreq),
-  .tx_tvalid(~IF_Rx_fifo_rempty),
+  .tx_tdata_iq({dsiq_rdata[15:0],dsiq_rdata[33:18]}),
+  .tx_tid({dsiq_rdata[34],dsiq_rdata[17:16]}),
+  .tx_tlast(dsiq_rdata[35]),
+  .tx_tready(dsiq_rreq),
+  .tx_tvalid(~dsiq_rempty),
 
   .tx_cw_key(cwkey),
   .tx_cw_level(cwlevel),
@@ -825,8 +836,8 @@ wire [TFSZ-1:0] IF_tx_fifo_used;
 wire            IF_tx_fifo_rreq;
 wire            IF_tx_fifo_empty;
 
-wire [RFSZ-1:0] IF_Rx_fifo_used;            // read side count
-wire            IF_Rx_fifo_full;
+wire [RFSZ-1:0] dsiq_used;            // read side count
+wire            dsiq_full;
 
 wire            clean_dash;                 // debounced dash key
 wire            clean_dot;                  // debounced dot key
@@ -836,7 +847,7 @@ wire     [11:0] Penny_ALC;
 wire   [RFSZ:0] RX_USED;
 wire            IF_tx_fifo_clr;
 
-assign RX_USED = {IF_Rx_fifo_full,IF_Rx_fifo_used};
+assign RX_USED = {dsiq_full,dsiq_used};
 
 
 assign Penny_ALC = AIN5;
@@ -949,46 +960,40 @@ wire PHY_Tx_rdempty;
 //   
 //---------------------------------------------------------
 
-wire [35:0] IF_Rx_fifo_rdata;
-wire        IF_Rx_fifo_rreq;    // controls reading of fifo
-wire        IF_Rx_fifo_rempty;
-wire [15:0] IF_PHY_data;
-
-wire [15:0] IF_Rx_fifo_wdata;
-wire        IF_Rx_fifo_wreq;
 
 
 dcfifo_mixed_widths #(
   .intended_device_family("Cyclone IV E"),
-  .lpm_numwords(512),
+  .lpm_numwords(512), // 256
   .lpm_showahead ("ON"),
   .lpm_type("dcfifo_mixed_widths"),
   .lpm_width(18),
-  .lpm_widthu(9),
-  .lpm_widthu_r(8),
+  .lpm_widthu(9), // 8
+  .lpm_widthu_r(8), // 7
   .lpm_width_r(36),
   .overflow_checking("ON"),
   .rdsync_delaypipe(4),
   .underflow_checking("ON"),
   .use_eab("ON"),
   .wrsync_delaypipe(4)
-) radio_downstream_fifo_i (
-  .data ({2'b10,IF_PHY_data}),
+) dsiq_fifo_i (
+  .data ({dsiq_tlasttid,IF_PHY_data}),
   .rdclk (clk_ad9866),
-  .rdreq (IF_Rx_fifo_rreq),
+  .rdreq (dsiq_rreq),
   .wrclk (clk_ad9866),
-  .wrreq (IF_Rx_fifo_wreq),
-  .q (IF_Rx_fifo_rdata),
-  .rdempty (IF_Rx_fifo_rempty),
+  .wrreq (dsiq_wreq),
+  .q (dsiq_rdata),
+  .rdempty (dsiq_rempty),
   .rdusedw (),
-  .wrfull (IF_Rx_fifo_full),
-  .wrusedw (IF_Rx_fifo_used),
+  .wrfull (dsiq_full),
+  .wrusedw (dsiq_used),
   .aclr (1'b0),
   .eccstatus (),
   .rdfull (),
   .rdusedw (),
   .wrempty ()
 );
+
 
 //------------------------------------------------------------
 //   Sync and  C&C  Detector
@@ -1031,7 +1036,8 @@ always @* begin
   basewrite_next = 1'b0;
 
   // Combinational output
-  IF_Rx_fifo_wreq = 1'b0; // Note: Sync bytes not saved in Rx_fifo
+  dsiq_wreq = 1'b0; // Note: Sync bytes not saved in Rx_fifo
+  dsiq_tlasttid = 2'b00;
 
   case (IF_SYNC_state)
     // state SYNC_IDLE  - loop until we find start of sync sequence
@@ -1076,7 +1082,7 @@ always @* begin
     // Note: due to the use of IF_PHY_drdy data will only be written to the
     // Rx fifo if there is room. Also the frame_count will only be incremented if IF_PHY_drdy is true.
     SYNC_FINISH1: begin
-      //IF_Rx_fifo_wreq  = IF_PHY_drdy;
+      //dsiq_wreq  = IF_PHY_drdy;
       if (IF_PHY_drdy) begin
         if (IF_SYNC_frame_cnt == ((512-8)/2)-1) begin  // frame ended, go get sync again
           IF_SYNC_state_next = SYNC_IDLE;
@@ -1088,7 +1094,7 @@ always @* begin
     end
 
     SYNC_FINISH2: begin
-      //IF_Rx_fifo_wreq  = IF_PHY_drdy;
+      //dsiq_wreq  = IF_PHY_drdy;
       if (IF_PHY_drdy) begin
         if (IF_SYNC_frame_cnt == ((512-8)/2)-1) begin  // frame ended, go get sync again
           IF_SYNC_state_next = SYNC_IDLE;
@@ -1100,7 +1106,8 @@ always @* begin
     end
 
     SYNC_FINISH3: begin
-      IF_Rx_fifo_wreq  = IF_PHY_drdy;
+      dsiq_wreq  = IF_PHY_drdy;
+      dsiq_tlasttid = addr[1:0];
       if (IF_PHY_drdy) begin
         if (IF_SYNC_frame_cnt == ((512-8)/2)-1) begin  // frame ended, go get sync again
           IF_SYNC_state_next = SYNC_IDLE;
@@ -1112,7 +1119,8 @@ always @* begin
     end
 
     SYNC_FINISH4: begin
-      IF_Rx_fifo_wreq  = IF_PHY_drdy;
+      dsiq_wreq  = IF_PHY_drdy;
+      dsiq_tlasttid = {1'b1,addr[2]};
       if (IF_PHY_drdy) begin
         if (IF_SYNC_frame_cnt == ((512-8)/2)-1) begin  // frame ended, go get sync again
           IF_SYNC_state_next = SYNC_IDLE;
@@ -1127,7 +1135,7 @@ always @* begin
 end
 
 wire have_room;
-assign have_room = (IF_Rx_fifo_used < RX_FIFO_SZ - ((512-8)/2)) ? 1'b1 : 1'b0;  // the /2 is because we send 16 bit values
+assign have_room = (dsiq_used < RX_FIFO_SZ - ((512-8)/2)) ? 1'b1 : 1'b0;  // the /2 is because we send 16 bit values
 
 // prevent read from PHY fifo if empty and writing to Rx fifo if not enough room
 assign  IF_PHY_drdy = have_room & ~IF_PHY_rdempty;
@@ -1221,27 +1229,27 @@ assign FPGA_PTT = (mox | cwkey | clean_ptt) & ~clean_txinhibit; // mox only upda
 //
 //  // get Left audio
 //  if (IF_PWM_state == PWM_LEFT)
-//    IF_Left_Data   <=  IF_Rx_fifo_rdata;
+//    IF_Left_Data   <=  dsiq_rdata;
 //
 //  // get Right audio
 //  if (IF_PWM_state == PWM_RIGHT)
 //  begin
-//    //IF_Right_Data  <=  IF_Rx_fifo_rdata;
+//    //IF_Right_Data  <=  dsiq_rdata;
 //
 //     if(IF_Left_Data[12] )
-//        radio_i.PD1.DACLUTQ[IF_Left_Data[11:0]]<= IF_Rx_fifo_rdata[12:0];
+//        radio_i.PD1.DACLUTQ[IF_Left_Data[11:0]]<= dsiq_rdata[12:0];
 //    else
-//        radio_i.PD1.DACLUTI[IF_Left_Data[11:0]]<= IF_Rx_fifo_rdata[12:0];
+//        radio_i.PD1.DACLUTI[IF_Left_Data[11:0]]<= dsiq_rdata[12:0];
 //
 //    end
 //
 //  // get I audio
 //  if (IF_PWM_state == PWM_I_AUDIO)
-//    IF_I_PWM       <=  IF_Rx_fifo_rdata;
+//    IF_I_PWM       <=  dsiq_rdata;
 //
 //  // get Q audio
 //  if (IF_PWM_state == PWM_Q_AUDIO)
-//    IF_Q_PWM       <=  IF_Rx_fifo_rdata;
+//    IF_Q_PWM       <=  dsiq_rdata;
 //
 //end
 //
@@ -1258,11 +1266,11 @@ assign FPGA_PTT = (mox | cwkey | clean_ptt) & ~clean_txinhibit; // mox only upda
 //
 //  // get I audio
 //  if (IF_PWM_state == PWM_I_AUDIO)
-//    IF_I_PWM       <=  IF_Rx_fifo_rdata;
+//    IF_I_PWM       <=  dsiq_rdata;
 //
 //  // get Q audio
 //  if (IF_PWM_state == PWM_Q_AUDIO)
-//    IF_Q_PWM       <=  IF_Rx_fifo_rdata;
+//    IF_Q_PWM       <=  dsiq_rdata;
 //
 //end
 //
@@ -1278,7 +1286,7 @@ assign FPGA_PTT = (mox | cwkey | clean_ptt) & ~clean_txinhibit; // mox only upda
 //  case (IF_PWM_state)
 //    PWM_IDLE:
 //    begin
-//      IF_Rx_fifo_rreq = 1'b0;
+//      dsiq_rreq = 1'b0;
 //
 //      if (!IF_get_rx_data  || RX_USED[RFSZ:2] == 1'b0 ) // RX_USED < 4
 //        IF_PWM_state_next = PWM_IDLE;    // wait until time to get the donuts every 48kHz from oven (RX_FIFO)
@@ -1289,41 +1297,41 @@ assign FPGA_PTT = (mox | cwkey | clean_ptt) & ~clean_txinhibit; // mox only upda
 //    // Start packaging the donuts
 //    PWM_START:
 //    begin
-//      IF_Rx_fifo_rreq    = 1'b1;
+//      dsiq_rreq    = 1'b1;
 //      IF_PWM_state_next  = PWM_LEFT;
 //    end
 //
 //    // get Left audio
 //    PWM_LEFT:
 //    begin
-//      IF_Rx_fifo_rreq    = 1'b1;
+//      dsiq_rreq    = 1'b1;
 //      IF_PWM_state_next  = PWM_RIGHT;
 //    end
 //
 //    // get Right audio
 //    PWM_RIGHT:
 //    begin
-//      IF_Rx_fifo_rreq    = 1'b1;
+//      dsiq_rreq    = 1'b1;
 //      IF_PWM_state_next  = PWM_I_AUDIO;
 //    end
 //
 //    // get I audio
 //   PWM_I_AUDIO:
 //    begin
-//      IF_Rx_fifo_rreq    = 1'b1;
+//      dsiq_rreq    = 1'b1;
 //      IF_PWM_state_next  = PWM_Q_AUDIO;
 //    end
 //
 //    // get Q audio
 //    PWM_Q_AUDIO:
 //    begin
-//      IF_Rx_fifo_rreq    = 1'b0;
+//      dsiq_rreq    = 1'b0;
 //      IF_PWM_state_next  = PWM_IDLE; // truck has left the shipping dock
 //    end
 //
 //   default:
 //    begin
-//      IF_Rx_fifo_rreq    = 1'b0;
+//      dsiq_rreq    = 1'b0;
 //      IF_PWM_state_next  = PWM_IDLE;
 //    end
 //  endcase
