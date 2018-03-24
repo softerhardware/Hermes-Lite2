@@ -972,7 +972,7 @@ dcfifo_mixed_widths #(
   .underflow_checking("ON"),
   .use_eab("ON"),
   .wrsync_delaypipe(4)
-) radio_upstream_fifo_i (
+) radio_downstream_fifo_i (
   .data ({2'b10,IF_PHY_data}),
   .rdclk (clk_ad9866),
   .rdreq (IF_Rx_fifo_rreq),

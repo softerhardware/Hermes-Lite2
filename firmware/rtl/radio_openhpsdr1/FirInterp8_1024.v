@@ -147,8 +147,11 @@ module FirInterp8_1024(
 		phase = 0;
 	end
 
-	//defparam rom.MifFile = "coefI8_1024.mif";  Specified in MegaFunction.
-	firromI_1024 rom (caddr, clock, coef);	// coefficient ROM 18 bits X NTAPS
+`ifdef USE_ALTSYNCRAM	
+	firromI_1024 #(.init_file("coefI8_1024.mif")) rom (caddr, clock, coef);	// coefficient ROM 18 bits X NTAPS
+`else 
+	firromI_1024 #(.init_file("coefI8_1024.txt")) rom (caddr, clock, coef);	// coefficient ROM 18 bits X NTAPS
+`endif 
 	// sample RAM 36 bits X 128;  36 bit == 18 bits I and 18 bits Q
 	// sign extend the input samples; they remain at 16 bits
 	wire [35:0] sx_input;
