@@ -50,7 +50,7 @@ module hermeslite(
   output          phy_mdc,
 
   // Clock
-  output          clk_recovered,
+  output          clk_recovered,    // io_db1_1 ; Cooling fan enable
   inout           clk_sda1,
   inout           clk_scl1,
 
@@ -85,14 +85,14 @@ module hermeslite(
 `endif
 
   // IO
-  output          io_led_d2,
-  output          io_led_d3,
-  output          io_led_d4,
-  output          io_led_d5,
+  output          io_led_d2,      // LED or ExtAMP TxD  (BAND)
+  inout           io_led_d3,      // LED or ExtAMP RxD  (Pull up)
+  output          io_led_d4,      // LED or ATU Start
+  inout           io_led_d5,      // LED or ATU Status  (Pull Up)
   input           io_lvds_rxn,
-  input           io_lvds_rxp,
-  input           io_lvds_txn,
-  input           io_lvds_txp,
+  input           io_lvds_rxp,    // BETA2,BETA3: io_cn5_6 : (88) <- AK4951 SDTO
+  output          io_lvds_txn,    // BETA2,BETA3: io_cn5_2 : (86) -> AK4951 BCK
+  output          io_lvds_txp,    // BETA2,BETA3: io_cn5_3 : (87) -> AK4951 LRCK
   input           io_cn8,
   input           io_cn9,
   input           io_cn10,
@@ -100,13 +100,13 @@ module hermeslite(
   inout           io_adc_sda,
   inout           io_scl2,
   inout           io_sda2,
-  input           io_db1_2,       // BETA2,BETA3: io_db24
-  input           io_db1_3,       // BETA2,BETA3: io_db22_3
-  input           io_db1_4,       // BETA2,BETA3: io_db22_2
-  output          io_db1_5,       // BETA2,BETA3: io_cn4_6
-  input           io_db1_6,       // BETA2,BETA3: io_cn4_7    
-  input           io_phone_tip,   // BETA2,BETA3: io_cn4_2
-  input           io_phone_ring,  // BETA2,BETA3: io_cn4_3
+  output          io_db1_2,       // BETA2,BETA3: io_db24  : (76) -> AK4951 SDTI
+  input           io_db1_3,       // BETA2,BETA3: io_db22_3: (77) <- CW Paddle DOT  (Pull Up)
+  input           io_db1_4,       // BETA2,BETA3: io_db22_2: (80) <- PTT in         (Pull Up)
+  input           io_db1_5,       // BETA2,BETA3: io_cn4_6 : (83) <- CW paddle DASH (Pull Up)
+  output          io_db1_6,       // BETA2,BETA3: io_cn4_7 : (85) -> AK4951 PDN
+  input           io_phone_tip,   // BETA2,BETA3: io_cn4_2 : (91)
+  input           io_phone_ring,  // BETA2,BETA3: io_cn4_3 : (90)
   input           io_tp2,
   
 `ifndef BETA2
@@ -134,7 +134,8 @@ localparam MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h12,8'hdd};
 `else 
 localparam MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd};
 `endif
-localparam IP = {8'd0,8'd0,8'd0,8'd0};
+//localparam IP = {8'd0,8'd0,8'd0,8'd0};
+localparam IP = {8'd192,8'd168,8'd0,8'd100};
 
 // ADC Oscillator
 localparam CLK_FREQ = 76800000;
@@ -162,7 +163,7 @@ localparam RRRR = (CLK_FREQ == 61440000) ? 160 : (CLK_FREQ == 79872000) ? 208 : 
 
 
 // Number of Receivers
-localparam NR = 3;     // number of receivers to implement
+localparam NR = 2;     // number of receivers to implement
 
 
 // Number of transmitters Be very careful when using more than 1 transmitter!
@@ -232,7 +233,7 @@ assign pwr_clkvpa = 1'b0;
 //assign io_adc_sda = 1'b0;
 
 
-assign clk_recovered = 1'b0;
+//assign clk_recovered = 1'b0;
 
 
 
@@ -388,10 +389,15 @@ always @ (posedge clock_2_5MHz)
 
 wire CLRCLK;
 
-wire C122_cbclk, C122_cbrise, C122_cbfall;
-Hermes_clk_lrclk_gen #(.CLK_FREQ(CLK_FREQ)) clrgen (.reset(rst), .CLK_IN(clk_ad9866), .BCLK(C122_cbclk),
-                             .Brise(C122_cbrise), .Bfall(C122_cbfall), .LRCLK(CLRCLK));
+wire C122_cbclk, C122_cbrise, C122_cbfall, C122_LRfall, MCLKrise;
+//Hermes_clk_lrclk_gen #(.CLK_FREQ(CLK_FREQ)) clrgen (
+//.reset(rst), .CLK_IN(clk_ad9866), .BCLK(C122_cbclk),
+//.Brise(C122_cbrise), .Bfall(C122_cbfall), .LRCLK(CLRCLK) );
 
+Hermes_clk_lrclk_gen #(.CLK_FREQ(CLK_FREQ)) clrgen (
+  .reset(rst), .CLK_IN(clk_ad9866), .BCLK(C122_cbclk),
+  .Brise(C122_cbrise), .Bfall(C122_cbfall), .LRCLK(CLRCLK),
+  .LRfall(C122_LRfall), .MCLK(), .MCLKrise(MCLKrise) );
 
 wire Tx_fifo_rdreq;
 wire [10:0] PHY_Tx_rdused;
@@ -410,8 +416,9 @@ wire [7:0] leds;
 
 
 
-assign cwkey_i = io_phone_tip;
-assign ptt_i = io_phone_ring;
+//assign cwkey_i = io_phone_tip;
+//assign ptt_i = io_phone_ring;
+assign ptt_i = io_db1_4;
 
 
 
@@ -632,7 +639,8 @@ wire have_sp_data;
 // Reset fifo when !run so the data always starts at a known state.
 
 wire C122_rst;
-cdc_sync #(1) reset_C122 (.siga(rst), .rstb(rst), .clkb(clk_ad9866), .sigb(C122_rst));
+//cdc_sync #(1) reset_C122 (.siga(rst), .rstb(rst), .clkb(clk_ad9866), .sigb(C122_rst));
+cdc_sync_rst reset_C122 (.rsta(rst), .clkb(clk_ad9866), .rstb(C122_rst));
 
 SP_fifo  SPF (.aclr(C122_rst | !run_sync), .wrclk (clk_ad9866), .rdclk(clock_ethtxint),
              .wrreq (sp_fifo_wrreq), .data ({{4{rx_data[11]}},rx_data}), .rdreq (sp_fifo_rdreq),
@@ -656,7 +664,7 @@ always @ (posedge clock_ethtxint)
 assign sp_data_ready = ( (speed_1gb ? sp_delay == 0 : sp_delay[15:0] == 0) && have_sp_data);
 
 
-assign IF_mic_Data = 0;
+//assign IF_mic_Data = 0;
 
 
 // AD9866 Interface
@@ -1173,8 +1181,8 @@ wire   [63:0] IF_tx_IQ_mic_data;
 reg           IF_tx_IQ_mic_rdy;
 wire   [15:0] IF_mic_Data;
 wire    [4:0] IF_chan;
-wire    [4:0] IF_last_chan;
-wire     [47:0] IF_chan_test;
+//wire    [4:0] IF_last_chan;
+//wire     [47:0] IF_chan_test;
 
 always @*
 begin
@@ -1444,17 +1452,35 @@ assign  IF_PHY_drdy = have_room & ~IF_PHY_rdempty;
 
 
 reg   [6:0] IF_OC;                  // open collectors on Hermes
+reg   [2:0] IF_Cooling;             // Cooling fan 0:off
+reg         IF_SPK_enable;          // Speaker 1:enable
 reg         Preamp;                 // selects input attenuator setting, 0 = 20dB, 1 = 0dB (preamp ON)
 reg  [31:0] IF_frequency[0:NR];     // Tx, Rx1, Rx2, Rx3
 reg         IF_duplex;
+reg   [4:0] IF_last_chan;
 reg         IF_DFS1;
 reg         IF_DFS0;
+reg         IF_autoTune;            // Apollo auto-tune
 reg         VNA;                    // Selects VNA mode when set.
 reg         IF_Pure_signal;              
 reg   [3:0] IF_Predistortion;             
-reg         IF_PA_enable;
-reg         IF_TR_disable;
-
+//reg         IF_PA_enable;
+//reg         IF_TR_disable;
+wire        IF_PA_enable  = 1'b1 ;  // always PA enable
+wire        IF_TR_disable = 1'b0 ;  // always TR enable
+reg         IF_Mic_boost;           // Mic boost 0 = 0dB, 1 = 20dB
+reg         IF_CW_keys_reversed ;   // 0:disable, 1:enable
+reg   [5:0] IF_Keyer_speed ;        // 1 - 60 WPM
+reg   [1:0] IF_Keyer_Mode ;         // 00:straight, 01:Mode A, 10:Mode B
+reg   [6:0] IF_Keyer_Weight ;       // 0 - 100
+reg   [7:0] IF_CW_Sidetone_Vol ;    // 0 - 127
+reg   [7:0] IF_CW_PTT_delay ;       // 0 - 255  ms
+reg   [9:0] IF_CW_Hang_Time ;       // 0 - 1023 ms
+reg  [11:0] IF_CW_Tone_Freq ;       // 200 - 2250Hz
+reg         IF_CW_internal ;        // 0:External, 1:Internal
+reg         Alex_manual;            // set if manual selection of Alex relays active
+reg   [5:0] Alex_manual_HPF;        // Alex HPF relay selection in manual mode
+reg   [6:0] Alex_manual_LPF;        // Alex LPF relay selection in manual mode
 
 always @ (posedge clk_ad9866)
 begin
@@ -1464,14 +1490,30 @@ begin
     IF_DFS1 <= 1'b0; // decode speed
     IF_DFS0 <= 1'b0;
     IF_OC              <= 7'b0;     // decode open collectors on Hermes
+    IF_Cooling         <= 3'b0;     // default off
+    IF_SPK_enable      <= 1'b1;     // default enable Speaker
     Preamp             <= 1'b1;     // decode Preamp (Attenuator), default on
     IF_duplex          <= 1'b0;     // not in duplex mode
     IF_last_chan       <= 5'b00000;    // default single receiver
+    IF_autoTune        <= 1'b0;      // Apollo auto-tune disabled
     VNA                <= 1'b0;      // VNA disabled
     IF_Pure_signal     <= 1'b0;      // default disable pure signal
     IF_Predistortion   <= 4'b0000;   // default disable predistortion
-    IF_PA_enable       <= 1'b0;
-    IF_TR_disable      <= 1'b0;
+//    IF_PA_enable       <= 1'b0;
+//    IF_TR_disable      <= 1'b0;
+    IF_Mic_boost       <= 1'b0;     // mic boost off
+    IF_CW_keys_reversed <= 1'b0 ;   // default disable keys reverse
+    IF_Keyer_speed     <= 6'd25 ;   // default 25WPM
+    IF_Keyer_Mode      <= 2'd0 ;    // default Keyer disable
+    IF_Keyer_Weight    <= 7'd50 ;   // default 50
+    IF_CW_Sidetone_Vol <= 8'd60 ;   // default 60
+    IF_CW_PTT_delay    <= 8'd10 ;   // default 10ms
+    IF_CW_Hang_Time    <= 10'd200 ; // default 200ms
+    IF_CW_Tone_Freq    <= 12'd600 ; // default 600Hz 
+    IF_CW_internal     <= 1'b0 ;    // default exnternal
+    Alex_manual        <= 1'b0;     // default auto Alex filter
+    Alex_manual_HPF    <= 6'h20 ;   // default Bypass
+    Alex_manual_LPF    <= 7'h40 ;   // default 12/10M
 
   end
   else if (basewrite[0])                  // all Rx_control bytes are ready to be saved
@@ -1482,6 +1524,8 @@ begin
       IF_DFS1  <= data[25]; // decode speed
       IF_DFS0  <= data[24]; // decode speed
       IF_OC               <= data[23:17]; // decode open collectors on Penelope
+      IF_Cooling          <= data[15:13]; // reuse Alex Rx out/Antenna
+      IF_SPK_enable       <= data[12];  // reuse IF_RAND
       Preamp              <= data[10];  // decode Preamp (Attenuator)  1 = On (0dB atten), 0 = Off (20dB atten)
       IF_duplex           <= data[2];   // save duplex mode
       IF_last_chan        <= data[7:3]; // number of IQ streams to send to PC
@@ -1489,12 +1533,35 @@ begin
     if (addr == 6'h09)
     begin
       VNA                 <= data[23];      // 1 = enable VNA mode
-      IF_PA_enable      <= data[19];
-      IF_TR_disable       <= data[18];
+      Alex_manual         <= data[22];     // manual Alex filter selection (0 = disable, 1 = enable)
+      IF_autoTune         <= data[20];     // 1 = begin Apollo auto-tune
+//      IF_PA_enable      <= data[19];
+//      IF_TR_disable       <= data[18];
+      IF_Mic_boost        <= data[16];      // decode mic boost 0 = 0dB, 1 = 20dB
+      Alex_manual_HPF     <= data[13:8];
+      Alex_manual_LPF     <= data[6:0];
     end
     if (addr == 6'h0a)
     begin
       IF_Pure_signal    <= data[22];       // decode pure signal setting
+    end
+    if (addr == 6'h0b)
+    begin
+      IF_CW_keys_reversed <= data[22];     // decode CW keys reversed setting
+      IF_Keyer_speed   <= data[13:8];      // decode Keyer speed setting
+      IF_Keyer_Mode    <= data[15:14];     // decode Keyer Mode setting
+      IF_Keyer_Weight  <= data[6:0];       // decode Keyer Weight setting
+    end
+    if (addr == 6'h0f)
+    begin
+      IF_CW_internal     <= data[24];      // decode CW internal generation
+      IF_CW_Sidetone_Vol <= data[23:16];   // decode CW Sidetone Vol setting
+      IF_CW_PTT_delay  <= data[15:8];      // decode CW PTT delay setting
+    end
+    if (addr == 6'h10)
+    begin
+      IF_CW_Hang_Time <= {data[31:24], data[17:16]} ; // decode CW Hang Time setting
+      IF_CW_Tone_Freq <= {data[15:8], data[3:0]} ;    // decode CW Sidetone frequency setting
     end
     if (addr == 6'h2b)
     begin
@@ -1571,8 +1638,8 @@ endgenerate
 wire clean_txinhibit;
 debounce de_txinhibit(.clean_pb(clean_txinhibit), .pb(~io_cn8), .clk(clk_ad9866));
 
-assign FPGA_PTT = (mox | cwkey | clean_ptt) & ~clean_txinhibit; // mox only updated when we get correct sync sequence
-
+wire mox_out;
+assign FPGA_PTT = (mox_out | cwkey | clean_ptt) & ~clean_txinhibit; // mox only updated when we get correct sync sequence
 
 //---------------------------------------------------------
 //   State Machine to manage PWM interface
@@ -1591,7 +1658,7 @@ assign FPGA_PTT = (mox | cwkey | clean_ptt) & ~clean_txinhibit; // mox only upda
 reg   [2:0] IF_PWM_state;      // state for PWM
 reg   [2:0] IF_PWM_state_next; // next state for PWM
 reg  [15:0] IF_Left_Data;      // Left 16 bit PWM data for D/A converter
-//reg  [15:0] IF_Right_Data;     // Right 16 bit PWM data for D/A converter
+reg  [15:0] IF_Right_Data;     // Right 16 bit PWM data for D/A converter
 reg  [15:0] IF_I_PWM;          // I 16 bit PWM data for D/A conveter
 reg  [15:0] IF_Q_PWM;          // Q 16 bit PWM data for D/A conveter
 wire        IF_get_samples;
@@ -1654,6 +1721,14 @@ begin
     IF_PWM_state   <=  PWM_IDLE;
   else
     IF_PWM_state   <=  IF_PWM_state_next;
+
+  // get Left audio
+  if (IF_PWM_state == PWM_LEFT)
+    IF_Left_Data   <=  IF_Rx_fifo_rdata;
+
+  // get Right audio
+  if (IF_PWM_state == PWM_RIGHT)
+    IF_Right_Data  <=  IF_Rx_fifo_rdata;
 
   // get I audio
   if (IF_PWM_state == PWM_I_AUDIO)
@@ -1743,7 +1818,7 @@ reg [1:0] cwstate;
 localparam  cwrx = 2'b00, cwkeydown = 2'b01, cwkeyup = 2'b11;
 
 // 5 ms debounce with 48 MHz clock
-debounce de_cwkey(.clean_pb(clean_cwkey), .pb(~cwkey_i), .clk(clk_ad9866));
+//debounce de_cwkey(.clean_pb(clean_cwkey), .pb(~cwkey_i), .clk(clk_ad9866));
 
 // CW state machine
 always @(posedge clk_ad9866)
@@ -1775,7 +1850,7 @@ always @(posedge clk_ad9866)
 
 assign cwkey = cwstate != cwrx;
 
-assign io_db1_5 = cwkey;
+//assign io_db1_5 = cwkey;
 
 //---------------------------------------------------------
 //  Debounce dot key - active low
@@ -1811,26 +1886,28 @@ Led_flash Flash_LED5(.clock(clk_ad9866), .signal(run_sync), .LED(leds[5]), .peri
 Led_flash Flash_LED6(.clock(clk_ad9866), .signal(IF_SYNC_state == SYNC_RX_1_2), .LED(leds[6]), .period(half_second));
 
 
-assign io_led_d2 = leds[4];
-assign io_led_d3 = leds[5];
-assign io_led_d4 = leds[0];
-assign io_led_d5 = leds[3];
+//assign io_led_d2 = leds[4];
+//assign io_led_d3 = leds[5];
+//assign io_led_d4 = leds[0];
+//assign io_led_d5 = leds[3];
 
 
 
 
 // FIXME: Sequence power
 // FIXME: External TR won't work in low power mode
+wire FPGA_PTT_keyer;
+
 `ifdef BETA2
-assign pa_tr = FPGA_PTT & (IF_PA_enable | ~IF_TR_disable);
-assign pa_en = FPGA_PTT & IF_PA_enable;
-assign pwr_envpa = FPGA_PTT;
+assign pa_tr = FPGA_PTT_keyer & (IF_PA_enable | ~IF_TR_disable);
+assign pa_en = FPGA_PTT_keyer & IF_PA_enable;
+assign pwr_envpa = FPGA_PTT_keyer;
 `else
-assign pwr_envbias = FPGA_PTT & IF_PA_enable;
-assign pwr_envop = FPGA_PTT;
-assign pa_exttr = FPGA_PTT;
-assign pa_inttr = FPGA_PTT & (IF_PA_enable | ~IF_TR_disable);
-assign pwr_envpa = FPGA_PTT & IF_PA_enable;
+assign pwr_envbias = FPGA_PTT_keyer & IF_PA_enable;
+assign pwr_envop = FPGA_PTT_keyer;
+assign pa_exttr = FPGA_PTT_keyer;
+assign pa_inttr = FPGA_PTT_keyer & (IF_PA_enable | ~IF_TR_disable);
+assign pwr_envpa = FPGA_PTT_keyer & IF_PA_enable;
 `endif
 
 assign rffe_rfsw_sel = IF_PA_enable;
@@ -1839,12 +1916,17 @@ wire scl1_i, scl1_t, scl1_o, sda1_i, sda1_t, sda1_o;
 wire scl2_i, scl2_t, scl2_o, sda2_i, sda2_t, sda2_o;
 wire scl3_i, scl3_t, scl3_o, sda3_i, sda3_t, sda3_o;
 
+wire [6:0] select_HPF_LPF;
+
 i2c #(.WB_DATA_WIDTH(WB_DATA_WIDTH), .WB_ADDR_WIDTH(WB_ADDR_WIDTH)) i2c_i
 (
   .clk(clock_2_5MHz),
   .clock_76p8_mhz(clk_ad9866),
   .rst(clk_i2c_rst),
   .init_start(clk_i2c_start),
+  .IF_SPK_enable(IF_SPK_enable),
+  .IF_Mic_boost(IF_Mic_boost),
+  .select_HPF_LPF(select_HPF_LPF),
 
   .wbs_adr_i(wb_adr),
   .wbs_dat_i(wb_dat),
@@ -1949,5 +2031,251 @@ begin
 end
 endfunction
 
+// ============================================================================== //
+//		External Audio Codec
+// ============================================================================== //
+
+wire CPDN     = ~clk_i2c_rst;     // Reset ; active "L"
+wire CBCLK    = C122_cbclk;       // I2S BCLK
+wire CDIN;                        // I2S Data Out
+wire CDOUT;                       // I2S Data In
+
+assign io_db1_6    = CPDN;        // -> AK4951 PDN
+assign io_lvds_txn = CBCLK;       // -> AK4951 BICK  ; 3072kHz
+assign io_lvds_txp = CLRCLK;      // -> AK4951 LRCLK ; 48kHz
+assign io_db1_2    = CDIN;        // -> AK4951 SDTI
+assign CDOUT       = io_lvds_rxp; // <- AK4951 SDTO
+
+//---------------------------------------------------------
+//		Send L/R audio to AK4951 in I2S format
+//---------------------------------------------------------
+
+assign C122_LR_data = {IF_Left_Data,IF_Right_Data};
+
+wire [31:0] i2s_tx_data ;
+I2S_xmit #(.DATA_BITS(32))  // CLRCLK running at 48KHz
+  LR (.rst(rst), .lrclk(CLRCLK), .clk(clk_ad9866), .CBrise(C122_cbrise),
+      .CBfall(C122_cbfall), .sample(i2s_tx_data), .outbit(CDIN));
+
+//---------------------------------------------------------
+//		Get mic data from AK4951 in I2S format
+//--------------------------------------------------------- 
+
+wire [31:0] C122_mic_LR;
+wire        C122_mic_rdy;
+reg  [15:0] C122_mic_data;
+      
+// Get I2S CDOUT mic data from TLV320.  NOTE: only 16 bits used
+I2S_rcv_24b #(32,2,1) // WARNING: values 2,1 may need adjusting for best capture of data
+    MIC (.xrst(rst), .xclk(clk_ad9866), .BCLK(CBCLK), .LRCLK(CLRCLK), .din(CDOUT),.xData(C122_mic_LR),.xData_rdy(C122_mic_rdy));
+    
+always @(posedge clk_ad9866)
+begin
+  if (C122_mic_rdy) // this happens before LRfall
+    C122_mic_data <= C122_mic_LR[31:16]; // we're only using the Left data
+end
+
+assign IF_mic_Data = C122_mic_data;
+
+// ============================================================================== //
+//	Iambic Keyer
+//      IF_Keyer_Mode: 00=Straight, 10=Iambic, 01=PracticeMode, 11=Not defined
+// ============================================================================== //
+
+wire   paddle_dot_n  = io_db1_3; // active "L"
+wire   paddle_dash_n = io_db1_5; // active "L"  
+
+wire   host_dot_n  = ~(IF_I_PWM[2] & IF_CW_internal) ; // Active "L"
+wire   host_dash_n = ~(IF_I_PWM[1] & IF_CW_internal) ; // Active "L"
+wire   keyer_cwkey ;
+assign clean_cwkey = (IF_I_PWM[0] | keyer_cwkey) & IF_CW_internal & run ;
+
+KeyerWrapper keyerwapper(
+	.IF_clk(clk_ad9866),         // 48MHz for I/F -> 76.8MHz
+	.IF_rst(rst),
+	.AD9866clkX1(clk_ad9866),	   // 76.8MHz for audio
+	.C122_rst(rst),
+	.C122_LRfall(C122_LRfall),
+	.paddle_dot_n(paddle_dot_n & host_dot_n),    // Dot  Key (Active "L")
+	.paddle_dash_n(paddle_dash_n & host_dash_n), // Dash Key (Active "L")
+	.IF_Keyer_Mode(IF_Keyer_Mode),
+	.IF_CW_keys_reversed(IF_CW_keys_reversed),
+	.IF_Keyer_speed(IF_Keyer_speed),
+	.IF_Keyer_Weight(IF_Keyer_Weight),
+	.IF_CW_Hang_Time(IF_CW_Hang_Time),
+	.IF_CW_Tone_Freq(IF_CW_Tone_Freq),
+	.IF_CW_Sidetone_Vol(IF_CW_Sidetone_Vol),
+	.IF_CW_PTT_delay(IF_CW_PTT_delay),
+	.C122_LR_data(C122_LR_data),     // AudioCodec hook in
+	.i2s_tx_data(i2s_tx_data),	      // AudioCodec hook out
+	.FPGA_PTT(FPGA_PTT),	            // PTT hook in
+	.exp_ptt_n(FPGA_PTT_keyer),      // PTT hook out (Active "H")
+	.clean_cwkey(keyer_cwkey),       // CW lamp up/down control (Active "H")
+	.sidetone()                      // Squarewave ("L" when no sound)
+) ;
+
+// ============================================================================== //
+//		Alex Auto/Manual Fliter control (NR=2)
+// ============================================================================== //
+
+reg [31:0] freq_max; // max operation freq. 
+reg [31:0] freq_min; // min operation freq.
+always @ (posedge clk_ad9866) begin
+  if (FPGA_PTT_keyer)
+    freq_max <= C122_phase_word_Tx ;
+  else if ((IF_last_chan==5'b0) || (C122_sync_phase_word[0] >= C122_sync_phase_word[1]))
+    freq_max <= C122_sync_phase_word[0];
+  else
+    freq_max <= C122_sync_phase_word[1];
+
+  if ((IF_last_chan==5'b0) || (C122_sync_phase_word[1]==32'b0) || (C122_sync_phase_word[0] <= C122_sync_phase_word[1]))
+    freq_min <= C122_sync_phase_word[0];
+  else
+    freq_min <= C122_sync_phase_word[1];
+end
+
+reg [6:0] Alex_auto_LPF ;
+always @(posedge clk_ad9866) begin 
+  if      (freq_max > 32'h64000000) Alex_auto_LPF <= 7'b0010000;  // >30.0MHz, 6m LPF
+  else if (freq_max > 32'h4C000000) Alex_auto_LPF <= 7'b0100000;  // >22.8MHz, 12/10m LPF
+  else if (freq_max > 32'h34000000) Alex_auto_LPF <= 7'b1000000;  // >15.6MHz, 17/15m LPF
+  else if (freq_max > 32'h1C000000) Alex_auto_LPF <= 7'b0000001;  // > 8.4MHz, 30/20m LPF 
+  else if (freq_max > 32'h10000000) Alex_auto_LPF <= 7'b0000010;  // > 4.8MHz, 60/40m LPF
+  else if (freq_max > 32'h08000000) Alex_auto_LPF <= 7'b0000100;  // > 2.4MHz, 80m LPF
+  else                              Alex_auto_LPF <= 7'b0001000;  // others  ,160m LPF
+end 
+
+reg [5:0] Alex_auto_HPF ;
+always @(posedge clk_ad9866) begin
+  if      (freq_min < 32'h08000000) Alex_auto_HPF <= 6'b000000; // < 2.4MHz, bypass
+  else                              Alex_auto_HPF <= 6'b100000; // others, 3.5MHz HPF
+end
+
+wire [6:0] select_LPF = Alex_manual ? Alex_manual_LPF : Alex_auto_LPF;  // to i2c
+wire [5:0] select_HPF = Alex_manual ? Alex_manual_HPF : Alex_auto_HPF;  // to i2c
+
+reg [1:0] FPGA_PTT_keyer_d ;
+always @(posedge clk_ad9866)
+  FPGA_PTT_keyer_d <= {FPGA_PTT_keyer_d[0], FPGA_PTT_keyer}; // adjust timing
+
+assign select_HPF_LPF ={select_HPF[5] & ~FPGA_PTT_keyer_d[1], // HPF 3.5MHz (Only Receiving)
+                        select_LPF[5], // LPF 12/10m
+                        select_LPF[6], // LPF 17/15m
+                        select_LPF[0], // LPF 30/20m
+                        select_LPF[1], // LPF 60/40m
+                        select_LPF[2], // LPF 80m
+                        select_LPF[3], // LPF 160m
+                      } ;
+
+// ============================================================================== //
+//		Cooling Fan control
+// ============================================================================== //
+
+reg cooling_enb ;
+always @(posedge clk_ad9866)
+  case (IF_Cooling) 
+    6: begin
+        cooling_enb <= (AIN5 <= 12'd942 )? 1'b0: // <25C,OFF
+                       (AIN5 >= 12'd1005)? 1'b1: // >30C,ON
+                       cooling_enb ;
+	    end
+    5: begin
+        cooling_enb <= (AIN5 <= 12'd1005)? 1'b0: // <30C,OFF
+                       (AIN5 >= 12'd1068)? 1'b1: // >35C,ON
+                       cooling_enb ;
+		 end
+	 7:
+        cooling_enb <= 1'b1 ; // always ON
+   default:
+        cooling_enb <= 1'b0 ;	// always OFF
+  endcase
+
+assign clk_recovered = cooling_enb ;
+
+// ============================================================================== //
+//     External Amplifier Band Control 
+// ============================================================================== //
+reg [31:0] TxFreq ;
+always @ (posedge clk_ad9866) begin
+  if (basewrite[0] && (addr==6'h01))
+    TxFreq <= data;
+end
+
+wire ExtAMP_txd;
+ExtAmp ExtAmp(
+  .clk(clk_ad9866),
+  .freq(TxFreq),
+  .uart_txd(ExtAMP_txd)  // BAND (TxD)
+) ;
+
+// ============================================================================== //
+//     External ATU Control 
+// ============================================================================== //
+wire ATU_Start;
+ExtTuner ExtTuner(
+  .clk(clk_ad9866),
+  .auto_tune(~ExtTUNER_disable & IF_autoTune),
+  .ATU_Status(io_led_d5), // ATU Status
+  .ATU_Start(ATU_Start),  // ATU Start
+  .mox_in(mox),           // mox from PC
+  .mox_out(mox_out)
+);
+
+// ============================================================================== //
+//     LED PORT function
+// ============================================================================== //
+reg [2:0] io_check;
+reg ExtAMP_disable;
+reg ExtTUNER_disable;
+
+always @(posedge clk_ad9866 or negedge resetcounter[15]) begin
+  if (!resetcounter[15]) begin
+    io_check         <= 3'b0;
+    ExtAMP_disable   <= 1'b0;
+    ExtTUNER_disable <= 1'b0;
+  end else begin
+    io_check <= {io_check[1:0],1'b1};
+    if (io_check[2:1]==2'b01) begin      // LED Port D3/D5 check
+      ExtAMP_disable   <= io_led_d3;     // if "H", ExtAMP circuit is not installed
+      ExtTUNER_disable <= io_led_d5;     // if "H", ExtTUNER circuit is not installed
+    end
+  end
+end
+
+reg  io_led_d2_o;
+reg  io_led_d3_o;
+reg  io_led_d4_o;
+reg  io_led_d5_o;
+
+always @(posedge clk_ad9866)
+  case({ExtAMP_disable,ExtTUNER_disable})
+    2'b00: begin
+             io_led_d2_o <= ExtAMP_txd;
+             io_led_d4_o <= ATU_Start;
+           end
+    2'b01: begin
+             io_led_d2_o <= ExtAMP_txd;
+             io_led_d4_o <= leds[4] & leds[5];  // this_MAC + run_sync
+             io_led_d5_o <= leds[0] & leds[3];  // rxclipp  + rxclipn
+           end
+    2'b10: begin
+             io_led_d2_o <= leds[4] & leds[5];  // this_MAC + run_sync
+             io_led_d3_o <= leds[0] & leds[3];  // rxclipp  + rxclipn
+             io_led_d4_o <= ATU_Start;
+           end
+    default: begin
+             io_led_d2_o <= leds[4];            // this_MAC
+             io_led_d3_o <= leds[5];            // run_sync
+             io_led_d4_o <= leds[0];            // rxclipp
+             io_led_d5_o <= leds[3];            // rxclipn
+           end
+  endcase
+
+assign io_led_d2 = io_led_d2_o;
+assign io_led_d3 = ExtAMP_disable   ? io_led_d3_o : 1'bz;
+assign io_led_d4 = io_led_d4_o;
+assign io_led_d5 = ExtTUNER_disable ? io_led_d5_o : 1'bz;
+
+// ============================================================================== //
 
 endmodule

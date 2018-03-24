@@ -170,15 +170,6 @@ set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx[2]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx[3]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx
 set_instance_assignment -name IO_STANDARD "2.5 V" -to io_tp2
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_db24
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn5_7
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn5_6
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn5_3
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn5_2
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn4_7
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn4_6
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn4_3
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn4_2
 set_instance_assignment -name IO_STANDARD "2.5 V" -to clk_recovered
 
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_tx[*]
@@ -206,9 +197,8 @@ set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to io_s*
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to io_s*
 set_instance_assignment -name FAST_INPUT_REGISTER ON -to io_s*
 
-set_instance_assignment -name FAST_INPUT_REGISTER ON -to io_cn*
-set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to io_db1_5
-set_instance_assignment -name FAST_INPUT_REGISTER ON -to io_phone*
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to io_cn* -disable
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to io_phone* -disable
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to pa_*
 
 set_global_assignment -name VERILOG_INPUT_VERSION SYSTEMVERILOG_2005
@@ -216,6 +206,27 @@ set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
 
 set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
 set_global_assignment -name VERILOG_MACRO "BETA5=1"
+set_location_assignment CLKCTRL_G17 -to clock_ethrxint~clkctrl
+set_location_assignment CLKCTRL_G19 -to ethtxext_clkmux_i|auto_generated|clkctrl1
+set_location_assignment CLKCTRL_G15 -to ethtxint_clkmux_i|auto_generated|clkctrl1
+#set_location_assignment LCCOMB_X1_Y16_N4 -to altclkctrl:ethtxint_clkmux_i|altclkctrl_kct:auto_generated|outclk
+set_location_assignment LCCOMB_X28_Y1_N28 -to clock_ethrxint
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_db1_3
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_db1_4
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_db1_5
+set_global_assignment -name ENABLE_SIGNALTAP ON
+set_global_assignment -name USE_SIGNALTAP_FILE stp3.stp
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_led_d3
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_led_d5
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name VERILOG_FILE rtl/cdc_sync_rst.v
+set_global_assignment -name VERILOG_FILE rtl/ExtTuner.v
+set_global_assignment -name VERILOG_FILE rtl/ExtAmp.v
+set_global_assignment -name VERILOG_FILE rtl/i2c2_init.v
+set_global_assignment -name VERILOG_FILE rtl/KeyerWrapper.v
+set_global_assignment -name VERILOG_FILE rtl/Keyer.v
+set_global_assignment -name VERILOG_FILE rtl/I2S_xmit.v
+set_global_assignment -name VERILOG_FILE rtl/I2S_rcv_24b.v
 set_global_assignment -name SDC_FILE hermeslite.sdc
 set_global_assignment -name VERILOG_FILE rtl/hermeslite.v
 set_global_assignment -name VERILOG_FILE rtl/ad9866.v
@@ -260,7 +271,6 @@ set_global_assignment -name VERILOG_FILE rtl/pulsegen.v
 set_global_assignment -name VERILOG_FILE rtl/receiver.v
 set_global_assignment -name VERILOG_FILE rtl/i2c_master.v
 set_global_assignment -name VERILOG_FILE rtl/i2c_init.v
-set_global_assignment -name VERILOG_FILE rtl/i2c_bus2.v
 set_global_assignment -name VERILOG_FILE rtl/i2c.v
 set_global_assignment -name VERILOG_FILE rtl/slow_adc.v
 set_global_assignment -name VERILOG_FILE rtl/cmd_wbm.v
@@ -293,9 +303,8 @@ set_global_assignment -name QIP_FILE cycloneip/SP_fifo.qip
 set_global_assignment -name QIP_FILE cycloneip/PHY_fifo.qip
 set_global_assignment -name QIP_FILE cycloneip/Tx_fifo.qip
 set_global_assignment -name QIP_FILE cycloneip/PHY_Rx_fifo.qip
-set_location_assignment CLKCTRL_G17 -to clock_ethrxint~clkctrl
-set_location_assignment CLKCTRL_G19 -to ethtxext_clkmux_i|auto_generated|clkctrl1
-set_location_assignment CLKCTRL_G15 -to ethtxint_clkmux_i|auto_generated|clkctrl1
-#set_location_assignment LCCOMB_X1_Y16_N4 -to altclkctrl:ethtxint_clkmux_i|altclkctrl_kct:auto_generated|outclk
-set_location_assignment LCCOMB_X28_Y1_N28 -to clock_ethrxint
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name QIP_FILE cycloneip/div11_8.qip
+set_global_assignment -name QIP_FILE cycloneip/div18_9.qip
+set_global_assignment -name QIP_FILE cycloneip/sin8k8r.qip
+set_global_assignment -name QIP_FILE cycloneip/mult8_9.qip
+set_global_assignment -name SLD_FILE db/stp3_auto_stripped.stp

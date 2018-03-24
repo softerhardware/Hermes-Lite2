@@ -29,7 +29,7 @@ THE SOFTWARE.
 /*
  * I2C init
  */
-module i2c_init (
+module i2c2_init (
     input  wire        clk,
     input  wire        rst,
 
@@ -58,9 +58,11 @@ module i2c_init (
     /*
      * Configuration
      */
-    input  wire        IF_SPK_enable,
-    input  wire        IF_Mic_boost,
-    input  wire        init_start
+    /* Values */
+    input  wire        init_start,
+    input  wire [6:0]  select_HPF_LPF,
+    input  wire        write,
+    input  wire [31:0] data
 );
 
 /*
@@ -136,105 +138,53 @@ write 0x11223344 to register 0x0004 on devices at 0x50, 0x51, 0x52, and 0x53
 */
 
 // init_data ROM
-localparam INIT_DATA_LEN = 43; // Change from 22 to 31 for 73.728 MHz 
+localparam INIT_DATA_LEN = 12;
 
 reg [8:0] init_data [INIT_DATA_LEN-1:0];
 
 initial begin
     // single address
-    init_data[0]  = {2'b01, 7'h6a};
-    init_data[1]  = {1'b1, 8'h17};
-    init_data[2]  = {1'b1, 8'h04};
+    init_data[0]  = {2'b01, 7'h28}; // Q3 bias0
+    init_data[1]  = {1'b1, 8'h00};
+    init_data[2]  = {1'b1, 8'hfe};  // 1C
+    init_data[3]  = {9'b00_1000001};// STOP
 
-    init_data[3]  = {2'b01, 7'h6a};
-    init_data[4]  = {1'b1, 8'h18};
-    init_data[5]  = {1'b1, 8'h40};
+    // LPF,HPF setting
+    init_data[4]  = {2'b01, 7'h20}; // LPF
+    init_data[5]  = {1'b1, 8'h00};  // Direction
+    init_data[6]  = {1'b1, 8'h00};  //  all output
+    init_data[7]  = {9'b00_1000001};// STOP
 
-    init_data[6]  = {2'b01, 7'h6a};
-    init_data[7]  = {1'b1, 8'h1e};
-    init_data[8]  = {1'b1, 8'he8};
+    init_data[8]  = {2'b01, 7'h20}; // Data
+    init_data[9]  = {1'b1, 8'h0a};
+    init_data[10] = {1'b1, 8'h20};
 
-    init_data[9]  = {2'b01, 7'h6a};
-    init_data[10]  = {1'b1, 8'h1f};
-    init_data[11]  = {1'b1, 8'h80};
-
-    init_data[12]  = {2'b01, 7'h6a};
-    init_data[13]  = {1'b1, 8'h2d};
-    init_data[14]  = {1'b1, 8'h01};
-
-    init_data[15]  = {2'b01, 7'h6a};
-    init_data[16]  = {1'b1, 8'h2e};
-    init_data[17]  = {1'b1, 8'h10};
-
-    init_data[18]  = {2'b01, 7'h6a};
-    init_data[19]  = {1'b1, 8'h60};
-    init_data[20]  = {1'b1, 8'h3b};
-
-    //init_data[21] = 9'd0; // stop
-
-    //init_data[21]  = {2'b01, 7'h6a}; // Add for 73.728 MHz 
-    //init_data[22]  = {1'b1, 8'h22};
-    //init_data[23]  = {1'b1, 8'h02};
-
-    //init_data[24]  = {2'b01, 7'h6a}; // Add for 73.728 MHz 
-    //init_data[25]  = {1'b1, 8'h23};
-    //init_data[26]  = {1'b1, 8'hd5};
-
-    //init_data[27]  = {2'b01, 7'h6a}; // Add for 73.728 MHz 
-    //init_data[28]  = {1'b1, 8'h24};
-    //init_data[29]  = {1'b1, 8'h56};    
-
-    //init_data[30] = 9'd0; // stop
-
-    // Audio Codec
-    init_data[21]  = {2'b01, 7'h12}; // Reg(00h) <= 00h Dummy Command
-    init_data[22]  = {1'b1, 8'h00};
-    init_data[23]  = {1'b1, 8'h00};
-
-    init_data[24]  = {2'b01, 7'h12}; // Reg(05h); Mode control 1
-    init_data[25]  = {1'b1, 8'h05};  // | PLL3| PLL2| PLL1| PLL0|| BCKO|CKOFF| DIF1| DIF0|
-    init_data[26]  = {1'b1, 8'h33};  // |  0  |  0  |  1  |  1  ||  0  |  0  |  1  |  1  |
-
-    init_data[27]  = {2'b01, 7'h12}; // Reg(00h); Power Management 1
-    init_data[28]  = {1'b1, 8'h00};  // |PMPFL|PMVCM|PMBP |  0  ||  0  |PMDAC|PMADR|PMADL|
-    init_data[29]  = {1'b1, 8'hc5};  // |  1  |  1  |  0  |  0  ||  0  |  1  |  0  |  1  |
-
-    init_data[30]  = {2'b01, 7'h12}; // Reg(01h); Power Management 2
-    init_data[31] = {1'b1, 8'h01};  // |PMOSC|  0  |PMHPR|PMHPL|| M/S |PMPLL| PMSL|LOSEL|
-    init_data[32] = {1'b1, 8'hb6};  // |  1  |  0  |  1  |  1  ||  0  |  1  |  1* |  0  | // SPK ON
-
-    init_data[33] = {2'b01, 7'h12}; // Reg(04h); Signal Select 3
-    init_data[34] = {1'b1, 8'h04};  // |LVCM1|LVCM0| DACL|  0  || PTS1| PTS0| MON1| MON0|
-    init_data[35] = {1'b1, 8'h47};  // |  0  |  1  |  0  |  0  ||  0  |  1  |  1  |  1  |
-
-    init_data[36] = {2'b01, 7'h12}; // Reg(03h); Signal Select 2
-    init_data[37] = {1'b1, 8'h03};  // |SPKG1|SPKG0|  0  | MICL|| INL1| INL0| INR1| INR0|
-    init_data[38] = {1'b1, 8'h00};  // |  0  |  0  |  0  |  0  ||  0  |  0  |  0  |  0  | // SPK Gain +6.4dB(default)
-
-    init_data[39] = {2'b01, 7'h12}; // Reg(02h); Signal Select 1
-    init_data[40] = {1'b1, 8'h02};  // |SLPSN|MGAN3| DACS|MPSEL|| PMMP|MGAN2|MGAN1|MGAN0|
-    init_data[41] = {1'b1, 8'hae};  // |  1* |  0  |  1* |  0  ||   1 |  1  |  1  |  0  | // SPK ON
-
-    init_data[42] = 9'd0; // stop
+    init_data[11] = 9'd0; // stop
 end
 
-wire IF_Mic_boost_sync, IF_SPK_enable_sync ;
-cdc_sync #(1) mic_sync (.siga(IF_Mic_boost), .rstb(rst), .clkb(clk), .sigb(IF_Mic_boost_sync));
-cdc_sync #(1) spk_sync (.siga(IF_SPK_enable), .rstb(rst), .clkb(clk), .sigb(IF_SPK_enable_sync));
+wire [6:0] select_HPF_LPF_sync;
+cdc_sync #(7) hpf_lpf_sync (.siga(select_HPF_LPF), .rstb(rst), .clkb(clk), .sigb(select_HPF_LPF_sync));
 
-reg current_boost ;
-reg current_sp_enb ;
+reg [6:0]  current_HPF_LPF;
 always @(posedge clk) begin
-  current_boost  <= IF_Mic_boost_sync ;
-  current_sp_enb <= IF_SPK_enable_sync ;
+  current_HPF_LPF <= select_HPF_LPF_sync ;
 end
 
-wire write = (current_boost ^ IF_Mic_boost_sync) | (current_sp_enb ^ IF_SPK_enable_sync) ;
-wire start = init_start | write ;
+wire write2 = (current_HPF_LPF != select_HPF_LPF_sync) ;
+wire start = init_start | write | write2 ;
 
+// FIXME: Always stops, write may not start if busy
 always @(posedge clk) begin
     if (write) begin
-        init_data[41]  = {1'b1, 8'h2a | (IF_Mic_boost_sync? 8'h40: 8'h04) | (IF_SPK_enable_sync? 8'h80 : 8'h00) };
+        init_data[0]  = {2'b01, data[22:16]};
+        init_data[1]  = {1'b1, data[15:8]};
+        init_data[2]  = {1'b1, data[7:0]};
+    end
+end
+
+always @(posedge clk) begin
+    if (write2) begin
+        init_data[10] = {1'b1, 1'b0, select_HPF_LPF_sync};
     end
 end
 
@@ -312,7 +262,7 @@ always @* begin
             STATE_IDLE: begin
                 // wait for start signal
                 if (~start_flag_reg & start) begin
-                    address_next = write ? 6'd39 : {AW{1'b0}};  // Mic boost
+                    address_next = write? {AW{1'b0}} : 5'd4;
                     start_flag_next = 1'b1;
                     state_next = STATE_RUN;
                 end else begin

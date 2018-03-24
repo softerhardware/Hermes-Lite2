@@ -145,7 +145,7 @@ initial begin
   initarray[4] = {1'b0,8'h00}; // Address 0x04,
   initarray[5] = {1'b0,8'h00}; // Address 0x05,
   initarray[6] = {1'b1,8'h54}; // Address 0x06, Disable clkout2
-  initarray[7] = {1'b1,8'h30}; // Address 0x07, Initiate DC offset calibration and RX filter on, 21 to 20 to disable RX filter
+  initarray[7] = {1'b1,8'h20}; // Address 0x07, Initiate DC offset calibration and RX filter on, 21 to 20 to disable RX filter
   initarray[8] = {1'b0,8'h4b}; // Address 0x08, RX filter f-3db at ~34 MHz after scaling
   initarray[9] = {1'b0,8'h00}; // Address 0x09,
   initarray[10] = {1'b0,8'h00}; // Address 0x0a,

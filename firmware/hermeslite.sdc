@@ -59,6 +59,7 @@ create_generated_clock -source {ad9866pll_inst|altpll_component|auto_generated|p
 
 create_generated_clock -source {ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -multiply_by 2 -duty_cycle 50.00 -name clock_153p6_mhz {ad9866pll_inst|altpll_component|auto_generated|pll1|clk[1]}
 
+create_generated_clock -name BCLK -divide_by 25 -source [get_pins {ad9866pll_inst|altpll_component|auto_generated|pll1|clk[0]}] [get_pins {clrgen|BCLK|q}]
 
 derive_clock_uncertainty
 
@@ -74,10 +75,10 @@ set_clock_groups -asynchronous -group { \
 		clock_ethrxintslow \
 		clock_ethrxintfast \
 	} -group { \
-		clock_153p6_mhz rffe_ad9866_clk76p8 clock_76p8MHz \
+		clock_153p6_mhz rffe_ad9866_clk76p8 clock_76p8MHz BCLK \
 	}
 
-
+set_max_delay -from BCLK -to rffe_ad9866_clk76p8 16
 
 ## Ethernet PHY TX per AN477, with PHY delay for TX disabled
 
@@ -194,11 +195,17 @@ set_false_path -from [get_ports {clk_s*}]
 
 #set_output_delay -clock clock_76p8MHz -max 3 [get_ports {io_led_*}] 
 #set_output_delay -clock clock_76p8MHz -min 2 [get_ports {io_led_*}] 
-set_false_path -to [get_ports {io_led_*}]
+set_false_path -to   [get_ports {io_led_d2}]
+set_false_path -from [get_ports {io_led_d3}]
+set_false_path -to   [get_ports {io_led_d4}]
+set_false_path -from [get_ports {io_led_d5}]
 
 #set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_lvds_*}] 
 #set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_lvds_*}] 
-set_false_path -from [get_ports {io_lvds_*}]
+set_false_path -to   [get_ports {io_lvds_txp}]
+set_false_path -to   [get_ports {io_lvds_txn}]
+set_false_path -from [get_ports {io_lvds_rxp}]
+set_false_path -from [get_ports {io_lvds_rxn}]
 
 #set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_cn*}] 
 #set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_cn*}] 
@@ -222,11 +229,11 @@ set_false_path -from [get_ports {io_s*}]
 #set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_db1*}] 
 #set_output_delay -clock clock_76p8MHz -max 3 [get_ports {io_db1_5}] 
 #set_output_delay -clock clock_76p8MHz -min 2 [get_ports {io_db1_5}] 
-set_false_path -to [get_ports {io_db1_5}]
-set_false_path -from [get_ports {io_db1_2}]
+set_false_path -to   [get_ports {io_db1_2}]
 set_false_path -from [get_ports {io_db1_3}]
 set_false_path -from [get_ports {io_db1_4}]
 set_false_path -from [get_ports {io_db1_5}]
+set_false_path -to   [get_ports {io_db1_6}]
 
 #set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_phone_*}] 
 #set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_phone_*}] 
