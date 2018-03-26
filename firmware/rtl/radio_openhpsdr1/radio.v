@@ -15,6 +15,13 @@ module radio (
   tx_cw_level,
   tx_data_dac,
 
+  // Optional audio stream for repurposed programming
+  lr_tdata,
+  lr_tid,
+  lr_tlast,
+  lr_tready,
+  lr_tvalid,
+
   // Receive
   rx_data_adc,
 
@@ -72,6 +79,12 @@ input   [ 2:0]    tx_tid;
 input             tx_tlast;
 output            tx_tready;
 input             tx_tvalid;
+
+input   [31:0]    lr_tdata;
+input   [ 2:0]    lr_tid;
+input             lr_tlast;
+output            lr_tready;
+input             lr_tvalid;
 
 input             tx_cw_key;
 input   [17:0]    tx_cw_level;
@@ -583,6 +596,18 @@ generate
   logic signed [15:0] txsumqr;
   logic signed [15:0] iplusqr;
 
+  //FSM to write DACLUTI and DACLUTQ
+  assign lr_tready = 1'b1; // Always ready
+  always @(posedge clk_ad9866) begin
+    if (lr_tvalid) begin
+      if (lr_tdata[12+16]) begin // Always write??
+        DACLUTQ[lr_tdata[(11+16):16]] <= lr_tdata[12:0];
+      end else begin
+        DACLUTI[lr_tdata[(11+16):16]] <= lr_tdata[12:0];
+      end
+    end
+  end
+
   assign iplusq = txsum+txsumq;
 
   always @ (posedge clk_ad9866) begin
@@ -616,6 +641,8 @@ generate
   end
 
 end else begin
+
+  assign lr_tready = 1'b0;
 
   always @ (posedge clk_ad9866)
     tx_data_dac <= txsum[11:0]; // + {10'h0,lfsr[2:1]};
