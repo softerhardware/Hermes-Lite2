@@ -56,12 +56,47 @@
 
 `timescale 1 ns/100 ps
 
-module Hermes_Tx_fifo_ctrl(IF_reset, IF_clk, Tx_fifo_wdata, Tx_fifo_wreq, Tx_fifo_full, Tx_fifo_used,
-                    Tx_fifo_clr, Tx_IQ_mic_rdy,
-                    Tx_IQ_mic_data, IF_chan, IF_last_chan, clean_dash, clean_dot, clean_PTT_in, ADC_OVERLOAD,
-                    Penny_serialno, Merc_serialno, Hermes_serialno, Penny_ALC, AIN1, AIN2, AIN3, 
-                    AIN4, AIN6, IO4, IO5, IO6, IO8, VNA_start, VNA, 
-                    response_out_tdata, response_out_tvalid, response_out_tready );
+module Hermes_Tx_fifo_ctrl(
+  IF_reset, 
+  IF_clk, 
+  Tx_fifo_wdata, 
+  Tx_fifo_wreq, 
+  Tx_fifo_full, 
+  Tx_fifo_used,
+  Tx_fifo_clr, 
+
+  usiq_tdata_iqflag,
+  usiq_tdata_chan,
+  usiq_tdata_iq,
+//usiq_tdata,
+  usiq_tlast,
+  usiq_tready,
+  usiq_tvalid,
+
+  IF_last_chan, 
+  clean_dash, 
+  clean_dot, 
+  clean_PTT_in, 
+  ADC_OVERLOAD,
+  Penny_serialno, 
+  Merc_serialno, 
+  Hermes_serialno, 
+  Penny_ALC, 
+  AIN1, 
+  AIN2, 
+  AIN3, 
+  AIN4, 
+  AIN6, 
+  IO4, 
+  IO5, 
+  IO6, 
+  IO8, 
+  VNA_start, 
+  VNA, 
+  response_out_tdata, 
+  response_out_tvalid, 
+  response_out_tready
+);
                     
 parameter TX_FIFO_SZ = 1024;
 parameter IF_TPD = 1;
@@ -76,10 +111,14 @@ input  wire            Tx_fifo_full;
 input  wire [TFSZ-1:0] Tx_fifo_used;
 output reg             Tx_fifo_clr;
 
-input  wire            Tx_IQ_mic_rdy;
-input  wire     [63:0] Tx_IQ_mic_data;
+input  wire            usiq_tdata_iqflag;
+input  wire    [  4:0] usiq_tdata_chan;
+input  wire    [ 23:0] usiq_tdata_iq;
+//input  wire  [    4:0] usiq_tid;
+input  wire            usiq_tlast;
+output wire            usiq_tready;
+input  wire            usiq_tvalid;
 
-output reg       [4:0] IF_chan; // which IF_mic_IQ_Data is needed
 input  wire      [4:0] IF_last_chan;
 
 input  wire            clean_dash;       // debounced dash
@@ -114,9 +153,13 @@ output wire         response_out_tready;
 
 
 
+reg [4:0] IF_chan =0; // which IF_mic_IQ_Data is needed
+
 reg VNA_start_reg = 0;
 
 reg tvalid = 1'b0;
+
+reg [7:0] usiq_tdata_iq_d1;
 
 
 
@@ -227,7 +270,9 @@ begin
   endcase
 end
 
-wire Tx_IQ_mic_ack = (AD_state == AD_WAIT);
+
+always @ (posedge IF_clk) 
+  usiq_tdata_iq_d1 <= usiq_tdata_iq[7:0];
 
 always @ (posedge IF_clk)
 begin
@@ -328,8 +373,8 @@ begin
   endcase
 end
 
-always @*
-begin 
+always @* begin
+  usiq_tready = 1'b0;
   case (AD_state)
     AD_IDLE:
     begin
@@ -378,30 +423,39 @@ begin
     begin
       Tx_fifo_wdata   = {16{1'bx}};
       Tx_fifo_wreq    = 1'b0;
-      if (!Tx_IQ_mic_rdy)
+      if (~usiq_tvalid) begin
         AD_state_next = AD_SEND_MJ_RDY;
-      else
+      end else if ((usiq_tdata_chan == 5'h00) & (usiq_tdata_iqflag == 1'b0)) begin
+        // Only proceed if valid data and start of receiver sequence
         AD_state_next = AD_SEND_MJ1;
+      end else begin
+        // Align to receiver 0, stay in same state
+        usiq_tready = 1'b1;
+        AD_state_next = AD_SEND_MJ_RDY;
+      end
     end
-  
+ 
     AD_SEND_MJ1:
     begin
-      Tx_fifo_wdata   = Tx_IQ_mic_data[63:48];
+      Tx_fifo_wdata   = usiq_tdata_iq[23:8];
+      usiq_tready     = 1'b1;
       Tx_fifo_wreq    = 1'b1;
       AD_state_next   = AD_SEND_MJ2;
     end
 
     AD_SEND_MJ2:
     begin
-      Tx_fifo_wdata   = Tx_IQ_mic_data[47:32];
+      Tx_fifo_wdata   = {usiq_tdata_iq_d1,usiq_tdata_iq[23:16]};
       Tx_fifo_wreq    = 1'b1;
       AD_state_next   = AD_SEND_MJ3;
     end
 
     AD_SEND_MJ3:
     begin 
-      Tx_fifo_wdata   = Tx_IQ_mic_data[31:16];
+      Tx_fifo_wdata   = usiq_tdata_iq[15:0];
+      usiq_tready     = 1'b1;
       Tx_fifo_wreq    = 1'b1;
+      // For now use internal count
       if (IF_chan != IF_last_chan)
         AD_state_next   = AD_SEND_MJ1;
       else
@@ -410,7 +464,7 @@ begin
 
     AD_SEND_PJ:
     begin 
-      Tx_fifo_wdata   = VNA ? {Tx_IQ_mic_data[15:1], VNA_start_reg} : Tx_IQ_mic_data[15:0]; // In VNA mode LSB indicates new frequency
+      Tx_fifo_wdata   = VNA ? {15'h0000, VNA_start_reg} : 16'h0000; // In VNA mode LSB indicates new frequency
       Tx_fifo_wreq    = 1'b1;
       AD_state_next   = AD_WAIT;
     end
@@ -419,10 +473,12 @@ begin
     begin 
       Tx_fifo_wdata   = {16{1'bx}};
       Tx_fifo_wreq    = 1'b0;
-      if (Tx_IQ_mic_rdy)
-        AD_state_next = AD_WAIT; // wait here till Tx_IQ_mic_rdy goes back low
-      else
-        AD_state_next = AD_LOOP_CHK;
+      // No need to wait here
+      //if (Tx_IQ_mic_rdy)
+      //  AD_state_next = AD_WAIT; // wait here till Tx_IQ_mic_rdy goes back low
+      //else
+      //  
+      AD_state_next = AD_LOOP_CHK;
     end
 
     AD_LOOP_CHK:

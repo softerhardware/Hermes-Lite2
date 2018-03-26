@@ -5,7 +5,7 @@ module radio (
   ptt,
 
   // Transmit
-  tx_tdata_iq,
+  tx_tdata,
   tx_tid,
   tx_tlast,
   tx_tready,
@@ -17,8 +17,12 @@ module radio (
 
   // Receive
   rx_data_adc,
-  rx_data_rdy,
-  rx_data_iq,
+
+  rx_tdata,
+  rx_tid,
+  rx_tlast,
+  rx_tready,
+  rx_tvalid,
 
   // Wishbone slave interface
   wbs_adr_i,
@@ -63,21 +67,24 @@ input             clk_ad9866;
 
 input             ptt;
 
-input   [31:0]    tx_tdata_iq;
+input   [31:0]    tx_tdata;
 input   [ 2:0]    tx_tid;
 input             tx_tlast;
 output            tx_tready;
 input             tx_tvalid;
-
 
 input             tx_cw_key;
 input   [17:0]    tx_cw_level;
 output  [11:0]    tx_data_dac;
 
 input   [11:0]    rx_data_adc;
-output            rx_data_rdy [0:NR-1];
 
-output  [47:0]    rx_data_iq [0:NR-1];
+output  [29:0]    rx_tdata;
+output  [ 4:0]    rx_tid;
+output            rx_tlast;
+input             rx_tready;
+output            rx_tvalid;
+
 
 // Wishbone slave interface
 input  [WB_ADDR_WIDTH-1:0]  wbs_adr_i;
@@ -101,6 +108,9 @@ logic  [ 1:0]       rx_rate_next;
 
 logic  [ 4:0]       last_chan = 5'h0;
 logic  [ 4:0]       last_chan_next;
+
+logic  [ 4:0]       chan = 5'h0;
+logic  [ 4:0]       chan_next;
 
 logic               duplex = 1'b0;
 logic               duplex_next;
@@ -127,6 +137,7 @@ logic signed [15:0] txsumq;
 
 logic [23:0]  rx_data_i [0:NR-1];
 logic [23:0]  rx_data_q [0:NR-1];
+logic         rx_data_rdy [0:NR-1];
 
 logic [63:0]  freqcomp;
 logic [31:0]  freqcompp [0:3];
@@ -144,6 +155,14 @@ localparam
 logic [1:0]   wbs_state = WBS_IDLE;
 logic [1:0]   wbs_state_next;
 
+localparam 
+  RXUS_WAIT1  = 2'b00,
+  RXUS_I      = 2'b10,
+  RXUS_Q      = 2'b11,
+  RXUS_WAIT0  = 2'b01;
+
+logic [1:0]   rxus_state = RXUS_WAIT1;
+logic [1:0]   rxus_state_next;
 
 // Wishbone Slave State Machine
 always @(posedge clk_ad9866) begin
@@ -328,9 +347,72 @@ generate
           .out_data_Q(rx_data_q[c])
         );
     end
-    assign rx_data_iq[c] = {rx_data_i[c], rx_data_q[c]};
   end
 endgenerate
+
+
+// Send RX data upstream
+// rx_tdata is:
+// rx_tdata[29]    is IQ identifier, I is 0, Q is 1
+// rx_tdata[28:24] is RX channel
+// rx_tdata[23:0]  is actual 24 bit data
+
+// rx_tid[4:0] is future synchronization identifier
+// rx_tlast 
+
+always @(posedge clk_ad9866) begin
+  rxus_state <= rxus_state_next;
+  chan <= chan_next;
+end
+
+always @* begin
+  // Sequential
+  rxus_state_next = rxus_state;
+  chan_next = chan;
+
+  // Combinational
+  rx_tdata  = 30'h0;
+  rx_tid    = 5'h0;
+  rx_tlast  = 1'b0;
+  rx_tvalid = 1'b0;
+
+  case(rxus_state)
+    RXUS_WAIT1: begin
+      chan_next = 5'h0;
+      if (rx_data_rdy[0] & rx_tready) begin
+        rxus_state_next = RXUS_I;
+      end
+    end
+
+    RXUS_I: begin
+      rx_tvalid = 1'b1;
+      rx_tdata = {1'b0,chan,rx_data_i[chan]};
+      rxus_state_next = RXUS_Q;
+    end
+
+    RXUS_Q: begin
+      rx_tvalid = 1'b1;
+      rx_tdata = {1'b1,chan,rx_data_q[chan]};
+
+      if (chan == last_chan) begin
+        rx_tlast = 1'b1;
+        rxus_state_next = RXUS_WAIT0;
+      end else begin
+        chan_next = chan + 5'h1;
+        rxus_state_next = RXUS_I;
+      end
+    end
+
+    RXUS_WAIT0: begin
+      chan_next = 5'h0;
+      if (~rx_data_rdy[0]) begin
+        rxus_state_next = RXUS_WAIT1;
+      end
+    end
+
+  endcase // rxus_state
+end
+
 
 
 //---------------------------------------------------------
@@ -377,8 +459,8 @@ endgenerate
 // FIXME: no backpressure from FIR for now
 always @ (posedge clk_ad9866) begin
   if (tx_tready & tx_tvalid) begin
-    tx_fir_i = tx_tdata_iq[31:16];
-    tx_fir_q = tx_tdata_iq[15:0];
+    tx_fir_i = tx_tdata[31:16];
+    tx_fir_q = tx_tdata[15:0];
   end
 end
 

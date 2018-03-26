@@ -63,7 +63,7 @@ module ddio_in (
 				.sclr (1'b0),
 				.sset (1'b0));
 	defparam
-		ALTDDIO_IN_component.intended_device_family = "Cyclone III",
+		ALTDDIO_IN_component.intended_device_family = "Cyclone IV E",
 		ALTDDIO_IN_component.invert_input_clocks = "ON",
 		ALTDDIO_IN_component.lpm_hint = "UNUSED",
 		ALTDDIO_IN_component.lpm_type = "altddio_in",

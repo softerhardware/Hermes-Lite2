@@ -215,6 +215,21 @@ logic   [15:0]  dsiq_wdata;
 logic           dsiq_wreq;
 logic   [1:0]   dsiq_tlasttid;
 
+logic  [29:0]   rx_tdata;
+logic  [ 4:0]   rx_tid;
+logic           rx_tlast;
+logic           rx_treadyn;
+logic           rx_tvalid;
+
+logic  [35:0]   usiq_q;
+logic  [29:0]   usiq_tdata;
+logic  [ 4:0]   usiq_tid;
+logic           usiq_tlast;
+logic           usiq_tready;
+logic           usiq_tvalidn;
+
+logic    [4:0]  IF_last_chan;
+
 
 
 localparam SYNC_IDLE    = 3'h0,
@@ -666,9 +681,6 @@ always @ (posedge clock_ethtxint)
 assign sp_data_ready = ( (speed_1gb ? sp_delay == 0 : sp_delay[15:0] == 0) && have_sp_data);
 
 
-assign IF_mic_Data = 0;
-
-
 // AD9866 Interface
 logic       wb_ack_ad9866;
 logic [11:0]    rx_data;
@@ -751,7 +763,7 @@ radio_i
   .ptt(FPGA_PTT),
 
   // Transmit
-  .tx_tdata_iq({dsiq_rdata[15:0],dsiq_rdata[33:18]}),
+  .tx_tdata({dsiq_rdata[15:0],dsiq_rdata[33:18]}),
   .tx_tid({dsiq_rdata[34],dsiq_rdata[17:16]}),
   .tx_tlast(dsiq_rdata[35]),
   .tx_tready(dsiq_rreq),
@@ -763,8 +775,12 @@ radio_i
 
   // Receive
   .rx_data_adc(rx_data),
-  .rx_data_rdy(IF_M_IQ_Data_rdy),
-  .rx_data_iq(IF_M_IQ_Data),
+
+  .rx_tdata(rx_tdata),
+  .rx_tid(rx_tid),
+  .rx_tlast(rx_tlast),
+  .rx_tready(~rx_treadyn),
+  .rx_tvalid(rx_tvalid),
 
   // Wishbone Slave
   .wbs_adr_i(wb_adr),
@@ -775,7 +791,6 @@ radio_i
   .wbs_cyc_i(wb_cyc)
 
 );
-
 
 //---------------------------------------------------------
 //    ADC SPI interface
@@ -790,36 +805,6 @@ wire [11:0] AIN6;  // holds 12 bit ADC of 13.8v measurement
 
 assign AIN4 = 0;
 assign AIN6 = 1000;
-
-
-
-//---------------------------------------------------------
-//  Receive DOUT and CDOUT data to put in TX FIFO
-//---------------------------------------------------------
-
-wire   [15:0] IF_P_mic_Data;
-wire          IF_P_mic_Data_rdy;
-wire   [47:0] IF_M_IQ_Data [0:NR-1];
-wire          IF_M_IQ_Data_rdy [0:NR-1];
-wire   [63:0] IF_tx_IQ_mic_data;
-reg           IF_tx_IQ_mic_rdy;
-wire   [15:0] IF_mic_Data;
-wire    [4:0] IF_chan;
-wire    [4:0] IF_last_chan;
-wire     [47:0] IF_chan_test;
-
-always @*
-begin
-  if (rst)
-    IF_tx_IQ_mic_rdy = 1'b0;
-  else
-      IF_tx_IQ_mic_rdy = IF_M_IQ_Data_rdy[0];   // this the strobe signal from the ADC now in IF clock domain
-end
-
-assign IF_IQ_Data = IF_M_IQ_Data[IF_chan];
-
-// concatenate the IQ and Mic data to form a 64 bit data word
-assign IF_tx_IQ_mic_data = {IF_IQ_Data, IF_mic_Data};
 
 //----------------------------------------------------------------------------
 //     Tx_fifo Control - creates IF_tx_fifo_wdata and IF_tx_fifo_wreq signals
@@ -843,12 +828,7 @@ wire            clean_dash;                 // debounced dash key
 wire            clean_dot;                  // debounced dot key
 
 wire     [11:0] Penny_ALC;
-
-wire   [RFSZ:0] RX_USED;
 wire            IF_tx_fifo_clr;
-
-assign RX_USED = {dsiq_full,dsiq_used};
-
 
 assign Penny_ALC = AIN5;
 
@@ -882,11 +862,14 @@ Hermes_Tx_fifo_ctrl #(.TX_FIFO_SZ(TX_FIFO_SZ)) TXFC (
   .Tx_fifo_clr(IF_tx_fifo_clr), 
 
   // Receiver data to transmit to host PC via ethernet
-  .Tx_IQ_mic_rdy(IF_tx_IQ_mic_rdy),
-  .Tx_IQ_mic_data(IF_tx_IQ_mic_data), 
+  .usiq_tdata_iqflag(usiq_tdata[29]),
+  .usiq_tdata_chan(usiq_tdata[28:24]),
+  .usiq_tdata_iq(usiq_tdata[23:0]),
+  .usiq_tlast(usiq_tlast),
+  .usiq_tready(usiq_tready),
+  .usiq_tvalid(~usiq_tvalidn),
 
   // Channel select
-  .IF_chan(IF_chan), 
   .IF_last_chan(IF_last_chan), 
 
   .clean_dash(clean_dash), 
@@ -977,22 +960,60 @@ dcfifo_mixed_widths #(
   .use_eab("ON"),
   .wrsync_delaypipe(4)
 ) dsiq_fifo_i (
+  .wrclk (clk_ad9866),
+  .wrreq (dsiq_wreq),  
+  .wrfull (dsiq_full),
+  .wrempty (),
+  .wrusedw (dsiq_used),
   .data ({dsiq_tlasttid,IF_PHY_data}),
+
   .rdclk (clk_ad9866),
   .rdreq (dsiq_rreq),
-  .wrclk (clk_ad9866),
-  .wrreq (dsiq_wreq),
-  .q (dsiq_rdata),
+  .rdfull (),
   .rdempty (dsiq_rempty),
   .rdusedw (),
-  .wrfull (dsiq_full),
-  .wrusedw (dsiq_used),
+  .q (dsiq_rdata),
+
   .aclr (1'b0),
-  .eccstatus (),
-  .rdfull (),
-  .rdusedw (),
-  .wrempty ()
+  .eccstatus ()
 );
+
+
+dcfifo #(
+  .intended_device_family("Cyclone IV E"),
+  .lpm_numwords(256), 
+  .lpm_showahead ("ON"),
+  .lpm_type("dcfifo"),
+  .lpm_width(36),
+  .lpm_widthu(8), 
+  .overflow_checking("ON"),
+  .rdsync_delaypipe(4),
+  .underflow_checking("ON"),
+  .use_eab("ON"),
+  .wrsync_delaypipe(4)
+) usiq_fifo_i (
+  .wrclk (clk_ad9866),
+  .wrreq (rx_tvalid),
+  .wrfull (rx_treadyn),
+  .wrempty (),
+  .wrusedw (),
+  // synchronous rx_tid tied to 0 for now
+  .data ({rx_tlast,rx_tid,rx_tdata}),
+
+  .rdclk (clk_ad9866),
+  .rdreq (usiq_tready),
+  .rdfull (),
+  .rdempty (usiq_tvalidn),
+  .rdusedw (),
+  .q (usiq_q),
+
+  .aclr (1'b0),
+  .eccstatus ()  
+);
+
+assign usiq_tlast = usiq_q[35];
+assign usiq_tid = usiq_q[34:30];
+assign usiq_tdata = usiq_q[29:0];
 
 
 //------------------------------------------------------------

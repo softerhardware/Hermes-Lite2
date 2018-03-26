@@ -221,6 +221,11 @@ set_global_assignment -name SDC_FILE hermeslite.sdc
 
 set_global_assignment -name VERILOG_FILE rtl/hermeslite.v
 set_global_assignment -name VERILOG_FILE rtl/ad9866.v
+set_global_assignment -name VERILOG_FILE rtl/ad9866pll.v
+set_global_assignment -name VERILOG_FILE rtl/ethpll.v
+set_global_assignment -name VERILOG_FILE rtl/SP_fifo.v
+set_global_assignment -name VERILOG_FILE rtl/Tx_fifo.v
+set_global_assignment -name VERILOG_FILE rtl/PHY_Rx_fifo.v
 
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/radio.v
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/varcic.v
@@ -253,11 +258,9 @@ set_global_assignment -name VERILOG_FILE rtl/ethernet/icmp.v
 set_global_assignment -name VERILOG_FILE rtl/ethernet/dhcp.v
 set_global_assignment -name VERILOG_FILE rtl/ethernet/crc32.v
 set_global_assignment -name VERILOG_FILE rtl/ethernet/arp.v
-
-set_global_assignment -name VERILOG_FILE cycloneip/ddio_out.v
-set_global_assignment -name VERILOG_FILE cycloneip/ddio_in.v
-set_global_assignment -name QIP_FILE cycloneip/ethpll.qip
-
+set_global_assignment -name VERILOG_FILE rtl/ethernet/ddio_out.v
+set_global_assignment -name VERILOG_FILE rtl/ethernet/ddio_in.v
+set_global_assignment -name VERILOG_FILE rtl/ethernet/icmp_fifo.v
 
 set_global_assignment -name VERILOG_FILE rtl/Rx_recv.v
 set_global_assignment -name VERILOG_FILE rtl/Tx_send.v
@@ -276,14 +279,6 @@ set_global_assignment -name VERILOG_FILE rtl/i2c.v
 set_global_assignment -name VERILOG_FILE rtl/slow_adc.v
 set_global_assignment -name VERILOG_FILE rtl/cmd_wbm.v
 set_global_assignment -name VERILOG_FILE rtl/axis_fifo.v
-
-
-set_global_assignment -name QIP_FILE cycloneip/ad9866pll.qip
-set_global_assignment -name QIP_FILE cycloneip/SP_fifo.qip
-set_global_assignment -name QIP_FILE cycloneip/PHY_fifo.qip
-set_global_assignment -name QIP_FILE cycloneip/Tx_fifo.qip
-set_global_assignment -name QIP_FILE cycloneip/PHY_Rx_fifo.qip
-set_global_assignment -name QIP_FILE cycloneip/icmp_fifo.qip
 
 set_location_assignment CLKCTRL_G17 -to clock_ethrxint~clkctrl
 set_location_assignment CLKCTRL_G19 -to ethtxext_clkmux_i|auto_generated|clkctrl1
