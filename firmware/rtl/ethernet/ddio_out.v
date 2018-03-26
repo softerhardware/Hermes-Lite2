@@ -64,7 +64,7 @@ module ddio_out (
 				.sset (1'b0));
 	defparam
 		ALTDDIO_OUT_component.extend_oe_disable = "OFF",
-		ALTDDIO_OUT_component.intended_device_family = "Cyclone III",
+		ALTDDIO_OUT_component.intended_device_family = "Cyclone IV E",
 		ALTDDIO_OUT_component.invert_output = "OFF",
 		ALTDDIO_OUT_component.lpm_hint = "UNUSED",
 		ALTDDIO_OUT_component.lpm_type = "altddio_out",
