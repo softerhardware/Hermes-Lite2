@@ -46,17 +46,12 @@ module ad9866 (
 
   rffe_ad9866_mode,
 
-  // Wishbone slave interface
-  wbs_adr_i,
-  wbs_dat_i,
-  wbs_we_i,
-  wbs_stb_i,
-  wbs_ack_o,
-  wbs_cyc_i
+  // Command slave interface
+  cmd_addr,
+  cmd_data,
+  cmd_rqst,
+  cmd_ack
 );
-
-parameter         WB_DATA_WIDTH = 32;
-parameter         WB_ADDR_WIDTH = 6;
 
 input             clk_ad9866;
 input             clk_ad9866_2x;
@@ -92,14 +87,11 @@ output            rffe_ad9866_pga5;
 
 output            rffe_ad9866_mode;
 
-
-// Wishbone slave interface
-input  [WB_ADDR_WIDTH-1:0]  wbs_adr_i;
-input  [WB_DATA_WIDTH-1:0]  wbs_dat_i;
-input                       wbs_we_i;
-input                       wbs_stb_i;
-output                      wbs_ack_o;   
-input                       wbs_cyc_i;
+// Command slave interface
+input  [5:0]      cmd_addr;
+input  [31:0]     cmd_data;
+input             cmd_rqst;
+output            cmd_ack;   
 
 // TX Path
 logic   [11:0]    tx_data_d1;
@@ -125,16 +117,16 @@ logic   [8:0]     initarrayv;
 reg     [8:0]     initarray [19:0];
 
 
-// Wishbone slave
-logic [1:0]       wbs_state = 1'b0;
-logic [1:0]       wbs_state_next;
+// Command slave
+logic [1:0]       cmd_state = 1'b0;
+logic [1:0]       cmd_state_next;
 logic [3:0]       tx_gain = 4'h0;
 logic [3:0]       tx_gain_next;
 logic [6:0]       rx_gain = 7'b1000000;
 logic [6:0]       rx_gain_next;
 
-logic             cmd_ack; 
-logic [12:0]      cmd_data;
+logic             icmd_ack; 
+logic [12:0]      icmd_data;
 
 initial begin
   // First bit is 1'b1 for write enable to that address
@@ -161,10 +153,10 @@ initial begin
 end
 
 localparam 
-  WBS_IDLE    = 2'b00,
-  WBS_TXGAIN  = 2'b01,
-  WBS_RXGAIN  = 2'b11,
-  WBS_WRITE   = 2'b10;
+  CMD_IDLE    = 2'b00,
+  CMD_TXGAIN  = 2'b01,
+  CMD_RXGAIN  = 2'b11,
+  CMD_WRITE   = 2'b10;
 
 
 assign rffe_ad9866_rst_n = rst_n;
@@ -229,79 +221,79 @@ assign rffe_ad9866_mode = 1'b1;
 always @ (posedge clk_ad9866) rx_data <= rx_data_assemble;
 
 
-// Wishbone Slave State Machine
+// Command Slave State Machine
 always @(posedge clk_ad9866) begin
   if (~rst_n) begin
-    wbs_state <= WBS_IDLE;
+    cmd_state <= CMD_IDLE;
     tx_gain <= 4'h0;
     rx_gain <= 7'b1000000;
   end else begin
-    wbs_state <= wbs_state_next;
+    cmd_state <= cmd_state_next;
     tx_gain <= tx_gain_next;
     rx_gain <= rx_gain_next;
   end
 end
 
 always @* begin
-  wbs_state_next = wbs_state;
+  cmd_state_next = cmd_state;
   tx_gain_next = tx_gain;
   rx_gain_next = rx_gain;
-  cmd_ack = 1'b0;
-  cmd_data  = {wbs_dat_i[20:16],wbs_dat_i[7:0]};
+  icmd_ack = 1'b0;
+  icmd_data  = {cmd_data[20:16],cmd_data[7:0]};
 
-  case(wbs_state)
+  case(cmd_state)
 
-    WBS_IDLE: begin
-      if (wbs_we_i & wbs_stb_i & rffe_ad9866_sen_n) begin
+    CMD_IDLE: begin
+      if (cmd_rqst & rffe_ad9866_sen_n) begin
         // Accept possible write
-        case (wbs_adr_i)
+        case (cmd_addr)
 
           // Hermes TX Gain Setting
           6'h09: begin
-            tx_gain_next = wbs_dat_i[31:28];
-            if (tx_gain != wbs_dat_i[31:28]) wbs_state_next = WBS_TXGAIN;
+            tx_gain_next = cmd_data[31:28];
+            if (tx_gain != cmd_data[31:28]) cmd_state_next = CMD_TXGAIN;
           end
 
           // Hermes RX Gain Setting
           6'h0a: begin
-            rx_gain_next = wbs_dat_i[6:0];
-            if (rx_gain != wbs_dat_i[6:0]) wbs_state_next = WBS_RXGAIN;
+            rx_gain_next = cmd_data[6:0];
+            if (rx_gain != cmd_data[6:0]) cmd_state_next = CMD_RXGAIN;
           end
 
           // Generic AD9866 write
           6'h3b: begin
-            if (wbs_dat_i[31:24] == 8'h06) wbs_state_next = WBS_WRITE;
+            if (cmd_data[31:24] == 8'h06) cmd_state_next = CMD_WRITE;
           end
 
-          default: wbs_state_next = wbs_state;
+          default: cmd_state_next = cmd_state;
 
         endcase 
       end        
     end
 
-    WBS_TXGAIN: begin
-      cmd_ack   = 1'b1;
-      cmd_data  = {5'h0a,4'b0100,tx_gain};
-      wbs_state_next = WBS_IDLE;
+    CMD_TXGAIN: begin
+      icmd_ack   = 1'b1;
+      icmd_data  = {5'h0a,4'b0100,tx_gain};
+      cmd_state_next = CMD_IDLE;
     end
     
-    WBS_RXGAIN: begin
-      cmd_ack   = 1'b1;
-      cmd_data[12:6]  = {5'h09,2'b01};
-      cmd_data[5:0]   = rx_gain[6] ? rx_gain[5:0] : (rx_gain[5] ? ~rx_gain[5:0] : {1'b1,rx_gain[4:0]});
-      wbs_state_next = WBS_IDLE;
+    CMD_RXGAIN: begin
+      icmd_ack   = 1'b1;
+      icmd_data[12:6]  = {5'h09,2'b01};
+      icmd_data[5:0]   = rx_gain[6] ? rx_gain[5:0] : (rx_gain[5] ? ~rx_gain[5:0] : {1'b1,rx_gain[4:0]});
+      cmd_state_next = CMD_IDLE;
     end
 
-    WBS_WRITE: begin
-      cmd_ack   = 1'b1;
-      cmd_data  = {wbs_dat_i[20:16],wbs_dat_i[7:0]};
-      wbs_state_next = WBS_IDLE;
+    CMD_WRITE: begin
+      icmd_ack   = 1'b1;
+      icmd_data  = {cmd_data[20:16],cmd_data[7:0]};
+      cmd_state_next = CMD_IDLE;
     end
 
   endcase
 end
 
-assign wbs_ack_o = cmd_ack;
+assign cmd_ack = icmd_ack;
 
 
 // SPI interface
@@ -325,7 +317,7 @@ end
 
 always @* begin
     initarrayv = initarray[dut1_pc[5:1]];
-    datain = {3'b000,cmd_data};   
+    datain = {3'b000,icmd_data};   
     start = 1'b0;
     if (rffe_ad9866_sen_n) begin
         if (dut1_pc[5:1] <= 6'h13) begin
@@ -335,7 +327,7 @@ always @* begin
                 start = initarrayv[8];
             end
         end else begin
-            start = cmd_ack;
+            start = icmd_ack;
         end
     end
 end

@@ -5,12 +5,10 @@ module i2c_bus2
   clk,
   rst,
 
-  wbs_adr_i,
-  wbs_dat_i,
-  wbs_we_i,
-  wbs_stb_i,
-  wbs_ack_o,   
-  wbs_cyc_i,  
+  cmd_addr,
+  cmd_data,
+  cmd_rqst,
+  cmd_ack,
 
   scl_i,
   scl_o,
@@ -20,20 +18,15 @@ module i2c_bus2
   sda_t
 );
 
-parameter WB_DATA_WIDTH = 32;
-parameter WB_ADDR_WIDTH = 6;
-
 input         clk;
 input         rst;
 
-// Wishbone slave interface
-input  [WB_ADDR_WIDTH-1:0]  wbs_adr_i;
-input  [WB_DATA_WIDTH-1:0]  wbs_dat_i;
-input                       wbs_we_i;
-input                       wbs_stb_i;
-output                      wbs_ack_o;   
-input                       wbs_cyc_i;  
-
+// Command slave interface
+input  [5:0]  cmd_addr;
+input  [31:0] cmd_data;
+input         cmd_rqst;
+output        cmd_ack;
+ 
 input         scl_i;
 output        scl_o;
 output        scl_t;
@@ -66,7 +59,7 @@ logic         busy, missed_ack;
 logic [6:0]   cmd_reg, cmd_next;
 logic [7:0]   data0_reg, data0_next, data1_reg, data1_next;
 
-logic         wbs_ack_reg, wbs_ack_next;
+logic         cmd_ack_reg, cmd_ack_next;
 
 logic [6:0]   filter_select_reg, filter_select_next;
 
@@ -92,14 +85,14 @@ always @(posedge clk) begin
     cmd_reg <= 'h0;
     data0_reg <= 'h0;
     data1_reg <= 'h0;
-    wbs_ack_reg <= 1'b0;
+    cmd_ack_reg <= 1'b0;
     filter_select_reg <= 'h0;
   end else begin
     state <= state_next;
     cmd_reg <= cmd_next;
     data0_reg <= data0_next;
     data1_reg <= data1_next;
-    wbs_ack_reg <= wbs_ack_next;
+    cmd_ack_reg <= cmd_ack_next;
     filter_select_reg <= filter_select_next;
   end
 end
@@ -114,7 +107,7 @@ assign data_in_last = 1'b1;
 
 assign data_out_ready = 1'b1;
 
-assign wbs_ack_o = wbs_ack_reg;
+assign cmd_ack = cmd_ack_reg;
 
 
 always @* begin
@@ -123,7 +116,7 @@ always @* begin
   cmd_valid = 1'b0; 
   cmd_write = 1'b0;
   //cmd_stop = 1'b0;
-  wbs_ack_next = 1'b0;
+  cmd_ack_next = 1'b0;
 
   data_in = data0_reg;
   data_in_valid = 1'b0;
@@ -137,23 +130,23 @@ always @* begin
   case(state)
 
     STATE_IDLE: begin
-      if (~busy & wbs_we_i & wbs_stb_i) begin
-        if ((wbs_adr_i == 6'h3d) & (wbs_dat_i[31:24] == 8'h06)) begin
-          cmd_next = wbs_dat_i[22:16];
-          data0_next  = wbs_dat_i[15:8];
-          data1_next = wbs_dat_i[7:0];
-          wbs_ack_next = 1'b1;
+      if (~busy & cmd_rqst) begin
+        if ((cmd_addr == 6'h3d) & (cmd_data[31:24] == 8'h06)) begin
+          cmd_next = cmd_data[22:16];
+          data0_next  = cmd_data[15:8];
+          data1_next = cmd_data[7:0];
+          cmd_ack_next = 1'b1;
           state_next = STATE_CMDADDR;
         end
 
         // Filter select update
-        if (wbs_adr_i == 6'h00) begin
-          filter_select_next = wbs_dat_i[23:17];
-          if (wbs_dat_i[23:17] != filter_select_reg) begin
+        if (cmd_addr == 6'h00) begin
+          filter_select_next = cmd_data[23:17];
+          if (cmd_data[23:17] != filter_select_reg) begin
             cmd_next = 'h20;
             data0_next = 'h0a;
-            data1_next = {1'b0,wbs_dat_i[23:17]};
-            wbs_ack_next = 1'b1;
+            data1_next = {1'b0,cmd_data[23:17]};
+            cmd_ack_next = 1'b1;
             state_next = STATE_FCMDADDR;
           end
         end

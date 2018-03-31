@@ -162,27 +162,18 @@ localparam RFSZ = clogb2(RX_FIFO_SZ-1);  // number of bits needed to hold 0 - (R
 localparam TFSZ = clogb2(TX_FIFO_SZ-1);  // number of bits needed to hold 0 - (TX_FIFO_SZ-1)
 localparam SFSZ = clogb2(SP_FIFO_SZ-1);  // number of bits needed to hold 0 - (SP_FIFO_SZ-1)
 
-// Wishbone interconnect
-localparam WB_DATA_WIDTH = 32;
-localparam WB_ADDR_WIDTH = 6;
-
 localparam NR = 3; // Recievers
 localparam NT = 1; // Transmitters
 
 
-logic [WB_ADDR_WIDTH-1:0]   wb_adr;
-logic [WB_DATA_WIDTH-1:0]   wb_dat;
-logic                       wb_we;
-logic                       wb_stb;
-logic                       wb_ack;
-logic                       wb_cyc;
-logic                       wb_tga;
+logic   [5:0]   cmd_addr;
+logic  [31:0]   cmd_data;
+logic           cmd_rqst;
+logic           cmd_ack;
+
 
 // Individual acknowledges
-logic                       wb_ack_i2c;
-logic                       wb_ack_radio;
-
-
+logic           cmd_ack_i2c, cmd_ack_radio, cmd_ack_ad9866;
 
 logic FPGA_PTT;
 logic [7:0] AssignNR;         // IP address read from EEPROM
@@ -237,6 +228,14 @@ logic           usiq_tvalidn;
 
 logic    [4:0]  IF_last_chan;
 
+logic           PHY_wrfull;
+logic           IF_PHY_rdempty;
+logic           IF_PHY_drdy;
+
+logic           response_inp_tready;
+logic   [37:0]  response_out_tdata;
+logic           response_out_tvalid;
+logic           resposne_out_tready;
 
 
 localparam SYNC_IDLE    = 3'h0,
@@ -274,9 +273,6 @@ assign pwr_clkvpa = 1'b0;
 
 assign clk_recovered = 1'b0;
 
-
-
-wire response_inp_tvalid, response_inp_tready, response_out_tready;
 
 // Reset and Clock Control
 
@@ -604,16 +600,40 @@ assign Tx_reset = network_state;
 
 */
 
-wire PHY_wrfull;
-wire IF_PHY_rdempty;
-wire IF_PHY_drdy;
+dcfifo_mixed_widths #(
+  .intended_device_family("Cyclone IV E"),
+  .lpm_numwords(16384),
+  .lpm_showahead ("OFF"),
+  .lpm_type("dcfifo_mixed_widths"),
+  .lpm_width(8),
+  .lpm_widthu(14), 
+  .lpm_widthu_r(13), 
+  .lpm_width_r(16),
+  .overflow_checking("ON"),
+  .rdsync_delaypipe(4),
+  .read_aclr_synch("OFF"),
+  .underflow_checking("ON"),
+  .use_eab("ON"),
+  .write_aclr_synch("OFF"),
+  .wrsync_delaypipe(4)
+) dseth_fifo_i (
+  .wrclk (clock_ethrxint),
+  .wrreq (Rx_enable),  
+  .wrfull (PHY_wrfull),
+  .wrempty (),
+  .wrusedw (),
+  .data (Rx_fifo_data),
 
+  .rdclk (clk_ad9866),
+  .rdreq (IF_PHY_drdy),
+  .rdfull (),
+  .rdempty (IF_PHY_rdempty),
+  .rdusedw (),
+  .q ({IF_PHY_data[7:0],IF_PHY_data[15:8]}),
 
-PHY_Rx_fifo PHY_Rx_fifo_inst(.wrclk (clock_ethrxint),.rdreq (IF_PHY_drdy),.rdclk (clk_ad9866),.wrreq(Rx_enable),
-                .data (Rx_fifo_data),.q ({IF_PHY_data[7:0],IF_PHY_data[15:8]}), .rdempty(IF_PHY_rdempty),
-                .wrfull(PHY_wrfull),.aclr(rst | PHY_wrfull));
-
-
+  .aclr (rst | PHY_wrfull),
+  .eccstatus ()
+);
 
 
 //------------------------------------------------
@@ -689,7 +709,6 @@ assign sp_data_ready = ( (speed_1gb ? sp_delay == 0 : sp_delay[15:0] == 0) && ha
 
 
 // AD9866 Interface
-logic       wb_ack_ad9866;
 logic [11:0]    rx_data;
 logic [11:0]    tx_data;
 
@@ -721,12 +740,10 @@ ad9866 ad9866_i (
   .rffe_ad9866_pga5(rffe_ad9866_pga5),
 `endif
 
-  .wbs_adr_i(wb_adr),
-  .wbs_dat_i(wb_dat),
-  .wbs_we_i(wb_we),
-  .wbs_stb_i(wb_stb),
-  .wbs_ack_o(wb_ack_ad9866),
-  .wbs_cyc_i(wb_cyc)
+  .cmd_addr(cmd_addr),
+  .cmd_data(cmd_data),
+  .cmd_rqst(cmd_rqst),
+  .cmd_ack(cmd_ack_ad9866)
 );
 
 
@@ -756,8 +773,6 @@ wire   [47:0]     IF_IQ_Data;
 
 
 radio #(
-  .WB_DATA_WIDTH(WB_DATA_WIDTH),
-  .WB_ADDR_WIDTH(WB_ADDR_WIDTH),
   .NR(NR), 
   .NT(NT),
   .PREDISTORT(PREDISTORT),
@@ -796,14 +811,11 @@ radio_i
   .rx_tready(~rx_treadyn),
   .rx_tvalid(rx_tvalid),
 
-  // Wishbone Slave
-  .wbs_adr_i(wb_adr),
-  .wbs_dat_i(wb_dat),
-  .wbs_we_i(wb_we),
-  .wbs_stb_i(wb_stb),
-  .wbs_ack_o(wb_ack_radio),
-  .wbs_cyc_i(wb_cyc)
-
+  // Command Slave
+  .cmd_addr(cmd_addr),
+  .cmd_data(cmd_data),
+  .cmd_rqst(cmd_rqst),
+  .cmd_ack(cmd_ack_radio)
 );
 
 //---------------------------------------------------------
@@ -844,9 +856,7 @@ assign Penny_ALC = AIN5;
 
 wire VNA_start = VNA && basewrite[0] && (addr == 6'h01);  // indicates a frequency change for the VNA.
 
-wire [37:0] response_out_tdata;
-wire response_out_tvalid;
-wire resposne_out_tready;
+
 wire IO4;
 wire IO5;
 wire IO6;
@@ -1373,19 +1383,16 @@ wire scl1_i, scl1_t, scl1_o, sda1_i, sda1_t, sda1_o;
 wire scl2_i, scl2_t, scl2_o, sda2_i, sda2_t, sda2_o;
 wire scl3_i, scl3_t, scl3_o, sda3_i, sda3_t, sda3_o;
 
-i2c #(.WB_DATA_WIDTH(WB_DATA_WIDTH), .WB_ADDR_WIDTH(WB_ADDR_WIDTH)) i2c_i
-(
+i2c i2c_i (
   .clk(clock_2_5MHz),
   .clock_76p8_mhz(clk_ad9866),
   .rst(clk_i2c_rst),
   .init_start(clk_i2c_start),
 
-  .wbs_adr_i(wb_adr),
-  .wbs_dat_i(wb_dat),
-  .wbs_we_i(wb_we),
-  .wbs_stb_i(wb_stb),
-  .wbs_ack_o(wb_ack_i2c),
-  .wbs_cyc_i(wb_cyc),
+  .cmd_addr(cmd_addr),
+  .cmd_data(cmd_data),
+  .cmd_rqst(cmd_rqst),
+  .cmd_ack(cmd_ack_i2c),
 
   .scl1_i(scl1_i),
   .scl1_o(scl1_o),
@@ -1434,13 +1441,17 @@ assign io_adc_scl = scl3_t ? 1'bz : scl3_o;
 assign sda3_i = io_adc_sda;
 assign io_adc_sda = sda3_t ? 1'bz : sda3_o;
 
-assign response_inp_tvalid = response_inp_tready & wb_tga & wb_stb & wb_ack & wb_we;
+assign cmd_addr = addr;
+assign cmd_data = data;
+assign cmd_rqst = basewrite[1];
+
+assign cmd_ack = response_inp_tready & resp_rqst & (cmd_ack_i2c | cmd_ack_radio | cmd_ack_ad9866);
 
 axis_fifo #(.ADDR_WIDTH(1), .DATA_WIDTH(38)) response_fifo (
   .clk(clk_ad9866),
   .rst(rst),
-  .input_axis_tdata({wb_adr,wb_dat}),
-  .input_axis_tvalid(response_inp_tvalid),
+  .input_axis_tdata({cmd_addr,cmd_data}),
+  .input_axis_tvalid(cmd_ack),
   .input_axis_tready(response_inp_tready),
   .input_axis_tlast(1'b0),
   .input_axis_tuser(1'b0),
@@ -1451,29 +1462,6 @@ axis_fifo #(.ADDR_WIDTH(1), .DATA_WIDTH(38)) response_fifo (
   .output_axis_tlast(),
   .output_axis_tuser()
 );
-
-
-cmd_wbm #(.WB_DATA_WIDTH(WB_DATA_WIDTH), .WB_ADDR_WIDTH(WB_ADDR_WIDTH)) cmd_wbm_i (
-  .clk(clk_ad9866),
-  .rst(rst),
-
-  .wbm_adr_o(wb_adr), 
-  .wbm_dat_o(wb_dat),
-  .wbm_we_o(wb_we), 
-  .wbm_stb_o(wb_stb),
-  .wbm_ack_i(wb_ack),
-  .wbm_cyc_o(wb_cyc),
-  .wbm_tga_o(wb_tga),
-
-  .cmd_resp_rqst(resp_rqst),
-  .cmd_write(basewrite[1]),
-  .cmd_addr(addr),
-  .cmd_data(data)
-);
-
-// OR acknowledge from all slaves
-assign wb_ack = wb_ack_i2c | wb_ack_ad9866 | wb_ack_radio;
-
 
 function integer clogb2;
 input [31:0] depth;

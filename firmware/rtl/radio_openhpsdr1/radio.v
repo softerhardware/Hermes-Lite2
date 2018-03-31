@@ -31,18 +31,12 @@ module radio (
   rx_tready,
   rx_tvalid,
 
-  // Wishbone slave interface
-  wbs_adr_i,
-  wbs_dat_i,
-  wbs_we_i,
-  wbs_stb_i,
-  wbs_ack_o,
-  wbs_cyc_i
+  // Command slave interface
+  cmd_addr,
+  cmd_data,
+  cmd_rqst,
+  cmd_ack
 );
-
-
-parameter         WB_DATA_WIDTH = 32;
-parameter         WB_ADDR_WIDTH = 6;
 
 parameter         NR = 3;
 parameter         NT = 1;
@@ -99,13 +93,12 @@ input             rx_tready;
 output            rx_tvalid;
 
 
-// Wishbone slave interface
-input  [WB_ADDR_WIDTH-1:0]  wbs_adr_i;
-input  [WB_DATA_WIDTH-1:0]  wbs_dat_i;
-input                       wbs_we_i;
-input                       wbs_stb_i;
-output                      wbs_ack_o;   
-input                       wbs_cyc_i;
+// Command slave interface
+input   [5:0]     cmd_addr;
+input   [31:0]    cmd_data;
+input             cmd_rqst;
+output            cmd_ack;   
+
 
 logic [ 1:0]        tx_predistort = 2'b00;
 logic [ 1:0]        tx_predistort_next;
@@ -160,13 +153,13 @@ logic [31:0]  tx_phase [0:NT-1];
 logic [31:0]  rx_phase [0:NR-1];
 
 localparam 
-  WBS_IDLE    = 2'b00,
-  WBS_FREQ1   = 2'b01,
-  WBS_FREQ2   = 2'b11,
-  WBS_FREQ3   = 2'b10;
+  CMD_IDLE    = 2'b00,
+  CMD_FREQ1   = 2'b01,
+  CMD_FREQ2   = 2'b11,
+  CMD_FREQ3   = 2'b10;
 
-logic [1:0]   wbs_state = WBS_IDLE;
-logic [1:0]   wbs_state_next;
+logic [1:0]   cmd_state = CMD_IDLE;
+logic [1:0]   cmd_state_next;
 
 localparam 
   RXUS_WAIT1  = 2'b00,
@@ -177,9 +170,9 @@ localparam
 logic [1:0]   rxus_state = RXUS_WAIT1;
 logic [1:0]   rxus_state_next;
 
-// Wishbone Slave State Machine
+// Command Slave State Machine
 always @(posedge clk_ad9866) begin
-  wbs_state <= wbs_state_next;
+  cmd_state <= cmd_state_next;
   vna <= vna_next;
   rx_rate <= rx_rate_next;
   pure_signal <= pure_signal_next;
@@ -189,8 +182,8 @@ always @(posedge clk_ad9866) begin
 end
 
 always @* begin
-  wbs_state_next = wbs_state;
-  wbs_ack_o = 1'b0;
+  cmd_state_next = cmd_state;
+  cmd_ack = 1'b0;
   vna_next = vna;
   rx_rate_next = rx_rate;
   pure_signal_next = pure_signal;
@@ -198,59 +191,59 @@ always @* begin
   last_chan_next = last_chan;
   duplex_next = duplex;
 
-  case(wbs_state)
+  case(cmd_state)
 
-    WBS_IDLE: begin
-      if (wbs_we_i & wbs_stb_i) begin
-        case (wbs_adr_i)
+    CMD_IDLE: begin
+      if (cmd_rqst) begin
+        case (cmd_addr)
           // Frequency changes
-          6'h01:    wbs_state_next    = WBS_FREQ1;
-          6'h02:    wbs_state_next    = WBS_FREQ1;
-          6'h03:    wbs_state_next    = WBS_FREQ1;
-          6'h04:    wbs_state_next    = WBS_FREQ1;
-          6'h05:    wbs_state_next    = WBS_FREQ1;
-          6'h06:    wbs_state_next    = WBS_FREQ1;
-          6'h07:    wbs_state_next    = WBS_FREQ1;
-          6'h08:    wbs_state_next    = WBS_FREQ1;
-          6'h12:    wbs_state_next    = WBS_FREQ1;
-          6'h13:    wbs_state_next    = WBS_FREQ1;
-          6'h14:    wbs_state_next    = WBS_FREQ1;
-          6'h15:    wbs_state_next    = WBS_FREQ1;
-          6'h16:    wbs_state_next    = WBS_FREQ1;
+          6'h01:    cmd_state_next    = CMD_FREQ1;
+          6'h02:    cmd_state_next    = CMD_FREQ1;
+          6'h03:    cmd_state_next    = CMD_FREQ1;
+          6'h04:    cmd_state_next    = CMD_FREQ1;
+          6'h05:    cmd_state_next    = CMD_FREQ1;
+          6'h06:    cmd_state_next    = CMD_FREQ1;
+          6'h07:    cmd_state_next    = CMD_FREQ1;
+          6'h08:    cmd_state_next    = CMD_FREQ1;
+          6'h12:    cmd_state_next    = CMD_FREQ1;
+          6'h13:    cmd_state_next    = CMD_FREQ1;
+          6'h14:    cmd_state_next    = CMD_FREQ1;
+          6'h15:    cmd_state_next    = CMD_FREQ1;
+          6'h16:    cmd_state_next    = CMD_FREQ1;
 
           // Control with no acknowledge
           6'h00: begin
-            rx_rate_next              = wbs_dat_i[25:24];
-            last_chan_next            = wbs_dat_i[7:3];
-            duplex_next               = wbs_dat_i[2];
+            rx_rate_next              = cmd_data[25:24];
+            last_chan_next            = cmd_data[7:3];
+            duplex_next               = cmd_data[2];
           end
 
-          6'h09:    vna_next          = wbs_dat_i[23];
-          6'h0a:    pure_signal_next  = wbs_dat_i[22];
+          6'h09:    vna_next          = cmd_data[23];
+          6'h0a:    pure_signal_next  = cmd_data[22];
 
           6'h2b: begin
             //predistortion control sub index
-            if(wbs_dat_i[31:24]==8'h00) begin
-              tx_predistort_next      = wbs_dat_i[17:16];
+            if(cmd_data[31:24]==8'h00) begin
+              tx_predistort_next      = cmd_data[17:16];
             end
           end
 
-          default:  wbs_state_next = wbs_state;
+          default:  cmd_state_next = cmd_state;
         endcase 
       end        
     end
 
-    WBS_FREQ1: begin
-      wbs_state_next = WBS_FREQ2;
+    CMD_FREQ1: begin
+      cmd_state_next = CMD_FREQ2;
     end
 
-    WBS_FREQ2: begin
-      wbs_state_next = WBS_FREQ3;
+    CMD_FREQ2: begin
+      cmd_state_next = CMD_FREQ3;
     end
 
-    WBS_FREQ3: begin
-      wbs_state_next = WBS_IDLE;
-      wbs_ack_o = 1'b1;
+    CMD_FREQ3: begin
+      cmd_state_next = CMD_IDLE;
+      cmd_ack = 1'b1;
     end
   endcase
 end
@@ -259,26 +252,26 @@ end
 // Frequency computation
 // Always compute frequency
 // This really should be done on the PC and not in the FPGA....
-assign freqcomp = wbs_dat_i * M2 + M3;
+assign freqcomp = cmd_data * M2 + M3;
 
 // Pipeline freqcomp
 always @ (posedge clk_ad9866) begin
   // Pipeline to allow 2 cycles for multiply
-  if (wbs_state == WBS_FREQ2) begin
+  if (cmd_state == CMD_FREQ2) begin
     freqcompp[0] <= freqcomp[56:25];
     freqcompp[1] <= freqcomp[56:25];
     freqcompp[2] <= freqcomp[56:25];
     freqcompp[3] <= freqcomp[56:25];
-    chanp[0] <= wbs_adr_i;
-    chanp[1] <= wbs_adr_i;
-    chanp[2] <= wbs_adr_i;
-    chanp[3] <= wbs_adr_i;
+    chanp[0] <= cmd_addr;
+    chanp[1] <= cmd_addr;
+    chanp[2] <= cmd_addr;
+    chanp[3] <= cmd_addr;
   end
 end
 
 // TX0 and RX0
 always @ (posedge clk_ad9866) begin
-  if (wbs_state == WBS_FREQ3) begin
+  if (cmd_state == CMD_FREQ3) begin
     if (chanp[0] == 6'h01) begin 
       tx_phase[0] <= freqcompp[0]; 
       if (!duplex && (last_chan == 5'b00000)) rx_phase[0] <= freqcompp[0];
@@ -296,7 +289,7 @@ genvar c;
 generate
   for (c = 1; c < NT; c = c + 1) begin: TXIFFREQ
     always @ (posedge clk_ad9866) begin
-      if (wbs_state == WBS_FREQ3) begin
+      if (cmd_state == CMD_FREQ3) begin
         if (chanp[c/8] == ((c < 7) ? c+2 : c+11)) begin
           tx_phase[c] <= freqcompp[c/8]; 
         end
@@ -309,7 +302,7 @@ endgenerate
 generate
   for (c = 1; c < NR; c = c + 1) begin: RXIFFREQ
     always @ (posedge clk_ad9866) begin
-      if (wbs_state == WBS_FREQ3) begin
+      if (cmd_state == CMD_FREQ3) begin
         if (chanp[c/8] == ((c < 7) ? c+2 : c+11)) begin
           rx_phase[c] <= freqcompp[c/8]; 
         end

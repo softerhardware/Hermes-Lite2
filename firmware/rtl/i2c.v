@@ -1,23 +1,16 @@
 `timescale 1ns / 1ps
 
-module i2c #
-(
-    parameter WB_DATA_WIDTH = 32,
-    parameter WB_ADDR_WIDTH = 6
-)
-(
+module i2c (
     input  logic         clk,
     input  logic         clock_76p8_mhz,
     input  logic         rst,
     input  logic         init_start,
 
-    // Wishbone slave interface
-    input  logic [WB_ADDR_WIDTH-1:0]   wbs_adr_i,
-    input  logic [WB_DATA_WIDTH-1:0]   wbs_dat_i,
-    input  logic                       wbs_we_i,
-    input  logic                       wbs_stb_i,
-    output logic                       wbs_ack_o,   
-    input  logic                       wbs_cyc_i,  
+    // Command slave interface
+    input  logic [5:0]   cmd_addr,
+    input  logic [31:0]  cmd_data,
+    input  logic         cmd_rqst,
+    output logic         cmd_ack,   
 
     /*
      * I2C interface
@@ -127,12 +120,10 @@ i2c_bus2 i2c_bus2_i (
   .clk(clock_76p8_mhz),
   .rst(rst),
 
-  .wbs_adr_i(wbs_adr_i),
-  .wbs_dat_i(wbs_dat_i),
-  .wbs_we_i(wbs_we_i),
-  .wbs_stb_i(wbs_stb_i),
-  .wbs_ack_o(wbs_ack_o),   
-  .wbs_cyc_i(wbs_cyc_i),  
+  .cmd_addr(cmd_addr),
+  .cmd_data(cmd_data),
+  .cmd_rqst(cmd_rqst),
+  .cmd_ack(cmd_ack),   
 
   .scl_i(scl2_i),
   .scl_o(scl2_o),
