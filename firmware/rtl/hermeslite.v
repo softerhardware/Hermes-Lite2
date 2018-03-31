@@ -508,19 +508,38 @@ network network_inst(
   .PHY_MDC(phy_mdc)
 );
 
-Rx_recv rx_recv_inst(
-    .rx_clk(clock_ethrxint),
-    .run(run),
-    .wide_spectrum(wide_spectrum),
-    .dst_unreachable(dst_unreachable),
-    .discovery_reply(discovery_reply),
-    .to_port(to_port),
-    .broadcast(broadcast),
-    .rx_valid(udp_rx_active),
-    .rx_data(udp_rx_data),
-    .rx_fifo_data(Rx_fifo_data),
-    .rx_fifo_enable(Rx_enable)
+//Rx_recv rx_recv_inst(
+//    .rx_clk(clock_ethrxint),
+//    .run(run),
+//    .wide_spectrum(wide_spectrum),
+//    .dst_unreachable(dst_unreachable),
+//    .discovery_reply(discovery_reply),
+//    .to_port(to_port),
+//    .broadcast(broadcast),
+//    .rx_valid(udp_rx_active),
+//    .rx_data(udp_rx_data),
+//    .rx_fifo_data(Rx_fifo_data),
+//    .rx_fifo_enable(Rx_enable)
+//);
+
+dsopenhpsdr1 dsopenhpsdr1_i (
+  .clk(clock_ethrxint),
+  .eth_port(to_port),
+  .eth_broadcast(broadcast),
+  .eth_valid(udp_rx_active),
+  .eth_data(udp_rx_data),
+  .eth_unreachable(dst_unreachable),
+  .eth_metis_discovery(discovery_reply),
+
+  .run(run),
+  .wide_spectrum(wide_spectrum),
+
+  .rx_fifo_data(Rx_fifo_data),
+  .rx_fifo_valid(Rx_enable)
 );
+
+
+
 
 // Only synchronizing one signal as run and wide_spectrum can take time to resolve meta stable state
 
