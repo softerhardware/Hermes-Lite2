@@ -1,47 +1,9 @@
-# -------------------------------------------------------------------------- #
-#
-# Copyright (C) 2016  Intel Corporation. All rights reserved.
-# Your use of Intel Corporation's design tools, logic functions
-# and other software and tools, and its AMPP partner logic
-# functions, and any output files from any of the foregoing
-# (including device programming or simulation files), and any
-# associated documentation or information are expressly subject
-# to the terms and conditions of the Intel Program License
-# Subscription Agreement, the Intel Quartus Prime License Agreement,
-# the Intel MegaCore Function License Agreement, or other
-# applicable license agreement, including, without limitation,
-# that your use is for the sole purpose of programming logic
-# devices manufactured by Intel and sold by Intel or its
-# authorized distributors.  Please refer to the applicable
-# agreement for further details.
-#
-# -------------------------------------------------------------------------- #
-#
-# Quartus Prime
-# Version 16.1.0 Build 196 10/24/2016 SJ Lite Edition
-# Date created = 21:27:00  December 21, 2016
-#
-# -------------------------------------------------------------------------- #
-#
-# Notes:
-#
-# 1) The default values for assignments are stored in the file:
-#		top_assignment_defaults.qdf
-#    If this file doesn't exist, see file:
-#		assignment_defaults.qdf
-#
-# 2) Altera recommends that you do not modify this file. This
-#    file is updated automatically by the Quartus Prime software
-#    and any changes you make may be lost or overwritten.
-#
-# -------------------------------------------------------------------------- #
-
 
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE22E22C8
 set_global_assignment -name TOP_LEVEL_ENTITY hermeslite
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 16.1.2
-set_global_assignment -name PROJECT_CREATION_TIME_DATE "22:38:59  JUNE 27, 2017"
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "21:06:31  NOVEMBER 30, 2017"
 set_global_assignment -name LAST_QUARTUS_VERSION "16.1.2 Lite Edition"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY build
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
@@ -71,8 +33,8 @@ set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
 set_location_assignment PIN_72 -to clk_recovered
-set_location_assignment PIN_104 -to clk_scl1
-set_location_assignment PIN_103 -to clk_sda1
+set_location_assignment PIN_103 -to clk_scl1
+set_location_assignment PIN_104 -to clk_sda1
 set_location_assignment PIN_33 -to io_adc_scl
 set_location_assignment PIN_32 -to io_adc_sda
 set_location_assignment PIN_86 -to io_lvds_txn
@@ -83,12 +45,12 @@ set_location_assignment PIN_25 -to io_cn8
 set_location_assignment PIN_24 -to io_cn9
 set_location_assignment PIN_23 -to io_cn10
 set_location_assignment PIN_76 -to io_db1_2
-set_location_assignment PIN_90 -to io_db1_3
-set_location_assignment PIN_91 -to io_db1_4
+set_location_assignment PIN_77 -to io_db1_3
+set_location_assignment PIN_80 -to io_db1_4
 set_location_assignment PIN_83 -to io_db1_5
 set_location_assignment PIN_85 -to io_db1_6
-set_location_assignment PIN_77 -to io_phone_tip
-set_location_assignment PIN_80 -to io_phone_ring
+set_location_assignment PIN_91 -to io_phone_tip
+set_location_assignment PIN_90 -to io_phone_ring
 set_location_assignment PIN_98 -to io_led_d2
 set_location_assignment PIN_99 -to io_led_d3
 set_location_assignment PIN_100 -to io_led_d4
@@ -96,6 +58,9 @@ set_location_assignment PIN_101 -to io_led_d5
 set_location_assignment PIN_31 -to io_scl2
 set_location_assignment PIN_30 -to io_sda2
 set_location_assignment PIN_55 -to io_tp2
+set_location_assignment PIN_129 -to io_tp7
+set_location_assignment PIN_128 -to io_tp8
+set_location_assignment PIN_127 -to io_tp9
 set_location_assignment PIN_52 -to phy_clk125
 set_location_assignment PIN_51 -to phy_mdc
 set_location_assignment PIN_50 -to phy_mdio
@@ -114,42 +79,40 @@ set_location_assignment PIN_66 -to phy_tx_clk
 set_location_assignment PIN_65 -to phy_tx_en
 set_location_assignment PIN_46 -to pwr_clk1p2
 set_location_assignment PIN_44 -to pwr_clk3p3
-set_location_assignment PIN_43 -to pwr_clkvpa
-set_location_assignment PIN_42 -to pwr_envpa
-set_location_assignment PIN_126 -to rffe_ad9866_clk76p8
-set_location_assignment PIN_114 -to rffe_ad9866_pga[5]
-set_location_assignment PIN_113 -to rffe_ad9866_pga[4]
-set_location_assignment PIN_112 -to rffe_ad9866_pga[3]
-set_location_assignment PIN_111 -to rffe_ad9866_pga[2]
-set_location_assignment PIN_110 -to rffe_ad9866_pga[1]
-set_location_assignment PIN_106 -to rffe_ad9866_pga[0]
-set_location_assignment PIN_105 -to rffe_ad9866_rst_n
-set_location_assignment PIN_137 -to rffe_ad9866_rx[5]
-set_location_assignment PIN_136 -to rffe_ad9866_rx[4]
-set_location_assignment PIN_135 -to rffe_ad9866_rx[3]
-set_location_assignment PIN_133 -to rffe_ad9866_rx[2]
-set_location_assignment PIN_132 -to rffe_ad9866_rx[1]
-set_location_assignment PIN_129 -to rffe_ad9866_rx[0]
-set_location_assignment PIN_127 -to rffe_ad9866_rxclk
-set_location_assignment PIN_128 -to rffe_ad9866_rxsync
-set_location_assignment PIN_119 -to rffe_ad9866_sclk
-set_location_assignment PIN_120 -to rffe_ad9866_sdio
-set_location_assignment PIN_115 -to rffe_ad9866_sen_n
+set_location_assignment PIN_43 -to pwr_envpa
+set_location_assignment PIN_42 -to pwr_envop
+set_location_assignment PIN_39 -to pwr_envbias
 set_location_assignment PIN_10 -to rffe_ad9866_tx[5]
-set_location_assignment PIN_7 -to rffe_ad9866_tx[4]
-set_location_assignment PIN_144 -to rffe_ad9866_tx[3]
-set_location_assignment PIN_143 -to rffe_ad9866_tx[2]
-set_location_assignment PIN_142 -to rffe_ad9866_tx[1]
-set_location_assignment PIN_141 -to rffe_ad9866_tx[0]
-set_location_assignment PIN_121 -to rffe_ad9866_txquiet_n
-set_location_assignment PIN_125 -to rffe_ad9866_txsync
+set_location_assignment PIN_144 -to rffe_ad9866_tx[4]
+set_location_assignment PIN_143 -to rffe_ad9866_tx[3]
+set_location_assignment PIN_142 -to rffe_ad9866_tx[2]
+set_location_assignment PIN_141 -to rffe_ad9866_tx[1]
+set_location_assignment PIN_137 -to rffe_ad9866_tx[0]
+set_location_assignment PIN_136 -to rffe_ad9866_mode
+set_location_assignment PIN_135 -to rffe_ad9866_rx[5]
+set_location_assignment PIN_133 -to rffe_ad9866_rx[4]
+set_location_assignment PIN_132 -to rffe_ad9866_rx[3]
+set_location_assignment PIN_126 -to rffe_ad9866_clk76p8
+set_location_assignment PIN_125 -to rffe_ad9866_rx[2]
+set_location_assignment PIN_121 -to rffe_ad9866_rx[1]
+set_location_assignment PIN_120 -to rffe_ad9866_rx[0]
+set_location_assignment PIN_119 -to rffe_ad9866_rst_n
+set_location_assignment PIN_115 -to rffe_ad9866_rxsync
+set_location_assignment PIN_114 -to rffe_ad9866_txsync
+set_location_assignment PIN_113 -to rffe_ad9866_txquiet_n
+set_location_assignment PIN_112 -to rffe_ad9866_rxclk
+set_location_assignment PIN_111 -to rffe_ad9866_sdio
+set_location_assignment PIN_110 -to rffe_ad9866_sclk
+set_location_assignment PIN_106 -to rffe_ad9866_sen_n
+set_location_assignment PIN_105 -to rffe_ad9866_pga5
 set_location_assignment PIN_11 -to rffe_rfsw_sel
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx[2]
+set_location_assignment PIN_7 -to pa_inttr
+set_location_assignment PIN_28 -to pa_exttr
 set_instance_assignment -name IO_STANDARD "2.5 V" -to pwr_envpa
-set_instance_assignment -name IO_STANDARD "2.5 V" -to pwr_clkvpa
+set_instance_assignment -name IO_STANDARD "2.5 V" -to pwr_envop
+set_instance_assignment -name IO_STANDARD "2.5 V" -to pwr_envbias
 set_instance_assignment -name IO_STANDARD "2.5 V" -to pwr_clk3p3
 set_instance_assignment -name IO_STANDARD "2.5 V" -to pwr_clk1p2
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx_clk
 set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rst_n
 set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_mdio
 set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_mdc
@@ -161,13 +124,14 @@ set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_tx[1]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_tx[2]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_tx[3]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_tx
+set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx_clk
 set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx_dv
 set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx[0]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx[1]
+set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx[2]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx[3]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx
 set_instance_assignment -name IO_STANDARD "2.5 V" -to io_tp2
-set_instance_assignment -name IO_STANDARD "2.5 V" -to clk_recovered
 set_instance_assignment -name IO_STANDARD "2.5 V" -to io_db24
 set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn5_7
 set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn5_6
@@ -177,9 +141,7 @@ set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn4_7
 set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn4_6
 set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn4_3
 set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn4_2
-set_location_assignment PIN_39 -to pa_en
-set_location_assignment PIN_28 -to pa_tr
-set_instance_assignment -name IO_STANDARD "2.5 V" -to pa_en
+set_instance_assignment -name IO_STANDARD "2.5 V" -to clk_recovered
 
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_tx[*]
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_txsync
@@ -215,10 +177,6 @@ set_global_assignment -name VERILOG_INPUT_VERSION SYSTEMVERILOG_2005
 set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
 
 set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
-set_global_assignment -name VERILOG_MACRO "BETA2=1"
-set_global_assignment -name VERILOG_MACRO "USE_ALTSYNCRAM=1"
-set_global_assignment -name SDC_FILE hermeslite.sdc
-
 
 set_global_assignment -name VERILOG_FILE rtl/hermeslite.v
 set_global_assignment -name VERILOG_FILE rtl/ad9866.v
@@ -284,4 +242,3 @@ set_location_assignment CLKCTRL_G19 -to ethtxext_clkmux_i|auto_generated|clkctrl
 set_location_assignment CLKCTRL_G15 -to ethtxint_clkmux_i|auto_generated|clkctrl1
 #set_location_assignment LCCOMB_X1_Y16_N4 -to altclkctrl:ethtxint_clkmux_i|altclkctrl_kct:auto_generated|outclk
 set_location_assignment LCCOMB_X28_Y1_N28 -to clock_ethrxint
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

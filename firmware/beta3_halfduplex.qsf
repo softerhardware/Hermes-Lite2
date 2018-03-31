@@ -1,3 +1,4 @@
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "21:06:31  NOVEMBER 30, 2017"
 # -------------------------------------------------------------------------- #
 #
 # Copyright (C) 2016  Intel Corporation. All rights reserved.
@@ -36,12 +37,14 @@
 #
 # -------------------------------------------------------------------------- #
 
-
+set_global_assignment -name VERILOG_MACRO "BETA3=1"
+set_global_assignment -name VERILOG_MACRO "HALFDUPLEX=1"
+set_global_assignment -name VERILOG_MACRO "USE_ALTSYNCRAM=1"
+source ./hermeslite.tcl
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE22E22C8
 set_global_assignment -name TOP_LEVEL_ENTITY hermeslite
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 16.1.2
-set_global_assignment -name PROJECT_CREATION_TIME_DATE "19:42:50  SEPTEMBER 09, 2017"
 set_global_assignment -name LAST_QUARTUS_VERSION "16.1.2 Lite Edition"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY build
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
@@ -71,24 +74,18 @@ set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
 set_location_assignment PIN_72 -to clk_recovered
-set_location_assignment PIN_104 -to clk_scl1
-set_location_assignment PIN_103 -to clk_sda1
 set_location_assignment PIN_33 -to io_adc_scl
 set_location_assignment PIN_32 -to io_adc_sda
-set_location_assignment PIN_77 -to io_cn4_2
-set_location_assignment PIN_80 -to io_cn4_3
-set_location_assignment PIN_83 -to io_cn4_6
-set_location_assignment PIN_85 -to io_cn4_7
-set_location_assignment PIN_86 -to io_cn5_2
-set_location_assignment PIN_87 -to io_cn5_3
-set_location_assignment PIN_88 -to io_cn5_6
-set_location_assignment PIN_89 -to io_cn5_7
+set_location_assignment PIN_86 -to io_lvds_txn
+set_location_assignment PIN_87 -to io_lvds_txp
+set_location_assignment PIN_88 -to io_lvds_rxp
+set_location_assignment PIN_89 -to io_lvds_rxn
 set_location_assignment PIN_25 -to io_cn8
 set_location_assignment PIN_24 -to io_cn9
 set_location_assignment PIN_23 -to io_cn10
-set_location_assignment PIN_91 -to io_db22_2
-set_location_assignment PIN_90 -to io_db22_3
-set_location_assignment PIN_76 -to io_db24
+set_location_assignment PIN_76 -to io_db1_2
+set_location_assignment PIN_83 -to io_db1_5
+set_location_assignment PIN_85 -to io_db1_6
 set_location_assignment PIN_98 -to io_led_d2
 set_location_assignment PIN_99 -to io_led_d3
 set_location_assignment PIN_100 -to io_led_d4
@@ -180,26 +177,40 @@ set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn4_6
 set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn4_3
 set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn4_2
 set_instance_assignment -name IO_STANDARD "2.5 V" -to clk_recovered
-
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_tx[*]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_txsync
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to rffe_ad9866_rx[*]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to rffe_ad9866_rxsync
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_sdio
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_sen_n
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_sclk
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_rst_n
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_txquiet_n
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_rfsw_sel
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to pwr_*
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to io_led*
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to clk_s*
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to clk_s*
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to clk_s*
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to io_adc_s*
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to io_adc_s*
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to io_adc_s*
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to io_s*
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to io_s*
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to io_s*
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to io_cn*
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to io_db1_5
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to io_phone*
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to pa_*
 set_global_assignment -name VERILOG_INPUT_VERSION SYSTEMVERILOG_2005
 set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
-
 set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
-set_global_assignment -name VERILOG_MACRO "BETA3=1"
-set_global_assignment -name VERILOG_MACRO "HALFDUPLEX=1"
-set_global_assignment -name VERILOG_MACRO "USE_ALTSYNCRAM=1"
-
-set_global_assignment -name SDC_FILE hermeslite.sdc
-
-
 set_global_assignment -name VERILOG_FILE rtl/hermeslite.v
 set_global_assignment -name VERILOG_FILE rtl/ad9866.v
 set_global_assignment -name VERILOG_FILE rtl/ad9866pll.v
 set_global_assignment -name VERILOG_FILE rtl/ethpll.v
 set_global_assignment -name VERILOG_FILE rtl/SP_fifo.v
 set_global_assignment -name VERILOG_FILE rtl/Tx_fifo.v
-set_global_assignment -name VERILOG_FILE rtl/PHY_Rx_fifo.v
-
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/radio.v
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/varcic.v
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/cic.v
@@ -215,7 +226,6 @@ set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/FirInterp8_1024.v
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firram36.v
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firrom/firromH.v
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firrom/firromI_1024.v
-
 set_global_assignment -name VERILOG_FILE rtl/ethernet/udp_send.v
 set_global_assignment -name VERILOG_FILE rtl/ethernet/udp_recv.v
 set_global_assignment -name VERILOG_FILE rtl/ethernet/rgmii_send.v
@@ -234,15 +244,12 @@ set_global_assignment -name VERILOG_FILE rtl/ethernet/arp.v
 set_global_assignment -name VERILOG_FILE rtl/ethernet/ddio_out.v
 set_global_assignment -name VERILOG_FILE rtl/ethernet/ddio_in.v
 set_global_assignment -name VERILOG_FILE rtl/ethernet/icmp_fifo.v
-
-set_global_assignment -name VERILOG_FILE rtl/Rx_recv.v
+set_global_assignment -name VERILOG_FILE rtl/dsopenhpsdr1.v
 set_global_assignment -name VERILOG_FILE rtl/Tx_send.v
 set_global_assignment -name VERILOG_FILE rtl/sp_rcv_ctrl.v
 set_global_assignment -name VERILOG_FILE rtl/Hermes_Tx_fifo_ctrl.v
-
 set_global_assignment -name VERILOG_FILE rtl/cdc_sync.v
 set_global_assignment -name VERILOG_FILE rtl/sync.v
-
 set_global_assignment -name VERILOG_FILE rtl/Led_flash.v
 set_global_assignment -name VERILOG_FILE rtl/debounce.v
 set_global_assignment -name VERILOG_FILE rtl/i2c_master.v
@@ -250,12 +257,18 @@ set_global_assignment -name VERILOG_FILE rtl/i2c_init.v
 set_global_assignment -name VERILOG_FILE rtl/i2c_bus2.v
 set_global_assignment -name VERILOG_FILE rtl/i2c.v
 set_global_assignment -name VERILOG_FILE rtl/slow_adc.v
-set_global_assignment -name VERILOG_FILE rtl/cmd_wbm.v
 set_global_assignment -name VERILOG_FILE rtl/axis_fifo.v
-
 set_location_assignment CLKCTRL_G17 -to clock_ethrxint~clkctrl
 set_location_assignment CLKCTRL_G19 -to ethtxext_clkmux_i|auto_generated|clkctrl1
 set_location_assignment CLKCTRL_G15 -to ethtxint_clkmux_i|auto_generated|clkctrl1
-#set_location_assignment LCCOMB_X1_Y16_N4 -to altclkctrl:ethtxint_clkmux_i|altclkctrl_kct:auto_generated|outclk
 set_location_assignment LCCOMB_X28_Y1_N28 -to clock_ethrxint
+set_global_assignment -name SDC_FILE hermeslite.sdc
+
+set_location_assignment PIN_104 -to clk_scl1
+set_location_assignment PIN_103 -to clk_sda1
+set_location_assignment PIN_90 -to io_db1_3
+set_location_assignment PIN_91 -to io_db1_4
+set_location_assignment PIN_77 -to io_phone_tip
+set_location_assignment PIN_80 -to io_phone_ring
+
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
