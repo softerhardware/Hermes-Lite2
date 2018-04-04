@@ -11,50 +11,97 @@ module dsopenhpsdr1 (
 
   run,
   wide_spectrum,
+  
+  cmd_addr,
+  cmd_data,
+  cmd_cnt,
+  cmd_ptt,
+  cmd_resprqst,
 
-  rx_fifo_data,
-  rx_fifo_valid
+  dseth_tdata,
+  dsethiq_tvalid,
+  dsethlr_tvalid
 );
 
-input           clk;
+input               clk;
 
-input   [15:0]  eth_port;
-input           eth_broadcast;
-input           eth_valid;
-input   [ 7:0]  eth_data;
-input           eth_unreachable;
-output          eth_metis_discovery;
+input   [15:0]      eth_port;
+input               eth_broadcast;
+input               eth_valid;
+input   [ 7:0]      eth_data;
+input               eth_unreachable;
+output              eth_metis_discovery;
 
-output logic    run = 1'b0;
-output logic    wide_spectrum = 1'b0;
+output logic        run = 1'b0;
+output logic        wide_spectrum = 1'b0;
 
-output  [ 7:0]  rx_fifo_data;
-output          rx_fifo_valid;
+output logic  [5:0] cmd_addr = 6'h0;
+output logic [31:0] cmd_data = 32'h00;
+output logic        cmd_cnt = 1'b0;
+output logic        cmd_ptt = 1'b0;
+output logic        cmd_resprqst = 1'b0;
 
-localparam START        = 'h0,
-           PREAMBLE     = 'h1,
-           DECODE       = 'h2,
-           RUNSTOP      = 'h3,
-           DISCOVERY    = 'h4,
-           ENDPOINT     = 'h5,
-           SEQNO1       = 'h6,
-           SEQNO2       = 'h7,
-           SEQNO3       = 'h8,           
-           SEQNO4       = 'ha,
-           FRAMES       = 'hb;
+output        [7:0] dseth_tdata;
+output              dsethiq_tvalid;
+output              dsethlr_tvalid;
 
-logic   [ 3:0]  state = START;
-logic   [ 3:0]  state_next;
 
-logic   [ 9:0]  count = 10'h000;
-logic   [ 9:0]  count_next; 
+localparam START        = 'h00,
+           PREAMBLE     = 'h01,
+           DECODE       = 'h02,
+           RUNSTOP      = 'h03,
+           DISCOVERY    = 'h04,
+           ENDPOINT     = 'h05,
+           SEQNO3       = 'h06,
+           SEQNO2       = 'h07,
+           SEQNO1       = 'h08,           
+           SEQNO0       = 'h0a,
+
+           SYNC2        = 'h10,
+           SYNC1        = 'h11,
+           SYNC0        = 'h12,
+           CMDCTRL      = 'h13,
+           CMDDATA3     = 'h14,
+           CMDDATA2     = 'h15,
+           CMDDATA1     = 'h16,
+           CMDDATA0     = 'h17,
+           PUSHL1       = 'h18,
+           PUSHL0       = 'h19,
+           PUSHR1       = 'h1a,
+           PUSHR0       = 'h1b,
+           PUSHI1       = 'h1c,
+           PUSHI0       = 'h1d,
+           PUSHQ1       = 'h1e,
+           PUSHQ0       = 'h1f;
+
+
+logic   [ 4:0]  state = START;
+logic   [ 4:0]  state_next;
+
+logic   [ 5:0]  pushcnt = 6'h00;
+logic   [ 5:0]  pushcnt_next; 
+
+logic           framecnt = 1'b0;
+logic           framecnt_next; 
 
 logic           run_next;
 logic           wide_spectrum_next;
 
+logic   [5:0]   cmd_addr_next;
+logic   [31:0]  cmd_data_next;
+logic           cmd_cnt_next;
+logic           cmd_ptt_next;
+logic           cmd_resprqst_next;
+
 // State
 always @ (posedge clk) begin
-  count <= count_next;
+  pushcnt <= pushcnt_next;
+  framecnt <= framecnt_next;
+  cmd_resprqst <= cmd_resprqst_next;
+  cmd_addr <= cmd_addr_next;
+  cmd_ptt <= cmd_ptt_next;
+  cmd_data <= cmd_data_next;
+  cmd_cnt <= cmd_cnt_next;  
   if (eth_unreachable) begin
     state <= START;
     run <= 1'b0;
@@ -75,14 +122,22 @@ always @* begin
   state_next = START;
   run_next = run;
   wide_spectrum_next = wide_spectrum;
-  count_next = 10'h000;
+  pushcnt_next = pushcnt;
+  framecnt_next = framecnt;
+  cmd_resprqst_next = cmd_resprqst;
+  cmd_addr_next = cmd_addr;
+  cmd_ptt_next = cmd_ptt;
+  cmd_data_next = cmd_data;
+  cmd_cnt_next = cmd_cnt;
 
   // Combinational output
   eth_metis_discovery = 1'b0;
-  rx_fifo_valid = 1'b0;
+  dsethiq_tvalid = 1'b0;
+  dsethlr_tvalid = 1'b0;
 
   case (state)
     START: begin
+      framecnt_next = 1'b0;
       if ((eth_data == 8'hef) & (eth_port == 1024)) state_next = PREAMBLE;
     end
 
@@ -107,29 +162,112 @@ always @* begin
 
     ENDPOINT: begin
       // FIXME: Can use end point for other information
-      if (eth_data == 8'h02) state_next = SEQNO1;
+      if (eth_data == 8'h02) state_next = SEQNO3;
     end
 
-    SEQNO1: begin
+    SEQNO3: begin
       state_next = SEQNO2;
     end
 
     SEQNO2: begin
-      state_next = SEQNO3;
+      state_next = SEQNO1;
     end
 
-    SEQNO3: begin
-      state_next = SEQNO4;
+    SEQNO1: begin
+      state_next = SEQNO0;
     end
 
-    SEQNO4: begin
-      state_next = FRAMES;
+    SEQNO0: begin
+      state_next = SYNC2;
     end
 
-    FRAMES: begin
-      rx_fifo_valid = 1'b1;
-      count_next = count + 10'h001;
-      if (~(&count)) state_next = FRAMES;
+    SYNC2: begin
+      pushcnt_next = 6'h00;
+      if (eth_data == 8'h7f) state_next = SYNC1;
+    end
+
+    SYNC1: begin
+      pushcnt_next = 6'h00;
+      if (eth_data == 8'h7f) state_next = SYNC0;
+    end
+
+    SYNC0: begin
+      pushcnt_next = 6'h00;
+      if (eth_data == 8'h7f) state_next = CMDCTRL;
+    end
+
+    CMDCTRL: begin
+      cmd_resprqst_next = eth_data[7];
+      cmd_addr_next = eth_data[6:1];
+      cmd_ptt_next = eth_data[0];
+      state_next = CMDDATA3;
+    end
+
+    CMDDATA3: begin
+      cmd_data_next = {eth_data,cmd_data[23:0]};
+      state_next = CMDDATA2;
+    end
+
+    CMDDATA2: begin
+      cmd_data_next = {cmd_data[31:24],eth_data,cmd_data[15:0]};
+      state_next = CMDDATA1;
+    end
+
+    CMDDATA1: begin
+      cmd_data_next = {cmd_data[31:16],eth_data,cmd_data[7:0]};
+      state_next = CMDDATA0;
+    end
+
+    CMDDATA0: begin
+      cmd_data_next = {cmd_data[31:8],eth_data};
+      cmd_cnt_next = ~cmd_cnt;
+      state_next = PUSHL1;
+    end
+
+    PUSHL1: begin
+      dsethlr_tvalid = 1'b1;
+      state_next = PUSHL0;
+    end
+
+    PUSHL0: begin
+      dsethlr_tvalid = 1'b1;
+      state_next = PUSHR1;
+    end
+
+    PUSHR1: begin
+      dsethlr_tvalid = 1'b1;
+      state_next = PUSHR0;
+    end
+
+    PUSHR0: begin
+      dsethlr_tvalid = 1'b1;
+      pushcnt_next = pushcnt + 7'h01;
+      state_next = PUSHI1;
+    end
+
+    PUSHI1: begin
+      dsethiq_tvalid = 1'b1;
+      state_next = PUSHI0;
+    end
+
+    PUSHI0: begin
+      dsethiq_tvalid = 1'b1;
+      state_next = PUSHQ1;
+    end
+
+    PUSHQ1: begin
+      dsethiq_tvalid = 1'b1;
+      state_next = PUSHQ0;
+    end
+
+    PUSHQ0: begin
+      dsethiq_tvalid = 1'b1;
+      if (&pushcnt) begin
+        if (~framecnt) begin
+          framecnt_next = 1'b1;
+          state_next = SYNC2;
+        end
+      end else state_next = PUSHL1;
     end
 
     default: begin
@@ -139,7 +277,7 @@ always @* begin
   endcase
 end
 
-assign rx_fifo_data = eth_data;
+assign dseth_tdata = eth_data;
 
 endmodule
 

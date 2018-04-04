@@ -152,61 +152,40 @@ localparam PREDISTORT = 0;
 localparam Penny_serialno = 8'd00;      // Use same value as equ1valent Penny code
 localparam Merc_serialno = 8'd00;       // Use same value as equivalent Mercury code
 
-localparam RX_FIFO_SZ  = 512;          // 16 by 4096 deep RX FIFO
 localparam TX_FIFO_SZ  = 1024;          // 16 by 1024 deep TX FIFO
 localparam SP_FIFO_SZ = 2048;           // 16 by 8192 deep SP FIFO, was 16384 but wouldn't fit
 
-localparam RFSZ = clogb2(RX_FIFO_SZ-1);  // number of bits needed to hold 0 - (RX_FIFO_SZ-1)
 localparam TFSZ = clogb2(TX_FIFO_SZ-1);  // number of bits needed to hold 0 - (TX_FIFO_SZ-1)
 localparam SFSZ = clogb2(SP_FIFO_SZ-1);  // number of bits needed to hold 0 - (SP_FIFO_SZ-1)
 
 localparam NR = 3; // Recievers
 localparam NT = 1; // Transmitters
 
-logic   [5:0]   cmd_addr = 6'h0;
-logic   [5:0]   cmd_addr_next;
-
-logic   [31:0]  cmd_data = 32'h00;
-logic   [31:0]  cmd_data_next;
-
+logic   [5:0]   cmd_addr;
+logic   [31:0]  cmd_data;
 logic           cmd_ack;
-logic           cmd_cnt = 1'b0;
-logic           cmd_cnt_next;
-
-logic           cmd_ptt = 1'b0;
-logic           cmd_ptt_next;
-
-logic           cmd_resprqst = 1'b0;
-logic           cmd_resprqst_next;
+logic           cmd_cnt;
+logic           cmd_ptt;
+logic           cmd_resprqst;
 
 // Individual acknowledges
 logic           cmd_ack_i2c, cmd_ack_radio, cmd_ack_ad9866;
-
-
-
 
 logic FPGA_PTT;
 logic [7:0] AssignNR;         // IP address read from EEPROM
 
 
+logic   [7:0]   dseth_tdata;
 
-logic   [2:0]   IF_SYNC_state;
-logic   [2:0]   IF_SYNC_state_next;
-
-logic   [7:0]   IF_SYNC_frame_cnt;  // 256-4 words = 252 words
-logic   [7:0]   IF_SYNC_frame_cnt_next;
-
-logic   [35:0]  dsiq_rdata;
+logic   [31:0]  dsiq_rdata;
 logic           dsiq_rreq;    // controls reading of fifo
 logic           dsiq_rempty;
-logic   [15:0]  IF_PHY_data;
-logic           dsiq_wreq;
-logic   [1:0]   dsiq_tlasttid;
+logic           dsethiq_tvalid;
 
-logic   [35:0]  dslr_rdata;
+logic   [31:0]  dslr_rdata;
 logic           dslr_rreq;    // controls reading of fifo
 logic           dslr_rempty;
-logic           dslr_wreq;
+logic           dsethlr_tvalid;
 
 logic  [29:0]   rx_tdata;
 logic  [ 4:0]   rx_tid;
@@ -224,8 +203,6 @@ logic           usiq_tvalidn;
 logic    [4:0]  IF_last_chan;
 
 logic           PHY_wrfull;
-logic           IF_PHY_rdempty;
-logic           IF_PHY_drdy;
 
 logic           response_inp_tready;
 logic   [37:0]  response_out_tdata;
@@ -417,8 +394,7 @@ always @ (posedge clock_2_5MHz)
 
 wire Tx_fifo_rdreq;
 wire [10:0] PHY_Tx_rdused;
-wire Rx_enable;
-wire [7:0] Rx_fifo_data;
+
 
 wire this_MAC;
 wire run;
@@ -448,7 +424,7 @@ wire broadcast;
 wire udp_rx_active;
 wire [7:0] udp_rx_data;
 wire rx_fifo_enable;
-wire [7:0] rx_fifo_data;
+
 
 wire [7:0] udp_tx_data;
 wire [10:0] udp_tx_length;
@@ -521,183 +497,49 @@ dsopenhpsdr1 dsopenhpsdr1_i (
   .run(run),
   .wide_spectrum(wide_spectrum),
 
-  .rx_fifo_data(Rx_fifo_data),
-  .rx_fifo_valid(Rx_enable)
-);
+  .cmd_addr(cmd_addr),
+  .cmd_data(cmd_data),
+  .cmd_cnt(cmd_cnt),
+  .cmd_ptt(cmd_ptt),
+  .cmd_resprqst(cmd_resprqst),  
 
+  .dseth_tdata(dseth_tdata),
+  .dsethiq_tvalid(dsethiq_tvalid),
+  .dsethlr_tvalid(dsethlr_tvalid)
+);
 
 dcfifo_mixed_widths #(
   .intended_device_family("Cyclone IV E"),
-  .lpm_numwords(16384),
-  .lpm_showahead ("OFF"),
+  .lpm_numwords(8192), 
+  .lpm_showahead ("ON"),
   .lpm_type("dcfifo_mixed_widths"),
   .lpm_width(8),
-  .lpm_widthu(14), 
-  .lpm_widthu_r(13), 
-  .lpm_width_r(16),
+  .lpm_widthu(13),
+  .lpm_widthu_r(11),
+  .lpm_width_r(32),
   .overflow_checking("ON"),
   .rdsync_delaypipe(4),
-  .read_aclr_synch("OFF"),
   .underflow_checking("ON"),
   .use_eab("ON"),
-  .write_aclr_synch("OFF"),
   .wrsync_delaypipe(4)
-) dseth_fifo_i (
+) dsiq_fifo_i (
   .wrclk (clock_ethrxint),
-  .wrreq (Rx_enable),  
-  .wrfull (PHY_wrfull),
+  .wrreq (dsethiq_tvalid),  
+  .wrfull (),
   .wrempty (),
   .wrusedw (),
-  .data (Rx_fifo_data),
+  .data (dseth_tdata),
 
   .rdclk (clk_ad9866),
-  .rdreq (IF_PHY_drdy),
+  .rdreq (dsiq_rreq),
   .rdfull (),
-  .rdempty (IF_PHY_rdempty),
+  .rdempty (dsiq_rempty),
   .rdusedw (),
-  .q ({IF_PHY_data[7:0],IF_PHY_data[15:8]}),
+  .q (dsiq_rdata),
 
-  .aclr (rst | PHY_wrfull),
+  .aclr (1'b0),
   .eccstatus ()
 );
-
-// State
-always @ (posedge clk_ad9866) begin
-  if (rst) begin
-    IF_SYNC_state <=  SYNC_IDLE;
-  end else begin
-    IF_SYNC_state <=  IF_SYNC_state_next;
-  end
-
-  cmd_resprqst <= cmd_resprqst_next;
-  cmd_addr <= cmd_addr_next;
-  cmd_ptt <= cmd_ptt_next;
-  cmd_data <= cmd_data_next;
-  cmd_cnt <= cmd_cnt_next;
-  IF_SYNC_frame_cnt <= IF_SYNC_frame_cnt_next;
-
-end
-
-// FSM Combinational
-always @* begin
-
-  // Next State
-  cmd_resprqst_next = cmd_resprqst;
-  cmd_addr_next = cmd_addr;
-  cmd_ptt_next = cmd_ptt;
-  cmd_data_next = cmd_data;
-  IF_SYNC_frame_cnt_next = IF_SYNC_frame_cnt;
-  IF_SYNC_state_next = IF_SYNC_state;
-  cmd_cnt_next = cmd_cnt;
-
-  // Combinational output
-  dsiq_wreq = 1'b0; // Note: Sync bytes not saved in Rx_fifo
-  dsiq_tlasttid = 2'b00;
-
-  dslr_wreq = 1'b0;
-
-  case (IF_SYNC_state)
-    // state SYNC_IDLE  - loop until we find start of sync sequence
-    SYNC_IDLE: begin
-      if (IF_PHY_drdy & (IF_PHY_data == 16'h7F7F)) begin
-        IF_SYNC_state_next = SYNC_START;   // possible start of sync
-      end
-    end
-
-    // check for 0x7F  sync character & get Rx control_0
-    SYNC_START: begin
-      if (IF_PHY_drdy) begin
-        if (IF_PHY_data[15:8] == 8'h7F) begin
-          cmd_resprqst_next = IF_PHY_data[7];
-          cmd_addr_next = IF_PHY_data[6:1];
-          cmd_ptt_next = IF_PHY_data[0];
-          IF_SYNC_state_next = SYNC_RX_1_2;  // have sync so continue
-        end else begin
-          IF_SYNC_state_next = SYNC_IDLE;    // start searching for sync sequence again
-        end
-      end
-      IF_SYNC_frame_cnt_next = 0;
-    end
-
-    SYNC_RX_1_2: begin
-      if (IF_PHY_drdy) begin
-        cmd_data_next = {IF_PHY_data,cmd_data[15:0]};
-        IF_SYNC_state_next = SYNC_RX_3_4;
-      end
-    end
-
-    SYNC_RX_3_4: begin
-      if (IF_PHY_drdy) begin
-        cmd_data_next = {cmd_data[31:16],IF_PHY_data};
-        cmd_cnt_next = ~cmd_cnt;
-        IF_SYNC_state_next = SYNC_FINISH1;
-      end
-    end
-
-    // Remainder of data goes to Rx_fifo, re-start looking
-    // for a new SYNC at end of this frame.
-    // Note: due to the use of IF_PHY_drdy data will only be written to the
-    // Rx fifo if there is room. Also the frame_count will only be incremented if IF_PHY_drdy is true.
-    SYNC_FINISH1: begin
-      dslr_wreq  = IF_PHY_drdy;
-      dsiq_tlasttid = cmd_addr[1:0];
-      if (IF_PHY_drdy) begin
-        if (IF_SYNC_frame_cnt == ((512-8)/2)-1) begin  // frame ended, go get sync again
-          IF_SYNC_state_next = SYNC_IDLE;
-        end else begin
-          IF_SYNC_frame_cnt_next = IF_SYNC_frame_cnt + 1'b1;
-          IF_SYNC_state_next = SYNC_FINISH2;
-        end
-      end
-    end
-
-    SYNC_FINISH2: begin
-      dslr_wreq  = IF_PHY_drdy;
-      dsiq_tlasttid = {1'b1,cmd_addr[2]};
-      if (IF_PHY_drdy) begin
-        if (IF_SYNC_frame_cnt == ((512-8)/2)-1) begin  // frame ended, go get sync again
-          IF_SYNC_state_next = SYNC_IDLE;
-        end else begin
-          IF_SYNC_frame_cnt_next = IF_SYNC_frame_cnt + 1'b1;
-          IF_SYNC_state_next = SYNC_FINISH3;
-        end
-      end
-    end
-
-    SYNC_FINISH3: begin
-      dsiq_wreq  = IF_PHY_drdy;
-      dsiq_tlasttid = cmd_addr[1:0];
-      if (IF_PHY_drdy) begin
-        if (IF_SYNC_frame_cnt == ((512-8)/2)-1) begin  // frame ended, go get sync again
-          IF_SYNC_state_next = SYNC_IDLE;
-        end else begin
-          IF_SYNC_frame_cnt_next = IF_SYNC_frame_cnt + 1'b1;
-          IF_SYNC_state_next = SYNC_FINISH4;
-        end
-      end
-    end
-
-    SYNC_FINISH4: begin
-      dsiq_wreq  = IF_PHY_drdy;
-      dsiq_tlasttid = {1'b1,cmd_addr[2]};
-      if (IF_PHY_drdy) begin
-        if (IF_SYNC_frame_cnt == ((512-8)/2)-1) begin  // frame ended, go get sync again
-          IF_SYNC_state_next = SYNC_IDLE;
-        end else begin
-          IF_SYNC_frame_cnt_next = IF_SYNC_frame_cnt + 1'b1;
-          IF_SYNC_state_next = SYNC_FINISH1;
-        end
-      end
-    end
-
-  endcase
-end
-
-wire have_room;
-assign have_room = (dsiq_used < RX_FIFO_SZ - ((512-8)/2)) ? 1'b1 : 1'b0;  // the /2 is because we send 16 bit values
-
-// prevent read from PHY fifo if empty and writing to Rx fifo if not enough room
-assign  IF_PHY_drdy = have_room & ~IF_PHY_rdempty;
 
 
 generate 
@@ -706,26 +548,26 @@ if(PREDISTORT==1) begin: PD2
 
   dcfifo_mixed_widths #(
     .intended_device_family("Cyclone IV E"),
-    .lpm_numwords(512), // 256
+    .lpm_numwords(8192), 
     .lpm_showahead ("ON"),
     .lpm_type("dcfifo_mixed_widths"),
-    .lpm_width(18),
-    .lpm_widthu(9), // 8
-    .lpm_widthu_r(8), // 7
-    .lpm_width_r(36),
+    .lpm_width(8),
+    .lpm_widthu(13),
+    .lpm_widthu_r(11),
+    .lpm_width_r(32),
     .overflow_checking("ON"),
     .rdsync_delaypipe(4),
     .underflow_checking("ON"),
     .use_eab("ON"),
     .wrsync_delaypipe(4)
   ) dslr_fifo_i (
-    .wrclk (clk_ad9866),
-    .wrreq (dslr_wreq),  
+    .wrclk (clock_ethrxint),
+    .wrreq (dsethlr_tvalid),  
     .wrfull (),
     .wrempty (),
     .wrusedw (),
     // Use iq here to save wires
-    .data ({dsiq_tlasttid,IF_PHY_data}),
+    .data (dseth_tdata),
   
     .rdclk (clk_ad9866),
     .rdreq (dslr_rreq),
@@ -740,48 +582,10 @@ if(PREDISTORT==1) begin: PD2
 
 end else begin
   assign dslr_rempty = 1'b1;
-  assign dslr_rdata = 36'h0;
+  assign dslr_rdata = 32'h0;
 
 end
 endgenerate
-
-
-dcfifo_mixed_widths #(
-  .intended_device_family("Cyclone IV E"),
-  .lpm_numwords(512), // 256
-  .lpm_showahead ("ON"),
-  .lpm_type("dcfifo_mixed_widths"),
-  .lpm_width(18),
-  .lpm_widthu(9), // 8
-  .lpm_widthu_r(8), // 7
-  .lpm_width_r(36),
-  .overflow_checking("ON"),
-  .rdsync_delaypipe(4),
-  .underflow_checking("ON"),
-  .use_eab("ON"),
-  .wrsync_delaypipe(4)
-) dsiq_fifo_i (
-  .wrclk (clk_ad9866),
-  .wrreq (dsiq_wreq),  
-  .wrfull (dsiq_full),
-  .wrempty (),
-  .wrusedw (dsiq_used),
-  .data ({dsiq_tlasttid,IF_PHY_data}),
-
-  .rdclk (clk_ad9866),
-  .rdreq (dsiq_rreq),
-  .rdfull (),
-  .rdempty (dsiq_rempty),
-  .rdusedw (),
-  .q (dsiq_rdata),
-
-  .aclr (1'b0),
-  .eccstatus ()
-);
-
-
-
-
 
 
 
@@ -855,10 +659,6 @@ wire            IF_tx_fifo_full;
 wire [TFSZ-1:0] IF_tx_fifo_used;
 wire            IF_tx_fifo_rreq;
 wire            IF_tx_fifo_empty;
-
-wire [RFSZ-1:0] dsiq_used;            // read side count
-wire            dsiq_full;
-
 
 wire     [11:0] Penny_ALC;
 wire            IF_tx_fifo_clr;
@@ -1106,9 +906,9 @@ radio_i
   .ptt(FPGA_PTT),
 
   // Transmit
-  .tx_tdata({dsiq_rdata[15:0],dsiq_rdata[33:18]}),
-  .tx_tid({dsiq_rdata[34],dsiq_rdata[17:16]}),
-  .tx_tlast(dsiq_rdata[35]),
+  .tx_tdata({dsiq_rdata[7:0],dsiq_rdata[15:8],dsiq_rdata[23:16],dsiq_rdata[31:24]}),
+  .tx_tid(3'h0),
+  .tx_tlast(1'b1),
   .tx_tready(dsiq_rreq),
   .tx_tvalid(~dsiq_rempty),
 
@@ -1117,9 +917,9 @@ radio_i
   .tx_data_dac(tx_data),
 
   // Optional Audio Stream
-  .lr_tdata({dslr_rdata[15:0],dslr_rdata[33:18]}),
-  .lr_tid({dslr_rdata[34],dslr_rdata[17:16]}),
-  .lr_tlast(dslr_rdata[35]),
+  .lr_tdata({dslr_rdata[7:0],dslr_rdata[15:8],dslr_rdata[23:16],dslr_rdata[31:24]}),
+  .lr_tid(3'h0),
+  .lr_tlast(1'b1),
   .lr_tready(dslr_rreq),
   .lr_tvalid(~dslr_rempty),
 
@@ -1293,7 +1093,7 @@ Led_flash Flash_LED3(.clock(clk_ad9866), .signal(rxclipn), .LED(leds[3]), .perio
 
 Led_flash Flash_LED4(.clock(clk_ad9866), .signal(this_MAC), .LED(leds[4]), .period(half_second));
 Led_flash Flash_LED5(.clock(clk_ad9866), .signal(run_sync), .LED(leds[5]), .period(half_second));
-Led_flash Flash_LED6(.clock(clk_ad9866), .signal(IF_SYNC_state == SYNC_RX_1_2), .LED(leds[6]), .period(half_second));
+//Led_flash Flash_LED6(.clock(clk_ad9866), .signal(IF_SYNC_state == SYNC_RX_1_2), .LED(leds[6]), .period(half_second));
 
 
 assign io_led_d2 = leds[4];
