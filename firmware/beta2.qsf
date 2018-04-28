@@ -263,7 +263,7 @@ set_global_assignment -name VERILOG_FILE rtl/ethernet/ddio_in.v
 set_global_assignment -name VERILOG_FILE rtl/ethernet/icmp_fifo.v
 
 set_global_assignment -name VERILOG_FILE rtl/dsopenhpsdr1.v
-set_global_assignment -name VERILOG_FILE rtl/Tx_send.v
+set_global_assignment -name VERILOG_FILE rtl/usopenhpsdr1.v
 set_global_assignment -name VERILOG_FILE rtl/sp_rcv_ctrl.v
 set_global_assignment -name VERILOG_FILE rtl/Hermes_Tx_fifo_ctrl.v
 
