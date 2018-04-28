@@ -258,8 +258,11 @@ set_multicycle_path -from [get_keepers {network:network_inst|run_destination_ip[
 set_multicycle_path -from [get_keepers {network:network_inst|arp:arp_inst|tx_byte_no[*]}] -to [get_keepers {network:network_inst|mac_send:mac_send_inst|shift_reg[*]}] -setup -start 2
 set_multicycle_path -from [get_keepers {network:network_inst|arp:arp_inst|tx_byte_no[*]}] -to [get_keepers {network:network_inst|mac_send:mac_send_inst|shift_reg[*]}] -hold -start 1
 
-set_multicycle_path -from [get_keepers {Tx_send:tx_send_inst|udp_tx_length[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
-set_multicycle_path -from [get_keepers {Tx_send:tx_send_inst|udp_tx_length[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 2
+#set_multicycle_path -from [get_keepers {Tx_send:tx_send_inst|udp_tx_length[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
+#set_multicycle_path -from [get_keepers {Tx_send:tx_send_inst|udp_tx_length[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 2
+
+set_multicycle_path -from [get_keepers {usopenhpsdr1:usopenhpsdr1_i|udp_tx_length[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
+set_multicycle_path -from [get_keepers {usopenhpsdr1:usopenhpsdr1_i|udp_tx_length[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 2
 
 #set_multicycle_path -from [get_keepers {network:network_inst|icmp:icmp_inst|length[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
 #set_multicycle_path -from [get_keepers {network:network_inst|icmp:icmp_inst|length[*]}] -to [get_keepers {network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 2
