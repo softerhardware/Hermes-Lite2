@@ -598,29 +598,34 @@ sync sync_inst3(.clock(clock_ethtxint), .sig_in(wide_spectrum), .sig_out(wide_sp
 
 wire Tx_reset;
 
-Tx_send tx_send_inst(
-    .tx_clock(clock_ethtxint),
-    .Tx_reset(Tx_reset),
-    .run(run_sync),
-    .wide_spectrum(wide_spectrum_sync),
-    .IP_valid(1'b1),
-    .Hermes_serialno(Hermes_serialno),
-    .IDHermesLite(io_cn9),
-    .AssignNR(AssignNR),
-    .PHY_Tx_data(PHY_Tx_data),
-    .PHY_Tx_rdused(PHY_Tx_rdused),
-    .Tx_fifo_rdreq(Tx_fifo_rdreq),
-    .This_MAC(local_mac),
-    .discovery(discovery_reply_sync),
-    .sp_fifo_rddata(sp_fifo_rddata),
-    .have_sp_data(sp_data_ready),
-    .sp_fifo_rdreq(sp_fifo_rdreq),
-    .udp_tx_enable(udp_tx_enable),
-    .udp_tx_active(udp_tx_active),
-    .udp_tx_request(udp_tx_request),
-    .udp_tx_data(udp_tx_data),
-    .udp_tx_length(udp_tx_length)
+usopenhpsdr1 usopenhpsdr1_i (
+  .clk(clock_ethtxint),
+  .rst(Tx_reset),
+  .run(run_sync),
+  .wide_spectrum(wide_spectrum_sync),
+  .hermes_serialno(Hermes_serialno),
+  .idhermeslite(io_cn9),
+  .assignnr(AssignNR),
+
+  .udp_tx_enable(udp_tx_enable),
+  .udp_tx_active(udp_tx_active),
+  .udp_tx_request(udp_tx_request),
+  .udp_tx_data(udp_tx_data),
+  .udp_tx_length(udp_tx_length),
+
+  .phy_tx_data(PHY_Tx_data),
+  .phy_tx_rdused(PHY_Tx_rdused),
+  .tx_fifo_rdreq(Tx_fifo_rdreq),
+
+  .mac(local_mac),
+  .discovery(discovery_reply_sync),
+
+  .sp_fifo_rddata(sp_fifo_rddata),
+  .have_sp_data(sp_data_ready),
+  .sp_fifo_rdreq(sp_fifo_rdreq)
 );
+
+
 
 //assign This_MAC_o = local_mac;
 assign this_MAC = network_status[0];
