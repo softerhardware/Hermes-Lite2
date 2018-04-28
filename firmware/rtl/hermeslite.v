@@ -429,7 +429,6 @@ wire rx_fifo_enable;
 wire [7:0] udp_tx_data;
 wire [10:0] udp_tx_length;
 wire udp_tx_enable;
-wire udp_tx_active;
 
 wire network_state;
 wire [47:0] local_mac;
@@ -452,7 +451,6 @@ network network_inst(
   .udp_tx_length({5'h00,udp_tx_length}),
   .udp_tx_data(udp_tx_data),
   .udp_tx_enable(udp_tx_enable),
-  .udp_tx_active(udp_tx_active),
   .run(run_sync),
   .port_id(8'h00),
 
@@ -608,7 +606,6 @@ usopenhpsdr1 usopenhpsdr1_i (
   .assignnr(AssignNR),
 
   .udp_tx_enable(udp_tx_enable),
-  .udp_tx_active(udp_tx_active),
   .udp_tx_request(udp_tx_request),
   .udp_tx_data(udp_tx_data),
   .udp_tx_length(udp_tx_length),

@@ -36,7 +36,6 @@ module network (
   input [15:0]  udp_tx_length,
   input [7:0]   udp_tx_data,
   output        udp_tx_enable,
-  output        udp_tx_active,
   input         run,
   input [7:0]   port_id,
 
@@ -65,6 +64,7 @@ module network (
   output        PHY_MDC
 );
 
+wire udp_tx_active;
 wire eeprom_ready;
 wire [1:0] phy_speed;
 wire phy_duplex;
