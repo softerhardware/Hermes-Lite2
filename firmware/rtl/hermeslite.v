@@ -187,20 +187,17 @@ logic           dslr_rreq;    // controls reading of fifo
 logic           dslr_rempty;
 logic           dsethlr_tvalid;
 
-logic  [29:0]   rx_tdata;
-logic  [ 4:0]   rx_tid;
+logic  [23:0]   rx_tdata;
 logic           rx_tlast;
 logic           rx_treadyn;
 logic           rx_tvalid;
 
-logic  [35:0]   usiq_q;
-logic  [29:0]   usiq_tdata;
-logic  [ 4:0]   usiq_tid;
+logic  [24:0]   usiq_q;
+logic  [23:0]   usiq_tdata;
 logic           usiq_tlast;
 logic           usiq_tready;
 logic           usiq_tvalidn;
-
-logic    [4:0]  IF_last_chan;
+logic  [10:0]   usiq_tlength;
 
 logic           PHY_wrfull;
 
@@ -392,8 +389,8 @@ always @ (posedge clock_2_5MHz)
 
 
 
-wire Tx_fifo_rdreq;
-wire [10:0] PHY_Tx_rdused;
+//wire Tx_fifo_rdreq;
+//wire [10:0] PHY_Tx_rdused;
 
 
 wire this_MAC;
@@ -604,22 +601,27 @@ usopenhpsdr1 usopenhpsdr1_i (
   .hermes_serialno(Hermes_serialno),
   .idhermeslite(io_cn9),
   .assignnr(AssignNR),
+  .mac(local_mac),
+  .discovery(discovery_reply_sync),
 
   .udp_tx_enable(udp_tx_enable),
   .udp_tx_request(udp_tx_request),
   .udp_tx_data(udp_tx_data),
   .udp_tx_length(udp_tx_length),
 
-  .phy_tx_data(PHY_Tx_data),
-  .phy_tx_rdused(PHY_Tx_rdused),
-  .tx_fifo_rdreq(Tx_fifo_rdreq),
-
-  .mac(local_mac),
-  .discovery(discovery_reply_sync),
+  //.phy_tx_data(PHY_Tx_data),
+  //.phy_tx_rdused(PHY_Tx_rdused),
+  //.tx_fifo_rdreq(Tx_fifo_rdreq),
 
   .sp_fifo_rddata(sp_fifo_rddata),
   .have_sp_data(sp_data_ready),
-  .sp_fifo_rdreq(sp_fifo_rdreq)
+  .sp_fifo_rdreq(sp_fifo_rdreq),
+
+  .us_tdata(usiq_tdata),
+  .us_tlast(usiq_tlast),
+  .us_tready(usiq_tready),
+  .us_tvalid(~usiq_tvalidn),
+  .us_tlength(usiq_tlength)
 );
 
 
@@ -631,36 +633,36 @@ assign this_MAC = network_status[0];
 assign Tx_reset = network_state;
 
 
-Tx_fifo Tx_fifo_inst (
-  .wrclk (clk_ad9866),
-  .rdreq (Tx_fifo_rdreq),
-  .rdclk (clock_ethtxint),
-  .wrreq (IF_tx_fifo_wreq),
-  .data ({IF_tx_fifo_wdata[7:0], IF_tx_fifo_wdata[15:8]}),
-  .q (PHY_Tx_data),
-  .wrusedw(IF_tx_fifo_used),
-  .wrfull(IF_tx_fifo_full),
-  .rdempty(),
-  .rdusedw(PHY_Tx_rdused),
-  .wrempty(IF_tx_fifo_empty),
-  .aclr(rst || IF_tx_fifo_clr )
-);
+//Tx_fifo Tx_fifo_inst (
+//  .wrclk (clk_ad9866),
+//  .rdreq (Tx_fifo_rdreq),
+//  .rdclk (clock_ethtxint),
+//  .wrreq (IF_tx_fifo_wreq),
+//  .data ({IF_tx_fifo_wdata[7:0], IF_tx_fifo_wdata[15:8]}),
+//  .q (PHY_Tx_data),
+//  .wrusedw(IF_tx_fifo_used),
+//  .wrfull(IF_tx_fifo_full),
+//  .rdempty(),
+//  .rdusedw(PHY_Tx_rdused),
+//  .wrempty(IF_tx_fifo_empty),
+//  .aclr(rst || IF_tx_fifo_clr )
+//);
 
-wire [7:0] PHY_Tx_data;
-reg [3:0]sync_TD;
-wire PHY_Tx_rdempty;
+//wire [7:0] PHY_Tx_data;
+//reg [3:0]sync_TD;
+//wire PHY_Tx_rdempty;
 
 
 //----------------------------------------------------------------------------
 //     Tx_fifo Control - creates IF_tx_fifo_wdata and IF_tx_fifo_wreq signals
 //----------------------------------------------------------------------------
 
-wire     [15:0] IF_tx_fifo_wdata;           // LTC2208 ADC uses this to send its data to Tx FIFO
-wire            IF_tx_fifo_wreq;            // set when we want to send data to the Tx FIFO
-wire            IF_tx_fifo_full;
-wire [TFSZ-1:0] IF_tx_fifo_used;
-wire            IF_tx_fifo_rreq;
-wire            IF_tx_fifo_empty;
+//wire     [15:0] IF_tx_fifo_wdata;           // LTC2208 ADC uses this to send its data to Tx FIFO
+//wire            IF_tx_fifo_wreq;            // set when we want to send data to the Tx FIFO
+//wire            IF_tx_fifo_full;
+//wire [TFSZ-1:0] IF_tx_fifo_used;
+//wire            IF_tx_fifo_rreq;
+//wire            IF_tx_fifo_empty;
 
 wire     [11:0] Penny_ALC;
 wire            IF_tx_fifo_clr;
@@ -668,60 +670,61 @@ wire            IF_tx_fifo_clr;
 assign Penny_ALC = AIN5;
 
 
-Hermes_Tx_fifo_ctrl #(.TX_FIFO_SZ(TX_FIFO_SZ)) TXFC (
-  .IF_reset(rst), 
-  .IF_clk(clk_ad9866), 
+//Hermes_Tx_fifo_ctrl #(.TX_FIFO_SZ(TX_FIFO_SZ)) TXFC (
+//  .IF_reset(rst), 
+//  .IF_clk(clk_ad9866), 
 
-  .Tx_fifo_wdata(IF_tx_fifo_wdata), 
-  .Tx_fifo_wreq(IF_tx_fifo_wreq), 
-  .Tx_fifo_full(IF_tx_fifo_full),
-  .Tx_fifo_used(IF_tx_fifo_used), 
-  .Tx_fifo_clr(IF_tx_fifo_clr), 
-
-  // Receiver data to transmit to host PC via ethernet
-  .usiq_tdata_iqflag(usiq_tdata[29]),
-  .usiq_tdata_chan(usiq_tdata[28:24]),
-  .usiq_tdata_iq(usiq_tdata[23:0]),
-  .usiq_tlast(usiq_tlast),
-  .usiq_tready(usiq_tready),
-  .usiq_tvalid(~usiq_tvalidn),
-
-  // Channel select
-  .IF_last_chan(IF_last_chan), 
-
-  .clean_dash(1'b0), 
-  .clean_dot(1'b0), 
-  .clean_PTT_in(cwkey | clean_ptt), 
-  .ADC_OVERLOAD(OVERFLOW),
-  .Penny_serialno(Penny_serialno), 
-  .Merc_serialno(Merc_serialno), 
-  .Hermes_serialno(Hermes_serialno), 
-  .Penny_ALC(Penny_ALC), 
-  .AIN1(AIN1), 
-  .AIN2(AIN2),
-  .AIN3(AIN3), 
-  .AIN4(AIN4),
-  .AIN6(AIN6), 
-  .IO4(IO4),
-  .IO5(IO5),
-  .IO6(IO6),
-  .IO8(IO8),
-  .VNA_start(VNA_start),
-  .VNA(VNA),
-
-  // Protocol extension response
-  .response_out_tdata(response_out_tdata),
-  .response_out_tvalid(response_out_tvalid),
-  .response_out_tready(response_out_tready) 
-);
+//  .Tx_fifo_wdata(IF_tx_fifo_wdata), 
+//  .Tx_fifo_wreq(IF_tx_fifo_wreq), 
+//  .Tx_fifo_full(IF_tx_fifo_full),
+//  .Tx_fifo_used(IF_tx_fifo_used), 
+//  .Tx_fifo_clr(IF_tx_fifo_clr), 
+//
+//  // Receiver data to transmit to host PC via ethernet
+//  .usiq_tdata_iqflag(usiq_tdata[29]),
+//  .usiq_tdata_chan(usiq_tdata[28:24]),
+//  .usiq_tdata_iq(usiq_tdata[23:0]),
+//  .usiq_tlast(usiq_tlast),
+//  .usiq_tready(usiq_tready),
+//  .usiq_tvalid(~usiq_tvalidn),
+//
+//  // Channel select
+//  .IF_last_chan(IF_last_chan), 
+//
+//  .clean_dash(1'b0), 
+//  .clean_dot(1'b0), 
+//  .clean_PTT_in(cwkey | clean_ptt), 
+//  .ADC_OVERLOAD(OVERFLOW),
+//  .Penny_serialno(Penny_serialno), 
+//  .Merc_serialno(Merc_serialno), 
+//  .Hermes_serialno(Hermes_serialno), 
+//  .Penny_ALC(Penny_ALC), 
+//  .AIN1(AIN1), 
+//  .AIN2(AIN2),
+//  .AIN3(AIN3), 
+//  .AIN4(AIN4),
+//  .AIN6(AIN6), 
+//  .IO4(IO4),
+//  .IO5(IO5),
+//  .IO6(IO6),
+//  .IO8(IO8),
+//  .VNA_start(VNA_start),
+//  .VNA(VNA),
+//
+//  // Protocol extension response
+//  .response_out_tdata(response_out_tdata),
+//  .response_out_tvalid(response_out_tvalid),
+//  .response_out_tready(response_out_tready) 
+//);
 
 dcfifo #(
+  .add_usedw_msb_bit("ON"),
   .intended_device_family("Cyclone IV E"),
-  .lpm_numwords(256), 
+  .lpm_numwords(1024), 
   .lpm_showahead ("ON"),
   .lpm_type("dcfifo"),
-  .lpm_width(36),
-  .lpm_widthu(8), 
+  .lpm_width(25),
+  .lpm_widthu(11), 
   .overflow_checking("ON"),
   .rdsync_delaypipe(4),
   .underflow_checking("ON"),
@@ -733,23 +736,21 @@ dcfifo #(
   .wrfull (rx_treadyn),
   .wrempty (),
   .wrusedw (),
-  // synchronous rx_tid tied to 0 for now
-  .data ({rx_tlast,rx_tid,rx_tdata}),
+  .data ({rx_tlast,rx_tdata}),
 
-  .rdclk (clk_ad9866),
+  .rdclk (clock_ethtxint),
   .rdreq (usiq_tready),
   .rdfull (),
   .rdempty (usiq_tvalidn),
-  .rdusedw (),
+  .rdusedw (usiq_tlength),
   .q (usiq_q),
 
   .aclr (1'b0),
   .eccstatus ()  
 );
 
-assign usiq_tlast = usiq_q[35];
-assign usiq_tid = usiq_q[34:30];
-assign usiq_tdata = usiq_q[29:0];
+assign usiq_tlast = usiq_q[24];
+assign usiq_tdata = usiq_q[23:0];
 
 
 
@@ -929,7 +930,6 @@ radio_i
   .rx_data_adc(rx_data),
 
   .rx_tdata(rx_tdata),
-  .rx_tid(rx_tid),
   .rx_tlast(rx_tlast),
   .rx_tready(~rx_treadyn),
   .rx_tvalid(rx_tvalid),
@@ -999,7 +999,6 @@ begin
   if (rst)
   begin // set up default values - 0 for now
     // RX_CONTROL_1
-    IF_last_chan       <= 5'b00000;    // default single receiver
     VNA                <= 1'b0;      // VNA disabled
     IF_PA_enable       <= 1'b0;
     IF_TR_disable      <= 1'b0;
@@ -1007,11 +1006,6 @@ begin
   end
   else if (cmd_rqst_io)                  // all Rx_control bytes are ready to be saved
   begin                                         // Need to ensure that C&C data is stable
-    if (cmd_addr == 6'h00)
-    begin
-      // RX_CONTROL_1
-      IF_last_chan        <= cmd_data[7:3]; // number of IQ streams to send to PC
-    end
     if (cmd_addr == 6'h09)
     begin
       VNA                 <= cmd_data[23];      // 1 = enable VNA mode

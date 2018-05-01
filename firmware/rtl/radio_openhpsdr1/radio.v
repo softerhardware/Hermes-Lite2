@@ -26,7 +26,6 @@ module radio (
   rx_data_adc,
 
   rx_tdata,
-  rx_tid,
   rx_tlast,
   rx_tready,
   rx_tvalid,
@@ -86,8 +85,7 @@ output  [11:0]    tx_data_dac;
 
 input   [11:0]    rx_data_adc;
 
-output  [29:0]    rx_tdata;
-output  [ 4:0]    rx_tid;
+output  [23:0]    rx_tdata;
 output            rx_tlast;
 input             rx_tready;
 output            rx_tvalid;
@@ -358,13 +356,6 @@ endgenerate
 
 
 // Send RX data upstream
-// rx_tdata is:
-// rx_tdata[29]    is IQ identifier, I is 0, Q is 1
-// rx_tdata[28:24] is RX channel
-// rx_tdata[23:0]  is actual 24 bit data
-
-// rx_tid[4:0] is future synchronization identifier
-// rx_tlast 
 
 always @(posedge clk_ad9866) begin
   rxus_state <= rxus_state_next;
@@ -377,8 +368,7 @@ always @* begin
   chan_next = chan;
 
   // Combinational
-  rx_tdata  = 30'h0;
-  rx_tid    = 5'h0;
+  rx_tdata  = 24'h0;
   rx_tlast  = 1'b0;
   rx_tvalid = 1'b0;
 
@@ -392,13 +382,13 @@ always @* begin
 
     RXUS_I: begin
       rx_tvalid = 1'b1;
-      rx_tdata = {1'b0,chan,rx_data_i[chan]};
+      rx_tdata = rx_data_i[chan];
       rxus_state_next = RXUS_Q;
     end
 
     RXUS_Q: begin
       rx_tvalid = 1'b1;
-      rx_tdata = {1'b1,chan,rx_data_q[chan]};
+      rx_tdata = rx_data_q[chan];
 
       if (chan == last_chan) begin
         rx_tlast = 1'b1;

@@ -17,19 +17,19 @@ module usopenhpsdr1 (
   udp_tx_data,
   udp_tx_length,
 
-  phy_tx_data,
-  phy_tx_rdused,
-  tx_fifo_rdreq,
+//  phy_tx_data,
+//  phy_tx_rdused,
+//  tx_fifo_rdreq,
 
   sp_fifo_rddata,
   have_sp_data,
-  sp_fifo_rdreq
+  sp_fifo_rdreq,
 
-  //us_tdata,
-  //us_tfirst,
-  //us_tready,
-  //us_tvalid,
-  //us_tlength
+  us_tdata,
+  us_tlast,
+  us_tready,
+  us_tvalid,
+  us_tlength
 );
 
 input               clk;
@@ -47,31 +47,37 @@ output              udp_tx_request;
 output [7:0]        udp_tx_data;
 output logic [10:0] udp_tx_length = 'd0;
 
-input [7:0]         phy_tx_data;
-input [10:0]        phy_tx_rdused;
-output logic        tx_fifo_rdreq = 1'b0;
+//input [7:0]         phy_tx_data;
+//input [10:0]        phy_tx_rdused;
+//output logic        tx_fifo_rdreq = 1'b0;
 
 input [7:0]         sp_fifo_rddata;
 input               have_sp_data;
 output logic        sp_fifo_rdreq = 1'b0;
 
-//input [7:0]       us_tdata;
-//input             us_tfirst;
-//output            us_tready;
-//input             us_tvalid;
-//input [9:0]       us_tlength;
+input [23:0]        us_tdata;
+input               us_tlast;
+output              us_tready;
+input               us_tvalid;
+input [10:0]        us_tlength;
 
-localparam START        = 'h00,
-            UDP1        = 'h01,
-            UDP2        = 'h02,
-           WIDE1        = 'h03,
-           WIDE2        = 'h04,
-           DISCOVER1    = 'h05,
-           DISCOVER2    = 'h06;
+localparam START        = 4'h0,
+           WIDE1        = 4'h1,
+           WIDE2        = 4'h2,
+           DISCOVER1    = 4'h3,
+           DISCOVER2    = 4'h4,
+           UDP1         = 4'h5,
+           UDP2         = 4'h6,
+           SYNC_RESP    = 4'h7,
+           RXDATA2      = 4'h8,
+           RXDATA1      = 4'h9,
+           RXDATA0      = 4'ha,
+           MIC1         = 4'hb,
+           MIC0         = 4'hc,
+           PAD          = 4'hd;
 
-
-logic   [ 2:0]  state = START;
-logic   [ 2:0]  state_next;
+logic   [ 3:0]  state = START;
+logic   [ 3:0]  state_next;
 
 logic   [10:0]  byte_no = 11'h00;
 logic   [10:0]  byte_no_next; 
@@ -88,8 +94,16 @@ logic   [ 7:0]  discover_data = 'd0, discover_data_next;
 logic   [ 7:0]  wide_data = 'd0, wide_data_next;
 logic   [ 7:0]  udp_data = 'd0, udp_data_next;
 
+// Allow for at least 12 receivers in a round of sample data
+logic   [ 6:0]  round_bytes = 7'h00, round_bytes_next;
+
 logic           sp_fifo_rdreq_next;
-logic           tx_fifo_rdreq_next;
+
+logic   [31:0]  resp;
+logic    [4:0]  c0addr = 'd0;
+logic   dot,dash,ptt;
+logic   resp_sent;
+
 
 // State
 always @ (posedge clk) begin
@@ -102,7 +116,8 @@ always @ (posedge clk) begin
 
   udp_tx_length <= udp_tx_length_next;
   sp_fifo_rdreq <= sp_fifo_rdreq_next;
-  tx_fifo_rdreq <= tx_fifo_rdreq_next;
+
+  round_bytes <= round_bytes_next;
 
   if (~run) begin
     ep6_seq_no <= 32'h0;
@@ -127,28 +142,28 @@ always @* begin
 
   udp_tx_length_next = udp_tx_length;
 
+  round_bytes_next = round_bytes;
+
   ep6_seq_no_next = ep6_seq_no;
   ep4_seq_no_next = ep4_seq_no;
 
   sp_fifo_rdreq_next = sp_fifo_rdreq;
-  tx_fifo_rdreq_next = tx_fifo_rdreq;
 
   // Combinational
   udp_tx_data = udp_data;
   udp_tx_request = 1'b0;
+  resp_sent = 1'b0;
+  us_tready = 1'b0;
 
   case (state)
     START: begin
-      byte_no_next = 11'h0;
-
       sp_fifo_rdreq_next = 1'b0;
-      tx_fifo_rdreq_next = 1'b0;
 
       if (discovery) begin 
-        udp_tx_length_next = 'd60;
+        udp_tx_length_next = 'h3c;
         state_next = DISCOVER1;
 
-      end else if (phy_tx_rdused > 11'd1023  & ~rst & run) begin // wait until we have at least 1024 bytes in Tx fifo
+      end else if ((us_tlength > 11'd333) & us_tvalid & ~rst & run) begin // wait until there is enough data in fifo
         udp_tx_length_next = 'd1032;
         state_next = UDP1;
       
@@ -159,6 +174,7 @@ always @* begin
     end
 
     DISCOVER1: begin
+      byte_no_next = 'h3a;
       udp_tx_data = discover_data;
       udp_tx_request = 1'b1;
       discover_data_next = 8'hef;
@@ -166,40 +182,40 @@ always @* begin
     end // DISCOVER1:
 
     DISCOVER2: begin
-      udp_tx_data = discover_data;
-      if (byte_no < 11'd59) begin // Total-1
-        case (byte_no)
-          11'd0: discover_data_next = 8'hfe;
-          11'd1: discover_data_next = run ? 8'h03 : 8'h02;
-          11'd2: discover_data_next = mac[47:40];
-          11'd3: discover_data_next = mac[39:32];
-          11'd4: discover_data_next = mac[31:24];
-          11'd5: discover_data_next = mac[23:16];
-          11'd6: discover_data_next = mac[15:8];
-          11'd7: discover_data_next = mac[7:0];
-          11'd8: discover_data_next = hermes_serialno;
-          //11'd9: discover_data_next = IDHermesLite ? 8'h06 : 8'h01;
-          // FIXME: Really needed for CW skimmer? Why so much?
-          11'd10: discover_data_next = "H";
-          11'd11: discover_data_next = "E";
-          11'd12: discover_data_next = "R";
-          11'd13: discover_data_next = "M";
-          11'd14: discover_data_next = "E";
-          11'd15: discover_data_next = "S";
-          11'd16: discover_data_next = "L";
-          11'd17: discover_data_next = "T";
-          11'd18: discover_data_next = assignnr;
-          default: discover_data_next = idhermeslite ? 8'h06 : 8'h01;
-        endcase
-        byte_no_next = byte_no + 'd1;
-
-      end else begin
-        state_next = START;
-      end
+      byte_no_next = byte_no - 'd1;
+      udp_tx_data = discover_data;      
+      case (byte_no[5:0])
+        6'h3a: discover_data_next = 8'hfe;
+        6'h39: discover_data_next = run ? 8'h03 : 8'h02;
+        6'h38: discover_data_next = mac[47:40];
+        6'h37: discover_data_next = mac[39:32];
+        6'h36: discover_data_next = mac[31:24];
+        6'h35: discover_data_next = mac[23:16];
+        6'h34: discover_data_next = mac[15:8];
+        6'h33: discover_data_next = mac[7:0];
+        6'h32: discover_data_next = hermes_serialno;
+        //7'h31: discover_data_next = IDHermesLite ? 8'h06 : 8'h01;
+        // FIXME: Really needed for CW skimmer? Why so much?
+        6'h30: discover_data_next = "H";
+        6'h2f: discover_data_next = "E";
+        6'h2e: discover_data_next = "R";
+        6'h2d: discover_data_next = "M";
+        6'h2c: discover_data_next = "E";
+        6'h2b: discover_data_next = "S";
+        6'h2a: discover_data_next = "L";
+        6'h29: discover_data_next = "T";
+        6'h28: discover_data_next = assignnr;
+        6'h00: begin
+          discover_data_next = idhermeslite ? 8'h06 : 8'h01;
+          state_next = START;
+        end
+        default: discover_data_next = idhermeslite ? 8'h06 : 8'h01;
+      endcase
     end
 
     // start sending UDP/IP data
     WIDE1: begin
+      byte_no_next = 'h406;
       udp_tx_data = wide_data;
       udp_tx_request = 1'b1;
       wide_data_next = 8'hef;
@@ -207,59 +223,160 @@ always @* begin
     end 
 
     WIDE2: begin
+      byte_no_next = byte_no - 'd1;
       udp_tx_data = wide_data;
-      if (byte_no < 11'd1031) begin // Total-1
-        case (byte_no)
-          11'd0: wide_data_next = 8'hfe;
-          11'd1: wide_data_next = 8'h01;
-          11'd2: wide_data_next = 8'h04;
-          11'd3: wide_data_next = ep4_seq_no[31:24];
-          11'd4: wide_data_next = ep4_seq_no[23:16];
-          11'd5: begin wide_data_next = ep4_seq_no[15:8]; sp_fifo_rdreq_next = 1'b1; end
-          11'd6: wide_data_next = ep4_seq_no[7:0];    
-          11'd1029: begin sp_fifo_rdreq_next = 1'b0; wide_data_next = sp_fifo_rddata; end // Total-3
-          default: wide_data_next = sp_fifo_rddata;     
-        endcase       
-        byte_no_next = byte_no + 'd1;
-
-      end else begin
-        ep4_seq_no_next = ep4_seq_no + 'h01;
-        state_next = START;
-      end
+      case (byte_no)
+        11'h406: wide_data_next = 8'hfe;
+        11'h405: wide_data_next = 8'h01;
+        11'h404: wide_data_next = 8'h04;
+        11'h403: wide_data_next = ep4_seq_no[31:24];
+        11'h402: wide_data_next = ep4_seq_no[23:16];
+        11'h401: begin wide_data_next = ep4_seq_no[15:8]; sp_fifo_rdreq_next = 1'b1; end
+        11'h400: wide_data_next = ep4_seq_no[7:0];    
+        11'h001: begin sp_fifo_rdreq_next = 1'b0; wide_data_next = sp_fifo_rddata; end 
+        11'h000: begin 
+          wide_data_next = sp_fifo_rddata;
+          ep4_seq_no_next = ep4_seq_no + 'h1;
+          state_next = START;
+        end
+        default: wide_data_next = sp_fifo_rddata;     
+      endcase
     end
 
     UDP1: begin
+      byte_no_next = 'h406;
       udp_tx_request = 1'b1;
       udp_data_next = 8'hef;
       if (udp_tx_enable) state_next = UDP2;
     end
     
     UDP2: begin
-      if (byte_no < 11'd1031) begin // Total-1
-        case (byte_no)
-          11'd0: udp_data_next = 8'hfe;
-          11'd1: udp_data_next = 8'h01;
-          11'd2: udp_data_next = 8'h06;
-          11'd3: udp_data_next = ep6_seq_no[31:24];
-          11'd4: udp_data_next = ep6_seq_no[23:16];
-          11'd5: begin udp_data_next = ep6_seq_no[15:8]; tx_fifo_rdreq_next = 1'b1; end
-          11'd6: udp_data_next = ep6_seq_no[7:0];  
-          11'd1029: begin tx_fifo_rdreq_next = 1'b0; udp_data_next = phy_tx_data; end // Total-3  
-          default: udp_data_next = phy_tx_data;    
-        endcase       
-        byte_no_next = byte_no + 'd1;
-      
+      byte_no_next = byte_no - 'd1;
+      case (byte_no[2:0])
+        3'h6: udp_data_next = 8'hfe;
+        3'h5: udp_data_next = 8'h01;
+        3'h4: udp_data_next = 8'h06;
+        3'h3: udp_data_next = ep6_seq_no[31:24];
+        3'h2: udp_data_next = ep6_seq_no[23:16];
+        3'h1: udp_data_next = ep6_seq_no[15:8]; 
+        3'h0: begin
+          udp_data_next = ep6_seq_no[7:0];
+          ep6_seq_no_next = ep6_seq_no + 'h1;
+          state_next = SYNC_RESP;
+        end
+        default: udp_data_next = 8'hfe;
+      endcase // byte_no
+    end // UDP2:
+
+    SYNC_RESP: begin
+      byte_no_next = byte_no - 'd1;
+      round_bytes_next = 'd0;
+      case (byte_no[8:0])
+        9'h1ff: udp_data_next = 8'h7f;
+        9'h1fe: udp_data_next = 8'h7f;
+        9'h1fd: udp_data_next = 8'h7f;
+        9'h1fc: udp_data_next = {c0addr,dot,dash,ptt};
+        9'h1fb: udp_data_next = resp[31:24];
+        9'h1fa: udp_data_next = resp[23:16];
+        9'h1f9: udp_data_next = resp[15:8];
+        9'h1f8: begin 
+          udp_data_next = resp[7:0];
+          resp_sent = 1'b1; 
+          state_next = RXDATA2; 
+        end 
+        default: udp_data_next = 8'hxx; 
+      endcase
+    end
+
+    RXDATA2: begin
+      byte_no_next = byte_no - 'd1;
+      round_bytes_next = round_bytes + 'd1;
+      udp_data_next = us_tdata[23:16];
+
+      if (|byte_no[8:0]) begin
+        state_next = RXDATA1;
+      end else begin 
+        state_next = byte_no[9] ? SYNC_RESP : START;
+      end
+    end      
+
+    RXDATA1: begin
+      byte_no_next = byte_no - 'd1;
+      round_bytes_next = round_bytes + 'd1;
+      udp_data_next = us_tdata[15:8];
+
+      if (|byte_no[8:0]) begin
+        state_next = RXDATA0;        
       end else begin
-        ep6_seq_no_next = ep6_seq_no + 'h1;
-        state_next = START;
+        state_next = byte_no[9] ? SYNC_RESP : START; 
+      end
+    end   
+
+    RXDATA0: begin
+      byte_no_next = byte_no - 'd1;
+      round_bytes_next = round_bytes + 'd1;
+      udp_data_next = us_tdata[7:0];
+      us_tready = 1'b1; // Pop next word
+
+      if (|byte_no[8:0]) begin
+        state_next = (us_tlast) ? MIC1 : RXDATA2;
+      end else begin 
+        state_next = byte_no[9] ? SYNC_RESP : START;
+      end
+    end 
+
+    MIC1: begin
+      byte_no_next = byte_no - 'd1;
+      round_bytes_next = round_bytes + 'd1;
+      udp_data_next = 'd0;
+      
+      if (|byte_no[8:0]) begin
+        state_next = MIC0;
+      end else begin 
+        state_next = byte_no[9] ? SYNC_RESP : START;
+      end   
+    end 
+
+    MIC0: begin
+      byte_no_next = byte_no - 'd1;
+      round_bytes_next = 'd0;
+      udp_data_next = 'd0;
+
+      if (|byte_no[8:0]) begin
+        // Enough room for another round of data?
+        state_next = (byte_no > round_bytes) ? RXDATA2 : PAD;
+      end else begin
+        state_next = byte_no[9] ? SYNC_RESP : START;
       end
     end
+
+    PAD: begin
+      byte_no_next = byte_no - 'd1;
+      udp_data_next = 8'h00;
+
+      if (~(|byte_no[8:0])) begin
+        state_next = byte_no[9] ? SYNC_RESP : START;
+      end 
+    end 
 
     default: state_next = START;
 
   endcase // state
 end // always @*
 
+
+
+always @ (posedge clk) begin
+  if (resp_sent) begin
+    if (&c0addr[1:0]) c0addr <= 'd0;
+    else c0addr <= c0addr + 1;
+  end
+end 
+
+assign resp = 'd0;
+assign ptt = 1'b0;
+assign dot = 1'b0;
+assign dash = 1'b0;
 
 
 endmodule
