@@ -183,7 +183,7 @@ set_global_assignment -name VERILOG_FILE rtl/ad9866.v
 set_global_assignment -name VERILOG_FILE rtl/ad9866pll.v
 set_global_assignment -name VERILOG_FILE rtl/ethpll.v
 set_global_assignment -name VERILOG_FILE rtl/SP_fifo.v
-set_global_assignment -name VERILOG_FILE rtl/Tx_fifo.v
+##set_global_assignment -name VERILOG_FILE rtl/Tx_fifo.v
 
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/radio.v
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/varcic.v
@@ -223,7 +223,7 @@ set_global_assignment -name VERILOG_FILE rtl/ethernet/icmp_fifo.v
 set_global_assignment -name VERILOG_FILE rtl/dsopenhpsdr1.v
 set_global_assignment -name VERILOG_FILE rtl/usopenhpsdr1.v
 set_global_assignment -name VERILOG_FILE rtl/sp_rcv_ctrl.v
-set_global_assignment -name VERILOG_FILE rtl/Hermes_Tx_fifo_ctrl.v
+##set_global_assignment -name VERILOG_FILE rtl/Hermes_Tx_fifo_ctrl.v
 
 set_global_assignment -name VERILOG_FILE rtl/cdc_sync.v
 set_global_assignment -name VERILOG_FILE rtl/sync.v

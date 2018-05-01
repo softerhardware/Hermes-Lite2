@@ -241,7 +241,7 @@ always @* begin
 
     PUSHR0: begin
       dsethlr_tvalid = 1'b1;
-      pushcnt_next = pushcnt + 7'h01;
+      pushcnt_next = pushcnt + 6'h01;
       state_next = PUSHI1;
     end
 
