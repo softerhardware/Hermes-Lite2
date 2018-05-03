@@ -6,9 +6,7 @@ module usopenhpsdr1 (
   rst,
   run,
   wide_spectrum,
-  hermes_serialno,
   idhermeslite,
-  assignnr,
   mac,
   discovery,
   
@@ -17,28 +15,27 @@ module usopenhpsdr1 (
   udp_tx_data,
   udp_tx_length,
 
-//  phy_tx_data,
-//  phy_tx_rdused,
-//  tx_fifo_rdreq,
-
-  sp_fifo_rddata,
-  have_sp_data,
-  sp_fifo_rdreq,
+  bs_tdata,
+  bs_tready,
+  bs_tvalid,
 
   us_tdata,
   us_tlast,
   us_tready,
   us_tvalid,
-  us_tlength
+  us_tlength,
+
+  // Command slave interface
+  cmd_addr,
+  cmd_data,
+  cmd_rqst
 );
 
 input               clk;
 input               rst;
 input               run;
 input               wide_spectrum;
-input [7:0]         hermes_serialno;
 input               idhermeslite;
-input [7:0]         assignnr;
 input [47:0]        mac;
 input               discovery;
 
@@ -47,13 +44,9 @@ output              udp_tx_request;
 output [7:0]        udp_tx_data;
 output logic [10:0] udp_tx_length = 'd0;
 
-//input [7:0]         phy_tx_data;
-//input [10:0]        phy_tx_rdused;
-//output logic        tx_fifo_rdreq = 1'b0;
-
-input [7:0]         sp_fifo_rddata;
-input               have_sp_data;
-output logic        sp_fifo_rdreq = 1'b0;
+input [11:0]        bs_tdata;
+output              bs_tready;
+input               bs_tvalid;
 
 input [23:0]        us_tdata;
 input               us_tlast;
@@ -61,20 +54,31 @@ output              us_tready;
 input               us_tvalid;
 input [10:0]        us_tlength;
 
+// Command slave interface
+input  [5:0]        cmd_addr;
+input  [31:0]       cmd_data;
+input               cmd_rqst;
+
+parameter           NR = 8'h0;
+parameter           HERMES_SERIALNO = 8'h0;
+
+
 localparam START        = 4'h0,
            WIDE1        = 4'h1,
            WIDE2        = 4'h2,
-           DISCOVER1    = 4'h3,
-           DISCOVER2    = 4'h4,
-           UDP1         = 4'h5,
-           UDP2         = 4'h6,
-           SYNC_RESP    = 4'h7,
-           RXDATA2      = 4'h8,
-           RXDATA1      = 4'h9,
-           RXDATA0      = 4'ha,
-           MIC1         = 4'hb,
-           MIC0         = 4'hc,
-           PAD          = 4'hd;
+           WIDE3        = 4'h3,
+           WIDE4        = 4'h4,
+           DISCOVER1    = 4'h5,
+           DISCOVER2    = 4'h6,
+           UDP1         = 4'h7,
+           UDP2         = 4'h8,
+           SYNC_RESP    = 4'h9,
+           RXDATA2      = 4'ha,
+           RXDATA1      = 4'hb,
+           RXDATA0      = 4'hc,
+           MIC1         = 4'hd,
+           MIC0         = 4'he,
+           PAD          = 4'hf;
 
 logic   [ 3:0]  state = START;
 logic   [ 3:0]  state_next;
@@ -97,12 +101,21 @@ logic   [ 7:0]  udp_data = 'd0, udp_data_next;
 // Allow for at least 12 receivers in a round of sample data
 logic   [ 6:0]  round_bytes = 7'h00, round_bytes_next;
 
-logic           sp_fifo_rdreq_next;
-
 logic   [31:0]  resp;
 logic    [4:0]  c0addr = 'd0;
 logic   dot,dash,ptt;
 logic   resp_sent;
+
+logic   [6:0]   bs_cnt = 7'h1, bs_cnt_next;
+logic   [6:0]   set_bs_cnt = 7'h1;
+
+// Command Slave State Machine
+always @(posedge clk) begin
+  if (cmd_rqst & (cmd_addr == 6'h00)) begin
+    // Shift no of receivers by speed
+    set_bs_cnt <= ((cmd_data[7:3] + 1'b1) << cmd_data[25:24]);
+  end
+end
 
 
 // State
@@ -115,7 +128,8 @@ always @ (posedge clk) begin
   udp_data <= udp_data_next;
 
   udp_tx_length <= udp_tx_length_next;
-  sp_fifo_rdreq <= sp_fifo_rdreq_next;
+  
+  bs_cnt <= bs_cnt_next;
 
   round_bytes <= round_bytes_next;
 
@@ -124,9 +138,10 @@ always @ (posedge clk) begin
     ep4_seq_no <= 32'h0;
   end else begin
     ep6_seq_no <= ep6_seq_no_next;
-    ep4_seq_no <= ep4_seq_no_next;
-  end // end else
-end // always @ (posedge clk)
+    // Synchronize sequence number lower 2 bits as some software may require this
+    ep4_seq_no <= (bs_tvalid) ? ep4_seq_no_next : {ep4_seq_no_next[31:2],2'b00};
+  end 
+end 
 
 
 // FSM Combinational
@@ -147,18 +162,18 @@ always @* begin
   ep6_seq_no_next = ep6_seq_no;
   ep4_seq_no_next = ep4_seq_no;
 
-  sp_fifo_rdreq_next = sp_fifo_rdreq;
+  bs_cnt_next = bs_cnt;
 
   // Combinational
   udp_tx_data = udp_data;
   udp_tx_request = 1'b0;
   resp_sent = 1'b0;
   us_tready = 1'b0;
+  bs_tready = 1'b0;
 
   case (state)
     START: begin
-      sp_fifo_rdreq_next = 1'b0;
-
+ 
       if (discovery) begin 
         udp_tx_length_next = 'h3c;
         state_next = DISCOVER1;
@@ -167,7 +182,7 @@ always @* begin
         udp_tx_length_next = 'd1032;
         state_next = UDP1;
       
-      end else if (have_sp_data & wide_spectrum) begin   // Spectrum fifo has data available
+      end else if (bs_tvalid & ~(|bs_cnt)) begin 
         udp_tx_length_next = 'd1032;
         state_next = WIDE1;
       end
@@ -193,8 +208,8 @@ always @* begin
         6'h35: discover_data_next = mac[23:16];
         6'h34: discover_data_next = mac[15:8];
         6'h33: discover_data_next = mac[7:0];
-        6'h32: discover_data_next = hermes_serialno;
-        //7'h31: discover_data_next = IDHermesLite ? 8'h06 : 8'h01;
+        6'h32: discover_data_next = HERMES_SERIALNO;
+        //6'h31: discover_data_next = IDHermesLite ? 8'h06 : 8'h01;
         // FIXME: Really needed for CW skimmer? Why so much?
         6'h30: discover_data_next = "H";
         6'h2f: discover_data_next = "E";
@@ -204,7 +219,7 @@ always @* begin
         6'h2b: discover_data_next = "S";
         6'h2a: discover_data_next = "L";
         6'h29: discover_data_next = "T";
-        6'h28: discover_data_next = assignnr;
+        6'h28: discover_data_next = NR[7:0];
         6'h00: begin
           discover_data_next = idhermeslite ? 8'h06 : 8'h01;
           state_next = START;
@@ -225,22 +240,42 @@ always @* begin
     WIDE2: begin
       byte_no_next = byte_no - 'd1;
       udp_tx_data = wide_data;
-      case (byte_no)
-        11'h406: wide_data_next = 8'hfe;
-        11'h405: wide_data_next = 8'h01;
-        11'h404: wide_data_next = 8'h04;
-        11'h403: wide_data_next = ep4_seq_no[31:24];
-        11'h402: wide_data_next = ep4_seq_no[23:16];
-        11'h401: begin wide_data_next = ep4_seq_no[15:8]; sp_fifo_rdreq_next = 1'b1; end
-        11'h400: wide_data_next = ep4_seq_no[7:0];    
-        11'h001: begin sp_fifo_rdreq_next = 1'b0; wide_data_next = sp_fifo_rddata; end 
-        11'h000: begin 
-          wide_data_next = sp_fifo_rddata;
+      case (byte_no[2:0])
+        3'h6: wide_data_next = 8'hfe;
+        3'h5: wide_data_next = 8'h01;
+        3'h4: wide_data_next = 8'h04;
+        3'h3: wide_data_next = ep4_seq_no[31:24];
+        3'h2: wide_data_next = ep4_seq_no[23:16];
+        3'h1: wide_data_next = ep4_seq_no[15:8];
+        3'h0: begin
+          wide_data_next = ep4_seq_no[7:0];
           ep4_seq_no_next = ep4_seq_no + 'h1;
-          state_next = START;
+          bs_cnt_next = set_bs_cnt; // Set count until next wide data
+          state_next = WIDE3;
         end
-        default: wide_data_next = sp_fifo_rddata;     
+        default: wide_data_next = 8'hxx;
       endcase
+    end
+
+    WIDE3: begin
+      byte_no_next = byte_no - 'd1;
+      udp_tx_data = wide_data;
+      //wide_data_next = {{4{bs_tdata[11]}}, bs_tdata};
+      wide_data_next = bs_tdata[7:0];
+
+      // Allow for one extra to keep udp_tx_data mux stable
+      state_next = (&byte_no) ? START : WIDE4;
+    end 
+
+    WIDE4: begin
+      byte_no_next = byte_no - 'd1;
+      udp_tx_data = wide_data;
+      //wide_data_next = bs_tdata[7:0];
+      wide_data_next = {{4{bs_tdata[11]}}, bs_tdata[11:8]};
+      bs_tready = 1'b1; // Pop data
+
+      // Escape if something goes wrong
+      state_next = (&byte_no) ? START : WIDE3;
     end
 
     UDP1: begin
@@ -262,9 +297,10 @@ always @* begin
         3'h0: begin
           udp_data_next = ep6_seq_no[7:0];
           ep6_seq_no_next = ep6_seq_no + 'h1;
+          bs_cnt_next = bs_cnt - 'd1;
           state_next = SYNC_RESP;
         end
-        default: udp_data_next = 8'hfe;
+        default: udp_data_next = 8'hxx;
       endcase // byte_no
     end // UDP2:
 
@@ -319,7 +355,11 @@ always @* begin
       us_tready = 1'b1; // Pop next word
 
       if (|byte_no[8:0]) begin
-        state_next = (us_tlast) ? MIC1 : RXDATA2;
+        if (us_tlast) begin 
+          state_next = MIC1;
+        end else begin
+          state_next = RXDATA2;
+        end
       end else begin 
         state_next = byte_no[9] ? SYNC_RESP : START;
       end
@@ -363,8 +403,6 @@ always @* begin
 
   endcase // state
 end // always @*
-
-
 
 always @ (posedge clk) begin
   if (resp_sent) begin
