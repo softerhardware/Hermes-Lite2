@@ -144,19 +144,13 @@ localparam CLK_FREQ = 76800000;
 localparam PREDISTORT = 0;
 
 `ifdef BETA2
-  localparam  Hermes_serialno = 8'd40;     // Serial number of this version
+  localparam  HERMES_SERIALNO = 8'd40;     // Serial number of this version
 `else
-  localparam  Hermes_serialno = 8'd60;     // Serial number of this version
+  localparam  HERMES_SERIALNO = 8'd60;     // Serial number of this version
 `endif
 
 localparam Penny_serialno = 8'd00;      // Use same value as equ1valent Penny code
 localparam Merc_serialno = 8'd00;       // Use same value as equivalent Mercury code
-
-localparam TX_FIFO_SZ  = 1024;          // 16 by 1024 deep TX FIFO
-localparam SP_FIFO_SZ = 2048;           // 16 by 8192 deep SP FIFO, was 16384 but wouldn't fit
-
-localparam TFSZ = clogb2(TX_FIFO_SZ-1);  // number of bits needed to hold 0 - (TX_FIFO_SZ-1)
-localparam SFSZ = clogb2(SP_FIFO_SZ-1);  // number of bits needed to hold 0 - (SP_FIFO_SZ-1)
 
 localparam NR = 3; // Recievers
 localparam NT = 1; // Transmitters
@@ -172,8 +166,6 @@ logic           cmd_resprqst;
 logic           cmd_ack_i2c, cmd_ack_radio, cmd_ack_ad9866;
 
 logic FPGA_PTT;
-logic [7:0] AssignNR;         // IP address read from EEPROM
-
 
 logic   [7:0]   dseth_tdata;
 
@@ -206,19 +198,15 @@ logic   [37:0]  response_out_tdata;
 logic           response_out_tvalid;
 logic           response_out_tready;
 
-localparam SYNC_IDLE    = 3'h0,
-           SYNC_START   = 3'h1,
-           SYNC_RX_1_2  = 3'h2,
-           SYNC_RX_3_4  = 3'h3,
-           SYNC_FINISH1 = 3'h4,
-           SYNC_FINISH2 = 3'h5,
-           SYNC_FINISH3 = 3'h6,
-           SYNC_FINISH4 = 3'h7;
+logic           bs_ad9866_full, bs_ad9866_empty;
+logic           bs_ad9866_push = 1'b0;
 
+logic           bs_full, bs_empty;
+logic           bs_tvalid = 1'b0;
+logic           bs_tready;
+logic [11:0]    bs_tdata;
 
-
-
-assign AssignNR = NR[7:0];
+logic           cmd_rqst_usopenhpsdr1;
 
 // Based on dip switch
 // SDK has just two dip switches, dipsw[2]==dipsw[1] in SDK, dipsw[1]
@@ -593,14 +581,12 @@ sync sync_inst3(.clock(clock_ethtxint), .sig_in(wide_spectrum), .sig_out(wide_sp
 
 wire Tx_reset;
 
-usopenhpsdr1 usopenhpsdr1_i (
+usopenhpsdr1 #(.NR(NR), .HERMES_SERIALNO(HERMES_SERIALNO)) usopenhpsdr1_i (
   .clk(clock_ethtxint),
   .rst(Tx_reset),
   .run(run_sync),
   .wide_spectrum(wide_spectrum_sync),
-  .hermes_serialno(Hermes_serialno),
   .idhermeslite(io_cn9),
-  .assignnr(AssignNR),
   .mac(local_mac),
   .discovery(discovery_reply_sync),
 
@@ -609,19 +595,25 @@ usopenhpsdr1 usopenhpsdr1_i (
   .udp_tx_data(udp_tx_data),
   .udp_tx_length(udp_tx_length),
 
-  //.phy_tx_data(PHY_Tx_data),
-  //.phy_tx_rdused(PHY_Tx_rdused),
-  //.tx_fifo_rdreq(Tx_fifo_rdreq),
-
-  .sp_fifo_rddata(sp_fifo_rddata),
-  .have_sp_data(sp_data_ready),
-  .sp_fifo_rdreq(sp_fifo_rdreq),
+  .bs_tdata(bs_tdata),
+  .bs_tready(bs_tready),
+  .bs_tvalid(bs_tvalid),
 
   .us_tdata(usiq_tdata),
   .us_tlast(usiq_tlast),
   .us_tready(usiq_tready),
   .us_tvalid(~usiq_tvalidn),
-  .us_tlength(usiq_tlength)
+  .us_tlength(usiq_tlength),
+
+  .cmd_addr(cmd_addr),
+  .cmd_data(cmd_data),
+  .cmd_rqst(cmd_rqst_usopenhpsdr1)
+);
+
+sync_pulse sync_pulse_usopenhpsdr1 (
+  .clock(clock_ethtxint),
+  .sig_in(cmd_cnt),
+  .sig_out(cmd_rqst_usopenhpsdr1)
 );
 
 
@@ -633,89 +625,10 @@ assign this_MAC = network_status[0];
 assign Tx_reset = network_state;
 
 
-//Tx_fifo Tx_fifo_inst (
-//  .wrclk (clk_ad9866),
-//  .rdreq (Tx_fifo_rdreq),
-//  .rdclk (clock_ethtxint),
-//  .wrreq (IF_tx_fifo_wreq),
-//  .data ({IF_tx_fifo_wdata[7:0], IF_tx_fifo_wdata[15:8]}),
-//  .q (PHY_Tx_data),
-//  .wrusedw(IF_tx_fifo_used),
-//  .wrfull(IF_tx_fifo_full),
-//  .rdempty(),
-//  .rdusedw(PHY_Tx_rdused),
-//  .wrempty(IF_tx_fifo_empty),
-//  .aclr(rst || IF_tx_fifo_clr )
-//);
-
-//wire [7:0] PHY_Tx_data;
-//reg [3:0]sync_TD;
-//wire PHY_Tx_rdempty;
-
-
-//----------------------------------------------------------------------------
-//     Tx_fifo Control - creates IF_tx_fifo_wdata and IF_tx_fifo_wreq signals
-//----------------------------------------------------------------------------
-
-//wire     [15:0] IF_tx_fifo_wdata;           // LTC2208 ADC uses this to send its data to Tx FIFO
-//wire            IF_tx_fifo_wreq;            // set when we want to send data to the Tx FIFO
-//wire            IF_tx_fifo_full;
-//wire [TFSZ-1:0] IF_tx_fifo_used;
-//wire            IF_tx_fifo_rreq;
-//wire            IF_tx_fifo_empty;
-
 wire     [11:0] Penny_ALC;
 wire            IF_tx_fifo_clr;
 
 assign Penny_ALC = AIN5;
-
-
-//Hermes_Tx_fifo_ctrl #(.TX_FIFO_SZ(TX_FIFO_SZ)) TXFC (
-//  .IF_reset(rst), 
-//  .IF_clk(clk_ad9866), 
-
-//  .Tx_fifo_wdata(IF_tx_fifo_wdata), 
-//  .Tx_fifo_wreq(IF_tx_fifo_wreq), 
-//  .Tx_fifo_full(IF_tx_fifo_full),
-//  .Tx_fifo_used(IF_tx_fifo_used), 
-//  .Tx_fifo_clr(IF_tx_fifo_clr), 
-//
-//  // Receiver data to transmit to host PC via ethernet
-//  .usiq_tdata_iqflag(usiq_tdata[29]),
-//  .usiq_tdata_chan(usiq_tdata[28:24]),
-//  .usiq_tdata_iq(usiq_tdata[23:0]),
-//  .usiq_tlast(usiq_tlast),
-//  .usiq_tready(usiq_tready),
-//  .usiq_tvalid(~usiq_tvalidn),
-//
-//  // Channel select
-//  .IF_last_chan(IF_last_chan), 
-//
-//  .clean_dash(1'b0), 
-//  .clean_dot(1'b0), 
-//  .clean_PTT_in(cwkey | clean_ptt), 
-//  .ADC_OVERLOAD(OVERFLOW),
-//  .Penny_serialno(Penny_serialno), 
-//  .Merc_serialno(Merc_serialno), 
-//  .Hermes_serialno(Hermes_serialno), 
-//  .Penny_ALC(Penny_ALC), 
-//  .AIN1(AIN1), 
-//  .AIN2(AIN2),
-//  .AIN3(AIN3), 
-//  .AIN4(AIN4),
-//  .AIN6(AIN6), 
-//  .IO4(IO4),
-//  .IO5(IO5),
-//  .IO6(IO6),
-//  .IO8(IO8),
-//  .VNA_start(VNA_start),
-//  .VNA(VNA),
-//
-//  // Protocol extension response
-//  .response_out_tdata(response_out_tdata),
-//  .response_out_tvalid(response_out_tvalid),
-//  .response_out_tready(response_out_tready) 
-//);
 
 dcfifo #(
   .add_usedw_msb_bit("ON"),
@@ -753,91 +666,55 @@ assign usiq_tlast = usiq_q[24];
 assign usiq_tdata = usiq_q[23:0];
 
 
+// BS AD9866 State
+always @ (posedge clk_ad9866) begin
+  if (bs_ad9866_empty) begin
+    bs_ad9866_push <= 1'b1;
+  end else if (bs_ad9866_full) begin
+    bs_ad9866_push <= 1'b0;
+  end 
+end 
+
+dcfifo #(
+  .intended_device_family("Cyclone IV E"),
+  .lpm_numwords(2048), 
+  .lpm_showahead ("ON"),
+  .lpm_type("dcfifo"),
+  .lpm_width(12),
+  .lpm_widthu(11), 
+  .overflow_checking("ON"),
+  .rdsync_delaypipe(4),
+  .underflow_checking("ON"),
+  .use_eab("ON"),
+  .wrsync_delaypipe(4)
+) bandscope_fifo_i (
+  .wrclk (clk_ad9866),
+  .wrreq (bs_ad9866_push & ~bs_ad9866_full),
+  .wrfull (bs_ad9866_full),
+  .wrempty (bs_ad9866_empty),
+  .wrusedw (),
+  .data (rx_data),
+
+  .rdclk (clock_ethtxint),
+  .rdreq (bs_tready),
+  .rdfull (bs_full),
+  .rdempty (bs_empty),
+  .rdusedw (),
+  .q (bs_tdata),
+
+  .aclr (1'b0),
+  .eccstatus ()  
+);
 
 
-
-//------------------------------------------------
-//   SP_fifo  (16384 words) dual clock FIFO
-//------------------------------------------------
-
-/*
-        The spectrum data FIFO is 16 by 16384 words long on the input.
-        Output is in Bytes for easy interface to the PHY code
-        NB: The output flags are only valid after a read/write clock has taken place
-
-
-                               SP_fifo
-                        ---------------------
-          rx_data |data[15:0]     wrfull| sp_fifo_wrfull
-                        |                        |
-    sp_fifo_wrreq   |wrreq       wrempty| sp_fifo_wrempty
-                        |                        |
-            C122_clk    |>wrclk              |
-                        ---------------------
-    sp_fifo_rdreq   |rdreq         q[7:0]| sp_fifo_rddata
-                        |                    |
-                        |                        |
-        clock_ethtxint  |>rdclk              |
-                        |                      |
-                        ---------------------
-                        |                    |
-     rst OR   |aclr                |
-        !run       |                    |
-                        ---------------------
-
-*/
-
-wire  sp_fifo_rdreq;
-wire [7:0]sp_fifo_rddata;
-wire sp_fifo_wrempty;
-wire sp_fifo_wrfull;
-wire sp_fifo_wrreq;
-wire have_sp_data;
-
-//--------------------------------------------------
-//   Wideband Spectrum Data
-//--------------------------------------------------
-
-//  When wide_spectrum is set and sp_fifo_wrempty then fill fifo with 16k words
-// of consecutive ADC samples.  Pass have_sp_data to Tx_MAC to indicate that
-// data is available.
-// Reset fifo when !run so the data always starts at a known state.
-
-wire C122_rst;
-cdc_sync #(1) reset_C122 (.siga(rst), .rstb(rst), .clkb(clk_ad9866), .sigb(C122_rst));
-
-SP_fifo  SPF (.aclr(C122_rst | !run_sync), .wrclk (clk_ad9866), .rdclk(clock_ethtxint),
-             .wrreq (sp_fifo_wrreq), .data ({{4{rx_data[11]}},rx_data}), .rdreq (sp_fifo_rdreq),
-             .q(sp_fifo_rddata), .wrfull(sp_fifo_wrfull), .wrempty(sp_fifo_wrempty));
-
-
-sp_rcv_ctrl SPC (.clk(clk_ad9866), .reset(C122_rst), .sp_fifo_wrempty(sp_fifo_wrempty),
-                 .sp_fifo_wrfull(sp_fifo_wrfull), .write(sp_fifo_wrreq), .have_sp_data(have_sp_data));
-
-// the wideband data is presented too fast for the PC to swallow so slow down
-
-wire sp_data_ready;
-
-
-
-// rate is 125e6/2**19
-reg [18:0]sp_delay;
-always @ (posedge clock_ethtxint)
-    sp_delay <= sp_delay + 15'd1;
-
-assign sp_data_ready = ( (speed_1gb ? sp_delay == 0 : sp_delay[15:0] == 0) && have_sp_data);
-
-
-
-
-
-
-
-
-
-
-
-
+// BS State
+always @ (posedge clock_ethtxint) begin
+  if (bs_full) begin
+    bs_tvalid <= 1'b1;
+  end else if (bs_empty) begin
+    bs_tvalid <= 1'b0;
+  end 
+end 
 
 
 
@@ -1194,14 +1071,6 @@ axis_fifo #(.ADDR_WIDTH(1), .DATA_WIDTH(38)) response_fifo (
   .output_axis_tlast(),
   .output_axis_tuser()
 );
-
-function integer clogb2;
-input [31:0] depth;
-begin
-  for(clogb2=0; depth>0; clogb2=clogb2+1)
-  depth = depth >> 1;
-end
-endfunction
 
 
 endmodule
