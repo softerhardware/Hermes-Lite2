@@ -128,32 +128,22 @@ module hermeslite(
 
 // Ethernet Interface
 `ifdef BETA2
-localparam MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h12,8'hdd};
+localparam       HERMES_SERIALNO = 8'd40;     // Serial number of this version
+localparam       MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h12,8'hdd};
 `else 
-localparam MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd};
+localparam       HERMES_SERIALNO = 8'd60;     // Serial number of this version
+localparam       MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd};
 `endif
-localparam IP = {8'd0,8'd0,8'd0,8'd0};
+localparam       IP = {8'd0,8'd0,8'd0,8'd0};
 
 // ADC Oscillator
-localparam CLK_FREQ = 76800000;
-
-
-
+localparam       CLK_FREQ = 76800000;
 
 // Experimental Predistort On=1 Off=0
-localparam PREDISTORT = 0;
+localparam      PREDISTORT = 0;
 
-`ifdef BETA2
-  localparam  HERMES_SERIALNO = 8'd40;     // Serial number of this version
-`else
-  localparam  HERMES_SERIALNO = 8'd60;     // Serial number of this version
-`endif
-
-localparam Penny_serialno = 8'd00;      // Use same value as equ1valent Penny code
-localparam Merc_serialno = 8'd00;       // Use same value as equivalent Mercury code
-
-localparam NR = 3; // Recievers
-localparam NT = 1; // Transmitters
+localparam      NR = 3; // Recievers
+localparam      NT = 1; // Transmitters
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
@@ -165,7 +155,8 @@ logic           cmd_resprqst;
 // Individual acknowledges
 logic           cmd_ack_i2c, cmd_ack_radio, cmd_ack_ad9866;
 
-logic FPGA_PTT;
+logic           ext_ptt, ext_cwkey, ext_txinhibit;
+logic           tx_en;
 
 logic   [7:0]   dseth_tdata;
 
@@ -191,8 +182,6 @@ logic           usiq_tready;
 logic           usiq_tvalidn;
 logic  [10:0]   usiq_tlength;
 
-logic           PHY_wrfull;
-
 logic           response_inp_tready;
 logic   [37:0]  response_out_tdata;
 logic           response_out_tvalid;
@@ -208,41 +197,86 @@ logic [11:0]    bs_tdata;
 
 logic           cmd_rqst_usopenhpsdr1;
 
-// Based on dip switch
-// SDK has just two dip switches, dipsw[2]==dipsw[1] in SDK, dipsw[1]
-// CV has three dip switches
-// CVA9 has four dip switches but only three are currently connected
-// dipsw[2:1] select alternate MAC addresses
-// dipsw[0] selects to identify as hermes or hermes-lite
+logic           clock_125_mhz_0_deg;
+logic           clock_125_mhz_90_deg;
+logic           clock_2_5MHz;
+logic           clock_25_mhz;
+logic           clock_12p5_mhz;
+logic           ethpll_locked;
+logic           clock_ethtxint;
+logic           clock_ethtxext;
+logic           clock_ethrxint;
+logic           speed_1gb;
+logic           speed_1gb_clksel = 1'b0;
+
+logic           phy_rx_clk_div2 = 1'b0;
+logic           ethup;
+
+logic           clk_ad9866;
+logic           clk_ad9866_2x;
+logic           ad9866pll_locked;
+
+logic           rst;
+logic           clk_i2c_rst;
+logic           clk_i2c_start;
+
+logic [15:0]    resetcounter = 16'h0000;
+logic           ad9866_rst_n = 1'b0;
+
+logic           run, run_sync;
+logic           wide_spectrum, wide_spectrum_sync;
+logic           discovery_reply, discovery_reply_sync;
+
+logic [ 7:0]    network_status;
+logic           dst_unreachable;
+
+logic           udp_tx_request;
+logic [ 7:0]    udp_tx_data;
+logic [10:0]    udp_tx_length;
+logic           udp_tx_enable;
+
+logic [15:0]    to_port;
+logic           broadcast;
+logic           udp_rx_active;
+logic [ 7:0]    udp_rx_data;
+
+logic           network_state;
+
+logic [47:0]    local_mac;
+
+logic           cmd_rqst_ad9866;
+logic [11:0]    rx_data;
+logic [11:0]    tx_data;
+
+logic           sda1_i;
+logic           sda1_o;
+logic           sda1_t;
+logic           scl1_i;
+logic           scl1_o;
+logic           scl1_t;
+
+logic           sda2_i;
+logic           sda2_o;
+logic           sda2_t;
+logic           scl2_i;
+logic           scl2_o;
+logic           scl2_t;
+
+logic           sda3_i;
+logic           sda3_o;
+logic           sda3_t;
+logic           scl3_i;
+logic           scl3_o;
+logic           scl3_t;
+
+logic           cmd_rqst_io;
+
+logic           rxclipp;
+logic           rxclipn;
 
 
-assign pwr_clk3p3 = 1'b0;
-assign pwr_clk1p2 = 1'b0;
-
-`ifdef BETA2
-assign pwr_clkvpa = 1'b0;
-`endif
-
-//assign io_adc_scl = 1'b0;
-//assign io_adc_sda = 1'b0;
-
-
-assign clk_recovered = 1'b0;
-
-
-// Reset and Clock Control
-
-wire clock_125_mhz_0_deg;
-wire clock_125_mhz_90_deg;
-wire clock_2_5MHz;
-wire clock_25_mhz;
-wire clock_12p5_mhz;
-wire ethpll_locked;
-wire clock_ethtxint;
-wire clock_ethtxext;
-wire clock_ethrxint;
-wire speed_1gb;
-reg  speed_1gb_clksel = 1'b0;
+/////////////////////////////////////////////////////
+// Clocks
 
 ethpll ethpll_inst (
     .inclk0   (phy_clk125),   //  refclk.clk
@@ -276,9 +310,6 @@ altclkctrl #(
 );
 
 
-
-//assign clock_ethtxint = speed_1gb_clksel ? clock_125_mhz_0_deg : clock_12p5_mhz;
-
 altclkctrl #(
     .clock_type("AUTO"),
     //.intended_device_family("Cyclone IV E"),
@@ -297,24 +328,15 @@ altclkctrl #(
     .outclk(clock_ethtxext)
 );
 
-//assign clock_ethtxext = speed_1gb_clksel ? clock_125_mhz_90_deg : clock_25_mhz;
-
-reg phy_rx_clk_div2;
+assign phy_tx_clk = clock_ethtxext;
 
 always @(posedge phy_rx_clk) begin
   phy_rx_clk_div2 <= ~phy_rx_clk_div2;
 end
 
- 
-//always @(posedge phy_rx_clk)
-//  begin
-//    phy_rx_clk_div2 <= ~phy_rx_clk_div2 | (phy_rx_dv & ~phy_rx_dv_last);
-//    phy_rx_dv_last <= phy_rx_dv;
-//  end
- 
- 
-assign clock_ethrxint = speed_1gb_clksel ? phy_rx_clk : phy_rx_clk_div2; // 1000T speed only...speed_1Gbit? PHY_RX_CLOCK : slow_rx_clock; 
+assign clock_ethrxint = speed_1gb_clksel ? phy_rx_clk : phy_rx_clk_div2; 
 
+// Infer above as altclkctrl does not map correctly in Quartus for this case
 //altclkctrl #(
 //    .clock_type("AUTO"),
 //    //.intended_device_family("Cyclone IV E"),
@@ -334,8 +356,6 @@ assign clock_ethrxint = speed_1gb_clksel ? phy_rx_clk : phy_rx_clk_div2; // 1000
 //);
 
 
-wire ethup;
-
 // phy_rst_n will go high after ~50ms due to RC
 // ethpll_locked will go high once pll is locked
 assign ethup = ethpll_locked & phy_rst_n;
@@ -343,9 +363,6 @@ assign ethup = ethpll_locked & phy_rst_n;
 // ethup starts I2C configuration of the Versa
 // the PLL may lock twice the frequency changes
 
-wire clk_ad9866;
-wire clk_ad9866_2x;
-wire ad9866pll_locked;
 
 ad9866pll ad9866pll_inst (
   .inclk0   (rffe_ad9866_clk76p8),   //  refclk.clk
@@ -355,76 +372,34 @@ ad9866pll ad9866pll_inst (
   .locked (ad9866pll_locked)
 );
 
+
+/////////////////////////////////////////////////////
+// Reset
+
 // Most FPGA logic is reset when ethernet is up and ad9866 PLL is locked
 // AD9866 is released from reset
-wire rst;
-wire clk_i2c_rst;
-wire clk_i2c_start;
 
-reg [15:0] resetcounter = 16'h0000;
 always @ (posedge clock_2_5MHz)
   if (~resetcounter[15] & ethup) resetcounter <= resetcounter + 16'h01;
 
+// At ~410us
 assign clk_i2c_rst = ~(|resetcounter[15:10]);
+
+// At ~820us
 assign clk_i2c_start = ~(|resetcounter[15:11]);
+
+// At ~6.5ms
 assign rst = ~(|resetcounter[15:14]);
 
-reg ad9866_rst_n = 1'b0;
-
+// At ~13ms
 always @ (posedge clock_2_5MHz)
   if (resetcounter[15] & ad9866pll_locked) ad9866_rst_n <= 1'b1;
 
 
 
+/////////////////////////////////////////////////////
+// Network
 
-//wire Tx_fifo_rdreq;
-//wire [10:0] PHY_Tx_rdused;
-
-
-wire this_MAC;
-wire run;
-
-assign phy_tx_clk = clock_ethtxext;
-
-wire cwkey_i;
-wire ptt_i;
-wire [7:0] leds;
-
-
-
-
-assign cwkey_i = io_phone_tip;
-assign ptt_i = io_phone_ring;
-
-
-
-wire [7:0] network_status;
-
-wire dst_unreachable;
-wire udp_tx_request;
-wire wide_spectrum;
-wire discovery_reply;
-wire [15:0] to_port;
-wire broadcast;
-wire udp_rx_active;
-wire [7:0] udp_rx_data;
-wire rx_fifo_enable;
-
-
-wire [7:0] udp_tx_data;
-wire [10:0] udp_tx_length;
-wire udp_tx_enable;
-
-wire network_state;
-wire [47:0] local_mac;
-
-wire discovery_reply_sync;
-wire run_sync;
-wire wide_spectrum_sync;
-
-wire [31:0] static_ip;
-
-assign static_ip = IP;
 assign local_mac =  {MAC[47:2],~io_cn10,MAC[0]};
 
 network network_inst(
@@ -446,7 +421,7 @@ network network_inst(
   .broadcast(broadcast),
   .dst_unreachable(dst_unreachable),
 
-  .static_ip(static_ip),
+  .static_ip(IP),
   .local_mac(local_mac),
   .speed_1gb(speed_1gb),
   .network_state(network_state),
@@ -460,8 +435,6 @@ network network_inst(
   .PHY_MDIO(phy_mdio),
   .PHY_MDC(phy_mdc)
 );
-
-
 
 
 
@@ -579,11 +552,15 @@ sync sync_inst1(.clock(clock_ethtxint), .sig_in(discovery_reply), .sig_out(disco
 sync sync_inst2(.clock(clock_ethtxint), .sig_in(run), .sig_out(run_sync));
 sync sync_inst3(.clock(clock_ethtxint), .sig_in(wide_spectrum), .sig_out(wide_spectrum_sync));
 
-wire Tx_reset;
+sync_pulse sync_pulse_usopenhpsdr1 (
+  .clock(clock_ethtxint),
+  .sig_in(cmd_cnt),
+  .sig_out(cmd_rqst_usopenhpsdr1)
+);
 
 usopenhpsdr1 #(.NR(NR), .HERMES_SERIALNO(HERMES_SERIALNO)) usopenhpsdr1_i (
   .clk(clock_ethtxint),
-  .rst(Tx_reset),
+  .rst(network_state),
   .run(run_sync),
   .wide_spectrum(wide_spectrum_sync),
   .idhermeslite(io_cn9),
@@ -610,25 +587,6 @@ usopenhpsdr1 #(.NR(NR), .HERMES_SERIALNO(HERMES_SERIALNO)) usopenhpsdr1_i (
   .cmd_rqst(cmd_rqst_usopenhpsdr1)
 );
 
-sync_pulse sync_pulse_usopenhpsdr1 (
-  .clock(clock_ethtxint),
-  .sig_in(cmd_cnt),
-  .sig_out(cmd_rqst_usopenhpsdr1)
-);
-
-
-
-//assign This_MAC_o = local_mac;
-assign this_MAC = network_status[0];
-
-// Set Tx_reset (no sdr send) if not in RUNNING or DHCP RENEW state
-assign Tx_reset = network_state;
-
-
-wire     [11:0] Penny_ALC;
-wire            IF_tx_fifo_clr;
-
-assign Penny_ALC = AIN5;
 
 dcfifo #(
   .add_usedw_msb_bit("ON"),
@@ -721,9 +679,7 @@ end
 ///////////////////////////////////////////////
 // AD9866 clock domain
 
-logic           cmd_rqst_ad9866;
-logic [11:0]    rx_data;
-logic [11:0]    tx_data;
+
 
 sync_pulse sync_pulse_ad9866 (
   .clock(clk_ad9866),
@@ -732,13 +688,18 @@ sync_pulse sync_pulse_ad9866 (
 );
 
 ad9866 ad9866_i (
-  .clk_ad9866(clk_ad9866),
-  .clk_ad9866_2x(clk_ad9866_2x),
+  .clk(clk_ad9866),
+  .clk_2x(clk_ad9866_2x),
   .rst_n(ad9866_rst_n),
 
   .tx_data(tx_data),
   .rx_data(rx_data),
-  .tx_en(FPGA_PTT | VNA),
+  .tx_en(tx_en),
+
+  .rxclipp(rxclipp),
+  .rxclipn(rxclipn),
+  .rxgoodlvlp(),
+  .rxgoodlvln(),
 
   .rffe_ad9866_rst_n(rffe_ad9866_rst_n),
   .rffe_ad9866_tx(rffe_ad9866_tx),
@@ -766,13 +727,6 @@ ad9866 ad9866_i (
 );
 
 
-wire rxclipp = (rx_data == 12'b011111111111);
-wire rxclipn = (rx_data == 12'b100000000000);
-
-// Like above but 2**11.585 = (4096-1024) = 3072
-wire rxgoodlvlp = (rx_data[11:9] == 3'b011);
-wire rxgoodlvln = (rx_data[11:9] == 3'b100);
-
 radio #(
   .NR(NR), 
   .NT(NT),
@@ -781,9 +735,14 @@ radio #(
 ) 
 radio_i 
 (
-  .clk_ad9866(clk_ad9866),
+  .clk(clk_ad9866),
 
-  .ptt(FPGA_PTT),
+  .ext_ptt(ext_ptt),
+  .ext_cwkey(ext_cwkey),
+  .ext_txinhibit(ext_txinhibit),
+  .cmd_ptt(cmd_ptt),
+
+  .tx_en(tx_en),
 
   // Transmit
   .tx_tdata({dsiq_rdata[7:0],dsiq_rdata[15:8],dsiq_rdata[23:16],dsiq_rdata[31:24]}),
@@ -792,8 +751,6 @@ radio_i
   .tx_tready(dsiq_rreq),
   .tx_tvalid(~dsiq_rempty),
 
-  .tx_cw_key(cwkey),
-  .tx_cw_level(cwlevel),
   .tx_data_dac(tx_data),
 
   // Optional Audio Stream
@@ -820,15 +777,8 @@ radio_i
 
 
 
-
-
-
-
-
-
 ///////////////////////////////////////////////
 // IO clock domain
-logic       cmd_rqst_io;
 
 sync_pulse sync_pulse_io (
   .clock(clk_ad9866),
@@ -836,191 +786,108 @@ sync_pulse sync_pulse_io (
   .sig_out(cmd_rqst_io)
 );
 
-//---------------------------------------------------------
-//    ADC SPI interface
-//---------------------------------------------------------
 
-wire [11:0] AIN1;
-wire [11:0] AIN2;
-wire [11:0] AIN3;
-wire [11:0] AIN4;
-wire [11:0] AIN5;  // holds 12 bit ADC value of Forward Power detector.
-wire [11:0] AIN6;  // holds 12 bit ADC of 13.8v measurement
+ioblock ioblock_i (
+  // Internal
+  .clk(clk_ad9866),
+  .rst(rst),
 
-assign AIN4 = 0;
-assign AIN6 = 1000;
-
-wire VNA_start = VNA && cmd_rqst_io && (cmd_addr == 6'h01);  // indicates a frequency change for the VNA.
-
-
-wire IO4;
-wire IO5;
-wire IO6;
-wire IO8;
-wire OVERFLOW;
-assign IO4 = 1'b1;
-assign IO5 = 1'b1;
-assign IO6 = 1'b1;
-assign IO8 = 1'b1;
-
-//allow overflow message during tx to set pure signal feedback level
-assign OVERFLOW = (~leds[0] | ~leds[3]) ;
-
-reg         VNA;                    // Selects VNA mode when set.
-reg         IF_PA_enable;
-reg         IF_TR_disable;
-
-always 
-@ (posedge clk_ad9866)
-begin   
-  if (rst)
-  begin // set up default values - 0 for now
-    // RX_CONTROL_1
-    VNA                <= 1'b0;      // VNA disabled
-    IF_PA_enable       <= 1'b0;
-    IF_TR_disable      <= 1'b0;
-
-  end
-  else if (cmd_rqst_io)                  // all Rx_control bytes are ready to be saved
-  begin                                         // Need to ensure that C&C data is stable
-    if (cmd_addr == 6'h09)
-    begin
-      VNA                 <= cmd_data[23];      // 1 = enable VNA mode
-      IF_PA_enable      <= cmd_data[19];
-      IF_TR_disable       <= cmd_data[18];
-    end
-  end
-end
-
-
-
-wire clean_txinhibit;
-debounce de_txinhibit(.clean_pb(clean_txinhibit), .pb(~io_cn8), .clk(clk_ad9866));
-
-assign FPGA_PTT = (cmd_ptt | cwkey | clean_ptt) & ~clean_txinhibit;
-
-
-//---------------------------------------------------------
-//  Debounce CWKEY input - active low
-//---------------------------------------------------------
-
-// 2 ms rise and fall, not shaped, but like HiQSDR
-// MAX CWLEVEL is picked to be 8*max cordic level for transmit
-// ADJUST if cordic max changes...
-localparam MAX_CWLEVEL = 18'h26c00; //(16'h4d80 << 3);
-wire clean_cwkey;
-wire cwkey;
-reg [17:0] cwlevel;
-reg [1:0] cwstate;
-localparam  cwrx = 2'b00, cwkeydown = 2'b01, cwkeyup = 2'b11;
-
-// 5 ms debounce with 48 MHz clock
-debounce de_cwkey(.clean_pb(clean_cwkey), .pb(~cwkey_i), .clk(clk_ad9866));
-
-// CW state machine
-always @(posedge clk_ad9866)
-    begin case (cwstate)
-        cwrx:
-            begin
-                cwlevel <= 18'h00;
-                if (clean_cwkey) cwstate <= cwkeydown;
-                else cwstate <= cwrx;
-            end
-
-        cwkeydown:
-            begin
-                if (cwlevel != MAX_CWLEVEL) cwlevel <= cwlevel + 18'h01;
-                if (clean_cwkey) cwstate <= cwkeydown;
-                else cwstate <= cwkeyup;
-            end
-
-        cwkeyup:
-            begin
-                if (cwlevel == 18'h00) cwstate <= cwrx;
-                else begin
-                    cwstate <= cwkeyup;
-                    cwlevel <= cwlevel - 18'h01;
-                end
-            end
-    endcase
-    end
-
-assign cwkey = cwstate != cwrx;
-
-assign io_db1_5 = cwkey;
-
-
-
-// 5 ms debounce with 48 MHz clock
-wire clean_ptt;
-debounce de_ptt(.clean_pb(clean_ptt), .pb(~ptt_i), .clk(clk_ad9866));
-
-
-// Really 0.16 seconds at Hermes-Lite 61.44 MHz clock
-localparam half_second = 24'd10000000; // at 48MHz clock rate
-
-Led_flash Flash_LED0(.clock(clk_ad9866), .signal(rxclipp), .LED(leds[0]), .period(half_second));
-Led_flash Flash_LED1(.clock(clk_ad9866), .signal(rxgoodlvlp), .LED(leds[1]), .period(half_second));
-Led_flash Flash_LED2(.clock(clk_ad9866), .signal(rxgoodlvln), .LED(leds[2]), .period(half_second));
-Led_flash Flash_LED3(.clock(clk_ad9866), .signal(rxclipn), .LED(leds[3]), .period(half_second));
-
-Led_flash Flash_LED4(.clock(clk_ad9866), .signal(this_MAC), .LED(leds[4]), .period(half_second));
-Led_flash Flash_LED5(.clock(clk_ad9866), .signal(run_sync), .LED(leds[5]), .period(half_second));
-//Led_flash Flash_LED6(.clock(clk_ad9866), .signal(IF_SYNC_state == SYNC_RX_1_2), .LED(leds[6]), .period(half_second));
-
-
-assign io_led_d2 = leds[4];
-assign io_led_d3 = leds[5];
-assign io_led_d4 = leds[0];
-assign io_led_d5 = leds[3];
-
-
-// FIXME: Sequence power
-// FIXME: External TR won't work in low power mode
-`ifdef BETA2
-assign pa_tr = FPGA_PTT & (IF_PA_enable | ~IF_TR_disable);
-assign pa_en = FPGA_PTT & IF_PA_enable;
-assign pwr_envpa = FPGA_PTT;
-`else
-assign pwr_envbias = FPGA_PTT & IF_PA_enable;
-assign pwr_envop = FPGA_PTT;
-assign pa_exttr = FPGA_PTT;
-assign pa_inttr = FPGA_PTT & (IF_PA_enable | ~IF_TR_disable);
-assign pwr_envpa = FPGA_PTT & IF_PA_enable;
-`endif
-
-assign rffe_rfsw_sel = IF_PA_enable;
-
-wire scl1_i, scl1_t, scl1_o, sda1_i, sda1_t, sda1_o;
-wire scl2_i, scl2_t, scl2_o, sda2_i, sda2_t, sda2_o;
-wire scl3_i, scl3_t, scl3_o, sda3_i, sda3_t, sda3_o;
-
-i2c i2c_i (
-  .clk(clock_2_5MHz),
-  .clock_76p8_mhz(clk_ad9866),
-  .rst(clk_i2c_rst),
-  .init_start(clk_i2c_start),
+  .rxclipp(rxclipp),
+  .rxclipn(rxclipn),
+  .this_MAC(network_status[0]),
+  .run_sync(run_sync),
 
   .cmd_addr(cmd_addr),
   .cmd_data(cmd_data),
   .cmd_rqst(cmd_rqst_io),
-  .cmd_ack(cmd_ack_i2c),
+  .cmd_ack(),  
 
-  .scl1_i(scl1_i),
-  .scl1_o(scl1_o),
-  .scl1_t(scl1_t),
+  .clock_2_5MHz(clock_2_5MHz),
+  .clk_i2c_rst(clk_i2c_rst),
+  .clk_i2c_start(clk_i2c_start),
+
+  .ext_ptt(ext_ptt),
+  .ext_cwkey(ext_cwkey),
+  .ext_txinhibit(ext_txinhibit),
+
+  .cmd_ptt(cmd_ptt),
+
+  // External
+  .rffe_rfsw_sel(rffe_rfsw_sel),
+
+  // Power
+  .pwr_clk3p3(pwr_clk3p3),
+  .pwr_clk1p2(pwr_clk1p2),
+  .pwr_envpa(pwr_envpa), 
+
+`ifdef BETA2
+  .pwr_clkvpa(pwr_clkvpa),
+`else
+  .pwr_envop(pwr_envop),
+  .pwr_envbias(pwr_envbias),
+`endif
+
+  // Clock
+  .clk_recovered(clk_recovered),
+ 
   .sda1_i(sda1_i),
   .sda1_o(sda1_o),
   .sda1_t(sda1_t),
+  .scl1_i(scl1_i),
+  .scl1_o(scl1_o),
+  .scl1_t(scl1_t),
+
+  .sda2_i(sda2_i),
+  .sda2_o(sda2_o),
+  .sda2_t(sda2_t),
   .scl2_i(scl2_i),
   .scl2_o(scl2_o),
   .scl2_t(scl2_t),
-  .sda2_i(sda2_i),
-  .sda2_o(sda2_o),
-  .sda2_t(sda2_t)
+
+  .sda3_i(sda3_i),
+  .sda3_o(sda3_o),
+  .sda3_t(sda3_t),
+  .scl3_i(scl3_i),
+  .scl3_o(scl3_o),
+  .scl3_t(scl3_t),
+
+  // IO
+  .io_led_d2(io_led_d2),
+  .io_led_d3(io_led_d3),
+  .io_led_d4(io_led_d4),
+  .io_led_d5(io_led_d5),
+  .io_lvds_rxn(io_lvds_rxn),
+  .io_lvds_rxp(io_lvds_rxp),
+  .io_lvds_txn(io_lvds_txn),
+  .io_lvds_txp(io_lvds_txp),
+  .io_cn8(io_cn8),
+  .io_cn9(io_cn9),
+  .io_cn10(io_cn10),
+
+  .io_db1_2(io_db1_2),     
+  .io_db1_3(io_db1_3),     
+  .io_db1_4(io_db1_4),     
+  .io_db1_5(io_db1_5),     
+  .io_db1_6(io_db1_6),       
+  .io_phone_tip(io_phone_tip), 
+  .io_phone_ring(io_phone_ring),
+  .io_tp2(io_tp2),
+  
+`ifndef BETA2
+  .io_tp7(io_tp7),
+  .io_tp8(io_tp8),  
+  .io_tp9(io_tp9),
+`endif
+
+  // PA
+`ifdef BETA2
+  .pa_tr(pa_tr),
+  .pa_en(pa_en)
+`else
+  .pa_inttr(pa_inttr),
+  .pa_exttr(pa_exttr)
+`endif
 );
-
-
 
 assign scl1_i = clk_scl1;
 assign clk_scl1 = scl1_t ? 1'bz : scl1_o;
@@ -1032,45 +899,9 @@ assign io_scl2 = scl2_t ? 1'bz : scl2_o;
 assign sda2_i = io_sda2;
 assign io_sda2 = sda2_t ? 1'bz : sda2_o;
 
-
-slow_adc slow_adc_i (
-  .clk(clk_ad9866),
-  .rst(rst),
-  .ain0(AIN1),
-  .ain1(AIN5),
-  .ain2(AIN3),
-  .ain3(AIN2),
-  .scl_i(scl3_i),
-  .scl_o(scl3_o),
-  .scl_t(scl3_t),
-  .sda_i(sda3_i),
-  .sda_o(sda3_o),
-  .sda_t(sda3_t)
-);
-
 assign scl3_i = io_adc_scl;
 assign io_adc_scl = scl3_t ? 1'bz : scl3_o;
 assign sda3_i = io_adc_sda;
 assign io_adc_sda = sda3_t ? 1'bz : sda3_o;
-
-
-assign cmd_ack = response_inp_tready & cmd_resprqst & (cmd_ack_i2c | cmd_ack_radio | cmd_ack_ad9866);
-
-axis_fifo #(.ADDR_WIDTH(1), .DATA_WIDTH(38)) response_fifo (
-  .clk(clk_ad9866),
-  .rst(rst),
-  .input_axis_tdata({cmd_addr,cmd_data}),
-  .input_axis_tvalid(cmd_ack),
-  .input_axis_tready(response_inp_tready),
-  .input_axis_tlast(1'b0),
-  .input_axis_tuser(1'b0),
-
-  .output_axis_tdata(response_out_tdata),
-  .output_axis_tvalid(response_out_tvalid),
-  .output_axis_tready(response_out_tready),
-  .output_axis_tlast(),
-  .output_axis_tuser()
-);
-
 
 endmodule

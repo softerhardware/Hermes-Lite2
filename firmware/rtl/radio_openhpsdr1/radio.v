@@ -1,8 +1,13 @@
 module radio (
 
-  clk_ad9866,
+  clk,
 
-  ptt,
+  ext_cwkey,
+  ext_ptt,
+  ext_txinhibit,
+  cmd_ptt,
+
+  tx_en,
 
   // Transmit
   tx_tdata,
@@ -11,8 +16,6 @@ module radio (
   tx_tready,
   tx_tvalid,
 
-  tx_cw_key,
-  tx_cw_level,
   tx_data_dac,
 
   // Optional audio stream for repurposed programming
@@ -63,9 +66,14 @@ localparam RATE192 =  RATE96  >> 1;
 localparam RATE384 =  RATE192 >> 1;
 
 
-input             clk_ad9866;
+input             clk;
 
-input             ptt;
+input             ext_ptt;
+input             ext_cwkey;
+input             ext_txinhibit;
+input             cmd_ptt;
+
+output            tx_en;
 
 input   [31:0]    tx_tdata;
 input   [ 2:0]    tx_tid;
@@ -79,8 +87,6 @@ input             lr_tlast;
 output            lr_tready;
 input             lr_tvalid;
 
-input             tx_cw_key;
-input   [17:0]    tx_cw_level;
 output  [11:0]    tx_data_dac;
 
 input   [11:0]    rx_data_adc;
@@ -150,6 +156,21 @@ logic [5:0]   chanp [0:3];
 logic [31:0]  tx_phase [0:NT-1];
 logic [31:0]  rx_phase [0:NR-1];
 
+
+logic               tx_cw_key;
+logic [17:0]        tx_cw_level;
+
+logic [1:0]         cwstate;
+
+logic               ptt;
+
+// 2 ms rise and fall, not shaped, but like HiQSDR
+// MAX CWLEVEL is picked to be 8*max cordic level for transmit
+// ADJUST if cordic max changes...
+localparam          MAX_CWLEVEL = 18'h26c00; //(16'h4d80 << 3);
+localparam          cwrx = 2'b00, cwkeydown = 2'b01, cwkeyup = 2'b11;
+
+
 localparam 
   CMD_IDLE    = 2'b00,
   CMD_FREQ1   = 2'b01,
@@ -169,7 +190,7 @@ logic [1:0]   rxus_state = RXUS_WAIT1;
 logic [1:0]   rxus_state_next;
 
 // Command Slave State Machine
-always @(posedge clk_ad9866) begin
+always @(posedge clk) begin
   cmd_state <= cmd_state_next;
   vna <= vna_next;
   rx_rate <= rx_rate_next;
@@ -253,7 +274,7 @@ end
 assign freqcomp = cmd_data * M2 + M3;
 
 // Pipeline freqcomp
-always @ (posedge clk_ad9866) begin
+always @ (posedge clk) begin
   // Pipeline to allow 2 cycles for multiply
   if (cmd_state == CMD_FREQ2) begin
     freqcompp[0] <= freqcomp[56:25];
@@ -268,7 +289,7 @@ always @ (posedge clk_ad9866) begin
 end
 
 // TX0 and RX0
-always @ (posedge clk_ad9866) begin
+always @ (posedge clk) begin
   if (cmd_state == CMD_FREQ3) begin
     if (chanp[0] == 6'h01) begin 
       tx_phase[0] <= freqcompp[0]; 
@@ -286,7 +307,7 @@ end
 genvar c;
 generate
   for (c = 1; c < NT; c = c + 1) begin: TXIFFREQ
-    always @ (posedge clk_ad9866) begin
+    always @ (posedge clk) begin
       if (cmd_state == CMD_FREQ3) begin
         if (chanp[c/8] == ((c < 7) ? c+2 : c+11)) begin
           tx_phase[c] <= freqcompp[c/8]; 
@@ -299,7 +320,7 @@ endgenerate
 // RX > 1
 generate
   for (c = 1; c < NR; c = c + 1) begin: RXIFFREQ
-    always @ (posedge clk_ad9866) begin
+    always @ (posedge clk) begin
       if (cmd_state == CMD_FREQ3) begin
         if (chanp[c/8] == ((c < 7) ? c+2 : c+11)) begin
           rx_phase[c] <= freqcompp[c/8]; 
@@ -310,7 +331,7 @@ generate
 endgenerate
 
 // Pipeline for adc fanout
-always @ (posedge clk_ad9866) begin
+always @ (posedge clk) begin
   adcpipe[0] <= rx_data_adc;
   adcpipe[1] <= rx_data_adc;
   adcpipe[2] <= rx_data_adc;
@@ -332,7 +353,7 @@ generate
   for (c = 0; c < NR; c = c + 1) begin: MDC
     if((c==3 && NR>3) || (c==1 && NR<=3)) begin
         receiver #(.CICRATE(CICRATE)) receiver_inst (
-          .clock(clk_ad9866),
+          .clock(clk),
           .rate(rate),
           .frequency(rx_phase[c]),
           .out_strobe(rx_data_rdy[c]),
@@ -342,7 +363,7 @@ generate
         );
     end else begin
         receiver #(.CICRATE(CICRATE)) receiver_inst (
-          .clock(clk_ad9866),
+          .clock(clk),
           .rate(rate),
           .frequency(rx_phase[c]),
           .out_strobe(rx_data_rdy[c]),
@@ -357,7 +378,7 @@ endgenerate
 
 // Send RX data upstream
 
-always @(posedge clk_ad9866) begin
+always @(posedge clk) begin
   rxus_state <= rxus_state_next;
   chan <= chan_next;
 end
@@ -453,7 +474,7 @@ end
 
 // latch I&Q data on strobe from FIR
 // FIXME: no backpressure from FIR for now
-always @ (posedge clk_ad9866) begin
+always @ (posedge clk) begin
   if (tx_tready & tx_tvalid) begin
     tx_fir_i = tx_tdata[31:16];
     tx_fir_q = tx_tdata[15:0];
@@ -461,10 +482,10 @@ always @ (posedge clk_ad9866) begin
 end
 
 // Interpolate I/Q samples from 48 kHz to the clock frequency
-FirInterp8_1024 fi (clk_ad9866, req2, tx_tready, tx_fir_i, tx_fir_q, y1_r, y1_i);  // req2 enables an output sample, tx_tready requests next input sample.
+FirInterp8_1024 fi (clk, req2, tx_tready, tx_fir_i, tx_fir_q, y1_r, y1_i);  // req2 enables an output sample, tx_tready requests next input sample.
 
 // GBITS reduced to 30
-CicInterpM5 #(.RRRR(RRRR), .IBITS(20), .OBITS(16), .GBITS(GBITS)) in2 ( clk_ad9866, 1'd1, req2, y1_r, y1_i, y2_r, y2_i);
+CicInterpM5 #(.RRRR(RRRR), .IBITS(20), .OBITS(16), .GBITS(GBITS)) in2 ( clk, 1'd1, req2, y1_r, y1_i, y2_r, y2_i);
 
 //---------------------------------------------------------
 //    CORDIC NCO
@@ -479,7 +500,7 @@ assign          tx_q = (vna | tx_cw_key) ? 16'h0 : y2_r;                   // ta
 
 // NOTE:  I and Q inputs reversed to give correct sideband out
 cpl_cordic #(.OUT_WIDTH(16)) cordic_inst (
-  .clock(clk_ad9866), 
+  .clock(clk), 
   .frequency(tx_phase_word), 
   .in_data_I(tx_i),
   .in_data_Q(tx_q), 
@@ -512,7 +533,7 @@ generate
     logic signed [15:0] tx_cordic_tx2_q_out;
 
     cpl_cordic #(.OUT_WIDTH(16)) cordic_tx2_inst (
-      .clock(clk_ad9866), 
+      .clock(clk), 
       .frequency(tx_phase[1]), 
       .in_data_I(tx_i),
       .in_data_Q(tx_q), 
@@ -528,7 +549,7 @@ endgenerate
 
 // LFSR for dither
 //reg [15:0] lfsr = 16'h0001;
-//always @ (negedge clk_ad9866 or negedge extreset)
+//always @ (negedge clk or negedge extreset)
 //    if (~extreset) lfsr <= 16'h0001;
 //    else lfsr <= {lfsr[0],lfsr[15],lfsr[14] ^ lfsr[0], lfsr[13] ^ lfsr[0], lfsr[12], lfsr[11] ^ lfsr[0], lfsr[10:1]};
 
@@ -581,7 +602,7 @@ generate
 
   //FSM to write DACLUTI and DACLUTQ
   assign lr_tready = 1'b1; // Always ready
-  always @(posedge clk_ad9866) begin
+  always @(posedge clk) begin
     if (lr_tvalid) begin
       if (lr_tdata[12+16]) begin // Always write??
         DACLUTQ[lr_tdata[(11+16):16]] <= lr_tdata[12:0];
@@ -593,7 +614,7 @@ generate
 
   assign iplusq = txsum+txsumq;
 
-  always @ (posedge clk_ad9866) begin
+  always @ (posedge clk) begin
     txsumr<=txsum;
     txsumqr<=txsumq;
     iplusqr<=iplusq;
@@ -606,7 +627,7 @@ generate
   logic signed [15:0] txsumqr2;
   logic signed [15:0] iplusq_over_root2r;
 
-  always @ (posedge clk_ad9866) begin
+  always @ (posedge clk) begin
     txsumr2<=txsumr;
     txsumqr2<=txsumqr;
     iplusq_over_root2r<=iplusq_over_root2;
@@ -614,7 +635,7 @@ generate
   
   assign distorted_dac = DACLUTI[txsumr2[11:0]]-DACLUTI[txsumqr2[11:0]]+DACLUTQ[iplusq_over_root2r[12:1]];
 
-  always @ (posedge clk_ad9866) begin
+  always @ (posedge clk) begin
     case( tx_predistort[1:0] )
       0: tx_data_dac <= txsum[11:0];
       1: tx_data_dac <= distorted_dac[11:0];
@@ -627,10 +648,42 @@ end else begin
 
   assign lr_tready = 1'b0;
 
-  always @ (posedge clk_ad9866)
+  always @ (posedge clk)
     tx_data_dac <= txsum[11:0]; // + {10'h0,lfsr[2:1]};
 
 end
 endgenerate
+
+
+// CW state machine
+always @(posedge clk) begin 
+  case (cwstate)
+    cwrx: begin
+      tx_cw_level <= 18'h00;
+      if (ext_cwkey) cwstate <= cwkeydown;
+      else cwstate <= cwrx;
+    end
+
+    cwkeydown: begin
+      if (tx_cw_level != MAX_CWLEVEL) tx_cw_level <= tx_cw_level + 18'h01;
+      if (ext_cwkey) cwstate <= cwkeydown;
+      else cwstate <= cwkeyup;
+    end
+
+    cwkeyup: begin
+      if (tx_cw_level == 18'h00) cwstate <= cwrx;
+      else begin
+        cwstate <= cwkeyup;
+        tx_cw_level <= tx_cw_level - 18'h01;
+      end
+    end
+  endcase
+end
+
+assign tx_cw_key = cwstate != cwrx;
+
+assign ptt = (ext_ptt | cmd_ptt | ext_cwkey) & ~ext_txinhibit;
+
+assign tx_en = (ptt | vna) & ~ext_txinhibit;
 
 endmodule
