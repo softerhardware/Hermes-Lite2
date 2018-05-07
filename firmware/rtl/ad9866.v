@@ -19,13 +19,18 @@
 // (C) Steve Haynal KF7O 2014-2018
 
 module ad9866 (
-  clk_ad9866,
-  clk_ad9866_2x,
+  clk,
+  clk_2x,
   rst_n,
 
   tx_data,
   rx_data,
   tx_en,
+
+  rxclipp,
+  rxclipn,
+  rxgoodlvlp,
+  rxgoodlvln,
 
   rffe_ad9866_rst_n,
   rffe_ad9866_tx,
@@ -53,13 +58,18 @@ module ad9866 (
   cmd_ack
 );
 
-input             clk_ad9866;
-input             clk_ad9866_2x;
+input             clk;
+input             clk_2x;
 input             rst_n;
 
 input   [11:0]    tx_data;
 output  [11:0]    rx_data;
 input             tx_en;
+
+output            rxclipp;
+output            rxclipn;
+output            rxgoodlvlp;
+output            rxgoodlvln;
 
 output            rffe_ad9866_rst_n;
 `ifdef HALFDUPLEX
@@ -128,6 +138,7 @@ logic [6:0]       rx_gain_next;
 logic             icmd_ack; 
 logic [12:0]      icmd_data;
 
+
 initial begin
   // First bit is 1'b1 for write enable to that address
   initarray[0] = {1'b0,8'h80}; // Address 0x00, enable 4 wire SPI
@@ -171,17 +182,17 @@ assign rffe_ad9866_pga5 = 1'b0;
 
 // TX Path
 
-always @(posedge clk_ad9866) tx_en_d1 <= tx_en;
+always @(posedge clk) tx_en_d1 <= tx_en;
 
 `ifdef HALFDUPLEX
-always @(posedge clk_ad9866) tx_data_d1 <= tx_data;
+always @(posedge clk) tx_data_d1 <= tx_data;
 assign rffe_ad9866_tx = tx_en_d1 ? tx_data_d1[11:6] : 6'bZ;
 assign rffe_ad9866_rx = tx_en_d1 ? tx_data_d1[5:0]  : 6'bZ;
 assign rffe_ad9866_txsync = tx_en_d1;
-assign rffe_ad9866_txquiet_n = clk_ad9866;
+assign rffe_ad9866_txquiet_n = clk;
 
 `else
-always @(posedge clk_ad9866_2x) begin
+always @(posedge clk_2x) begin
   tx_sync <= ~tx_sync;
   if (tx_sync) begin 
     tx_data_d1 <= tx_en_d1 ? tx_data : 12'h0;
@@ -201,15 +212,15 @@ assign rffe_ad9866_txquiet_n = tx_en_d1;
 // RX Path
 
 `ifdef HALFDUPLEX
-always @(posedge clk_ad9866) rx_data_assemble <= {rffe_ad9866_tx,rffe_ad9866_rx};
+always @(posedge clk) rx_data_assemble <= {rffe_ad9866_tx,rffe_ad9866_rx};
 assign rffe_ad9866_rxsync = ~tx_en_d1;
-assign rffe_ad9866_rxclk = clk_ad9866;
+assign rffe_ad9866_rxclk = clk;
 assign rffe_ad9866_mode = 1'b0;
 
 `else
 // Assume that ad9866_rxclk is synchronous to ad9866clk
 // Don't know the phase relation
-always @(posedge clk_ad9866_2x) begin
+always @(posedge clk_2x) begin
   rffe_ad9866_rx_d1 <= rffe_ad9866_rx;
   rffe_ad9866_rx_d2 <= rffe_ad9866_rx_d1;
   rffe_ad9866_rxsync_d1 <= rffe_ad9866_rxsync;
@@ -218,11 +229,11 @@ end
 assign rffe_ad9866_mode = 1'b1;
 `endif
 
-always @ (posedge clk_ad9866) rx_data <= rx_data_assemble;
+always @ (posedge clk) rx_data <= rx_data_assemble;
 
 
 // Command Slave State Machine
-always @(posedge clk_ad9866) begin
+always @(posedge clk) begin
   if (~rst_n) begin
     cmd_state <= CMD_IDLE;
     tx_gain <= 4'h0;
@@ -300,7 +311,7 @@ assign cmd_ack = icmd_ack;
 assign sdo       = 1'b0;
 
 // Init program counter
-always @(posedge clk_ad9866) begin: AD9866_DUT1_FSM
+always @(posedge clk) begin: AD9866_DUT1_FSM
     if (~rst_n) begin
         dut1_pc <= 6'h00;
     end
@@ -336,7 +347,7 @@ end
 assign rffe_ad9866_sdio = dut2_data[15];
 
 // SPI state machine
-always @(posedge clk_ad9866) begin: AD9866_DUT2_FSM
+always @(posedge clk) begin: AD9866_DUT2_FSM
   if (~rst_n) begin
     rffe_ad9866_sen_n <= 1;
     rffe_ad9866_sclk <= 0;
@@ -378,6 +389,15 @@ always @(posedge clk_ad9866) begin: AD9866_DUT2_FSM
     endcase
   end
 end
+
+
+
+assign rxclipp = (rx_data == 12'b011111111111);
+assign rxclipn = (rx_data == 12'b100000000000);
+
+// Like above but 2**11.585 = (4096-1024) = 3072
+assign rxgoodlvlp = (rx_data[11:9] == 3'b011);
+assign rxgoodlvln = (rx_data[11:9] == 3'b100);
 
 endmodule // ad9866
 
