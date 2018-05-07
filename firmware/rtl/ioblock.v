@@ -12,7 +12,8 @@ module ioblock(
   input  [5:0]    cmd_addr,
   input  [31:0]   cmd_data,
   input           cmd_rqst,
-  output          cmd_ack,   
+  input           cmd_resprqst,
+  input           cmd_ack_ext,
 
   input           clock_2_5MHz,
   input           clk_i2c_rst,
@@ -24,9 +25,12 @@ module ioblock(
 
   input           cmd_ptt,
 
+  input           resp_rqst,
+  output [39:0]   resp,
+
   // External
   output          rffe_rfsw_sel,
-  
+
   // Power
   output          pwr_clk3p3,
   output          pwr_clk1p2,
@@ -101,19 +105,29 @@ module ioblock(
 `endif
 );
 
+parameter     HERMES_SERIALNO = 8'h0;
+
 
 logic         vna = 1'b0;                    // Selects vna mode when set.
 logic         pa_enable = 1'b0;
 logic         tr_disable = 1'b0;
 
-logic [11:0]  AIN1;
-logic [11:0]  AIN2;
-logic [11:0]  AIN3;
-logic [11:0]  AIN5;  // holds 12 bit ADC value of Forward Power detector.
+logic [11:0]  fwd_pwr;
+logic [11:0]  rev_pwr;
+logic [11:0]  bias_current;
+logic [11:0]  temperature;  
 
 logic         cmd_ack_i2c;
 logic         ptt;
 
+logic [39:0]  iresp = {8'h00, 8'b00011110, 8'h00, 8'h00, HERMES_SERIALNO};
+logic [ 1:0]  resp_addr = 2'b00;
+
+logic         cmd_resp_rqst = 1'b0;
+
+logic         cmd_ack;
+logic [ 5:0]  cmd_addr_resp;
+logic [31:0]  cmd_data_resp;
 
 always @(posedge clk) begin   
   if (cmd_rqst & (cmd_addr == 6'h09)) begin
@@ -152,10 +166,10 @@ i2c i2c_i (
 slow_adc slow_adc_i (
   .clk(clk),
   .rst(rst),
-  .ain0(AIN1),
-  .ain1(AIN5),
-  .ain2(AIN3),
-  .ain3(AIN2),
+  .ain0(fwd_pwr),
+  .ain1(temperature),
+  .ain2(bias_current),
+  .ain3(rev_pwr),
   .scl_i(scl3_i),
   .scl_o(scl3_o),
   .scl_t(scl3_t),
@@ -165,9 +179,6 @@ slow_adc slow_adc_i (
 );
 
 
-//---------------------------------------------------------
-//  Debounce CWKEY input - active low
-//---------------------------------------------------------
 
 // 5 ms debounce with 48 MHz clock
 debounce de_cwkey(.clean_pb(ext_cwkey), .pb(~io_phone_tip), .clk(clk));
@@ -215,27 +226,40 @@ assign pwr_clkvpa = 1'b0;
 
 assign clk_recovered = 1'b0;
 
-//wire vna_start = vna && cmd_rqst_io && (cmd_addr == 6'h01);  // indicates a frequency change for the vna.
-//wire OVERFLOW;
-//allow overflow message during tx to set pure signal feedback level
-//assign OVERFLOW = (~leds[0] | ~leds[3]) ;
 
-//assign cmd_ack = response_inp_tready & cmd_resprqst & (cmd_ack_i2c | cmd_ack_radio | cmd_ack_ad9866);
 
-//axis_fifo #(.ADDR_WIDTH(1), .DATA_WIDTH(38)) response_fifo (
-//  .clk(clk),
-//  .rst(rst),
-//  .input_axis_tdata({cmd_addr,cmd_data}),
-//  .input_axis_tvalid(cmd_ack),
-// .input_axis_tready(response_inp_tready),
-//  .input_axis_tlast(1'b0),
-//  .input_axis_tuser(1'b0),
+assign cmd_ack = cmd_resprqst & (cmd_ack_i2c | cmd_ack_ext);
 
-//  .output_axis_tdata(response_out_tdata),
-//  .output_axis_tvalid(response_out_tvalid),
-//  .output_axis_tready(response_out_tready),
-//  .output_axis_tlast(),
-//  .output_axis_tuser()
-//);
+always @(posedge clk) begin
+  if (cmd_ack) begin
+    cmd_resp_rqst <= 1'b1;
+    cmd_addr_resp <= cmd_addr;
+    cmd_data_resp <= cmd_data;
+  end else if (resp_rqst) begin
+    cmd_resp_rqst <= 1'b0;
+  end
+end
+
+// Resp request occurs relatively infrequently
+// Output register iresp is updated on resp_rqst
+// Output register iresp will be stable before required in any other clock domain
+always @(posedge clk) begin
+  if (resp_rqst) begin
+    resp_addr <= resp_addr + 2'b01; // Slot will be skipped if command response
+    if (cmd_resp_rqst) begin
+      // Command response
+      iresp <= {1'b1,cmd_addr_resp,ptt, cmd_data_resp}; // Queue size is 1
+    end else begin
+      case( resp_addr) 
+        2'b00: iresp <= {3'b000,resp_addr,2'b00,ptt, 7'b0001111,(~io_led_d4 | ~io_led_d5), 8'h00, 8'h00, HERMES_SERIALNO};
+        2'b01: iresp <= {3'b000,resp_addr,2'b00,ptt, 4'h0,temperature, 4'h0,fwd_pwr};
+        2'b10: iresp <= {3'b000,resp_addr,2'b00,ptt, 4'h0,rev_pwr, 4'h0,bias_current};
+        2'b11: iresp <= {3'b000,resp_addr,2'b00,ptt, 32'h0}; // Unused in HL
+      endcase 
+    end
+  end 
+end
+
+assign resp = iresp;
 
 endmodule // ioblock

@@ -153,7 +153,7 @@ logic           cmd_ptt;
 logic           cmd_resprqst;
 
 // Individual acknowledges
-logic           cmd_ack_i2c, cmd_ack_radio, cmd_ack_ad9866;
+logic           cmd_ack_radio, cmd_ack_ad9866;
 
 logic           ext_ptt, ext_cwkey, ext_txinhibit;
 logic           tx_en;
@@ -273,6 +273,9 @@ logic           cmd_rqst_io;
 
 logic           rxclipp;
 logic           rxclipn;
+
+logic [39:0]    resp;
+logic           resp_rqst, resp_rqst_sync;
 
 
 /////////////////////////////////////////////////////
@@ -457,7 +460,7 @@ dsopenhpsdr1 dsopenhpsdr1_i (
   .cmd_data(cmd_data),
   .cmd_cnt(cmd_cnt),
   .cmd_ptt(cmd_ptt),
-  .cmd_resprqst(cmd_resprqst),  
+  .cmd_resprqst(cmd_resprqst),
 
   .dseth_tdata(dseth_tdata),
   .dsethiq_tvalid(dsethiq_tvalid),
@@ -584,7 +587,10 @@ usopenhpsdr1 #(.NR(NR), .HERMES_SERIALNO(HERMES_SERIALNO)) usopenhpsdr1_i (
 
   .cmd_addr(cmd_addr),
   .cmd_data(cmd_data),
-  .cmd_rqst(cmd_rqst_usopenhpsdr1)
+  .cmd_rqst(cmd_rqst_usopenhpsdr1),
+
+  .resp(resp),
+  .resp_rqst(resp_rqst)
 );
 
 
@@ -786,8 +792,14 @@ sync_pulse sync_pulse_io (
   .sig_out(cmd_rqst_io)
 );
 
+sync_pulse sync_pulse_respio (
+  .clock(clk_ad9866),
+  .sig_in(resp_rqst),
+  .sig_out(resp_rqst_sync)
+);
 
-ioblock ioblock_i (
+
+ioblock #(.HERMES_SERIALNO(HERMES_SERIALNO)) ioblock_i (
   // Internal
   .clk(clk_ad9866),
   .rst(rst),
@@ -800,7 +812,8 @@ ioblock ioblock_i (
   .cmd_addr(cmd_addr),
   .cmd_data(cmd_data),
   .cmd_rqst(cmd_rqst_io),
-  .cmd_ack(),  
+  .cmd_resprqst(cmd_resprqst),
+  .cmd_ack_ext(cmd_ack_ad9866 | cmd_ack_radio),
 
   .clock_2_5MHz(clock_2_5MHz),
   .clk_i2c_rst(clk_i2c_rst),
@@ -811,6 +824,9 @@ ioblock ioblock_i (
   .ext_txinhibit(ext_txinhibit),
 
   .cmd_ptt(cmd_ptt),
+
+  .resp_rqst(resp_rqst_sync),
+  .resp(resp),  
 
   // External
   .rffe_rfsw_sel(rffe_rfsw_sel),

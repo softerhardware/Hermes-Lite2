@@ -28,7 +28,10 @@ module usopenhpsdr1 (
   // Command slave interface
   cmd_addr,
   cmd_data,
-  cmd_rqst
+  cmd_rqst,
+
+  resp,
+  resp_rqst
 );
 
 input               clk;
@@ -58,6 +61,9 @@ input [10:0]        us_tlength;
 input  [5:0]        cmd_addr;
 input  [31:0]       cmd_data;
 input               cmd_rqst;
+
+input  [39:0]       resp;
+output logic        resp_rqst = 1'b0;
 
 parameter           NR = 8'h0;
 parameter           HERMES_SERIALNO = 8'h0;
@@ -101,13 +107,10 @@ logic   [ 7:0]  udp_data = 'd0, udp_data_next;
 // Allow for at least 12 receivers in a round of sample data
 logic   [ 6:0]  round_bytes = 7'h00, round_bytes_next;
 
-logic   [31:0]  resp;
-logic    [4:0]  c0addr = 'd0;
-logic   dot,dash,ptt;
-logic   resp_sent;
-
 logic   [6:0]   bs_cnt = 7'h1, bs_cnt_next;
 logic   [6:0]   set_bs_cnt = 7'h1;
+
+logic           resp_rqst_next;
 
 // Command Slave State Machine
 always @(posedge clk) begin
@@ -132,6 +135,8 @@ always @ (posedge clk) begin
   bs_cnt <= bs_cnt_next;
 
   round_bytes <= round_bytes_next;
+
+  resp_rqst <= resp_rqst_next;
 
   if (~run) begin
     ep6_seq_no <= 32'h0;
@@ -164,10 +169,11 @@ always @* begin
 
   bs_cnt_next = bs_cnt;
 
+  resp_rqst_next = resp_rqst;
+
   // Combinational
   udp_tx_data = udp_data;
   udp_tx_request = 1'b0;
-  resp_sent = 1'b0;
   us_tready = 1'b0;
   bs_tready = 1'b0;
 
@@ -311,13 +317,13 @@ always @* begin
         9'h1ff: udp_data_next = 8'h7f;
         9'h1fe: udp_data_next = 8'h7f;
         9'h1fd: udp_data_next = 8'h7f;
-        9'h1fc: udp_data_next = {c0addr,dot,dash,ptt};
+        9'h1fc: udp_data_next = resp[39:32];
         9'h1fb: udp_data_next = resp[31:24];
         9'h1fa: udp_data_next = resp[23:16];
         9'h1f9: udp_data_next = resp[15:8];
         9'h1f8: begin 
           udp_data_next = resp[7:0];
-          resp_sent = 1'b1; 
+          resp_rqst_next = ~resp_rqst; 
           state_next = RXDATA2; 
         end 
         default: udp_data_next = 8'hxx; 
@@ -403,18 +409,6 @@ always @* begin
 
   endcase // state
 end // always @*
-
-always @ (posedge clk) begin
-  if (resp_sent) begin
-    if (&c0addr[1:0]) c0addr <= 'd0;
-    else c0addr <= c0addr + 1;
-  end
-end 
-
-assign resp = 'd0;
-assign ptt = 1'b0;
-assign dot = 1'b0;
-assign dash = 1'b0;
 
 
 endmodule
