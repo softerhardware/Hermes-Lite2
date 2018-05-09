@@ -2,7 +2,6 @@
 
 module i2c (
     input  logic         clk,
-    input  logic         clock_76p8_mhz,
     input  logic         rst,
     input  logic         init_start,
 
@@ -117,7 +116,7 @@ i2c_master i2c1_master_i (
 );
 
 i2c_bus2 i2c_bus2_i (
-  .clk(clock_76p8_mhz),
+  .clk(clk),
   .rst(rst),
 
   .cmd_addr(cmd_addr),

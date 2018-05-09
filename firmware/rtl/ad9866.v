@@ -126,9 +126,14 @@ logic   [8:0]     initarrayv;
 // Tool problems if below is logic
 reg     [8:0]     initarray [19:0];
 
+localparam 
+  CMD_IDLE    = 2'b00,
+  CMD_TXGAIN  = 2'b01,
+  CMD_RXGAIN  = 2'b11,
+  CMD_WRITE   = 2'b10;
 
 // Command slave
-logic [1:0]       cmd_state = 1'b0;
+logic [1:0]       cmd_state = CMD_IDLE;
 logic [1:0]       cmd_state_next;
 logic [3:0]       tx_gain = 4'h0;
 logic [3:0]       tx_gain_next;
@@ -136,7 +141,7 @@ logic [6:0]       rx_gain = 7'b1000000;
 logic [6:0]       rx_gain_next;
 
 logic             icmd_ack; 
-logic [12:0]      icmd_data;
+logic [12:0]      icmd_data = 12'h000;
 
 
 initial begin
@@ -162,13 +167,6 @@ initial begin
   initarray[18] = {1'b1,8'h00}; // Address 0x12,
   initarray[19] = {1'b0,8'h00}; // Address 0x13,
 end
-
-localparam 
-  CMD_IDLE    = 2'b00,
-  CMD_TXGAIN  = 2'b01,
-  CMD_RXGAIN  = 2'b11,
-  CMD_WRITE   = 2'b10;
-
 
 assign rffe_ad9866_rst_n = rst_n;
 
@@ -234,15 +232,9 @@ always @ (posedge clk) rx_data <= rx_data_assemble;
 
 // Command Slave State Machine
 always @(posedge clk) begin
-  if (~rst_n) begin
-    cmd_state <= CMD_IDLE;
-    tx_gain <= 4'h0;
-    rx_gain <= 7'b1000000;
-  end else begin
-    cmd_state <= cmd_state_next;
-    tx_gain <= tx_gain_next;
-    rx_gain <= rx_gain_next;
-  end
+  cmd_state <= cmd_state_next;
+  tx_gain <= tx_gain_next;
+  rx_gain <= rx_gain_next;
 end
 
 always @* begin

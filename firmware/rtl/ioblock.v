@@ -16,7 +16,6 @@ module ioblock(
   input           cmd_ack_ext,
   input           cmd_ptt,
 
-  input           clock_2_5MHz,
   input           clk_i2c_rst,
   input           clk_i2c_start,
 
@@ -145,8 +144,7 @@ end
 
 
 i2c i2c_i (
-  .clk(clock_2_5MHz),
-  .clock_76p8_mhz(clk),
+  .clk(clk),
   .rst(clk_i2c_rst),
   .init_start(clk_i2c_start),
 
@@ -186,25 +184,21 @@ slow_adc slow_adc_i (
 
 
 
-// 5 ms debounce with 48 MHz clock
+// 6.5 ms debounce with 2.5MHz clock 
 debounce de_cwkey(.clean_pb(ext_cwkey), .pb(~io_phone_tip), .clk(clk));
 assign io_db1_5 = ext_cwkey;
 
-// 5 ms debounce with 48 MHz clock, different clock frequency
 debounce de_ptt(.clean_pb(ext_ptt), .pb(~io_phone_ring), .clk(clk));
-
 debounce de_txinhibit(.clean_pb(ext_txinhibit), .pb(~io_cn8), .clk(clk));
 
 
 assign ptt = (int_ptt | ext_cwkey | ext_ptt) & ~ext_txinhibit;
 
-// Really 0.16 seconds at Hermes-Lite 61.44 MHz clock
-localparam half_second = 24'd10000000; // at 48MHz clock rate
-
-Led_flash Flash_LED0(.clock(clk), .signal(rxclipp),  .LED(io_led_d4), .period(half_second));
-Led_flash Flash_LED1(.clock(clk), .signal(rxclipn),  .LED(io_led_d5), .period(half_second));
-Led_flash Flash_LED2(.clock(clk), .signal(this_MAC), .LED(io_led_d2), .period(half_second));
-Led_flash Flash_LED3(.clock(clk), .signal(run),      .LED(io_led_d3), .period(half_second));
+// .2 seconds with 2.5MHz clock
+Led_flash Flash_LED0(.clock(clk), .signal(rxclipp),  .LED(io_led_d4));
+Led_flash Flash_LED1(.clock(clk), .signal(rxclipn),  .LED(io_led_d5));
+Led_flash Flash_LED2(.clock(clk), .signal(this_MAC), .LED(io_led_d2));
+Led_flash Flash_LED3(.clock(clk), .signal(run),      .LED(io_led_d3));
 
 
 // FIXME: Sequence power

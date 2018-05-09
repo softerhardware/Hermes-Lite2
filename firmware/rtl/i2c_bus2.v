@@ -249,7 +249,7 @@ i2c_master i2c_master_i (
   .missed_ack(missed_ack),
 
   // Configuration
-  .prescale(16'h0030),
+  .prescale(16'h0002),
   .stop_on_idle(1'b1)
 );
 

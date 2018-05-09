@@ -20,7 +20,6 @@
 // This RTL originated from www.openhpsdr.org and has been modified to support
 // the Hermes-Lite hardware described at http://github.com/softerhardware/Hermes-Lite2.
 
-
 module hermeslite(
 
   // Power
@@ -521,7 +520,7 @@ sync_pulse sync_pulse_usopenhpsdr1 (
 
 usopenhpsdr1 #(.NR(NR), .HERMES_SERIALNO(HERMES_SERIALNO)) usopenhpsdr1_i (
   .clk(clock_ethtxint),
-  .rst(network_state),
+  .have_ip(~network_state), // network_state is on sync 2.5 MHz domain
   .run(run_sync),
   .wide_spectrum(wide_spectrum_sync),
   .idhermeslite(io_cn9),
@@ -700,7 +699,7 @@ radio_i
 ///////////////////////////////////////////////
 // IO clock domain
 
-assign clk_io = clk_ad9866;
+assign clk_io = clock_2_5MHz;
 
 sync_pulse syncio_cmd_rqst (
   .clock(clk_io),
@@ -708,7 +707,8 @@ sync_pulse syncio_cmd_rqst (
   .sig_out(cmd_rqst_io)
 );
 
-sync_pulse syncio_rqst_io (
+// Clocks are really synchronous so save time
+sync_pulse #(.DEPTH(2)) syncio_rqst_io (
   .clock(clk_io),
   .sig_in(resp_rqst),
   .sig_out(resp_rqst_iosync)
@@ -748,7 +748,7 @@ sync syncio_cmd_ack_all_ad9866 (
 
 ioblock #(.HERMES_SERIALNO(HERMES_SERIALNO)) ioblock_i (
   // Internal
-  .clk(clk_ad9866),
+  .clk(clk_io),
   .rst(rst),
 
   .rxclipp(rxclipp_iosync),
@@ -763,7 +763,6 @@ ioblock #(.HERMES_SERIALNO(HERMES_SERIALNO)) ioblock_i (
   .cmd_requires_resp(cmd_requires_resp),
   .cmd_ack_ext(cmd_ack_all_ad9866),
 
-  .clock_2_5MHz(clock_2_5MHz),
   .clk_i2c_rst(clk_i2c_rst),
   .clk_i2c_start(clk_i2c_start),
 
