@@ -179,6 +179,7 @@ set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
 set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
 
 set_global_assignment -name VERILOG_FILE rtl/hermeslite.v
+set_global_assignment -name VERILOG_FILE rtl/fifos.v
 set_global_assignment -name VERILOG_FILE rtl/ad9866.v
 set_global_assignment -name VERILOG_FILE rtl/ad9866pll.v
 set_global_assignment -name VERILOG_FILE rtl/ethpll.v

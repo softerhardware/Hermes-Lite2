@@ -150,36 +150,39 @@ logic   [31:0]  cmd_data;
 logic           cmd_ack;
 logic           cmd_cnt;
 logic           cmd_ptt;
-logic           cmd_resprqst;
+logic           cmd_requires_resp;
+logic           cmd_ack_all_ad9866;
 
 // Individual acknowledges
 logic           cmd_ack_radio, cmd_ack_ad9866;
 
-logic           ext_ptt, ext_cwkey, ext_txinhibit;
+logic           ext_ptt, ext_ptt_ad9866sync;
+logic           ext_cwkey, ext_cwkey_ad9866sync;
+logic           ext_txinhibit, ext_txinhibit_ad9866sync;
+
 logic           tx_en;
 
 logic   [7:0]   dseth_tdata;
 
-logic   [31:0]  dsiq_rdata;
-logic           dsiq_rreq;    // controls reading of fifo
-logic           dsiq_rempty;
+logic   [31:0]  dsiq_tdata;
+logic           dsiq_tready;    // controls reading of fifo
+logic           dsiq_tvalid;
 logic           dsethiq_tvalid;
 
-logic   [31:0]  dslr_rdata;
-logic           dslr_rreq;    // controls reading of fifo
-logic           dslr_rempty;
+logic   [31:0]  dslr_tdata;
+logic           dslr_tready;    // controls reading of fifo
+logic           dslr_tvalid;
 logic           dsethlr_tvalid;
 
 logic  [23:0]   rx_tdata;
 logic           rx_tlast;
-logic           rx_treadyn;
+logic           rx_tready;
 logic           rx_tvalid;
 
-logic  [24:0]   usiq_q;
 logic  [23:0]   usiq_tdata;
 logic           usiq_tlast;
 logic           usiq_tready;
-logic           usiq_tvalidn;
+logic           usiq_tvalid;
 logic  [10:0]   usiq_tlength;
 
 logic           response_inp_tready;
@@ -187,11 +190,7 @@ logic   [37:0]  response_out_tdata;
 logic           response_out_tvalid;
 logic           response_out_tready;
 
-logic           bs_ad9866_full, bs_ad9866_empty;
-logic           bs_ad9866_push = 1'b0;
-
-logic           bs_full, bs_empty;
-logic           bs_tvalid = 1'b0;
+logic           bs_tvalid;
 logic           bs_tready;
 logic [11:0]    bs_tdata;
 
@@ -222,12 +221,14 @@ logic           clk_i2c_start;
 
 logic [15:0]    resetcounter = 16'h0000;
 logic           ad9866_rst_n = 1'b0;
+//logic           ad9866_rst_ad9866sync;
 
-logic           run, run_sync;
+logic           run, run_sync, run_iosync;
 logic           wide_spectrum, wide_spectrum_sync;
 logic           discovery_reply, discovery_reply_sync;
 
 logic [ 7:0]    network_status;
+logic           thismac_iosync;
 logic           dst_unreachable;
 
 logic           udp_tx_request;
@@ -270,12 +271,13 @@ logic           scl3_o;
 logic           scl3_t;
 
 logic           cmd_rqst_io;
+logic           clk_io;
 
-logic           rxclipp;
-logic           rxclipn;
+logic           rxclipp, rxclipp_iosync;
+logic           rxclipn, rxclipn_iosync;
 
 logic [39:0]    resp;
-logic           resp_rqst, resp_rqst_sync;
+logic           resp_rqst, resp_rqst_iosync;
 
 
 /////////////////////////////////////////////////////
@@ -460,92 +462,48 @@ dsopenhpsdr1 dsopenhpsdr1_i (
   .cmd_data(cmd_data),
   .cmd_cnt(cmd_cnt),
   .cmd_ptt(cmd_ptt),
-  .cmd_resprqst(cmd_resprqst),
+  .cmd_resprqst(cmd_requires_resp),
 
   .dseth_tdata(dseth_tdata),
   .dsethiq_tvalid(dsethiq_tvalid),
   .dsethlr_tvalid(dsethlr_tvalid)
 );
 
-dcfifo_mixed_widths #(
-  .intended_device_family("Cyclone IV E"),
-  .lpm_numwords(8192), 
-  .lpm_showahead ("ON"),
-  .lpm_type("dcfifo_mixed_widths"),
-  .lpm_width(8),
-  .lpm_widthu(13),
-  .lpm_widthu_r(11),
-  .lpm_width_r(32),
-  .overflow_checking("ON"),
-  .rdsync_delaypipe(4),
-  .underflow_checking("ON"),
-  .use_eab("ON"),
-  .wrsync_delaypipe(4)
-) dsiq_fifo_i (
-  .wrclk (clock_ethrxint),
-  .wrreq (dsethiq_tvalid),  
-  .wrfull (),
-  .wrempty (),
-  .wrusedw (),
-  .data (dseth_tdata),
+dsiq_fifo dsiq_fifo_i (
+  .wr_clk(clock_ethrxint),
+  .wr_tdata(dseth_tdata),
+  .wr_tvalid(dsethiq_tvalid),
+  .wr_tready(),
 
-  .rdclk (clk_ad9866),
-  .rdreq (dsiq_rreq),
-  .rdfull (),
-  .rdempty (dsiq_rempty),
-  .rdusedw (),
-  .q (dsiq_rdata),
-
-  .aclr (1'b0),
-  .eccstatus ()
-);
+  .rd_clk(clk_ad9866),
+  .rd_tdata(dsiq_tdata),
+  .rd_tvalid(dsiq_tvalid),
+  .rd_tready(dsiq_tready)
+  );
 
 
 generate 
 
 if(PREDISTORT==1) begin: PD2
 
-  dcfifo_mixed_widths #(
-    .intended_device_family("Cyclone IV E"),
-    .lpm_numwords(8192), 
-    .lpm_showahead ("ON"),
-    .lpm_type("dcfifo_mixed_widths"),
-    .lpm_width(8),
-    .lpm_widthu(13),
-    .lpm_widthu_r(11),
-    .lpm_width_r(32),
-    .overflow_checking("ON"),
-    .rdsync_delaypipe(4),
-    .underflow_checking("ON"),
-    .use_eab("ON"),
-    .wrsync_delaypipe(4)
-  ) dslr_fifo_i (
-    .wrclk (clock_ethrxint),
-    .wrreq (dsethlr_tvalid),  
-    .wrfull (),
-    .wrempty (),
-    .wrusedw (),
-    // Use iq here to save wires
-    .data (dseth_tdata),
-  
-    .rdclk (clk_ad9866),
-    .rdreq (dslr_rreq),
-    .rdfull (),
-    .rdempty (dslr_rempty),
-    .rdusedw (),
-    .q (dslr_rdata),
-  
-    .aclr (1'b0),
-    .eccstatus ()
+dslr_fifo dslr_fifo_i (
+  .wr_clk(clock_ethrxint),
+  .wr_tdata(dseth_tdata),
+  .wr_tvalid(dsethlr_tvalid),
+  .wr_tready(),
+
+  .rd_clk(clk_ad9866),
+  .rd_tdata(dslr_tdata),
+  .rd_tvalid(dslr_tvalid),
+  .rd_tready(dslr_tready)
   );
 
 end else begin
-  assign dslr_rempty = 1'b1;
-  assign dslr_rdata = 32'h0;
+  assign dslr_tvalid = 1'b0;
+  assign dslr_tdata = 32'h0;
 
 end
 endgenerate
-
 
 
 ///////////////////////////////////////////////
@@ -582,7 +540,7 @@ usopenhpsdr1 #(.NR(NR), .HERMES_SERIALNO(HERMES_SERIALNO)) usopenhpsdr1_i (
   .us_tdata(usiq_tdata),
   .us_tlast(usiq_tlast),
   .us_tready(usiq_tready),
-  .us_tvalid(~usiq_tvalidn),
+  .us_tvalid(usiq_tvalid),
   .us_tlength(usiq_tlength),
 
   .cmd_addr(cmd_addr),
@@ -593,104 +551,60 @@ usopenhpsdr1 #(.NR(NR), .HERMES_SERIALNO(HERMES_SERIALNO)) usopenhpsdr1_i (
   .resp_rqst(resp_rqst)
 );
 
+usiq_fifo usiq_fifo_i (
+  .wr_clk(clk_ad9866),
+  .wr_tdata(rx_tdata),
+  .wr_tvalid(rx_tvalid),
+  .wr_tready(rx_tready),
+  .wr_tlast(rx_tlast),
 
-dcfifo #(
-  .add_usedw_msb_bit("ON"),
-  .intended_device_family("Cyclone IV E"),
-  .lpm_numwords(1024), 
-  .lpm_showahead ("ON"),
-  .lpm_type("dcfifo"),
-  .lpm_width(25),
-  .lpm_widthu(11), 
-  .overflow_checking("ON"),
-  .rdsync_delaypipe(4),
-  .underflow_checking("ON"),
-  .use_eab("ON"),
-  .wrsync_delaypipe(4)
-) usiq_fifo_i (
-  .wrclk (clk_ad9866),
-  .wrreq (rx_tvalid),
-  .wrfull (rx_treadyn),
-  .wrempty (),
-  .wrusedw (),
-  .data ({rx_tlast,rx_tdata}),
-
-  .rdclk (clock_ethtxint),
-  .rdreq (usiq_tready),
-  .rdfull (),
-  .rdempty (usiq_tvalidn),
-  .rdusedw (usiq_tlength),
-  .q (usiq_q),
-
-  .aclr (1'b0),
-  .eccstatus ()  
-);
-
-assign usiq_tlast = usiq_q[24];
-assign usiq_tdata = usiq_q[23:0];
-
-
-// BS AD9866 State
-always @ (posedge clk_ad9866) begin
-  if (bs_ad9866_empty) begin
-    bs_ad9866_push <= 1'b1;
-  end else if (bs_ad9866_full) begin
-    bs_ad9866_push <= 1'b0;
-  end 
-end 
-
-dcfifo #(
-  .intended_device_family("Cyclone IV E"),
-  .lpm_numwords(2048), 
-  .lpm_showahead ("ON"),
-  .lpm_type("dcfifo"),
-  .lpm_width(12),
-  .lpm_widthu(11), 
-  .overflow_checking("ON"),
-  .rdsync_delaypipe(4),
-  .underflow_checking("ON"),
-  .use_eab("ON"),
-  .wrsync_delaypipe(4)
-) bandscope_fifo_i (
-  .wrclk (clk_ad9866),
-  .wrreq (bs_ad9866_push & ~bs_ad9866_full),
-  .wrfull (bs_ad9866_full),
-  .wrempty (bs_ad9866_empty),
-  .wrusedw (),
-  .data (rx_data),
-
-  .rdclk (clock_ethtxint),
-  .rdreq (bs_tready),
-  .rdfull (bs_full),
-  .rdempty (bs_empty),
-  .rdusedw (),
-  .q (bs_tdata),
-
-  .aclr (1'b0),
-  .eccstatus ()  
+  .rd_clk(clock_ethtxint),
+  .rd_tdata(usiq_tdata),
+  .rd_tvalid(usiq_tvalid),
+  .rd_tready(usiq_tready),
+  .rd_tlast(usiq_tlast),
+  .rd_tlength(usiq_tlength)
 );
 
 
-// BS State
-always @ (posedge clock_ethtxint) begin
-  if (bs_full) begin
-    bs_tvalid <= 1'b1;
-  end else if (bs_empty) begin
-    bs_tvalid <= 1'b0;
-  end 
-end 
+usbs_fifo usbs_fifo_i (
+  .wr_clk(clk_ad9866),
+  .wr_tdata(rx_data),
+  .wr_tvalid(1'b1),
+  .wr_tready(),
 
+  .rd_clk(clock_ethtxint),
+  .rd_tdata(bs_tdata),
+  .rd_tvalid(bs_tvalid),
+  .rd_tready(bs_tready)
+);
 
 
 ///////////////////////////////////////////////
 // AD9866 clock domain
 
-
-
 sync_pulse sync_pulse_ad9866 (
   .clock(clk_ad9866),
   .sig_in(cmd_cnt),
   .sig_out(cmd_rqst_ad9866)
+);
+
+sync sync_ad9866_ext_ptt (
+  .clock(clk_ad9866),
+  .sig_in(ext_ptt),
+  .sig_out(ext_ptt_ad9866sync)
+);
+
+sync sync_ad9866_ext_cwkey (
+  .clock(clk_ad9866),
+  .sig_in(ext_cwkey),
+  .sig_out(ext_cwkey_ad9866sync)
+);
+
+sync sync_ad9866_ext_txinhibit (
+  .clock(clk_ad9866),
+  .sig_in(ext_txinhibit),
+  .sig_out(ext_txinhibit_ad9866sync)
 );
 
 ad9866 ad9866_i (
@@ -746,39 +660,39 @@ radio_i
   .ext_ptt(ext_ptt),
   .ext_cwkey(ext_cwkey),
   .ext_txinhibit(ext_txinhibit),
-  .cmd_ptt(cmd_ptt),
 
   .tx_en(tx_en),
 
   // Transmit
-  .tx_tdata({dsiq_rdata[7:0],dsiq_rdata[15:8],dsiq_rdata[23:16],dsiq_rdata[31:24]}),
+  .tx_tdata({dsiq_tdata[7:0],dsiq_tdata[15:8],dsiq_tdata[23:16],dsiq_tdata[31:24]}),
   .tx_tid(3'h0),
   .tx_tlast(1'b1),
-  .tx_tready(dsiq_rreq),
-  .tx_tvalid(~dsiq_rempty),
+  .tx_tready(dsiq_tready),
+  .tx_tvalid(dsiq_tvalid),
 
   .tx_data_dac(tx_data),
 
   // Optional Audio Stream
-  .lr_tdata({dslr_rdata[7:0],dslr_rdata[15:8],dslr_rdata[23:16],dslr_rdata[31:24]}),
+  .lr_tdata({dslr_tdata[7:0],dslr_tdata[15:8],dslr_tdata[23:16],dslr_tdata[31:24]}),
   .lr_tid(3'h0),
   .lr_tlast(1'b1),
-  .lr_tready(dslr_rreq),
-  .lr_tvalid(~dslr_rempty),
+  .lr_tready(dslr_tready),
+  .lr_tvalid(dslr_tvalid),
 
   // Receive
   .rx_data_adc(rx_data),
 
   .rx_tdata(rx_tdata),
   .rx_tlast(rx_tlast),
-  .rx_tready(~rx_treadyn),
+  .rx_tready(rx_tready),
   .rx_tvalid(rx_tvalid),
 
   // Command Slave
   .cmd_addr(cmd_addr),
   .cmd_data(cmd_data),
   .cmd_rqst(cmd_rqst_ad9866),
-  .cmd_ack(cmd_ack_radio)
+  .cmd_ack(cmd_ack_radio),
+  .cmd_ptt(cmd_ptt)
 );
 
 
@@ -786,17 +700,50 @@ radio_i
 ///////////////////////////////////////////////
 // IO clock domain
 
-sync_pulse sync_pulse_io (
-  .clock(clk_ad9866),
+assign clk_io = clk_ad9866;
+
+sync_pulse syncio_cmd_rqst (
+  .clock(clk_io),
   .sig_in(cmd_cnt),
   .sig_out(cmd_rqst_io)
 );
 
-sync_pulse sync_pulse_respio (
-  .clock(clk_ad9866),
+sync_pulse syncio_rqst_io (
+  .clock(clk_io),
   .sig_in(resp_rqst),
-  .sig_out(resp_rqst_sync)
+  .sig_out(resp_rqst_iosync)
 );
+
+sync syncio_rxclipp (
+  .clock(clk_io),
+  .sig_in(rxclipp),
+  .sig_out(rxclipp_iosync)
+);
+
+sync syncio_rxclipn (
+  .clock(clk_io),
+  .sig_in(rxclipn),
+  .sig_out(rxclipn_iosync)
+);
+
+sync syncio_thismac (
+  .clock(clk_io),
+  .sig_in(network_status[0]),
+  .sig_out(thismac_iosync)
+);
+
+sync syncio_run (
+  .clock(clk_io),
+  .sig_in(run),
+  .sig_out(run_iosync)
+);
+
+sync syncio_cmd_ack_all_ad9866 (
+  .clock(clk_io),
+  // Better if direct out of flop
+  .sig_in(cmd_ack_ad9866 | cmd_ack_radio),
+  .sig_out(cmd_ack_all_ad9866)
+);  
 
 
 ioblock #(.HERMES_SERIALNO(HERMES_SERIALNO)) ioblock_i (
@@ -804,16 +751,17 @@ ioblock #(.HERMES_SERIALNO(HERMES_SERIALNO)) ioblock_i (
   .clk(clk_ad9866),
   .rst(rst),
 
-  .rxclipp(rxclipp),
-  .rxclipn(rxclipn),
-  .this_MAC(network_status[0]),
-  .run_sync(run_sync),
+  .rxclipp(rxclipp_iosync),
+  .rxclipn(rxclipn_iosync),
+  .this_MAC(thismac_iosync),
+  .run(run_iosync),
 
   .cmd_addr(cmd_addr),
   .cmd_data(cmd_data),
   .cmd_rqst(cmd_rqst_io),
-  .cmd_resprqst(cmd_resprqst),
-  .cmd_ack_ext(cmd_ack_ad9866 | cmd_ack_radio),
+  .cmd_ptt(cmd_ptt),
+  .cmd_requires_resp(cmd_requires_resp),
+  .cmd_ack_ext(cmd_ack_all_ad9866),
 
   .clock_2_5MHz(clock_2_5MHz),
   .clk_i2c_rst(clk_i2c_rst),
@@ -823,9 +771,7 @@ ioblock #(.HERMES_SERIALNO(HERMES_SERIALNO)) ioblock_i (
   .ext_cwkey(ext_cwkey),
   .ext_txinhibit(ext_txinhibit),
 
-  .cmd_ptt(cmd_ptt),
-
-  .resp_rqst(resp_rqst_sync),
+  .resp_rqst(resp_rqst_iosync),
   .resp(resp),  
 
   // External
