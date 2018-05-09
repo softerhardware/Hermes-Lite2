@@ -7,13 +7,14 @@ module ioblock(
   input           rxclipp,
   input           rxclipn,
   input           this_MAC,
-  input           run_sync,
+  input           run,
 
   input  [5:0]    cmd_addr,
   input  [31:0]   cmd_data,
   input           cmd_rqst,
-  input           cmd_resprqst,
+  input           cmd_requires_resp,
   input           cmd_ack_ext,
+  input           cmd_ptt,
 
   input           clock_2_5MHz,
   input           clk_i2c_rst,
@@ -22,8 +23,6 @@ module ioblock(
   output          ext_ptt,
   output          ext_cwkey,
   output          ext_txinhibit,
-
-  input           cmd_ptt,
 
   input           resp_rqst,
   output [39:0]   resp,
@@ -129,11 +128,18 @@ logic         cmd_ack;
 logic [ 5:0]  cmd_addr_resp;
 logic [31:0]  cmd_data_resp;
 
-always @(posedge clk) begin   
-  if (cmd_rqst & (cmd_addr == 6'h09)) begin
-    vna             <= cmd_data[23];      // 1 = enable vna mode
-    pa_enable    <= cmd_data[19];
-    tr_disable   <= cmd_data[18];
+logic         int_ptt = 1'b0;
+logic         int_requires_resp = 1'b0;
+
+always @(posedge clk) begin
+  if (cmd_rqst) begin
+    int_ptt <= cmd_ptt;
+    int_requires_resp <= cmd_requires_resp;   
+    if (cmd_addr == 6'h09) begin
+      vna          <= cmd_data[23];      // 1 = enable vna mode
+      pa_enable    <= cmd_data[19];
+      tr_disable   <= cmd_data[18];
+    end
   end
 end
 
@@ -190,15 +196,15 @@ debounce de_ptt(.clean_pb(ext_ptt), .pb(~io_phone_ring), .clk(clk));
 debounce de_txinhibit(.clean_pb(ext_txinhibit), .pb(~io_cn8), .clk(clk));
 
 
-assign ptt = (cmd_ptt | ext_cwkey | ext_ptt) & ~ext_txinhibit;
+assign ptt = (int_ptt | ext_cwkey | ext_ptt) & ~ext_txinhibit;
 
 // Really 0.16 seconds at Hermes-Lite 61.44 MHz clock
 localparam half_second = 24'd10000000; // at 48MHz clock rate
 
-Led_flash Flash_LED0(.clock(clk), .signal(rxclipp), .LED(io_led_d4), .period(half_second));
-Led_flash Flash_LED1(.clock(clk), .signal(rxclipn), .LED(io_led_d5), .period(half_second));
+Led_flash Flash_LED0(.clock(clk), .signal(rxclipp),  .LED(io_led_d4), .period(half_second));
+Led_flash Flash_LED1(.clock(clk), .signal(rxclipn),  .LED(io_led_d5), .period(half_second));
 Led_flash Flash_LED2(.clock(clk), .signal(this_MAC), .LED(io_led_d2), .period(half_second));
-Led_flash Flash_LED3(.clock(clk), .signal(run_sync), .LED(io_led_d3), .period(half_second));
+Led_flash Flash_LED3(.clock(clk), .signal(run),      .LED(io_led_d3), .period(half_second));
 
 
 // FIXME: Sequence power
@@ -228,7 +234,7 @@ assign clk_recovered = 1'b0;
 
 
 
-assign cmd_ack = cmd_resprqst & (cmd_ack_i2c | cmd_ack_ext);
+assign cmd_ack = int_requires_resp & (cmd_ack_i2c | cmd_ack_ext);
 
 always @(posedge clk) begin
   if (cmd_ack) begin

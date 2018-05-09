@@ -5,7 +5,6 @@ module radio (
   ext_cwkey,
   ext_ptt,
   ext_txinhibit,
-  cmd_ptt,
 
   tx_en,
 
@@ -37,7 +36,8 @@ module radio (
   cmd_addr,
   cmd_data,
   cmd_rqst,
-  cmd_ack
+  cmd_ack,
+  cmd_ptt
 );
 
 parameter         NR = 3;
@@ -71,7 +71,6 @@ input             clk;
 input             ext_ptt;
 input             ext_cwkey;
 input             ext_txinhibit;
-input             cmd_ptt;
 
 output            tx_en;
 
@@ -101,7 +100,9 @@ output            rx_tvalid;
 input   [5:0]     cmd_addr;
 input   [31:0]    cmd_data;
 input             cmd_rqst;
-output            cmd_ack;   
+output            cmd_ack;
+input             cmd_ptt;
+
 
 
 logic [ 1:0]        tx_predistort = 2'b00;
@@ -163,6 +164,7 @@ logic [17:0]        tx_cw_level;
 logic [1:0]         cwstate;
 
 logic               ptt;
+logic               int_ptt = 1'b0;
 
 // 2 ms rise and fall, not shaped, but like HiQSDR
 // MAX CWLEVEL is picked to be 8*max cordic level for transmit
@@ -198,6 +200,7 @@ always @(posedge clk) begin
   tx_predistort <= tx_predistort_next;
   last_chan <= last_chan_next;
   duplex <= duplex_next;
+  if (cmd_rqst) int_ptt <= cmd_ptt;
 end
 
 always @* begin
@@ -271,6 +274,8 @@ end
 // Frequency computation
 // Always compute frequency
 // This really should be done on the PC and not in the FPGA....
+// This is not guarded by CDC handshake, but use of freqcomp
+// is guarded by CDC handshake
 assign freqcomp = cmd_data * M2 + M3;
 
 // Pipeline freqcomp
@@ -682,7 +687,7 @@ end
 
 assign tx_cw_key = cwstate != cwrx;
 
-assign ptt = (ext_ptt | cmd_ptt | ext_cwkey) & ~ext_txinhibit;
+assign ptt = (ext_ptt | int_ptt | ext_cwkey) & ~ext_txinhibit;
 
 assign tx_en = (ptt | vna) & ~ext_txinhibit;
 
