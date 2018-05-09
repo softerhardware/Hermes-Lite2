@@ -3,7 +3,7 @@
 
 module usopenhpsdr1 (
   clk,
-  rst,
+  have_ip,
   run,
   wide_spectrum,
   idhermeslite,
@@ -35,7 +35,7 @@ module usopenhpsdr1 (
 );
 
 input               clk;
-input               rst;
+input               have_ip;
 input               run;
 input               wide_spectrum;
 input               idhermeslite;
@@ -184,7 +184,7 @@ always @* begin
         udp_tx_length_next = 'h3c;
         state_next = DISCOVER1;
 
-      end else if ((us_tlength > 11'd333) & us_tvalid & ~rst & run) begin // wait until there is enough data in fifo
+      end else if ((us_tlength > 11'd333) & us_tvalid & have_ip & run) begin // wait until there is enough data in fifo
         udp_tx_length_next = 'd1032;
         state_next = UDP1;
       

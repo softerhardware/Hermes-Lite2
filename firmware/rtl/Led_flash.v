@@ -30,14 +30,13 @@
 //  for 'period' seconds when it goes low
 
 
-module Led_flash (clock, signal, LED, period);
+module Led_flash (clock, signal, LED);
 
 input clock;
 input signal;
 output LED;
-input [23:0]period;
 
-reg [23:0]counter;
+reg [18:0]counter;
 reg LED;
 
 always @ (posedge clock)
@@ -47,7 +46,7 @@ begin
 		LED <= 1'b0; 			// turn LED on whilst signal is high
 		end
 	else begin
-	if (counter == period) begin
+	if (&counter) begin
 		LED <= 1'b1; 			// turn LED off when signal low after time period
 		end
 	else counter <= counter + 1'b1;
