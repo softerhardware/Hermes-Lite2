@@ -2,11 +2,8 @@ module radio (
 
   clk,
 
-  ext_cwkey,
-  ext_ptt,
-  ext_txinhibit,
-
-  tx_en,
+  cw_keydown,
+  tx_on,
 
   // Transmit
   tx_tdata,
@@ -36,8 +33,7 @@ module radio (
   cmd_addr,
   cmd_data,
   cmd_rqst,
-  cmd_ack,
-  cmd_ptt
+  cmd_ack
 );
 
 parameter         NR = 3;
@@ -68,11 +64,8 @@ localparam RATE384 =  RATE192 >> 1;
 
 input             clk;
 
-input             ext_ptt;
-input             ext_cwkey;
-input             ext_txinhibit;
-
-output            tx_en;
+input             cw_keydown;
+input             tx_on;
 
 input   [31:0]    tx_tdata;
 input   [ 2:0]    tx_tid;
@@ -101,8 +94,6 @@ input   [5:0]     cmd_addr;
 input   [31:0]    cmd_data;
 input             cmd_rqst;
 output            cmd_ack;
-input             cmd_ptt;
-
 
 
 logic [ 1:0]        tx_predistort = 2'b00;
@@ -163,14 +154,11 @@ logic [17:0]        tx_cw_level;
 
 logic [1:0]         cwstate;
 
-logic               ptt;
-logic               int_ptt = 1'b0;
-
 // 2 ms rise and fall, not shaped, but like HiQSDR
 // MAX CWLEVEL is picked to be 8*max cordic level for transmit
 // ADJUST if cordic max changes...
 localparam          MAX_CWLEVEL = 18'h26c00; //(16'h4d80 << 3);
-localparam          cwrx = 2'b00, cwkeydown = 2'b01, cwkeyup = 2'b11;
+localparam          cwrx = 2'b00, cw_keydowndown = 2'b01, cw_keydownup = 2'b11;
 
 
 localparam 
@@ -200,7 +188,6 @@ always @(posedge clk) begin
   tx_predistort <= tx_predistort_next;
   last_chan <= last_chan_next;
   duplex <= duplex_next;
-  if (cmd_rqst) int_ptt <= cmd_ptt;
 end
 
 always @* begin
@@ -362,7 +349,7 @@ generate
           .rate(rate),
           .frequency(rx_phase[c]),
           .out_strobe(rx_data_rdy[c]),
-          .in_data((ptt & pure_signal) ? tx_data_dac : adcpipe[c/8]), //tx_data was pipelined here once
+          .in_data((tx_on & pure_signal) ? tx_data_dac : adcpipe[c/8]), //tx_data was pipelined here once
           .out_data_I(rx_data_i[c]),
           .out_data_Q(rx_data_q[c])
         );
@@ -665,20 +652,20 @@ always @(posedge clk) begin
   case (cwstate)
     cwrx: begin
       tx_cw_level <= 18'h00;
-      if (ext_cwkey) cwstate <= cwkeydown;
+      if (cw_keydown) cwstate <= cw_keydowndown;
       else cwstate <= cwrx;
     end
 
-    cwkeydown: begin
+    cw_keydowndown: begin
       if (tx_cw_level != MAX_CWLEVEL) tx_cw_level <= tx_cw_level + 18'h01;
-      if (ext_cwkey) cwstate <= cwkeydown;
-      else cwstate <= cwkeyup;
+      if (cw_keydown) cwstate <= cw_keydowndown;
+      else cwstate <= cw_keydownup;
     end
 
-    cwkeyup: begin
+    cw_keydownup: begin
       if (tx_cw_level == 18'h00) cwstate <= cwrx;
       else begin
-        cwstate <= cwkeyup;
+        cwstate <= cw_keydownup;
         tx_cw_level <= tx_cw_level - 18'h01;
       end
     end
@@ -686,9 +673,5 @@ always @(posedge clk) begin
 end
 
 assign tx_cw_key = cwstate != cwrx;
-
-assign ptt = (ext_ptt | int_ptt | ext_cwkey) & ~ext_txinhibit;
-
-assign tx_en = (ptt | vna) & ~ext_txinhibit;
 
 endmodule

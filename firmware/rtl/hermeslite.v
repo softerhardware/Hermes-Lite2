@@ -150,16 +150,14 @@ logic           cmd_ack;
 logic           cmd_cnt;
 logic           cmd_ptt;
 logic           cmd_requires_resp;
-logic           cmd_ack_all_ad9866;
+logic           cmd_ack_all_ad9866 = 1'b0;
+logic           cmd_ack_all_ad9866_iosync;
 
 // Individual acknowledges
 logic           cmd_ack_radio, cmd_ack_ad9866;
 
-logic           ext_ptt, ext_ptt_ad9866sync;
-logic           ext_cwkey, ext_cwkey_ad9866sync;
-logic           ext_txinhibit, ext_txinhibit_ad9866sync;
-
-logic           tx_en;
+logic           tx_on, tx_on_ad9866sync;
+logic           cw_keydown, cw_keydown_ad9866sync;
 
 logic   [7:0]   dseth_tdata;
 
@@ -226,8 +224,6 @@ logic           run, run_sync, run_iosync;
 logic           wide_spectrum, wide_spectrum_sync;
 logic           discovery_reply, discovery_reply_sync;
 
-logic [ 7:0]    network_status;
-logic           thismac_iosync;
 logic           dst_unreachable;
 
 logic           udp_tx_request;
@@ -272,11 +268,14 @@ logic           scl3_t;
 logic           cmd_rqst_io;
 logic           clk_io;
 
-logic           rxclipp, rxclipp_iosync;
-logic           rxclipn, rxclipn_iosync;
+logic           rxclip, rxclip_iosync;
+logic           rxgoodlvl, rxgoodlvl_iosync;
+logic           rxclrstatus, rxclrstatus_ad9866sync;
 
 logic [39:0]    resp;
 logic           resp_rqst, resp_rqst_iosync;
+
+logic           watchdog_up, watchdog_up_sync;
 
 
 /////////////////////////////////////////////////////
@@ -429,7 +428,7 @@ network network_inst(
   .local_mac(local_mac),
   .speed_1gb(speed_1gb),
   .network_state(network_state),
-  .network_status(network_status),
+  .network_status(),
 
   .PHY_TX(phy_tx),
   .PHY_TX_EN(phy_tx_en),
@@ -445,6 +444,12 @@ network network_inst(
 ///////////////////////////////////////////////
 // Downstream ethrxint clock domain
 
+sync_pulse sync_pulse_watchdog (
+  .clock(clock_ethrxint),
+  .sig_in(watchdog_up),
+  .sig_out(watchdog_up_sync)
+);
+
 dsopenhpsdr1 dsopenhpsdr1_i (
   .clk(clock_ethrxint),
   .eth_port(to_port),
@@ -456,6 +461,8 @@ dsopenhpsdr1 dsopenhpsdr1_i (
 
   .run(run),
   .wide_spectrum(wide_spectrum),
+
+  .watchdog_up(watchdog_up_sync),
 
   .cmd_addr(cmd_addr),
   .cmd_data(cmd_data),
@@ -547,7 +554,9 @@ usopenhpsdr1 #(.NR(NR), .HERMES_SERIALNO(HERMES_SERIALNO)) usopenhpsdr1_i (
   .cmd_rqst(cmd_rqst_usopenhpsdr1),
 
   .resp(resp),
-  .resp_rqst(resp_rqst)
+  .resp_rqst(resp_rqst),
+
+  .watchdog_up(watchdog_up)
 );
 
 usiq_fifo usiq_fifo_i (
@@ -588,23 +597,24 @@ sync_pulse sync_pulse_ad9866 (
   .sig_out(cmd_rqst_ad9866)
 );
 
-sync sync_ad9866_ext_ptt (
+sync_pulse sync_rxclrstatus_ad9866 (
   .clock(clk_ad9866),
-  .sig_in(ext_ptt),
-  .sig_out(ext_ptt_ad9866sync)
+  .sig_in(rxclrstatus),
+  .sig_out(rxclrstatus_ad9866sync)
 );
 
-sync sync_ad9866_ext_cwkey (
+sync sync_ad9866_tx_on (
   .clock(clk_ad9866),
-  .sig_in(ext_cwkey),
-  .sig_out(ext_cwkey_ad9866sync)
+  .sig_in(tx_on),
+  .sig_out(tx_on_ad9866sync)
 );
 
-sync sync_ad9866_ext_txinhibit (
+sync sync_ad9866_cw_keydown (
   .clock(clk_ad9866),
-  .sig_in(ext_txinhibit),
-  .sig_out(ext_txinhibit_ad9866sync)
+  .sig_in(cw_keydown),
+  .sig_out(cw_keydown_ad9866sync)
 );
+
 
 ad9866 ad9866_i (
   .clk(clk_ad9866),
@@ -613,12 +623,11 @@ ad9866 ad9866_i (
 
   .tx_data(tx_data),
   .rx_data(rx_data),
-  .tx_en(tx_en),
+  .tx_en(tx_on_ad9866sync),
 
-  .rxclipp(rxclipp),
-  .rxclipn(rxclipn),
-  .rxgoodlvlp(),
-  .rxgoodlvln(),
+  .rxclip(rxclip),
+  .rxgoodlvl(rxgoodlvl),
+  .rxclrstatus(rxclrstatus_ad9866sync),
 
   .rffe_ad9866_rst_n(rffe_ad9866_rst_n),
   .rffe_ad9866_tx(rffe_ad9866_tx),
@@ -656,11 +665,8 @@ radio_i
 (
   .clk(clk_ad9866),
 
-  .ext_ptt(ext_ptt),
-  .ext_cwkey(ext_cwkey),
-  .ext_txinhibit(ext_txinhibit),
-
-  .tx_en(tx_en),
+  .cw_keydown(cw_keydown_ad9866sync),
+  .tx_on(tx_on_ad9866sync),
 
   // Transmit
   .tx_tdata({dsiq_tdata[7:0],dsiq_tdata[15:8],dsiq_tdata[23:16],dsiq_tdata[31:24]}),
@@ -690,9 +696,15 @@ radio_i
   .cmd_addr(cmd_addr),
   .cmd_data(cmd_data),
   .cmd_rqst(cmd_rqst_ad9866),
-  .cmd_ack(cmd_ack_radio),
-  .cmd_ptt(cmd_ptt)
+  .cmd_ack(cmd_ack_radio)
 );
+
+always @(posedge clk_ad9866) begin
+  if (cmd_ack_ad9866 | cmd_ack_radio) begin
+    cmd_ack_all_ad9866 <= ~cmd_ack_all_ad9866;
+  end
+end
+
 
 
 
@@ -714,22 +726,16 @@ sync_pulse #(.DEPTH(2)) syncio_rqst_io (
   .sig_out(resp_rqst_iosync)
 );
 
-sync syncio_rxclipp (
+sync syncio_rxclip (
   .clock(clk_io),
-  .sig_in(rxclipp),
-  .sig_out(rxclipp_iosync)
+  .sig_in(rxclip),
+  .sig_out(rxclip_iosync)
 );
 
-sync syncio_rxclipn (
+sync syncio_rxgoodlvl (
   .clock(clk_io),
-  .sig_in(rxclipn),
-  .sig_out(rxclipn_iosync)
-);
-
-sync syncio_thismac (
-  .clock(clk_io),
-  .sig_in(network_status[0]),
-  .sig_out(thismac_iosync)
+  .sig_in(rxgoodlvl),
+  .sig_out(rxgoodlvl_iosync)
 );
 
 sync syncio_run (
@@ -738,11 +744,11 @@ sync syncio_run (
   .sig_out(run_iosync)
 );
 
-sync syncio_cmd_ack_all_ad9866 (
+sync_pulse syncio_cmd_ack_all_ad9866 (
   .clock(clk_io),
   // Better if direct out of flop
-  .sig_in(cmd_ack_ad9866 | cmd_ack_radio),
-  .sig_out(cmd_ack_all_ad9866)
+  .sig_in(cmd_ack_all_ad9866),
+  .sig_out(cmd_ack_all_ad9866_iosync)
 );  
 
 
@@ -751,9 +757,9 @@ ioblock #(.HERMES_SERIALNO(HERMES_SERIALNO)) ioblock_i (
   .clk(clk_io),
   .rst(rst),
 
-  .rxclipp(rxclipp_iosync),
-  .rxclipn(rxclipn_iosync),
-  .this_MAC(thismac_iosync),
+  .rxclip(rxclip_iosync),
+  .rxgoodlvl(rxgoodlvl_iosync),
+  .rxclrstatus(rxclrstatus),
   .run(run_iosync),
 
   .cmd_addr(cmd_addr),
@@ -761,14 +767,13 @@ ioblock #(.HERMES_SERIALNO(HERMES_SERIALNO)) ioblock_i (
   .cmd_rqst(cmd_rqst_io),
   .cmd_ptt(cmd_ptt),
   .cmd_requires_resp(cmd_requires_resp),
-  .cmd_ack_ext(cmd_ack_all_ad9866),
+  .cmd_ack_ext(cmd_ack_all_ad9866_iosync),
 
   .clk_i2c_rst(clk_i2c_rst),
   .clk_i2c_start(clk_i2c_start),
 
-  .ext_ptt(ext_ptt),
-  .ext_cwkey(ext_cwkey),
-  .ext_txinhibit(ext_txinhibit),
+  .tx_on(tx_on),
+  .cw_keydown(cw_keydown),
 
   .resp_rqst(resp_rqst_iosync),
   .resp(resp),  
