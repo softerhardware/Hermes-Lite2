@@ -31,7 +31,9 @@ module usopenhpsdr1 (
   cmd_rqst,
 
   resp,
-  resp_rqst
+  resp_rqst,
+
+  watchdog_up
 );
 
 input               clk;
@@ -64,6 +66,8 @@ input               cmd_rqst;
 
 input  [39:0]       resp;
 output logic        resp_rqst = 1'b0;
+
+output logic        watchdog_up = 1'b0;
 
 parameter           NR = 8'h0;
 parameter           HERMES_SERIALNO = 8'h0;
@@ -112,6 +116,8 @@ logic   [6:0]   set_bs_cnt = 7'h1;
 
 logic           resp_rqst_next;
 
+logic           watchdog_up_next;
+
 // Command Slave State Machine
 always @(posedge clk) begin
   if (cmd_rqst & (cmd_addr == 6'h00)) begin
@@ -137,6 +143,8 @@ always @ (posedge clk) begin
   round_bytes <= round_bytes_next;
 
   resp_rqst <= resp_rqst_next;
+
+  watchdog_up <= watchdog_up_next;
 
   if (~run) begin
     ep6_seq_no <= 32'h0;
@@ -171,6 +179,8 @@ always @* begin
 
   resp_rqst_next = resp_rqst;
 
+  watchdog_up_next = watchdog_up;
+
   // Combinational
   udp_tx_data = udp_data;
   udp_tx_request = 1'b0;
@@ -189,8 +199,10 @@ always @* begin
         state_next = UDP1;
       
       end else if (bs_tvalid & ~(|bs_cnt)) begin 
+        bs_cnt_next = set_bs_cnt; // Set count until next wide data
+        watchdog_up_next = ~watchdog_up; 
         udp_tx_length_next = 'd1032;
-        state_next = WIDE1;
+        if (wide_spectrum) state_next = WIDE1;
       end
     end
 
@@ -256,7 +268,6 @@ always @* begin
         3'h0: begin
           wide_data_next = ep4_seq_no[7:0];
           ep4_seq_no_next = ep4_seq_no + 'h1;
-          bs_cnt_next = set_bs_cnt; // Set count until next wide data
           state_next = WIDE3;
         end
         default: wide_data_next = 8'hxx;

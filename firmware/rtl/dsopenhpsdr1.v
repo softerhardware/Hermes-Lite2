@@ -11,6 +11,8 @@ module dsopenhpsdr1 (
 
   run,
   wide_spectrum,
+
+  watchdog_up,
   
   cmd_addr,
   cmd_data,
@@ -34,6 +36,8 @@ output              eth_metis_discovery;
 
 output logic        run = 1'b0;
 output logic        wide_spectrum = 1'b0;
+
+input               watchdog_up;
 
 output logic  [5:0] cmd_addr = 6'h0;
 output logic [31:0] cmd_data = 32'h00;
@@ -93,6 +97,10 @@ logic           cmd_cnt_next;
 logic           cmd_ptt_next;
 logic           cmd_resprqst_next;
 
+logic           watchdog_clr;
+
+logic   [ 3:0]  watchdog_cnt = 4'b0000;
+
 // State
 always @ (posedge clk) begin
   pushcnt <= pushcnt_next;
@@ -102,7 +110,7 @@ always @ (posedge clk) begin
   cmd_ptt <= cmd_ptt_next;
   cmd_data <= cmd_data_next;
   cmd_cnt <= cmd_cnt_next;  
-  if (eth_unreachable) begin
+  if ((eth_unreachable) | &watchdog_cnt) begin
     state <= START;
     run <= 1'b0;
     wide_spectrum <= 1'b0;
@@ -134,6 +142,7 @@ always @* begin
   eth_metis_discovery = 1'b0;
   dsethiq_tvalid = 1'b0;
   dsethlr_tvalid = 1'b0;
+  watchdog_clr   = 1'b0;
 
   case (state)
     START: begin
@@ -178,6 +187,8 @@ always @* begin
     end
 
     SEQNO0: begin
+      // Decrement watchdog on begin of data packet
+      watchdog_clr = 1'b1;
       state_next = SYNC2;
     end
 
@@ -278,6 +289,17 @@ always @* begin
 end
 
 assign dseth_tdata = eth_data;
+
+
+// Watch dog logic, stop if sending too much
+// without receiving packets
+always @(posedge clk) begin
+  if (~run | watchdog_clr) begin
+    watchdog_cnt <= 4'b0000;
+  end else if (watchdog_up) begin
+    watchdog_cnt <= watchdog_cnt + 4'h1;
+  end
+end 
 
 endmodule
 

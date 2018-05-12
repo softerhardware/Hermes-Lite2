@@ -40,6 +40,8 @@ set_global_assignment -name VERILOG_MACRO "BETA3=1"
 set_global_assignment -name VERILOG_MACRO "HALFDUPLEX=1"
 set_global_assignment -name VERILOG_MACRO "USE_ALTSYNCRAM=1"
 source ./hermeslite.tcl
+set_global_assignment -name VERILOG_FILE rtl/fifos.v
+set_global_assignment -name VERILOG_FILE rtl/ioblock.v
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "21:06:31  NOVEMBER 30, 2017"
 set_global_assignment -name VERILOG_FILE rtl/usopenhpsdr1.v
 set_global_assignment -name FAMILY "Cyclone IV E"
