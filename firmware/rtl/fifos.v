@@ -4,6 +4,7 @@ module dsiq_fifo (
   wr_tdata,
   wr_tvalid,
   wr_tready,
+  wr_tlast,
 
   rd_clk,
   rd_tdata,
@@ -15,23 +16,50 @@ input         wr_clk;
 input [7:0]   wr_tdata;
 input         wr_tvalid;
 output        wr_tready;
+input         wr_tlast;
 
 input         rd_clk;
 output [31:0] rd_tdata;
 output        rd_tvalid;
 input         rd_tready;
 
+parameter     depth   = 8192;
+
+localparam    wrbits  = (depth == 16384) ? 14 : 13;
+localparam    wrlimit = (depth == 16384) ? 14'h2000 : 13'h1000;
+
+localparam    rdbits  = (depth == 16384) ? 12 : 11;
+localparam    rdlimit = (depth == 16384) ? 12'h800 : 11'h400;
+
+logic [31:0]  ird_tdata;
+
 logic         wr_treadyn;
 logic         rd_tvalidn;
 
+logic         allow_push = 1'b1;
+logic [(wrbits-1):0]  wr_tlength;
+
+logic         allow_pop  = 1'b0;
+logic [(rdbits-1):0]  rd_tlength;
+
+// If FIFO fills, drop write data
+// again until only half full
+always @ (posedge wr_clk) begin
+  if (wr_treadyn) begin
+    allow_push <= 1'b0;
+  end else if (wr_tlast & (wr_tlength <= wrlimit)) begin
+    allow_push <= 1'b1;
+  end 
+end 
+
 dcfifo_mixed_widths #(
   .intended_device_family("Cyclone IV E"),
-  .lpm_numwords(8192), 
+  .lpm_numwords(depth), 
   .lpm_showahead ("ON"),
   .lpm_type("dcfifo_mixed_widths"),
   .lpm_width(8),
-  .lpm_widthu(13),
-  .lpm_widthu_r(11),
+  .lpm_widthu(wrbits),
+  .lpm_widthu_r(rdbits),
   .lpm_width_r(32),
   .overflow_checking("ON"),
   .rdsync_delaypipe(4),
@@ -40,25 +68,36 @@ dcfifo_mixed_widths #(
   .wrsync_delaypipe(4)
 ) fifo_i (
   .wrclk (wr_clk),
-  .wrreq (wr_tvalid),  
+  .wrreq (wr_tvalid & allow_push),  
   .wrfull (wr_treadyn),
   .wrempty (),
-  .wrusedw (),
+  .wrusedw (wr_tlength),
   .data (wr_tdata),
 
   .rdclk (rd_clk),
-  .rdreq (rd_tready),
+  .rdreq (rd_tready & allow_pop),
   .rdfull (),
   .rdempty (rd_tvalidn),
-  .rdusedw (),
-  .q (rd_tdata),
+  .rdusedw (rd_tlength),
+  .q (ird_tdata),
 
   .aclr (1'b0),
   .eccstatus ()
 );
 
-assign wr_tready = ~wr_treadyn;
-assign rd_tvalid = ~rd_tvalidn;
+// If FIFO empties, drop write data
+// again until only half full
+always @ (posedge rd_clk) begin
+  if (rd_tvalidn) begin
+    allow_pop <= 1'b0;
+  end else if (rd_tlength >= rdlimit) begin
+    allow_pop <= 1'b1;
+  end 
+end 
+assign rd_tdata = allow_pop ? ird_tdata : 32'h0;
+
+assign wr_tready = ~wr_treadyn & allow_push;
+assign rd_tvalid = ~rd_tvalidn & allow_pop;
 
 endmodule 
 
@@ -135,12 +174,14 @@ module usiq_fifo (
   wr_tvalid,
   wr_tready,
   wr_tlast,
+  wr_tuser,
 
   rd_clk,
   rd_tdata,
   rd_tvalid,
   rd_tready,
   rd_tlast,
+  rd_tuser,
   rd_tlength
 );
 
@@ -149,17 +190,19 @@ input [23:0]  wr_tdata;
 input         wr_tvalid;
 output        wr_tready;
 input         wr_tlast;
+input [1:0]   wr_tuser;
 
 input         rd_clk;
 output [23:0] rd_tdata;
 output        rd_tvalid;
 input         rd_tready;
 output        rd_tlast;
+output [1:0]  rd_tuser;
 output [10:0] rd_tlength;
 
 logic         wr_treadyn;
 logic         rd_tvalidn;
-logic  [24:0] rd_data;
+logic  [26:0] rd_data;
 
 dcfifo #(
   .add_usedw_msb_bit("ON"),
@@ -167,7 +210,7 @@ dcfifo #(
   .lpm_numwords(1024), 
   .lpm_showahead ("ON"),
   .lpm_type("dcfifo"),
-  .lpm_width(25),
+  .lpm_width(27),
   .lpm_widthu(11), 
   .overflow_checking("ON"),
   .rdsync_delaypipe(4),
@@ -180,7 +223,7 @@ dcfifo #(
   .wrfull (wr_treadyn),
   .wrempty (),
   .wrusedw (),
-  .data ({wr_tlast,wr_tdata}),
+  .data ({wr_tuser,wr_tlast,wr_tdata}),
 
   .rdclk (rd_clk),
   .rdreq (rd_tready),
@@ -197,6 +240,7 @@ assign wr_tready = ~wr_treadyn;
 assign rd_tvalid = ~rd_tvalidn;
 assign rd_tlast  = rd_data[24];
 assign rd_tdata  = rd_data[23:0];
+assign rd_tuser  = rd_data[26:25];
 
 endmodule 
 

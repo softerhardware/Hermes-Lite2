@@ -116,7 +116,7 @@ always @* begin
   cmd_valid = 1'b0; 
   cmd_write = 1'b0;
   //cmd_stop = 1'b0;
-  cmd_ack_next = 1'b0;
+  cmd_ack_next = cmd_ack;
 
   data_in = data0_reg;
   data_in_valid = 1'b0;
@@ -130,24 +130,33 @@ always @* begin
   case(state)
 
     STATE_IDLE: begin
-      if (~busy & cmd_rqst) begin
+      if (cmd_rqst) begin
+        cmd_ack_next = 1'b1;
         if ((cmd_addr == 6'h3d) & (cmd_data[31:24] == 8'h06)) begin
-          cmd_next = cmd_data[22:16];
-          data0_next  = cmd_data[15:8];
-          data1_next = cmd_data[7:0];
-          cmd_ack_next = 1'b1;
-          state_next = STATE_CMDADDR;
+          // Must send
+          if (~busy) begin
+            cmd_next = cmd_data[22:16];
+            data0_next  = cmd_data[15:8];
+            data1_next = cmd_data[7:0];
+            state_next = STATE_CMDADDR;
+          end else begin
+            cmd_ack_next = 1'b0; // Missed
+          end
         end
 
         // Filter select update
         if (cmd_addr == 6'h00) begin
-          filter_select_next = cmd_data[23:17];
           if (cmd_data[23:17] != filter_select_reg) begin
-            cmd_next = 'h20;
-            data0_next = 'h0a;
-            data1_next = {1'b0,cmd_data[23:17]};
-            cmd_ack_next = 1'b1;
-            state_next = STATE_FCMDADDR;
+            // Must send
+            if (~busy) begin
+              filter_select_next = cmd_data[23:17];
+              cmd_next = 'h20;
+              data0_next = 'h0a;
+              data1_next = {1'b0,cmd_data[23:17]};
+              state_next = STATE_FCMDADDR;
+            end else begin
+              cmd_ack_next = 1'b0; // Missed
+            end
           end
         end
       end

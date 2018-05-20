@@ -146,15 +146,9 @@ localparam      NT = 1; // Transmitters
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
-logic           cmd_ack;
 logic           cmd_cnt;
 logic           cmd_ptt;
-logic           cmd_requires_resp;
-logic           cmd_ack_all_ad9866 = 1'b0;
-logic           cmd_ack_all_ad9866_iosync;
-
-// Individual acknowledges
-logic           cmd_ack_radio, cmd_ack_ad9866;
+logic           cmd_requires_resp;         
 
 logic           tx_on, tx_on_ad9866sync;
 logic           cw_keydown, cw_keydown_ad9866sync;
@@ -165,6 +159,7 @@ logic   [31:0]  dsiq_tdata;
 logic           dsiq_tready;    // controls reading of fifo
 logic           dsiq_tvalid;
 logic           dsethiq_tvalid;
+logic           dsethiq_tlast;
 
 logic   [31:0]  dslr_tdata;
 logic           dslr_tready;    // controls reading of fifo
@@ -175,11 +170,13 @@ logic  [23:0]   rx_tdata;
 logic           rx_tlast;
 logic           rx_tready;
 logic           rx_tvalid;
+logic  [ 1:0]   rx_tuser;
 
 logic  [23:0]   usiq_tdata;
 logic           usiq_tlast;
 logic           usiq_tready;
 logic           usiq_tvalid;
+logic  [ 1:0]   usiq_tuser;
 logic  [10:0]   usiq_tlength;
 
 logic           response_inp_tready;
@@ -195,7 +192,6 @@ logic           cmd_rqst_usopenhpsdr1;
 
 logic           clock_125_mhz_0_deg;
 logic           clock_125_mhz_90_deg;
-logic           clock_2_5MHz;
 logic           clock_25_mhz;
 logic           clock_12p5_mhz;
 logic           ethpll_locked;
@@ -210,15 +206,7 @@ logic           ethup;
 
 logic           clk_ad9866;
 logic           clk_ad9866_2x;
-logic           ad9866pll_locked;
-
-logic           rst;
-logic           clk_i2c_rst;
-logic           clk_i2c_start;
-
-logic [15:0]    resetcounter = 16'h0000;
-logic           ad9866_rst_n = 1'b0;
-//logic           ad9866_rst_ad9866sync;
+logic           ad9866up;
 
 logic           run, run_sync, run_iosync;
 logic           wide_spectrum, wide_spectrum_sync;
@@ -266,7 +254,7 @@ logic           scl3_o;
 logic           scl3_t;
 
 logic           cmd_rqst_io;
-logic           clk_io;
+logic           clk_ctrl;
 
 logic           rxclip, rxclip_iosync;
 logic           rxgoodlvl, rxgoodlvl_iosync;
@@ -285,13 +273,13 @@ ethpll ethpll_inst (
     .inclk0   (phy_clk125),   //  refclk.clk
     .c0 (clock_125_mhz_0_deg), // outclk0.clk
     .c1 (clock_125_mhz_90_deg), // outclk1.clk
-    .c2 (clock_2_5MHz), // outclk2.clk
+    .c2 (clk_ctrl), // outclk2.clk
     .c3 (clock_25_mhz),
     .c4 (clock_12p5_mhz),
     .locked (ethpll_locked)
 );
 
-always @(posedge clock_2_5MHz)
+always @(posedge clk_ctrl)
   speed_1gb_clksel <= speed_1gb;
 
 altclkctrl #(
@@ -372,31 +360,8 @@ ad9866pll ad9866pll_inst (
   .areset   (~ethup),      //   reset.reset
   .c0 (clk_ad9866), // outclk0.clk
   .c1 (clk_ad9866_2x), // outclk1.clk
-  .locked (ad9866pll_locked)
+  .locked (ad9866up)
 );
-
-
-/////////////////////////////////////////////////////
-// Reset
-
-// Most FPGA logic is reset when ethernet is up and ad9866 PLL is locked
-// AD9866 is released from reset
-
-always @ (posedge clock_2_5MHz)
-  if (~resetcounter[15] & ethup) resetcounter <= resetcounter + 16'h01;
-
-// At ~410us
-assign clk_i2c_rst = ~(|resetcounter[15:10]);
-
-// At ~820us
-assign clk_i2c_start = ~(|resetcounter[15:11]);
-
-// At ~6.5ms
-assign rst = ~(|resetcounter[15:14]);
-
-// At ~13ms
-always @ (posedge clock_2_5MHz)
-  if (resetcounter[15] & ad9866pll_locked) ad9866_rst_n <= 1'b1;
 
 
 
@@ -407,7 +372,7 @@ assign local_mac =  {MAC[47:2],~io_cn10,MAC[0]};
 
 network network_inst(
 
-  .clock_2_5MHz(clock_2_5MHz),
+  .clock_2_5MHz(clk_ctrl),
 
   .tx_clock(clock_ethtxint),
   .udp_tx_request(udp_tx_request),
@@ -472,14 +437,17 @@ dsopenhpsdr1 dsopenhpsdr1_i (
 
   .dseth_tdata(dseth_tdata),
   .dsethiq_tvalid(dsethiq_tvalid),
-  .dsethlr_tvalid(dsethlr_tvalid)
+  .dsethiq_tlast(dsethiq_tlast),
+  .dsethlr_tvalid(dsethlr_tvalid),
+  .dsethlr_tlast()
 );
 
-dsiq_fifo dsiq_fifo_i (
+dsiq_fifo #(.depth(16384)) dsiq_fifo_i (
   .wr_clk(clock_ethrxint),
   .wr_tdata(dseth_tdata),
   .wr_tvalid(dsethiq_tvalid),
   .wr_tready(),
+  .wr_tlast(dsethiq_tlast),
 
   .rd_clk(clk_ad9866),
   .rd_tdata(dsiq_tdata),
@@ -547,6 +515,7 @@ usopenhpsdr1 #(.NR(NR), .HERMES_SERIALNO(HERMES_SERIALNO)) usopenhpsdr1_i (
   .us_tlast(usiq_tlast),
   .us_tready(usiq_tready),
   .us_tvalid(usiq_tvalid),
+  .us_tuser(usiq_tuser),
   .us_tlength(usiq_tlength),
 
   .cmd_addr(cmd_addr),
@@ -565,12 +534,14 @@ usiq_fifo usiq_fifo_i (
   .wr_tvalid(rx_tvalid),
   .wr_tready(rx_tready),
   .wr_tlast(rx_tlast),
+  .wr_tuser(rx_tuser),
 
   .rd_clk(clock_ethtxint),
   .rd_tdata(usiq_tdata),
   .rd_tvalid(usiq_tvalid),
   .rd_tready(usiq_tready),
   .rd_tlast(usiq_tlast),
+  .rd_tuser(usiq_tuser),
   .rd_tlength(usiq_tlength)
 );
 
@@ -619,7 +590,6 @@ sync sync_ad9866_cw_keydown (
 ad9866 ad9866_i (
   .clk(clk_ad9866),
   .clk_2x(clk_ad9866_2x),
-  .rst_n(ad9866_rst_n),
 
   .tx_data(tx_data),
   .rx_data(rx_data),
@@ -629,29 +599,18 @@ ad9866 ad9866_i (
   .rxgoodlvl(rxgoodlvl),
   .rxclrstatus(rxclrstatus_ad9866sync),
 
-  .rffe_ad9866_rst_n(rffe_ad9866_rst_n),
   .rffe_ad9866_tx(rffe_ad9866_tx),
   .rffe_ad9866_rx(rffe_ad9866_rx),
   .rffe_ad9866_rxsync(rffe_ad9866_rxsync),
   .rffe_ad9866_rxclk(rffe_ad9866_rxclk),  
   .rffe_ad9866_txquiet_n(rffe_ad9866_txquiet_n),
   .rffe_ad9866_txsync(rffe_ad9866_txsync),
-  .rffe_ad9866_sdio(rffe_ad9866_sdio),
-  .rffe_ad9866_sclk(rffe_ad9866_sclk),
-  .rffe_ad9866_sen_n(rffe_ad9866_sen_n),
 
 `ifdef BETA2
-  .rffe_ad9866_mode(),
-  .rffe_ad9866_pga(rffe_ad9866_pga),
+  .rffe_ad9866_mode()
 `else
-  .rffe_ad9866_mode(rffe_ad9866_mode),
-  .rffe_ad9866_pga5(rffe_ad9866_pga5),
+  .rffe_ad9866_mode(rffe_ad9866_mode)
 `endif
-
-  .cmd_addr(cmd_addr),
-  .cmd_data(cmd_data),
-  .cmd_rqst(cmd_rqst_ad9866),
-  .cmd_ack(cmd_ack_ad9866)
 );
 
 
@@ -691,19 +650,14 @@ radio_i
   .rx_tlast(rx_tlast),
   .rx_tready(rx_tready),
   .rx_tvalid(rx_tvalid),
+  .rx_tuser(rx_tuser),
 
   // Command Slave
   .cmd_addr(cmd_addr),
   .cmd_data(cmd_data),
   .cmd_rqst(cmd_rqst_ad9866),
-  .cmd_ack(cmd_ack_radio)
+  .cmd_ack() // No need for ack from radio yet
 );
-
-always @(posedge clk_ad9866) begin
-  if (cmd_ack_ad9866 | cmd_ack_radio) begin
-    cmd_ack_all_ad9866 <= ~cmd_ack_all_ad9866;
-  end
-end
 
 
 
@@ -711,51 +665,44 @@ end
 ///////////////////////////////////////////////
 // IO clock domain
 
-assign clk_io = clock_2_5MHz;
-
 sync_pulse syncio_cmd_rqst (
-  .clock(clk_io),
+  .clock(clk_ctrl),
   .sig_in(cmd_cnt),
   .sig_out(cmd_rqst_io)
 );
 
 // Clocks are really synchronous so save time
 sync_pulse #(.DEPTH(2)) syncio_rqst_io (
-  .clock(clk_io),
+  .clock(clk_ctrl),
   .sig_in(resp_rqst),
   .sig_out(resp_rqst_iosync)
 );
 
 sync syncio_rxclip (
-  .clock(clk_io),
+  .clock(clk_ctrl),
   .sig_in(rxclip),
   .sig_out(rxclip_iosync)
 );
 
 sync syncio_rxgoodlvl (
-  .clock(clk_io),
+  .clock(clk_ctrl),
   .sig_in(rxgoodlvl),
   .sig_out(rxgoodlvl_iosync)
 );
 
 sync syncio_run (
-  .clock(clk_io),
+  .clock(clk_ctrl),
   .sig_in(run),
   .sig_out(run_iosync)
 );
 
-sync_pulse syncio_cmd_ack_all_ad9866 (
-  .clock(clk_io),
-  // Better if direct out of flop
-  .sig_in(cmd_ack_all_ad9866),
-  .sig_out(cmd_ack_all_ad9866_iosync)
-);  
 
-
-ioblock #(.HERMES_SERIALNO(HERMES_SERIALNO)) ioblock_i (
+control #(.HERMES_SERIALNO(HERMES_SERIALNO)) control_i (
   // Internal
-  .clk(clk_io),
-  .rst(rst),
+  .clk(clk_ctrl),
+
+  .ethup(ethup),
+  .ad9866up(ad9866up),
 
   .rxclip(rxclip_iosync),
   .rxgoodlvl(rxgoodlvl_iosync),
@@ -767,10 +714,6 @@ ioblock #(.HERMES_SERIALNO(HERMES_SERIALNO)) ioblock_i (
   .cmd_rqst(cmd_rqst_io),
   .cmd_ptt(cmd_ptt),
   .cmd_requires_resp(cmd_requires_resp),
-  .cmd_ack_ext(cmd_ack_all_ad9866_iosync),
-
-  .clk_i2c_rst(clk_i2c_rst),
-  .clk_i2c_start(clk_i2c_start),
 
   .tx_on(tx_on),
   .cw_keydown(cw_keydown),
@@ -780,6 +723,19 @@ ioblock #(.HERMES_SERIALNO(HERMES_SERIALNO)) ioblock_i (
 
   // External
   .rffe_rfsw_sel(rffe_rfsw_sel),
+
+  // AD9866
+  .rffe_ad9866_rst_n(rffe_ad9866_rst_n),
+
+  .rffe_ad9866_sdio(rffe_ad9866_sdio),
+  .rffe_ad9866_sclk(rffe_ad9866_sclk),
+  .rffe_ad9866_sen_n(rffe_ad9866_sen_n),
+
+`ifdef BETA2
+  .rffe_ad9866_pga(rffe_ad9866_pga),
+`else
+  .rffe_ad9866_pga5(rffe_ad9866_pga5),
+`endif
 
   // Power
   .pwr_clk3p3(pwr_clk3p3),

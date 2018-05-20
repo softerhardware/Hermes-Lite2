@@ -28,6 +28,7 @@ module radio (
   rx_tlast,
   rx_tready,
   rx_tvalid,
+  rx_tuser,
 
   // Command slave interface
   cmd_addr,
@@ -87,6 +88,7 @@ output  [23:0]    rx_tdata;
 output            rx_tlast;
 input             rx_tready;
 output            rx_tvalid;
+output  [ 1:0]    rx_tuser;
 
 
 // Command slave interface
@@ -384,6 +386,7 @@ always @* begin
   rx_tdata  = 24'h0;
   rx_tlast  = 1'b0;
   rx_tvalid = 1'b0;
+  rx_tuser  = 2'b00;
 
   case(rxus_state)
     RXUS_WAIT1: begin
@@ -396,6 +399,7 @@ always @* begin
     RXUS_I: begin
       rx_tvalid = 1'b1;
       rx_tdata = rx_data_i[chan];
+      rx_tuser = 2'b00; // Bit 0 will appear as left mic LSB in VNA mode, add VNA here
       rxus_state_next = RXUS_Q;
     end
 
