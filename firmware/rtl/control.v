@@ -51,10 +51,12 @@ endmodule
 
 
 
-module ioblock(
+module control(
   // Internal
   clk,
-  rst,
+  
+  ethup,
+  ad9866up,
 
   rxclip,
   rxgoodlvl,
@@ -65,11 +67,7 @@ module ioblock(
   cmd_data,
   cmd_rqst,
   cmd_requires_resp,
-  cmd_ack_ext,
   cmd_ptt,
-
-  clk_i2c_rst,
-  clk_i2c_start,
 
   tx_on,
   cw_keydown,
@@ -79,6 +77,17 @@ module ioblock(
 
   // External
   rffe_rfsw_sel,
+
+  rffe_ad9866_rst_n,
+  rffe_ad9866_sdio,
+  rffe_ad9866_sclk,
+  rffe_ad9866_sen_n,
+
+`ifdef BETA2
+  rffe_ad9866_pga,
+`else
+  rffe_ad9866_pga5,
+`endif
 
   // Power
   pwr_clk3p3,
@@ -156,7 +165,9 @@ module ioblock(
 
 // Internal
 input           clk;
-input           rst;
+
+input           ethup;
+input           ad9866up;
 
 input           rxclip;
 input           rxgoodlvl;
@@ -167,11 +178,7 @@ input  [5:0]    cmd_addr;
 input  [31:0]   cmd_data;
 input           cmd_rqst;
 input           cmd_requires_resp;
-input           cmd_ack_ext;
 input           cmd_ptt;
-
-input           clk_i2c_rst;
-input           clk_i2c_start;
 
 output          tx_on;
 output          cw_keydown;
@@ -181,6 +188,18 @@ output [39:0]   resp;
 
 // External
 output          rffe_rfsw_sel;
+
+output          rffe_ad9866_rst_n;
+
+output          rffe_ad9866_sdio;
+output          rffe_ad9866_sclk;
+output          rffe_ad9866_sen_n;
+
+`ifdef BETA2
+output  [5:0]   rffe_ad9866_pga;
+`else
+output          rffe_ad9866_pga5;
+`endif
 
 // Power
 output          pwr_clk3p3;
@@ -267,30 +286,71 @@ logic [11:0]  rev_pwr;
 logic [11:0]  bias_current;
 logic [11:0]  temperature;  
 
-logic         cmd_ack_i2c;
+logic         cmd_ack_i2c, cmd_ack_ad9866;
 logic         ptt;
 
 logic [39:0]  iresp = {8'h00, 8'b00011110, 8'h00, 8'h00, HERMES_SERIALNO};
 logic [ 1:0]  resp_addr = 2'b00;
 
-logic         cmd_resp_rqst = 1'b0;
+logic         cmd_resp_rqst;
 
 logic         cmd_ack;
-logic [ 5:0]  cmd_addr_resp;
-logic [31:0]  cmd_data_resp;
+logic [ 5:0]  resp_cmd_addr = 6'h00, resp_cmd_addr_next;
+logic [31:0]  resp_cmd_data = 32'h00, resp_cmd_data_next;
 
 logic         int_ptt = 1'b0;
-logic         int_requires_resp = 1'b0;
 
 logic [16:0]  led_count;
 logic         led_saturate;
 
 logic         ext_txinhibit, ext_cwkey, ext_ptt;
 
+logic         slow_adc_rst, ad9866_rst;
+logic         clk_i2c_rst;
+logic         clk_i2c_start;
+
+logic [15:0]  resetcounter = 16'h0000;
+logic         resetsaturate;
+
+localparam RESP_START   = 2'b00,
+           RESP_ACK     = 2'b01,
+           RESP_WAIT    = 2'b10;
+
+logic [1:0]   resp_state = RESP_START, resp_state_next;
+
+
+
+/////////////////////////////////////////////////////
+// Reset
+
+// Most FPGA logic is reset when ethernet is up and ad9866 PLL is locked
+// AD9866 is released from reset
+
+assign resetsaturate = &resetcounter;
+
+always @ (posedge clk)
+  if (~resetsaturate & ethup) resetcounter <= resetcounter + 16'h01;
+
+// At ~410us
+assign clk_i2c_rst = ~(|resetcounter[15:10]);
+
+// At ~820us
+assign clk_i2c_start = ~(|resetcounter[15:11]);
+
+// At ~6.5ms
+assign slow_adc_rst = ~(|resetcounter[15:14]);
+
+// At ~13ms
+assign rffe_ad9866_rst_n = resetcounter[15];
+
+// At ~26ms
+assign ad9866_rst = ~resetsaturate | ~ad9866up;
+
+
+
 always @(posedge clk) begin
   if (cmd_rqst) begin
     int_ptt <= cmd_ptt;
-    int_requires_resp <= cmd_requires_resp;   
     if (cmd_addr == 6'h09) begin
       vna          <= cmd_data[23];      // 1 = enable vna mode
       pa_enable    <= cmd_data[19];
@@ -326,7 +386,7 @@ i2c i2c_i (
 
 slow_adc slow_adc_i (
   .clk(clk),
-  .rst(rst),
+  .rst(slow_adc_rst),
   .ain0(fwd_pwr),
   .ain1(temperature),
   .ain2(bias_current),
@@ -394,18 +454,85 @@ assign pwr_clkvpa = 1'b0;
 assign clk_recovered = 1'b0;
 
 
+// AD9866 Ctrl
+ad9866ctrl ad9866ctrl_i (
+  .clk(clk),
+  .rst(ad9866_rst),
 
-assign cmd_ack = int_requires_resp & (cmd_ack_i2c | cmd_ack_ext);
+  .rffe_ad9866_sdio(rffe_ad9866_sdio),
+  .rffe_ad9866_sclk(rffe_ad9866_sclk),
+  .rffe_ad9866_sen_n(rffe_ad9866_sen_n),
 
-always @(posedge clk) begin
-  if (cmd_ack) begin
-    cmd_resp_rqst <= 1'b1;
-    cmd_addr_resp <= cmd_addr;
-    cmd_data_resp <= cmd_data;
-  end else if (resp_rqst) begin
-    cmd_resp_rqst <= 1'b0;
-  end
-end
+`ifdef BETA2
+  .rffe_ad9866_pga(rffe_ad9866_pga),
+`else
+  .rffe_ad9866_pga5(rffe_ad9866_pga5),
+`endif
+
+  .cmd_addr(cmd_addr),
+  .cmd_data(cmd_data),
+  .cmd_rqst(cmd_rqst),
+  .cmd_ack(cmd_ack_ad9866)
+);
+
+
+
+// Response state machine
+always @ (posedge clk) begin
+  resp_state <= resp_state_next;
+  resp_cmd_addr <= resp_cmd_addr_next;
+  resp_cmd_data <= resp_cmd_data_next;
+end 
+
+// FSM Combinational
+always @* begin
+  // Next State
+  resp_state_next = resp_state;
+  resp_cmd_addr_next = resp_cmd_addr;
+  resp_cmd_data_next = resp_cmd_data;
+
+  // Combinational
+  cmd_resp_rqst = 1'b0;
+
+  case (resp_state)
+    RESP_START: begin
+      if (cmd_rqst & cmd_requires_resp) begin
+        // Save data for response
+        resp_cmd_addr_next = cmd_addr;
+        resp_cmd_data_next = cmd_data;
+        resp_state_next  = RESP_ACK;
+      end 
+    end 
+
+    RESP_ACK: begin 
+      // Will see acknowledge here if all I2C an SPI can start
+      if (cmd_ack_i2c & cmd_ack_ad9866) begin 
+        resp_state_next = RESP_WAIT;
+      end else begin
+        resp_state_next = RESP_START;
+      end 
+    end 
+
+    RESP_WAIT: begin
+      cmd_resp_rqst = 1'b1;
+      if (resp_rqst) begin
+        if (cmd_rqst & cmd_requires_resp) begin
+          // Save data for response
+          resp_cmd_addr_next = cmd_addr;
+          resp_cmd_data_next = cmd_data;
+          resp_state_next  = RESP_WAIT;
+        end else begin 
+          resp_state_next = RESP_START;
+        end 
+      end 
+    end 
+
+    default: begin
+      resp_state_next = RESP_START;
+    end 
+
+  endcase
+end 
 
 // Resp request occurs relatively infrequently
 // Output register iresp is updated on resp_rqst
@@ -415,7 +542,7 @@ always @(posedge clk) begin
     resp_addr <= resp_addr + 2'b01; // Slot will be skipped if command response
     if (cmd_resp_rqst) begin
       // Command response
-      iresp <= {1'b1,cmd_addr_resp,tx_on, cmd_data_resp}; // Queue size is 1
+      iresp <= {1'b1,resp_cmd_addr,tx_on, resp_cmd_data}; // Queue size is 1
     end else begin
       case( resp_addr) 
         2'b00: iresp <= {3'b000,resp_addr,2'b00,tx_on, 7'b0001111,(~io_led_d4 | ~io_led_d5), 8'h00, 8'h00, HERMES_SERIALNO};

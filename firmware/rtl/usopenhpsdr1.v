@@ -23,6 +23,7 @@ module usopenhpsdr1 (
   us_tlast,
   us_tready,
   us_tvalid,
+  us_tuser,
   us_tlength,
 
   // Command slave interface
@@ -57,6 +58,7 @@ input [23:0]        us_tdata;
 input               us_tlast;
 output              us_tready;
 input               us_tvalid;
+input [ 1:0]        us_tuser;
 input [10:0]        us_tlength;
 
 // Command slave interface
@@ -118,11 +120,23 @@ logic           resp_rqst_next;
 
 logic           watchdog_up_next;
 
+logic           vna = 1'b0;
+
+logic           vna_mic_bit = 1'b0, vna_mic_bit_next;
+
 // Command Slave State Machine
 always @(posedge clk) begin
-  if (cmd_rqst & (cmd_addr == 6'h00)) begin
-    // Shift no of receivers by speed
-    set_bs_cnt <= ((cmd_data[7:3] + 1'b1) << cmd_data[25:24]);
+  if (cmd_rqst) begin
+    case (cmd_addr)
+      6'h00: begin  
+        // Shift no of receivers by speed
+        set_bs_cnt <= ((cmd_data[7:3] + 1'b1) << cmd_data[25:24]);
+      end
+
+      6'h09: begin
+        vna <= cmd_data[23];
+      end
+    endcase 
   end
 end
 
@@ -145,6 +159,8 @@ always @ (posedge clk) begin
   resp_rqst <= resp_rqst_next;
 
   watchdog_up <= watchdog_up_next;
+
+  vna_mic_bit <= vna_mic_bit_next;
 
   if (~run) begin
     ep6_seq_no <= 32'h0;
@@ -180,6 +196,8 @@ always @* begin
   resp_rqst_next = resp_rqst;
 
   watchdog_up_next = watchdog_up;
+
+  vna_mic_bit_next = vna_mic_bit;
 
   // Combinational
   udp_tx_data = udp_data;
@@ -345,6 +363,7 @@ always @* begin
       byte_no_next = byte_no - 'd1;
       round_bytes_next = round_bytes + 'd1;
       udp_data_next = us_tdata[23:16];
+      vna_mic_bit_next = us_tuser[0]; // Save mic bit for use laster with mic data
 
       if (|byte_no[8:0]) begin
         state_next = RXDATA1;
@@ -397,7 +416,7 @@ always @* begin
     MIC0: begin
       byte_no_next = byte_no - 'd1;
       round_bytes_next = 'd0;
-      udp_data_next = 'd0;
+      udp_data_next = vna ? {7'h00,vna_mic_bit} : 8'h00; // VNA, may need to be in MIC1
 
       if (|byte_no[8:0]) begin
         // Enough room for another round of data?

@@ -22,7 +22,9 @@ module dsopenhpsdr1 (
 
   dseth_tdata,
   dsethiq_tvalid,
-  dsethlr_tvalid
+  dsethiq_tlast,
+  dsethlr_tvalid,
+  dsethlr_tlast
 );
 
 input               clk;
@@ -47,7 +49,9 @@ output logic        cmd_resprqst = 1'b0;
 
 output        [7:0] dseth_tdata;
 output              dsethiq_tvalid;
+output              dsethiq_tlast;
 output              dsethlr_tvalid;
+output              dsethlr_tlast;
 
 
 localparam START        = 'h00,
@@ -99,7 +103,7 @@ logic           cmd_resprqst_next;
 
 logic           watchdog_clr;
 
-logic   [ 3:0]  watchdog_cnt = 4'b0000;
+logic   [ 7:0]  watchdog_cnt = 8'h00;
 
 // State
 always @ (posedge clk) begin
@@ -143,6 +147,8 @@ always @* begin
   dsethiq_tvalid = 1'b0;
   dsethlr_tvalid = 1'b0;
   watchdog_clr   = 1'b0;
+  dsethiq_tlast  = 1'b0;
+  dsethlr_tlast  = 1'b0;
 
   case (state)
     START: begin
@@ -252,6 +258,7 @@ always @* begin
 
     PUSHR0: begin
       dsethlr_tvalid = 1'b1;
+      dsethlr_tlast  = 1'b1;
       pushcnt_next = pushcnt + 6'h01;
       state_next = PUSHI1;
     end
@@ -273,6 +280,7 @@ always @* begin
 
     PUSHQ0: begin
       dsethiq_tvalid = 1'b1;
+      dsethiq_tlast  = 1'b1;
       if (&pushcnt) begin
         if (~framecnt) begin
           framecnt_next = 1'b1;
@@ -295,9 +303,9 @@ assign dseth_tdata = eth_data;
 // without receiving packets
 always @(posedge clk) begin
   if (~run | watchdog_clr) begin
-    watchdog_cnt <= 4'b0000;
+    watchdog_cnt <= 8'h00;
   end else if (watchdog_up) begin
-    watchdog_cnt <= watchdog_cnt + 4'h1;
+    watchdog_cnt <= watchdog_cnt + 8'h01;
   end
 end 
 

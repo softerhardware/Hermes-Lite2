@@ -182,6 +182,7 @@ set_global_assignment -name VERILOG_FILE rtl/hermeslite.v
 set_global_assignment -name VERILOG_FILE rtl/fifos.v
 set_global_assignment -name VERILOG_FILE rtl/ad9866.v
 set_global_assignment -name VERILOG_FILE rtl/ad9866pll.v
+set_global_assignment -name VERILOG_FILE rtl/ad9866ctrl.v
 set_global_assignment -name VERILOG_FILE rtl/ethpll.v
 
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/radio.v
@@ -225,7 +226,7 @@ set_global_assignment -name VERILOG_FILE rtl/usopenhpsdr1.v
 set_global_assignment -name VERILOG_FILE rtl/cdc_sync.v
 set_global_assignment -name VERILOG_FILE rtl/sync.v
 
-set_global_assignment -name VERILOG_FILE rtl/ioblock.v
+set_global_assignment -name VERILOG_FILE rtl/control.v
 set_global_assignment -name VERILOG_FILE rtl/debounce.v
 set_global_assignment -name VERILOG_FILE rtl/i2c_master.v
 set_global_assignment -name VERILOG_FILE rtl/i2c_init.v
