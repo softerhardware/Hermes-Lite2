@@ -221,11 +221,11 @@ set_global_assignment -name SDC_FILE hermeslite.sdc
 
 
 set_global_assignment -name VERILOG_FILE rtl/hermeslite.v
+set_global_assignment -name VERILOG_FILE rtl/fifos.v
 set_global_assignment -name VERILOG_FILE rtl/ad9866.v
 set_global_assignment -name VERILOG_FILE rtl/ad9866pll.v
+set_global_assignment -name VERILOG_FILE rtl/ad9866ctrl.v
 set_global_assignment -name VERILOG_FILE rtl/ethpll.v
-set_global_assignment -name VERILOG_FILE rtl/SP_fifo.v
-set_global_assignment -name VERILOG_FILE rtl/Tx_fifo.v
 
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/radio.v
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/varcic.v
@@ -264,20 +264,17 @@ set_global_assignment -name VERILOG_FILE rtl/ethernet/icmp_fifo.v
 
 set_global_assignment -name VERILOG_FILE rtl/dsopenhpsdr1.v
 set_global_assignment -name VERILOG_FILE rtl/usopenhpsdr1.v
-set_global_assignment -name VERILOG_FILE rtl/sp_rcv_ctrl.v
-set_global_assignment -name VERILOG_FILE rtl/Hermes_Tx_fifo_ctrl.v
 
 set_global_assignment -name VERILOG_FILE rtl/cdc_sync.v
 set_global_assignment -name VERILOG_FILE rtl/sync.v
 
-set_global_assignment -name VERILOG_FILE rtl/Led_flash.v
+set_global_assignment -name VERILOG_FILE rtl/control.v
 set_global_assignment -name VERILOG_FILE rtl/debounce.v
 set_global_assignment -name VERILOG_FILE rtl/i2c_master.v
 set_global_assignment -name VERILOG_FILE rtl/i2c_init.v
 set_global_assignment -name VERILOG_FILE rtl/i2c_bus2.v
 set_global_assignment -name VERILOG_FILE rtl/i2c.v
 set_global_assignment -name VERILOG_FILE rtl/slow_adc.v
-set_global_assignment -name VERILOG_FILE rtl/axis_fifo.v
 
 set_location_assignment CLKCTRL_G17 -to clock_ethrxint~clkctrl
 set_location_assignment CLKCTRL_G19 -to ethtxext_clkmux_i|auto_generated|clkctrl1
