@@ -420,7 +420,7 @@ always @* begin
 
       if (|byte_no[8:0]) begin
         // Enough room for another round of data?
-        state_next = (byte_no > round_bytes) ? RXDATA2 : PAD;
+        state_next = (byte_no[8:0] > round_bytes) ? RXDATA2 : PAD;
       end else begin
         state_next = byte_no[9] ? SYNC_RESP : START;
       end
