@@ -36,13 +36,12 @@ module receiver(
   output out_strobe,
   input signed [11:0] in_data,
   output [23:0] out_data_I,
-  output [23:0] out_data_Q
+  output [23:0] out_data_Q,
+  output signed [17:0] cordic_outdata_I,	// make cordic data available for VNA_SCAN_FPGA
+  output signed [17:0] cordic_outdata_Q
   );
 
   parameter CICRATE;
-
-wire signed [17:0] cordic_outdata_I;
-wire signed [17:0] cordic_outdata_Q;
 
 // gain adjustment, Hermes reduced by 6dB to match previous receiver code.
 // Hermes-Lite gain reduced to calibrate QtRadio
