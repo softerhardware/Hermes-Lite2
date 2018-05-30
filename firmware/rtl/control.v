@@ -410,7 +410,8 @@ debounce de_ptt(.clean_pb(ext_ptt), .pb(~io_phone_ring), .clk(clk));
 debounce de_txinhibit(.clean_pb(ext_txinhibit), .pb(~io_cn8), .clk(clk));
 
 
-assign tx_on = (int_ptt | ext_cwkey | ext_ptt | vna) & ~ext_txinhibit & run;
+assign tx_on = (int_ptt | ext_cwkey | ext_ptt) & ~ext_txinhibit & run;
+//assign tx_on = (int_ptt | ext_cwkey | ext_ptt | vna) & ~ext_txinhibit & run;
 
 // At 2.5 MHz, led_saturate occurs about every 50ms
 always @(posedge clk) led_count <= led_count + 1;
@@ -431,18 +432,18 @@ always @(posedge clk) rxclrstatus <= ~rxclrstatus;
 // FIXME: Sequence power
 // FIXME: External TR won't work in low power mode
 `ifdef BETA2
-assign pa_tr = tx_on & (pa_enable | ~tr_disable);
-assign pa_en = tx_on & pa_enable;
+assign pa_tr = tx_on & ~vna & (pa_enable | ~tr_disable);
+assign pa_en = tx_on & ~vna & pa_enable;
 assign pwr_envpa = tx_on;
 `else
-assign pwr_envbias = tx_on & pa_enable;
+assign pwr_envbias = tx_on & ~vna & pa_enable;
 assign pwr_envop = tx_on;
 assign pa_exttr = tx_on;
-assign pa_inttr = tx_on & (pa_enable | ~tr_disable);
-assign pwr_envpa = tx_on & pa_enable;
+assign pa_inttr = tx_on & ~vna & (pa_enable | ~tr_disable);
+assign pwr_envpa = tx_on & ~vna & pa_enable;
 `endif
 
-assign rffe_rfsw_sel = pa_enable;
+assign rffe_rfsw_sel = ~vna & pa_enable;
 
 assign pwr_clk3p3 = 1'b0;
 assign pwr_clk1p2 = 1'b0;
@@ -545,10 +546,10 @@ always @(posedge clk) begin
       iresp <= {1'b1,resp_cmd_addr,tx_on, resp_cmd_data}; // Queue size is 1
     end else begin
       case( resp_addr) 
-        2'b00: iresp <= {3'b000,resp_addr,2'b00,tx_on, 7'b0001111,(~io_led_d4 | ~io_led_d5), 8'h00, 8'h00, HERMES_SERIALNO};
-        2'b01: iresp <= {3'b000,resp_addr,2'b00,tx_on, 4'h0,temperature, 4'h0,fwd_pwr};
-        2'b10: iresp <= {3'b000,resp_addr,2'b00,tx_on, 4'h0,rev_pwr, 4'h0,bias_current};
-        2'b11: iresp <= {3'b000,resp_addr,2'b00,tx_on, 32'h0}; // Unused in HL
+        2'b00: iresp <= {3'b000,resp_addr,1'b0, ext_cwkey, ext_ptt, 7'b0001111,(~io_led_d4 | ~io_led_d5), 8'h00, 8'h00, HERMES_SERIALNO};
+        2'b01: iresp <= {3'b000,resp_addr,1'b0, ext_cwkey, ext_ptt, 4'h0,temperature, 4'h0,fwd_pwr};
+        2'b10: iresp <= {3'b000,resp_addr,1'b0, ext_cwkey, ext_ptt, 4'h0,rev_pwr, 4'h0,bias_current};
+        2'b11: iresp <= {3'b000,resp_addr,1'b0, ext_cwkey, ext_ptt, 32'h0}; // Unused in HL
       endcase 
     end
   end 

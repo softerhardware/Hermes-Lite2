@@ -106,6 +106,8 @@ logic               pure_signal_next;
 
 logic               vna = 1'b0;
 logic               vna_next;
+logic  [15:0]       vna_count;
+logic  [15:0]       vna_count_next;
 
 logic  [ 1:0]       rx_rate = 2'b00;
 logic  [ 1:0]       rx_rate_next;
@@ -131,7 +133,6 @@ logic [15:0]  y2_r, y2_i;
 
 logic signed [15:0] tx_cordic_i_out;
 logic signed [15:0] tx_cordic_q_out;
-logic signed [31:0] tx_phase_word;
 
 logic signed [15:0] tx_i;
 logic signed [15:0] tx_q;
@@ -147,9 +148,13 @@ logic [63:0]  freqcomp;
 logic [31:0]  freqcompp [0:3];
 logic [5:0]   chanp [0:3];
 
-logic [31:0]  tx_phase [0:NT-1];
-logic [31:0]  rx_phase [0:NR-1];
-
+logic [31:0]  tx_phase [0:NT-1];    // The Tx phase calculated from the frequency sent by the PC.
+logic [31:0]  rx_phase [0:NR-1];    // The Rx phase calculated from the frequency sent by the PC.
+// VNA scanning code added by Jim Ahlstrom, N2ADR, May 2018.
+// The firmware can scan frequencies for the VNA if vna_count > 0. The vna then controls the Rx and Tx frequencies.
+// The starting frequency is tx_phase[0], the increment is rx_phase[0], and there are vna_count points.
+logic [31:0]  tx0_phase;    // For VNAscan, starts at tx_phase[0] and increments for vna_count points; else tx_phase[0].
+logic [31:0]  rx0_phase;    // For VNAscan, equals tx0_phase; else rx_phase[0].
 
 logic               tx_cw_key;
 logic [17:0]        tx_cw_level;
@@ -185,6 +190,7 @@ logic [1:0]   rxus_state_next;
 always @(posedge clk) begin
   cmd_state <= cmd_state_next;
   vna <= vna_next;
+  vna_count <= vna_count_next;
   rx_rate <= rx_rate_next;
   pure_signal <= pure_signal_next;
   tx_predistort <= tx_predistort_next;
@@ -196,6 +202,7 @@ always @* begin
   cmd_state_next = cmd_state;
   cmd_ack = 1'b0;
   vna_next = vna;
+  vna_count_next = vna_count;
   rx_rate_next = rx_rate;
   pure_signal_next = pure_signal;
   tx_predistort_next = tx_predistort;
@@ -229,7 +236,10 @@ always @* begin
             duplex_next               = cmd_data[2];
           end
 
-          6'h09:    vna_next          = cmd_data[23];
+          6'h09: begin
+            vna_next         = cmd_data[23];
+            vna_count_next   = cmd_data[15:0];
+          end
           6'h0a:    pure_signal_next  = cmd_data[22];
 
           6'h2b: begin
@@ -343,8 +353,59 @@ always @ (rx_rate) begin
   endcase
 end
 
+// This firmware supports two VNA modes: scanning by the PC (original method) and scanning in the FPGA.
+// The VNA bit must be turned on for either.  So VNA is one for either method, and zero otherwise.
+// The scan method depends on the number of VNA scan points, vna_count.  This is zero for the original method.
+wire VNA_SCAN_PC   = vna & (vna_count == 0);    // The PC changes the frequency for VNA.
+wire VNA_SCAN_FPGA = vna & (vna_count != 0);    // The firmware changes the frequency.
+
+wire signed [17:0] cordic_data_I, cordic_data_Q;
+wire vna_strobe, rx0_strobe;
+wire signed [23:0] vna_out_I, vna_out_Q, rx0_out_I, rx0_out_Q;
+
+assign rx_data_rdy[0] = VNA_SCAN_FPGA ? vna_strobe : rx0_strobe;
+assign rx_data_i[0] = VNA_SCAN_FPGA ? vna_out_I : rx0_out_I;
+assign rx_data_q[0] = VNA_SCAN_FPGA ? vna_out_Q : rx0_out_Q;
+
+// This module is a replacement for receiver zero when the FPGA scans in VNA mode.
+vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (	// use this output for VNA_SCAN_FPGA
+    //control
+    .clock(clk),
+    .freq_delta(rx_phase[0]),
+    .output_strobe(vna_strobe),
+    //input
+    .cordic_data_I(cordic_data_I),
+    .cordic_data_Q(cordic_data_Q),
+    //output
+    .out_data_I(vna_out_I),
+    .out_data_Q(vna_out_Q),
+    // VNA mode data
+    .vna(vna),
+    .Tx_frequency_in(tx_phase[0]),
+    .Tx_frequency_out(tx0_phase),
+    .vna_count(vna_count)
+    );
+
+
+// First receiver
+// If in VNA mode use the Tx[0] phase word for the first receiver phase
+assign rx0_phase = vna ? tx0_phase : rx_phase[0];
+
+receiver #(.CICRATE(CICRATE)) receiver_0_inst (
+  .clock(clk),
+  .rate(rate),
+  .frequency(rx0_phase),
+  .out_strobe(rx0_strobe),
+  .in_data(adcpipe[0]),
+  .out_data_I(rx0_out_I),
+  .out_data_Q(rx0_out_Q),
+  .cordic_outdata_I(cordic_data_I),
+  .cordic_outdata_Q(cordic_data_Q)
+);
+
+// Second and subsequent receivers
 generate
-  for (c = 0; c < NR; c = c + 1) begin: MDC
+  for (c = 1; c < NR; c = c + 1) begin: MDC
     if((c==3 && NR>3) || (c==1 && NR<=3)) begin
         receiver #(.CICRATE(CICRATE)) receiver_inst (
           .clock(clk),
@@ -488,8 +549,6 @@ CicInterpM5 #(.RRRR(RRRR), .IBITS(20), .OBITS(16), .GBITS(GBITS)) in2 ( clk, 1'd
 //---------------------------------------------------------
 
 // Code rotates input at set frequency and produces I & Q
-// if in VNA mode use the Rx[0] phase word for the Tx
-assign tx_phase_word = vna ? rx_phase[0] : tx_phase[0];
 assign          tx_i = vna ? 16'h4d80 : (tx_cw_key ? {1'b0, tx_cw_level[17:3]} : y2_i);    // select vna mode if active. Set CORDIC for max DAC output
 assign          tx_q = (vna | tx_cw_key) ? 16'h0 : y2_r;                   // taking into account CORDICs gain i.e. 0x7FFF/1.7
 
@@ -497,7 +556,7 @@ assign          tx_q = (vna | tx_cw_key) ? 16'h0 : y2_r;                   // ta
 // NOTE:  I and Q inputs reversed to give correct sideband out
 cpl_cordic #(.OUT_WIDTH(16)) cordic_inst (
   .clock(clk), 
-  .frequency(tx_phase_word), 
+  .frequency(tx0_phase),
   .in_data_I(tx_i),
   .in_data_Q(tx_q), 
   .out_data_I(tx_cordic_i_out), 
