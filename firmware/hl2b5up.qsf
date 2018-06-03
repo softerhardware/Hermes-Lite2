@@ -36,19 +36,14 @@
 #
 # -------------------------------------------------------------------------- #
 
-set_global_assignment -name VERILOG_MACRO "BETA3=1"
+set_global_assignment -name VERILOG_MACRO "BETA5=1"
 set_global_assignment -name VERILOG_MACRO "USE_ALTSYNCRAM=1"
-source ./hermeslite.tcl
-
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY hl2b5up
+source ./tcl/general.tcl
+source ./tcl/locations_hl2b5up.tcl
+source ./tcl/files.tcl
 set_global_assignment -name TOP_LEVEL_ENTITY hermeslite
-set_global_assignment -name SDC_FILE hermeslite.sdc
-
-set_location_assignment PIN_104 -to clk_scl1
-set_location_assignment PIN_103 -to clk_sda1
-set_location_assignment PIN_90 -to io_db1_3
-set_location_assignment PIN_91 -to io_db1_4
-set_location_assignment PIN_77 -to io_phone_tip
-set_location_assignment PIN_80 -to io_phone_ring
-
+set_global_assignment -name SDC_FILE sdc/hermeslite.sdc
 
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+
