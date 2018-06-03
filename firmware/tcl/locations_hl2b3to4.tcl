@@ -1,40 +1,7 @@
 
-set_global_assignment -name FAMILY "Cyclone IV E"
-set_global_assignment -name DEVICE EP4CE22E22C8
-set_global_assignment -name TOP_LEVEL_ENTITY hermeslite
-set_global_assignment -name ORIGINAL_QUARTUS_VERSION 16.1.2
-set_global_assignment -name PROJECT_CREATION_TIME_DATE "21:06:31  NOVEMBER 30, 2017"
-set_global_assignment -name LAST_QUARTUS_VERSION "16.1.2 Lite Edition"
-set_global_assignment -name PROJECT_OUTPUT_DIRECTORY build
-set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
-set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
-set_global_assignment -name DEVICE_FILTER_PACKAGE "ANY QFP"
-set_global_assignment -name DEVICE_FILTER_PIN_COUNT 144
-set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 8
-set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
-set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
-set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
-set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-set_global_assignment -name ENABLE_OCT_DONE OFF
-set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF
-set_global_assignment -name ENABLE_BOOT_SEL_PIN OFF
-set_global_assignment -name CYCLONEIII_CONFIGURATION_SCHEME "PASSIVE SERIAL"
-set_global_assignment -name STRATIXV_CONFIGURATION_SCHEME "PASSIVE SERIAL"
-set_global_assignment -name USE_CONFIGURATION_DEVICE OFF
-set_global_assignment -name CRC_ERROR_OPEN_DRAIN OFF
-set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVCMOS"
-set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
-set_global_assignment -name RESERVE_DATA1_AFTER_CONFIGURATION "USE AS REGULAR IO"
-set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULAR IO"
-set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
-set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
-set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
-set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
 set_location_assignment PIN_72 -to clk_recovered
-set_location_assignment PIN_103 -to clk_scl1
-set_location_assignment PIN_104 -to clk_sda1
+set_location_assignment PIN_104 -to clk_scl1
+set_location_assignment PIN_103 -to clk_sda1
 set_location_assignment PIN_33 -to io_adc_scl
 set_location_assignment PIN_32 -to io_adc_sda
 set_location_assignment PIN_86 -to io_lvds_txn
@@ -45,12 +12,12 @@ set_location_assignment PIN_25 -to io_cn8
 set_location_assignment PIN_24 -to io_cn9
 set_location_assignment PIN_23 -to io_cn10
 set_location_assignment PIN_76 -to io_db1_2
-set_location_assignment PIN_77 -to io_db1_3
-set_location_assignment PIN_80 -to io_db1_4
+set_location_assignment PIN_90 -to io_db1_3
+set_location_assignment PIN_91 -to io_db1_4
 set_location_assignment PIN_83 -to io_db1_5
 set_location_assignment PIN_85 -to io_db1_6
-set_location_assignment PIN_91 -to io_phone_tip
-set_location_assignment PIN_90 -to io_phone_ring
+set_location_assignment PIN_77 -to io_phone_tip
+set_location_assignment PIN_80 -to io_phone_ring
 set_location_assignment PIN_98 -to io_led_d2
 set_location_assignment PIN_99 -to io_led_d3
 set_location_assignment PIN_100 -to io_led_d4
@@ -173,67 +140,6 @@ set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to io_db1_5
 set_instance_assignment -name FAST_INPUT_REGISTER ON -to io_phone*
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to pa_*
 
-set_global_assignment -name VERILOG_INPUT_VERSION SYSTEMVERILOG_2005
-set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
-
-set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
-
-set_global_assignment -name VERILOG_FILE rtl/hermeslite.v
-set_global_assignment -name VERILOG_FILE rtl/fifos.v
-set_global_assignment -name VERILOG_FILE rtl/ad9866.v
-set_global_assignment -name VERILOG_FILE rtl/ad9866pll.v
-set_global_assignment -name VERILOG_FILE rtl/ad9866ctrl.v
-set_global_assignment -name VERILOG_FILE rtl/ethpll.v
-
-set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/radio.v
-set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/varcic.v
-set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/cic.v
-set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/cic_comb.v
-set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/cic_integrator.v
-set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/cordic.v
-set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/cpl_cordic.v
-set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/receiver.v
-set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firfilt.v
-set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/CicInterpM5.v
-set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firram36I_1024.v
-set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/FirInterp8_1024.v
-set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firram36.v
-set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/vna_scanner.v
-set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firrom/firromH.v
-set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firrom/firromI_1024.v
-
-set_global_assignment -name VERILOG_FILE rtl/ethernet/udp_send.v
-set_global_assignment -name VERILOG_FILE rtl/ethernet/udp_recv.v
-set_global_assignment -name VERILOG_FILE rtl/ethernet/rgmii_send.v
-set_global_assignment -name VERILOG_FILE rtl/ethernet/rgmii_recv.v
-set_global_assignment -name VERILOG_FILE rtl/ethernet/phy_cfg.v
-set_global_assignment -name VERILOG_FILE rtl/ethernet/network.v
-set_global_assignment -name VERILOG_FILE rtl/ethernet/mdio.v
-set_global_assignment -name VERILOG_FILE rtl/ethernet/mac_send.v
-set_global_assignment -name VERILOG_FILE rtl/ethernet/mac_recv.v
-set_global_assignment -name VERILOG_FILE rtl/ethernet/ip_send.v
-set_global_assignment -name VERILOG_FILE rtl/ethernet/ip_recv.v
-set_global_assignment -name VERILOG_FILE rtl/ethernet/icmp.v
-set_global_assignment -name VERILOG_FILE rtl/ethernet/dhcp.v
-set_global_assignment -name VERILOG_FILE rtl/ethernet/crc32.v
-set_global_assignment -name VERILOG_FILE rtl/ethernet/arp.v
-set_global_assignment -name VERILOG_FILE rtl/ethernet/ddio_out.v
-set_global_assignment -name VERILOG_FILE rtl/ethernet/ddio_in.v
-set_global_assignment -name VERILOG_FILE rtl/ethernet/icmp_fifo.v
-
-set_global_assignment -name VERILOG_FILE rtl/dsopenhpsdr1.v
-set_global_assignment -name VERILOG_FILE rtl/usopenhpsdr1.v
-
-set_global_assignment -name VERILOG_FILE rtl/cdc_sync.v
-set_global_assignment -name VERILOG_FILE rtl/sync.v
-
-set_global_assignment -name VERILOG_FILE rtl/control.v
-set_global_assignment -name VERILOG_FILE rtl/debounce.v
-set_global_assignment -name VERILOG_FILE rtl/i2c_master.v
-set_global_assignment -name VERILOG_FILE rtl/i2c_init.v
-set_global_assignment -name VERILOG_FILE rtl/i2c_bus2.v
-set_global_assignment -name VERILOG_FILE rtl/i2c.v
-set_global_assignment -name VERILOG_FILE rtl/slow_adc.v
 
 set_location_assignment CLKCTRL_G17 -to clock_ethrxint~clkctrl
 set_location_assignment CLKCTRL_G19 -to ethtxext_clkmux_i|auto_generated|clkctrl1
