@@ -335,7 +335,7 @@ always @ (posedge clk)
 assign clk_i2c_rst = ~(|resetcounter[15:10]);
 
 // At ~820us
-assign clk_i2c_start = ~(|resetcounter[15:11]);
+assign clk_i2c_start = (|resetcounter[15:11]);
 
 // At ~6.5ms
 assign slow_adc_rst = ~(|resetcounter[15:14]);
