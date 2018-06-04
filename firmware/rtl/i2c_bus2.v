@@ -10,6 +10,9 @@ module i2c_bus2
   cmd_rqst,
   cmd_ack,
 
+  en_i2c2,
+  ready,
+
   scl_i,
   scl_o,
   scl_t,
@@ -26,6 +29,9 @@ input  [5:0]  cmd_addr;
 input  [31:0] cmd_data;
 input         cmd_rqst;
 output        cmd_ack;
+
+output  logic en_i2c2;
+output        ready;    
  
 input         scl_i;
 output        scl_o;
@@ -63,6 +69,8 @@ logic         cmd_ack_reg, cmd_ack_next;
 
 logic [6:0]   filter_select_reg, filter_select_next;
 
+logic         en_i2c2_next;
+
 
 
 
@@ -94,6 +102,7 @@ always @(posedge clk) begin
     data1_reg <= data1_next;
     cmd_ack_reg <= cmd_ack_next;
     filter_select_reg <= filter_select_next;
+    en_i2c2 <= en_i2c2_next;
   end
 end
 
@@ -126,18 +135,23 @@ always @* begin
   cmd_next = cmd_reg;
   data0_next = data0_reg;
   data1_next = data1_reg; 
+  en_i2c2_next = en_i2c2;
+
+  ready = 1'b0;
   
   case(state)
 
     STATE_IDLE: begin
+      ready = ~busy;
       if (cmd_rqst) begin
         cmd_ack_next = 1'b1;
-        if ((cmd_addr == 6'h3d) & (cmd_data[31:24] == 8'h06)) begin
+        if (((cmd_addr == 6'h3d) | (cmd_addr == 6'h3c)) & (cmd_data[31:24] == 8'h06)) begin
           // Must send
           if (~busy) begin
             cmd_next = cmd_data[22:16];
             data0_next  = cmd_data[15:8];
             data1_next = cmd_data[7:0];
+            en_i2c2_next = (cmd_addr == 6'h3d);
             state_next = STATE_CMDADDR;
           end else begin
             cmd_ack_next = 1'b0; // Missed
@@ -153,6 +167,7 @@ always @* begin
               cmd_next = 'h20;
               data0_next = 'h0a;
               data1_next = {1'b0,cmd_data[23:17]};
+              en_i2c2_next = 1'b1;
               state_next = STATE_FCMDADDR;
             end else begin
               cmd_ack_next = 1'b0; // Missed

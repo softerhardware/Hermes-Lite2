@@ -127,10 +127,10 @@ module hermeslite(
 
 // Ethernet Interface
 `ifdef BETA2
-localparam       HERMES_SERIALNO = 8'd41;     // Serial number of this version
+localparam       HERMES_SERIALNO = 8'd42;     // Serial number of this version
 localparam       MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h12,8'hdd};
 `else 
-localparam       HERMES_SERIALNO = 8'd61;     // Serial number of this version
+localparam       HERMES_SERIALNO = 8'd62;     // Serial number of this version
 localparam       MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd};
 `endif
 localparam       IP = {8'd0,8'd0,8'd0,8'd0};
