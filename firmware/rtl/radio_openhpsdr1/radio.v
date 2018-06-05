@@ -1,6 +1,7 @@
 module radio (
 
   clk,
+  clk_2x,
 
   cw_keydown,
   tx_on,
@@ -64,6 +65,7 @@ localparam RATE384 =  RATE192 >> 1;
 
 
 input             clk;
+input             clk_2x;
 
 input             cw_keydown;
 input             tx_on;
@@ -393,6 +395,7 @@ assign rx0_phase = vna ? tx0_phase : rx_phase[0];
 
 receiver #(.CICRATE(CICRATE)) receiver_0_inst (
   .clock(clk),
+  .clock_2x(clk_2x),
   .rate(rate),
   .frequency(rx0_phase),
   .out_strobe(rx0_strobe),
@@ -409,6 +412,7 @@ generate
     if((c==3 && NR>3) || (c==1 && NR<=3)) begin
         receiver #(.CICRATE(CICRATE)) receiver_inst (
           .clock(clk),
+          .clock_2x(clk_2x),
           .rate(rate),
           .frequency(rx_phase[c]),
           .out_strobe(rx_data_rdy[c]),
@@ -419,6 +423,7 @@ generate
     end else begin
         receiver #(.CICRATE(CICRATE)) receiver_inst (
           .clock(clk),
+          .clock_2x(clk_2x),
           .rate(rate),
           .frequency(rx_phase[c]),
           .out_strobe(rx_data_rdy[c]),

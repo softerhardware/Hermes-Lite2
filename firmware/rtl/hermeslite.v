@@ -623,6 +623,7 @@ radio #(
 radio_i 
 (
   .clk(clk_ad9866),
+  .clk_2x(clk_ad9866_2x),
 
   .cw_keydown(cw_keydown_ad9866sync),
   .tx_on(tx_on_ad9866sync),

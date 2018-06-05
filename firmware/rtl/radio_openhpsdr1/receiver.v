@@ -31,6 +31,7 @@ Boston, MA  02110-1301, USA.
 
 module receiver(
   input clock,                  //61.44 MHz
+  input clock_2x,
   input [5:0] rate,             //48k....384k
   input [31:0] frequency,
   output out_strobe,
@@ -118,6 +119,6 @@ varcic #(.STAGES(5), .IN_WIDTH(16), .ACC_WIDTH(VARCICWIDTH), .OUT_WIDTH(16), .CI
     .out_data(decimB_imag)
     );
 				
-firX8R8 fir2 (clock, decimB_avail, {{2{decimB_real[15]}},decimB_real}, {{2{decimB_imag[15]}},decimB_imag}, out_strobe, out_data_I2, out_data_Q2);
+firX8R8 fir2 (clock, clock_2x, decimB_avail, {{2{decimB_real[15]}},decimB_real}, {{2{decimB_imag[15]}},decimB_imag}, out_strobe, out_data_I2, out_data_Q2);
 
 endmodule
