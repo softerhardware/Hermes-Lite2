@@ -50,6 +50,7 @@
 
 module firX8R8 (  
   input clock,
+  input clock_2x,
   input x_avail,                  // new sample is available
   input signed [MBITS-1:0] x_real,      // x is the sample input
   input signed [MBITS-1:0] x_imag,
@@ -62,7 +63,7 @@ module firX8R8 (
   
   parameter
     TAPS      = NTAPS / 8,        // Must be even by 8
-      ABITS     = 24,             // adder bits
+    ABITS     = 24,             // adder bits
     OBITS     = 24,             // output bits
     NTAPS     = 976;            // number of filter taps, even by 8 
   
@@ -151,14 +152,14 @@ module firX8R8 (
 
 `ifdef USE_ALTSYNCRAM  
 
-  fir256 #(.ifile("coefL8A.mif"), .ABITS(ABITS), .TAPS(TAPS)) A (clock, waddr, weA, x_real, x_imag, RaccA, IaccA);
-  fir256 #(.ifile("coefL8B.mif"), .ABITS(ABITS), .TAPS(TAPS)) B (clock, waddr, weB, x_real, x_imag, RaccB, IaccB);
-  fir256 #(.ifile("coefL8C.mif"), .ABITS(ABITS), .TAPS(TAPS)) C (clock, waddr, weC, x_real, x_imag, RaccC, IaccC);
-  fir256 #(.ifile("coefL8D.mif"), .ABITS(ABITS), .TAPS(TAPS)) D (clock, waddr, weD, x_real, x_imag, RaccD, IaccD);
-  fir256 #(.ifile("coefL8E.mif"), .ABITS(ABITS), .TAPS(TAPS)) E (clock, waddr, weE, x_real, x_imag, RaccE, IaccE);
-  fir256 #(.ifile("coefL8F.mif"), .ABITS(ABITS), .TAPS(TAPS)) F (clock, waddr, weF, x_real, x_imag, RaccF, IaccF);
-  fir256 #(.ifile("coefL8G.mif"), .ABITS(ABITS), .TAPS(TAPS)) G (clock, waddr, weG, x_real, x_imag, RaccG, IaccG);
-  fir256 #(.ifile("coefL8H.mif"), .ABITS(ABITS), .TAPS(TAPS)) H (clock, waddr, weH, x_real, x_imag, RaccH, IaccH);
+  fir256 #(.ifile("coefL8A.mif"), .ABITS(ABITS), .TAPS(TAPS)) A (clock_2x, waddr, weA, x_real, x_imag, RaccA, IaccA);
+  fir256 #(.ifile("coefL8B.mif"), .ABITS(ABITS), .TAPS(TAPS)) B (clock_2x, waddr, weB, x_real, x_imag, RaccB, IaccB);
+  fir256 #(.ifile("coefL8C.mif"), .ABITS(ABITS), .TAPS(TAPS)) C (clock_2x, waddr, weC, x_real, x_imag, RaccC, IaccC);
+  fir256 #(.ifile("coefL8D.mif"), .ABITS(ABITS), .TAPS(TAPS)) D (clock_2x, waddr, weD, x_real, x_imag, RaccD, IaccD);
+  fir256 #(.ifile("coefL8E.mif"), .ABITS(ABITS), .TAPS(TAPS)) E (clock_2x, waddr, weE, x_real, x_imag, RaccE, IaccE);
+  fir256 #(.ifile("coefL8F.mif"), .ABITS(ABITS), .TAPS(TAPS)) F (clock_2x, waddr, weF, x_real, x_imag, RaccF, IaccF);
+  fir256 #(.ifile("coefL8G.mif"), .ABITS(ABITS), .TAPS(TAPS)) G (clock_2x, waddr, weG, x_real, x_imag, RaccG, IaccG);
+  fir256 #(.ifile("coefL8H.mif"), .ABITS(ABITS), .TAPS(TAPS)) H (clock_2x, waddr, weH, x_real, x_imag, RaccH, IaccH);
   
 `else 
 
@@ -190,7 +191,7 @@ module fir256(
 
   input clock,
   input [ADDRBITS-1:0] waddr,             // memory write address
-  input we,                         // memory write enable
+  input ewe,                         // memory write enable
   input signed [MBITS-1:0] x_real,            // sample to write
   input signed [MBITS-1:0] x_imag,
   output signed [ABITS-1:0] Raccum,
@@ -214,7 +215,14 @@ module fir256(
   reg signed [MBITS*2-1:0] RmultSum, ImultSum;    // multiplier result
   reg [ADDRBITS:0] counter;               // count TAPS samples
 
+  reg  we = 1'b0;                          // Internal we on fast clock
+
   //reg fir_step;                   // Pipeline register for fir
+
+  always @(posedge clock) begin 
+    if (ewe & ~we) we <= 1'b1;
+    else we <= 1'b0;
+  end
 
   assign q_real = reg_q[MBITS*2-1:MBITS];
   assign q_imag = reg_q[MBITS-1:0];

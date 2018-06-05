@@ -327,3 +327,9 @@ set_false_path -to [get_ports {rffe_ad9866_sen_n}]
 set_false_path -to [get_ports {rffe_rfsw_sel}]
 set_false_path -to [get_ports {rffe_ad9866_mode}]
 set_false_path -to [get_ports {rffe_ad9866_pga*}]
+
+## Multicycle for FIR
+
+set_multicycle_path -from [get_clocks {clock_153p6_mhz}] -to [get_clocks {clock_76p8MHz}] -setup -start 2
+set_multicycle_path -from [get_clocks {clock_153p6_mhz}] -to [get_clocks {clock_76p8MHz}] -hold -start 2
+
