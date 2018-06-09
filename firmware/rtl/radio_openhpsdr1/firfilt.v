@@ -58,7 +58,7 @@ module firX8R8 (
   output wire signed [OBITS-1:0] y_real,  // y is the filtered output
   output wire signed [OBITS-1:0] y_imag);
   
-  localparam ADDRBITS = 8;          // Address bits for 18/36 X 256 rom/ram blocks
+  localparam ADDRBITS = 7;          // Address bits for 18/36 X 256 rom/ram blocks
   localparam MBITS  = 18;           // multiplier bits == input bits  
   
   parameter
@@ -72,8 +72,9 @@ module firX8R8 (
   reg  [ADDRBITS-1:0] waddr;          // write sample memory address
   reg weA, weB, weC, weD, weE, weF, weG, weH;
   reg  signed [ABITS-1:0] Racc, Iacc;
-  wire signed [ABITS-1:0] RaccA, RaccB, RaccC, RaccD, RaccE, RaccF, RaccG, RaccH;
-  wire signed [ABITS-1:0] IaccA, IaccB, IaccC, IaccD, IaccE, IaccF, IaccG, IaccH; 
+  wire signed [ABITS-1:0] RaccA, RaccB, RaccC, RaccD;
+  wire signed [ABITS-1:0] IaccA, IaccB, IaccC, IaccD; 
+  wire banksel;
   
 // Output is the result of adding 8 by 24 bit results so Racc and Iacc need to be 
 // 24 + log2(8) = 24 + 3 = 27 bits wide to prevent DC spur.
@@ -117,20 +118,20 @@ module firX8R8 (
             Iacc <= Iacc + IaccD;
           end
         4:  begin
-            Racc <= Racc + RaccE;   
-            Iacc <= Iacc + IaccE;
+            Racc <= Racc + RaccA;   
+            Iacc <= Iacc + IaccA;
           end
         5:  begin
-            Racc <= Racc + RaccF;   
-            Iacc <= Iacc + IaccF;
+            Racc <= Racc + RaccB;   
+            Iacc <= Iacc + IaccB;
           end
         6:  begin
-            Racc <= Racc + RaccG;   
-            Iacc <= Iacc + IaccG;
+            Racc <= Racc + RaccC;   
+            Iacc <= Iacc + IaccC;
           end
         7: begin                    // wait for the last x input
-            Racc <= Racc + RaccH;
-            Iacc <= Iacc + IaccH;
+            Racc <= Racc + RaccD;
+            Iacc <= Iacc + IaccD;
           end
       endcase
     end
@@ -146,36 +147,55 @@ module firX8R8 (
   assign weF    = (x_avail && wstate == 5);
   assign weG    = (x_avail && wstate == 6);
   assign weH    = (x_avail && wstate == 7);
-  
+
+  assign banksel = ~wstate[2];
+    
   // at end of sequence indicate new data is available
   assign y_avail = (wstate == 8);
 
-`ifdef USE_ALTSYNCRAM  
+  fir256 #(.ifile("coefL4AE.mif"), .ABITS(ABITS), .TAPS(TAPS)) AE (
+    .clock(clock_2x),
+    .waddr(waddr),
+    .ebanksel(banksel),
+    .ewe(weA|weE),
+    .x_real(x_real),
+    .x_imag(x_imag),
+    .Raccum(RaccA), 
+    .Iaccum(IaccA)
+  );
 
-  fir256 #(.ifile("coefL8A.mif"), .ABITS(ABITS), .TAPS(TAPS)) A (clock_2x, waddr, weA, x_real, x_imag, RaccA, IaccA);
-  fir256 #(.ifile("coefL8B.mif"), .ABITS(ABITS), .TAPS(TAPS)) B (clock_2x, waddr, weB, x_real, x_imag, RaccB, IaccB);
-  fir256 #(.ifile("coefL8C.mif"), .ABITS(ABITS), .TAPS(TAPS)) C (clock_2x, waddr, weC, x_real, x_imag, RaccC, IaccC);
-  fir256 #(.ifile("coefL8D.mif"), .ABITS(ABITS), .TAPS(TAPS)) D (clock_2x, waddr, weD, x_real, x_imag, RaccD, IaccD);
-  fir256 #(.ifile("coefL8E.mif"), .ABITS(ABITS), .TAPS(TAPS)) E (clock_2x, waddr, weE, x_real, x_imag, RaccE, IaccE);
-  fir256 #(.ifile("coefL8F.mif"), .ABITS(ABITS), .TAPS(TAPS)) F (clock_2x, waddr, weF, x_real, x_imag, RaccF, IaccF);
-  fir256 #(.ifile("coefL8G.mif"), .ABITS(ABITS), .TAPS(TAPS)) G (clock_2x, waddr, weG, x_real, x_imag, RaccG, IaccG);
-  fir256 #(.ifile("coefL8H.mif"), .ABITS(ABITS), .TAPS(TAPS)) H (clock_2x, waddr, weH, x_real, x_imag, RaccH, IaccH);
-  
-`else 
+  fir256 #(.ifile("coefL4BF.mif"), .ABITS(ABITS), .TAPS(TAPS)) BF (
+    .clock(clock_2x),
+    .waddr(waddr),
+    .ebanksel(banksel),
+    .ewe(weB|weF),
+    .x_real(x_real),
+    .x_imag(x_imag),
+    .Raccum(RaccB), 
+    .Iaccum(IaccB)
+  );
 
-  fir256 #(.ifile("coefL8A.txt"), .ABITS(ABITS), .TAPS(TAPS)) A (clock, waddr, weA, x_real, x_imag, RaccA, IaccA);
-  fir256 #(.ifile("coefL8B.txt"), .ABITS(ABITS), .TAPS(TAPS)) B (clock, waddr, weB, x_real, x_imag, RaccB, IaccB);
-  fir256 #(.ifile("coefL8C.txt"), .ABITS(ABITS), .TAPS(TAPS)) C (clock, waddr, weC, x_real, x_imag, RaccC, IaccC);
-  fir256 #(.ifile("coefL8D.txt"), .ABITS(ABITS), .TAPS(TAPS)) D (clock, waddr, weD, x_real, x_imag, RaccD, IaccD);
-  fir256 #(.ifile("coefL8E.txt"), .ABITS(ABITS), .TAPS(TAPS)) E (clock, waddr, weE, x_real, x_imag, RaccE, IaccE);
-  fir256 #(.ifile("coefL8F.txt"), .ABITS(ABITS), .TAPS(TAPS)) F (clock, waddr, weF, x_real, x_imag, RaccF, IaccF);
-  fir256 #(.ifile("coefL8G.txt"), .ABITS(ABITS), .TAPS(TAPS)) G (clock, waddr, weG, x_real, x_imag, RaccG, IaccG);
-  fir256 #(.ifile("coefL8H.txt"), .ABITS(ABITS), .TAPS(TAPS)) H (clock, waddr, weH, x_real, x_imag, RaccH, IaccH);
+  fir256 #(.ifile("coefL4CG.mif"), .ABITS(ABITS), .TAPS(TAPS)) CG (
+    .clock(clock_2x),
+    .waddr(waddr),
+    .ebanksel(banksel),
+    .ewe(weC|weG),
+    .x_real(x_real),
+    .x_imag(x_imag),
+    .Raccum(RaccC), 
+    .Iaccum(IaccC)
+  );
 
-
-`endif
-
-
+  fir256 #(.ifile("coefL4DH.mif"), .ABITS(ABITS), .TAPS(TAPS)) DH (
+    .clock(clock_2x),
+    .waddr(waddr),
+    .ebanksel(banksel),
+    .ewe(weD|weH),
+    .x_real(x_real),
+    .x_imag(x_imag),
+    .Raccum(RaccD), 
+    .Iaccum(IaccD)
+  );
 
 endmodule
 
@@ -191,6 +211,7 @@ module fir256(
 
   input clock,
   input [ADDRBITS-1:0] waddr,             // memory write address
+  input ebanksel,
   input ewe,                         // memory write enable
   input signed [MBITS-1:0] x_real,            // sample to write
   input signed [MBITS-1:0] x_imag,
@@ -198,7 +219,7 @@ module fir256(
   output signed [ABITS-1:0] Iaccum
   );
 
-  localparam ADDRBITS = 8;                // Address bits for 18/36 X 256 rom/ram blocks
+  localparam ADDRBITS = 7;                // Address bits for 18/36 X 256 rom/ram blocks
   localparam MBITS    = 18;               // multiplier bits == input bits
   
   parameter ifile = "missing.txt";              // ROM coefficients
@@ -216,20 +237,36 @@ module fir256(
   reg [ADDRBITS:0] counter;               // count TAPS samples
 
   reg  we = 1'b0;                          // Internal we on fast clock
+  reg  banksel = 1'b0;
+
+  //wire [ADDRBITS-1:0] addr;
 
   //reg fir_step;                   // Pipeline register for fir
 
   always @(posedge clock) begin 
-    if (ewe & ~we) we <= 1'b1;
+    if (ewe & ~we) begin 
+      we <= 1'b1;
+      banksel <= ebanksel;
+    end
     else we <= 1'b0;
   end
 
   assign q_real = reg_q[MBITS*2-1:MBITS];
   assign q_imag = reg_q[MBITS-1:0];
 
-  firromH #(.init_file(ifile)) rom (caddr, clock, coef);    // coefficient ROM 18 X 256
-  firram36 ram (clock, {x_real, x_imag}, raddr, waddr, we, q);    // sample RAM 36 X 256;  36 bit == 18 bits I and 18 bits Q
+  firromH #(.init_file(ifile)) rom ( {banksel,caddr}, clock, coef);    // coefficient ROM 18 X 256
   
+  //assign addr = we ? waddr : raddr;
+
+  firram36 ram (
+    .clock(clock), 
+    .data({x_real, x_imag}),
+    .rdaddress({banksel,raddr}),
+    .wraddress({banksel,waddr}),
+    .wren(we),
+    .q(q)
+  );
+
   always @(posedge clock)
   begin
     if (we)   // Wait until a new sample is written to memory
