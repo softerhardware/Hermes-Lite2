@@ -142,7 +142,7 @@ localparam       CLK_FREQ = 76800000;
 localparam      PREDISTORT = 0;
 
 localparam      NR = 3; // Recievers
-localparam      NT = 0; // Transmitters
+localparam      NT = 1; // Transmitters
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;

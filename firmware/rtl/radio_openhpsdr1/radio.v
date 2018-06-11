@@ -45,6 +45,9 @@ parameter         VNA = 1;
 parameter         CWSHAPE = 1;
 parameter         CLK_FREQ = 76800000;
 
+parameter         RECEIVER2 = 0;
+parameter         QS1R = 0;
+
 // B57 = 2^57.   M2 = B57/OSC
 // 61440000
 //localparam M2 = 32'd2345624805;
@@ -387,6 +390,64 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (	// use this output fo
           .frequency(rx_phase[c]),
           .out_strobe(rx_data_rdy[c]),
           .in_data(adcpipe[c/8]),
+          .out_data_I(rx_data_i[c]),
+          .out_data_Q(rx_data_q[c])
+        );
+    end
+  end
+
+end else if (RECEIVER2==1) begin
+
+  assign tx0_phase = tx_phase0;
+
+  for (c = 0; c < NR; c = c + 1) begin: RECV2
+    if((c==3 && NR>3) || (c==1 && NR<=3)) begin
+        receiver2 receiver_inst (
+          .clock(clk),
+          .reset(1'b0),
+          .sample_rate(rate),
+          .frequency(rx_phase[c]),
+          .out_strobe(rx_data_rdy[c]),
+          .in_data((tx_on & pure_signal) ? { {4{tx_data_dac[11]}},tx_data_dac} : { {4{adcpipe[c/8][11]}},adcpipe[c/8]}), //tx_data was pipelined here once
+          .out_data_I(rx_data_i[c]),
+          .out_data_Q(rx_data_q[c])
+        );
+    end else begin
+        receiver2 receiver_inst (
+          .clock(clk),
+          .reset(1'b0),
+          .sample_rate(rate),
+          .frequency(rx_phase[c]),
+          .out_strobe(rx_data_rdy[c]),
+          .in_data({ {4{adcpipe[c/8][11]}},adcpipe[c/8]}),
+          .out_data_I(rx_data_i[c]),
+          .out_data_Q(rx_data_q[c])
+        );
+    end
+  end
+
+end else if (QS1R==1) begin
+
+  assign tx0_phase = tx_phase0;
+
+  for (c = 0; c < NR; c = c + 1) begin: RECV2
+    if((c==3 && NR>3) || (c==1 && NR<=3)) begin
+        qs1r_receiver receiver_inst (
+          .clock(clk),
+          .rate(rx_rate),
+          .frequency(rx_phase[c]),
+          .out_strobe(rx_data_rdy[c]),
+          .in_data((tx_on & pure_signal) ? { {4{tx_data_dac[11]}},tx_data_dac} : { {4{adcpipe[c/8][11]}},adcpipe[c/8]}), //tx_data was pipelined here once
+          .out_data_I(rx_data_i[c]),
+          .out_data_Q(rx_data_q[c])
+        );
+    end else begin
+        qs1r_receiver receiver_inst (
+          .clock(clk),
+          .rate(rx_rate),
+          .frequency(rx_phase[c]),
+          .out_strobe(rx_data_rdy[c]),
+          .in_data({ {4{adcpipe[c/8][11]}},adcpipe[c/8]}),
           .out_data_I(rx_data_i[c]),
           .out_data_Q(rx_data_q[c])
         );
