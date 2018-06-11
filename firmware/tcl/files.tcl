@@ -24,6 +24,36 @@ set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/vna_scanner.v
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firrom/firromH.v
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firrom/firromI_1024.v
 
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/receiver2/recv2_cic.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/receiver2/recv2_cordic.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/receiver2/receiver2.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/receiver2/recv2_firromH.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/receiver2/recv2_firram48.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/receiver2/recv2_firx2r2.v
+
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firfilt.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/CicInterpM5.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firram36I_1024.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/FirInterp8_1024.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firram36.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/vna_scanner.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firrom/firromH.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firrom/firromI_1024.v
+
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/qs1r/qs1r_cic_comb.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/qs1r/qs1r_cic_integrator.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/qs1r/qs1r_cordic.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/qs1r/qs1r_fir.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/qs1r/qs1r_fir_coeffs.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/qs1r/qs1r_fir_coeffs_rom.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/qs1r/qs1r_fir_mac.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/qs1r/qs1r_fir_shiftreg.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/qs1r/qs1r_memcic.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/qs1r/qs1r_memcic_ram.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/qs1r/qs1r_receiver.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/qs1r/qs1r_varcic.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/qs1r/qs1r_mult_24Sx24S.v
+
 set_global_assignment -name VERILOG_FILE rtl/ethernet/udp_send.v
 set_global_assignment -name VERILOG_FILE rtl/ethernet/udp_recv.v
 set_global_assignment -name VERILOG_FILE rtl/ethernet/rgmii_send.v
