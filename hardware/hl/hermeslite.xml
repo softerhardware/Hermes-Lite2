@@ -2,7 +2,7 @@
 <export version="D">
   <design>
     <source>C:/cygwin64/home/shaynal/Hermes-Lite2/hardware/hl/hermeslite.sch</source>
-    <date>6/11/2018 10:30:27 PM</date>
+    <date>6/17/2018 10:02:54 PM</date>
     <tool>Eeschema 4.0.6</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -741,7 +741,7 @@
       <value>USBBlaster2</value>
       <footprint>HERMESLITE:USBBLASTER</footprint>
       <fields>
-        <field name="Option">DNI</field>
+        <field name="Option">ADNI</field>
       </fields>
       <libsource lib="hermeslite" part="USBBlaster2"/>
       <sheetpath names="/Power and FPGA/" tstamps="/56C9CAA0/"/>
@@ -800,7 +800,7 @@
       <value>PS</value>
       <footprint>HERMESLITE:PWRBARREL</footprint>
       <fields>
-        <field name="Option">DNI</field>
+        <field name="Option">ADNI</field>
       </fields>
       <libsource lib="conn" part="CONN_01X02"/>
       <sheetpath names="/Power and FPGA/" tstamps="/56C9CAA0/"/>
@@ -1658,7 +1658,7 @@
       <value>MagJack</value>
       <footprint>HERMESLITE:MAGJACK</footprint>
       <fields>
-        <field name="Option">DNI</field>
+        <field name="Option">ADNI</field>
       </fields>
       <libsource lib="hermeslite" part="MagJack"/>
       <sheetpath names="/Ethernet/" tstamps="/569C3E05/"/>
@@ -2143,6 +2143,9 @@
     <comp ref="U7">
       <value>AD9866BCPZ</value>
       <footprint>HERMESLITE:AD9866</footprint>
+      <fields>
+        <field name="Option">ADNI</field>
+      </fields>
       <libsource lib="hermeslite" part="AD9866BCPZ"/>
       <sheetpath names="/RF Frontend/" tstamps="/56AAFEF4/"/>
       <tstamp>52CB8653</tstamp>
@@ -3377,7 +3380,7 @@
       <value>STEREO</value>
       <footprint>HERMESLITE:STEREO</footprint>
       <fields>
-        <field name="Option">DNI</field>
+        <field name="Option">ADNI</field>
       </fields>
       <libsource lib="hermeslite" part="STEREO"/>
       <sheetpath names="/Input Output/" tstamps="/56C6CB95/"/>
