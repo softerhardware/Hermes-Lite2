@@ -36,8 +36,8 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 3 7
 Title "Ethernet"
-Date "2018-02-18"
-Rev "2.0-build6"
+Date "2018-06-11"
+Rev "2.0-build7"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
 Comment2 ""
@@ -947,6 +947,7 @@ F 0 "CN3" H 2850 2900 60  0000 C CNN
 F 1 "MagJack" H 2850 1550 60  0000 C CNN
 F 2 "HERMESLITE:MAGJACK" H 2850 2200 60  0001 C CNN
 F 3 "" H 2850 2200 60  0000 C CNN
+F 4 "DNI" H 2850 2200 60  0001 C CNN "Option"
 	1    2850 2200
 	1    0    0    -1  
 $EndComp

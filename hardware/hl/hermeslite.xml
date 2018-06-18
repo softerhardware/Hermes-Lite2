@@ -2,14 +2,14 @@
 <export version="D">
   <design>
     <source>C:/cygwin64/home/shaynal/Hermes-Lite2/hardware/hl/hermeslite.sch</source>
-    <date>2/25/2018 1:51:14 PM</date>
+    <date>6/11/2018 10:30:27 PM</date>
     <tool>Eeschema 4.0.6</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
         <title>Hermes-Lite</title>
         <company>SofterHardware</company>
-        <rev>2.0-build6</rev>
-        <date>2018-02-18</date>
+        <rev>2.0-build7</rev>
+        <date>2018-06-11</date>
         <source>hermeslite.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -21,8 +21,8 @@
       <title_block>
         <title>Power</title>
         <company>SofterHardware</company>
-        <rev>2.0-build6</rev>
-        <date>2018-02-18</date>
+        <rev>2.0-build7</rev>
+        <date>2018-06-11</date>
         <source>Power.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -34,8 +34,8 @@
       <title_block>
         <title>Ethernet</title>
         <company>SofterHardware</company>
-        <rev>2.0-build6</rev>
-        <date>2018-02-18</date>
+        <rev>2.0-build7</rev>
+        <date>2018-06-11</date>
         <source>Ethernet.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -47,8 +47,8 @@
       <title_block>
         <title>Clock</title>
         <company>SofterHardware</company>
-        <rev>2.0-build6</rev>
-        <date>2018-02-18</date>
+        <rev>2.0-build7</rev>
+        <date>2018-06-11</date>
         <source>Clock.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -60,8 +60,8 @@
       <title_block>
         <title>RF Frontend</title>
         <company>SofterHardware</company>
-        <rev>2.0-build6</rev>
-        <date>2018-02-18</date>
+        <rev>2.0-build7</rev>
+        <date>2018-06-11</date>
         <source>RFFrontend.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -73,8 +73,8 @@
       <title_block>
         <title>Hermes-Lite Input Output</title>
         <company>SofterHardware</company>
-        <rev>2.0-build6</rev>
-        <date>2018-02-18</date>
+        <rev>2.0-build7</rev>
+        <date>2018-06-11</date>
         <source>InputOutput.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -86,8 +86,8 @@
       <title_block>
         <title>Hermes-Lite V2 5W Power Amplifier</title>
         <company>SofterHardware</company>
-        <rev>2.0-build6</rev>
-        <date>2018-02-18</date>
+        <rev>2.0-build7</rev>
+        <date>2018-06-11</date>
         <source>PA.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -740,6 +740,9 @@
     <comp ref="CN1">
       <value>USBBlaster2</value>
       <footprint>HERMESLITE:USBBLASTER</footprint>
+      <fields>
+        <field name="Option">DNI</field>
+      </fields>
       <libsource lib="hermeslite" part="USBBlaster2"/>
       <sheetpath names="/Power and FPGA/" tstamps="/56C9CAA0/"/>
       <tstamp>5778A1B9</tstamp>
@@ -796,6 +799,9 @@
     <comp ref="CN2">
       <value>PS</value>
       <footprint>HERMESLITE:PWRBARREL</footprint>
+      <fields>
+        <field name="Option">DNI</field>
+      </fields>
       <libsource lib="conn" part="CONN_01X02"/>
       <sheetpath names="/Power and FPGA/" tstamps="/56C9CAA0/"/>
       <tstamp>578FD492</tstamp>
@@ -1651,6 +1657,9 @@
     <comp ref="CN3">
       <value>MagJack</value>
       <footprint>HERMESLITE:MAGJACK</footprint>
+      <fields>
+        <field name="Option">DNI</field>
+      </fields>
       <libsource lib="hermeslite" part="MagJack"/>
       <sheetpath names="/Ethernet/" tstamps="/569C3E05/"/>
       <tstamp>577345B0</tstamp>
@@ -3367,6 +3376,9 @@
     <comp ref="CN4">
       <value>STEREO</value>
       <footprint>HERMESLITE:STEREO</footprint>
+      <fields>
+        <field name="Option">DNI</field>
+      </fields>
       <libsource lib="hermeslite" part="STEREO"/>
       <sheetpath names="/Input Output/" tstamps="/56C6CB95/"/>
       <tstamp>59E86030</tstamp>
@@ -4992,17 +5004,17 @@
     </libpart>
   </libparts>
   <libraries>
-    <library logical="linear">
-      <uri>C:\Program Files\KiCad\share\kicad\library\linear.lib</uri>
-    </library>
-    <library logical="hermeslite">
-      <uri>C:\cygwin64\home\shaynal\Hermes-Lite2\hardware\hl\libs\hermeslite.lib</uri>
-    </library>
     <library logical="device">
       <uri>C:\Program Files\KiCad\share\kicad\library\device.lib</uri>
     </library>
     <library logical="conn">
       <uri>C:\Program Files\KiCad\share\kicad\library\conn.lib</uri>
+    </library>
+    <library logical="linear">
+      <uri>C:\Program Files\KiCad\share\kicad\library\linear.lib</uri>
+    </library>
+    <library logical="hermeslite">
+      <uri>C:\cygwin64\home\shaynal\Hermes-Lite2\hardware\hl\libs\hermeslite.lib</uri>
     </library>
   </libraries>
   <nets>
