@@ -36,8 +36,8 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 2 7
 Title "Power"
-Date "2018-02-18"
-Rev "2.0-build6"
+Date "2018-06-11"
+Rev "2.0-build7"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
 Comment2 ""
@@ -855,6 +855,7 @@ F 0 "CN1" H 3825 2175 39  0000 C CNN
 F 1 "USBBlaster2" H 3825 3375 39  0001 C CNN
 F 2 "HERMESLITE:USBBLASTER" H 3675 2225 60  0001 C CNN
 F 3 "" H 3675 2225 60  0000 C CNN
+F 4 "DNI" H 3675 2225 60  0001 C CNN "Option"
 	1    3675 2225
 	1    0    0    -1  
 $EndComp
@@ -1051,6 +1052,7 @@ F 0 "CN2" H 1000 3475 39  0000 C CNN
 F 1 "PS" V 975 3525 50  0001 C CNN
 F 2 "HERMESLITE:PWRBARREL" H 875 3525 50  0001 C CNN
 F 3 "" H 875 3525 50  0000 C CNN
+F 4 "DNI" H 875 3525 60  0001 C CNN "Option"
 	1    875  3525
 	-1   0    0    -1  
 $EndComp
@@ -3473,5 +3475,5 @@ Wire Wire Line
 Wire Wire Line
 	3925 6200 3925 6225
 Text Notes 700  4100 0    60   ~ 0
->=2A Power \nSupply Required
+11-16V\n>=2A Power \nSupply Required
 $EndSCHEMATC

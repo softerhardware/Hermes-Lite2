@@ -36,8 +36,8 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 6 7
 Title "Hermes-Lite Input Output"
-Date "2018-02-18"
-Rev "2.0-build6"
+Date "2018-06-11"
+Rev "2.0-build7"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
 Comment2 ""
@@ -1275,6 +1275,7 @@ F 0 "CN4" H 1075 4150 39  0000 C CNN
 F 1 "STEREO" H 1350 4175 60  0001 C CNN
 F 2 "HERMESLITE:STEREO" H 1350 3550 60  0001 C CNN
 F 3 "" H 1350 3550 60  0001 C CNN
+F 4 "DNI" H 1350 3550 60  0001 C CNN "Option"
 	1    1350 3550
 	1    0    0    -1  
 $EndComp

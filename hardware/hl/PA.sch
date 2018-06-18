@@ -36,8 +36,8 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 7 7
 Title "Hermes-Lite V2 5W Power Amplifier"
-Date "2018-02-18"
-Rev "2.0-build6"
+Date "2018-06-11"
+Rev "2.0-build7"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
 Comment2 ""
@@ -488,7 +488,7 @@ F 0 "T3" H 6325 3575 50  0000 C CNN
 F 1 "4:1 Z" H 6325 2975 50  0000 C CNN
 F 2 "HERMESLITE:BN202V" H 6325 3225 50  0001 C CNN
 F 3 "" H 6325 3225 50  0000 C CNN
-F 4 "DNI" H 6325 3500 39  0000 C CNN "Option"
+F 4 "DNI" H 6325 3500 39  0001 C CNN "Option"
 	1    6325 3225
 	1    0    0    -1  
 $EndComp
@@ -706,7 +706,7 @@ F 0 "K2" H 8025 2025 39  0000 C CNN
 F 1 "NA3WK-K" H 8050 1725 39  0000 C CNN
 F 2 "HERMESLITE:DPDT_GND" H 7750 1825 60  0001 C CNN
 F 3 "" H 7750 1825 60  0000 C CNN
-F 4 "DNI" H 8025 1950 39  0000 C CNN "Option"
+F 4 "DNI" H 8025 1950 39  0001 C CNN "Option"
 	1    8050 2025
 	1    0    0    -1  
 $EndComp
