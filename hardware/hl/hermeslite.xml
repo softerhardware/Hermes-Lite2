@@ -2,7 +2,7 @@
 <export version="D">
   <design>
     <source>C:/cygwin64/home/shaynal/Hermes-Lite2/hardware/hl/hermeslite.sch</source>
-    <date>6/17/2018 10:02:54 PM</date>
+    <date>6/19/2018 9:04:34 PM</date>
     <tool>Eeschema 4.0.6</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -354,6 +354,9 @@
     <comp ref="U2">
       <value>FPGA</value>
       <footprint>HERMESLITE:CYCLONEIV</footprint>
+      <fields>
+        <field name="Option">ADNI</field>
+      </fields>
       <libsource lib="hermeslite" part="FPGA"/>
       <sheetpath names="/Power and FPGA/" tstamps="/56C9CAA0/"/>
       <tstamp>56F0DF15</tstamp>
@@ -5007,8 +5010,8 @@
     </libpart>
   </libparts>
   <libraries>
-    <library logical="device">
-      <uri>C:\Program Files\KiCad\share\kicad\library\device.lib</uri>
+    <library logical="hermeslite">
+      <uri>C:\cygwin64\home\shaynal\Hermes-Lite2\hardware\hl\libs\hermeslite.lib</uri>
     </library>
     <library logical="conn">
       <uri>C:\Program Files\KiCad\share\kicad\library\conn.lib</uri>
@@ -5016,8 +5019,8 @@
     <library logical="linear">
       <uri>C:\Program Files\KiCad\share\kicad\library\linear.lib</uri>
     </library>
-    <library logical="hermeslite">
-      <uri>C:\cygwin64\home\shaynal\Hermes-Lite2\hardware\hl\libs\hermeslite.lib</uri>
+    <library logical="device">
+      <uri>C:\Program Files\KiCad\share\kicad\library\device.lib</uri>
     </library>
   </libraries>
   <nets>
