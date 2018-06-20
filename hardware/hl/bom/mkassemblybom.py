@@ -8,7 +8,7 @@ optionset = set([])
 
 bom = BOM.BOM("../hermeslite.xml",optionset=optionset)
 
-pre = """\\section*{Hermes-Lite 2.0build6 BOM}
+pre = """\\section*{Hermes-Lite 2.0build7 BOM}
 Assembly Build - \\today"""
 
 bom.LaTeXAssemblyPrint(pre,['Mouser','Digi-Key'])
