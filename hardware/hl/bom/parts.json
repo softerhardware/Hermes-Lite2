@@ -1,8 +1,8 @@
 {
 
 "B 0.1uF 0603": {
-	"mpn":["C0603C104M5RACTU"],
-	"spec":"0.1uF 0603>=X5R>=50V<=20%",
+	"mpn":["C0603C104M5RACTU","C1608X7R1E104K080AA"],
+	"spec":"0.1uF 0603>=X5R>=25V<=20%",
 	"assembly":"SMT",
 	"pins":2,
 	"ecid":15331,
@@ -10,7 +10,7 @@
 	},
 
 "C 1uF 0805 HV": {
-	"mpn":["CL21B105KAFNNNE"],
+	"mpn":["CL21B105KAFNNNE","CL21B105KBFNFNE","CL21A105KACLNNC"],
 	"spec":"1uF 0805>=X5R>=25V<=20%",
 	"assembly":"SMT",
 	"pins":2,
@@ -55,7 +55,7 @@
 	},
 
 "C 10uF HV": {
-	"mpn":["CL31A106KAHNNNE"],
+	"mpn":["CL31A106KAHNNNE","TMK316AB7106KL-T"],
 	"spec":"10uF 1206>=X5R>=25V<=20%",
 	"assembly":"SMT",
 	"pins":2,
@@ -406,7 +406,7 @@
 	},	
 
 "R 20K 0603": {
-	"mpn":["RC0603FR-0720KL"],
+	"mpn":["RC0603FR-0720KL","CR0603-FX-2002ELF"],
 	"spec":"20K 0603<=1%>=1/10W",
 	"assembly":"SMT",
 	"pins":2,
@@ -435,7 +435,7 @@
 	},
 
 "R 10K 0603": {
-	"mpn":["RC0603FR-0710KL"],
+	"mpn":["RC0603FR-0710KL","CR0603-FX-1002HLF"],
 	"spec":"10K 0603<=5%>=1/10W",
 	"assembly":"SMT",
 	"pins":2,
@@ -451,7 +451,7 @@
 	},	
 
 "R 4.7K 0603": {
-	"mpn":["RC0603FR-074K7L"],
+	"mpn":["RC0603FR-074K7L","CR0603-FX-4701ELF"],
 	"spec":"4.7K 0603<=5%>=1/10W",
 	"assembly":"SMT",
 	"pins":2,
@@ -475,7 +475,7 @@
 	},
 
 "R 1.8K 0603": {
-	"mpn":["RC0603FR-071K8L"],
+	"mpn":["RC0603FR-071K8L","CR0603-FX-1801ELF"],
 	"spec":"1.8K 0603<=1%>=1/10W",
 	"assembly":"SMT",
 	"pins":2,
@@ -490,7 +490,7 @@
 	},
 
 "R 1K 0603": {
-	"mpn":["RC0603FR-071KL"],
+	"mpn":["RC0603FR-071KL","CR0603-FX-1001HLF"],
 	"spec":"1K 0603<=5%>=1/10W",
 	"assembly":"SMT",
 	"pins":2,
@@ -521,7 +521,7 @@
 	},
 
 "R 270 0603": {
-	"mpn":["RC0603FR-07270RL"],
+	"mpn":["RC0603FR-07270RL","CR0603-FX-2700ELF"],
 	"spec":"270 0603<=5%>=1/10W",
 	"assembly":"SMT",
 	"pins":2,
@@ -536,7 +536,7 @@
 	},
 
 "R 330 0603": {
-	"mpn":["RC0603FR-07330RL"],
+	"mpn":["RC0603FR-07330RL","CR0603-FX-3300ELF"],
 	"spec":"330 0603<=1%>=1/10W",
 	"assembly":"SMT",
 	"pins":2,
@@ -544,7 +544,7 @@
 	},
 
 "R 100 0603": {
-	"mpn":["RC0603FR-07100RL"],
+	"mpn":["RC0603FR-07100RL","CR0603-FX-1000ELF","AC0603FR-07100RL"],
 	"spec":"100 0603<=1%>=1/10W",
 	"assembly":"SMT",
 	"pins":2,
@@ -560,7 +560,7 @@
 	},
 
 "R 75 0603": {
-	"mpn":["RC0603FR-0775RL"],
+	"mpn":["RC0603FR-0775RL","CR0603-FX-75R0ELF"],
 	"spec":"75 0603<=5%>=1/10W",
 	"assembly":"SMT",
 	"pins":2,
@@ -568,7 +568,7 @@
 	},
 
 "R 33 0603": {
-	"mpn":["RC0603FR-0733RL"],
+	"mpn":["RC0603FR-0733RL","CR0603-FX-33R0ELF"],
 	"spec":"33 0603<=1%>=1/10W",
 	"assembly":"SMT",
 	"pins":2,
@@ -576,7 +576,7 @@
 	},
 
 "R 22 0603": {
-	"mpn":["RC0603FR-0722RL"],
+	"mpn":["RC0603FR-0722RL","CR0603-FX-22R0ELF"],
 	"spec":"22 0603<=5%>=1/10W",
 	"assembly":"SMT",
 	"pins":2,
@@ -606,7 +606,7 @@
 	},
 
 "J JNC 0603": {
-	"mpn":["RC0603JR-070RL"],
+	"mpn":["RC0603JR-070RL","CR0603-J/-000ELF"],
 	"spec":"0Ohm 0603<=5%>=1/10W",
 	"assembly":"SMT",
 	"pins":2,
