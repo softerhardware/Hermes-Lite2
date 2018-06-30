@@ -51,8 +51,8 @@ class Test(object):
         f.close()
 
         self.sampling_freq = 76800000
-        self.rx_freq = 10000000
-        self.sigfreq = 9000000
+        self.rx_freq = 14049013 ##28000000
+        self.sigfreq = 0 #27500000
 
 
         module = 'cordic'
@@ -60,7 +60,7 @@ class Test(object):
 
         srcs = []
 
-        srcs.append("../rtl/%s.v" % module)
+        srcs.append("../rtl/radio_openhpsdr1/%s.v" % module)
         srcs.append("%s.v" % self.testbench)
 
         src = ' '.join(srcs)
@@ -68,7 +68,7 @@ class Test(object):
         self.build_cmd = "iverilog -g2012 -o %s.vvp %s" % (self.testbench,src)
         print(self.build_cmd)
 
-        self.res = np.zeros(16384)
+        self.res = np.zeros(16384,'complex64')
 
 
         ## m2 and m3 from rtl
@@ -76,6 +76,7 @@ class Test(object):
         m3 = 16777216
 
         self.rx_phase = (self.rx_freq * m2 + m3) >> 25
+        self.rx_phase = 0x60103001
 
         self.dt = 1.0/self.sampling_freq
 
@@ -93,7 +94,7 @@ class Test(object):
 
     def Sig(self,i):
 
-        return int(round( (self.scale*np.sin(2*np.pi*self.sigfreq*i*self.dt)+self.offset) ))
+        return int(round( (self.scale*np.cos(2*np.pi*self.sigfreq*i*self.dt)+self.offset) ))
 
     def bench(self):
 
@@ -137,7 +138,7 @@ class Test(object):
 
             for i in range(16384):
                 in_data.next = self.Sig(i+32)
-                self.res[i] = out_data_I
+                self.res[i] = out_data_I + (1j * out_data_Q)
                 yield clk.negedge
      
             raise StopSimulation
@@ -148,14 +149,14 @@ class Test(object):
         sim = Simulation(self.bench())
         sim.run()
         s = spectrum.Spectrum(self.res,self.dt,window=signal.flattop)
-        peaks = s.findPeaks(order=4,clipdb=90)
+        peaks = s.findPeaks(order=1,clipdb=100)
         s.printPeaks(peaks)
-        s.plot()
+        s.plot("Cordic Spectrum")
 
 
 if __name__ == '__main__':
     print("Running test...")
-    t = Test(ampl=0.7)
+    t = Test(ampl=1.0)
     t.test_bench()
     ##t = Test(16,7)
     ##t.test_bench()

@@ -9,7 +9,7 @@ testbench = 'test_%s' % module
 
 srcs = []
 
-srcs.append("../rtl/%s.v" % module)
+srcs.append("../rtl/radio_openhpsdr1/%s.v" % module)
 srcs.append("%s.v" % testbench)
 
 src = ' '.join(srcs)
@@ -85,7 +85,7 @@ def bench():
             yield negedge(clk)
 
         for i in range(16384):
-            cosa[i] = cos >> 2
+            cosa[i] = cos ## >> 2
             yield clk.negedge
  
         raise StopSimulation
