@@ -15,8 +15,16 @@ class Spectrum:
 
     n = len(npa)
 
-    fftia = pyfftw.n_byte_align_empty(n, 16, 'float32')
-    fftoa = pyfftw.n_byte_align_empty(int(n/2) + 1, 16, 'complex64')
+    self.complexinput = npa.dtype == 'complex64'
+ 
+
+    if self.complexinput:
+      fftia = pyfftw.n_byte_align_empty(n, 16, 'complex64')
+      fftoa = pyfftw.n_byte_align_empty(n, 16, 'complex64')
+    else:
+      fftia = pyfftw.n_byte_align_empty(n, 16, 'float32')
+      fftoa = pyfftw.n_byte_align_empty(int(n/2) + 1, 16, 'complex64')
+
     fft = pyfftw.FFTW(fftia,fftoa,flags=('FFTW_ESTIMATE',),planning_timelimit=60.0)
 
     maxv = abs(npa).max()
@@ -38,7 +46,12 @@ class Spectrum:
       print("Scaling postwindow by",scale)
       self.sa = scale * self.sa
 
-    ## 2.0 To get magnitude in terms of original V since half of spectrum is returned
+    if self.complexinput:
+      self.sa = np.concatenate( [self.sa[int(n/2):n],self.sa[0:int(n/2)]] ) 
+    else:
+      ## 2.0 To get magnitude in terms of original V since half of spectrum is returned
+      self.sa = 2* self.sa
+  
     ## Result is vrms
     print("Converting to dBFS")
 
@@ -48,11 +61,21 @@ class Spectrum:
 
     self.sa = 20.0*np.log10(self.sa/maxv) 
 
-    self.mhz2bin = len(self.sa) * 1e6 * 2 * dt
+    if self.complexinput:
+      self.mhz2bin = len(self.sa) * 1e6 * dt
+    else:
+      self.mhz2bin = len(self.sa) * 1e6 * 2 * dt
+
     self.bin2mhz = 1.0/self.mhz2bin
 
     print("Spectrum Array length is",len(self.sa))
 
+  def binFreq(self,i):
+
+    if self.complexinput:
+      return (i - (len(self.sa)/2)) * self.bin2mhz
+    else:
+      return i * self.bin2mhx
 
   def findPeaks(self,order=2,clipdb=None):
 
@@ -66,7 +89,7 @@ class Spectrum:
 
     peaks = []
     for i in res:
-        peaks.append( (self.sa[i],i*self.bin2mhz) )
+        peaks.append( (self.sa[i],self.binFreq(i)) )
 
     return peaks
 
@@ -83,7 +106,7 @@ class Spectrum:
     for (db,mhz) in peaks:
         print("| {0:10.6f} | {1:7.2f} |".format(mhz,db))
 
-  def plot(self,title='Spectrum',xoffset=0):
+  def plot(self,title='Spectrum'):
 
     sa = self.sa
     n = len(sa)
@@ -93,7 +116,10 @@ class Spectrum:
     fig.suptitle(title, fontsize=20)
     sp = fig.add_subplot(111)
 
-    xaxis = (np.r_[0:n] - xoffset) * self.bin2mhz
+    if self.complexinput:
+      xaxis = (np.r_[0:n] - (n/2)) * self.bin2mhz
+    else:
+      xaxis = np.r_[0:n] * self.bin2mhz
 
     sp.plot(xaxis,sa) ##,'-',color='b',label='Spectrum')
     sp.set_ylabel("dB")
