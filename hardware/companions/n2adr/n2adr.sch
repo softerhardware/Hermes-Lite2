@@ -96,8 +96,8 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 1 1
 Title "HL2 Filter Board"
-Date "2018-03-29"
-Rev "E4"
+Date "2018-07-01"
+Rev "E5"
 Comp "N2ADR"
 Comment1 ""
 Comment2 ""
