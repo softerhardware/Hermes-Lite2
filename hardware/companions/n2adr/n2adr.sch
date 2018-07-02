@@ -89,10 +89,7 @@ LIBS:Xicor
 LIBS:xilinx
 LIBS:zetex
 LIBS:Zilog
-LIBS:local_ic
-LIBS:local_relay
-LIBS:local_thru
-LIBS:hermeslite
+LIBS:n2adr-cache
 EELAYER 25 0
 EELAYER END
 $Descr USLetter 11000 8500
@@ -317,8 +314,6 @@ F 3 "" H 1450 7650 50  0000 C CNN
 	1    1450 7650
 	-1   0    0    1   
 $EndComp
-Text GLabel 950  1100 0    60   Input ~ 0
-+3.3V
 $Comp
 L MCP23008-E/SS U1
 U 1 1 598F6569
@@ -494,8 +489,6 @@ F 3 "" H 10100 5200 50  0000 C CNN
 $EndComp
 Text Notes 9900 5000 0    60   ~ 0
 RF Output
-Text GLabel 6000 3100 2    60   Input ~ 0
-+3.3V
 Text GLabel 9650 1550 2    60   Input ~ 0
 Band4
 $Comp
@@ -1008,7 +1001,7 @@ F 3 "" H 4350 4000 50  0000 C CNN
 	1    4350 4000
 	0    1    1    0   
 $EndComp
-Text GLabel 1650 700  0    60   Input ~ 0
+Text GLabel 1275 700  0    60   Output ~ 0
 FilterOut
 $Comp
 L GND #PWR010
@@ -1397,10 +1390,6 @@ F 3 "" H 5550 4850 50  0000 C CNN
 	1    5550 4850
 	1    0    0    -1  
 $EndComp
-Text Notes 7250 2300 0    60   ~ 0
-+3.3V
-Text Notes 9050 3300 0    60   ~ 0
-+3.3V
 $Comp
 L BNC P11
 U 1 1 59D9F834
@@ -1508,7 +1497,6 @@ Wire Wire Line
 Connection ~ 5600 1850
 Wire Wire Line
 	5450 1850 5700 1850
-Connection ~ 5900 3100
 Connection ~ 5550 3800
 Wire Wire Line
 	5450 3700 5550 3700
@@ -1555,8 +1543,6 @@ Wire Wire Line
 Connection ~ 6850 2300
 Wire Wire Line
 	5650 2300 8150 2300
-Wire Wire Line
-	5450 3100 6000 3100
 Wire Wire Line
 	8100 3700 8050 3700
 Wire Wire Line
@@ -1639,17 +1625,15 @@ Wire Wire Line
 Wire Wire Line
 	2700 800  2800 800 
 Wire Wire Line
-	1900 700  1650 700 
+	1275 700  1900 700 
 Connection ~ 1350 1300
 Wire Wire Line
 	1350 1350 1350 1300
 Connection ~ 1800 1200
 Wire Wire Line
-	950  1100 1800 1100
-Wire Wire Line
 	1200 1300 1900 1300
 Wire Wire Line
-	1800 1100 1800 7600
+	1800 825  1800 7600
 Wire Wire Line
 	1900 1200 1800 1200
 Connection ~ 1700 7550
@@ -2057,7 +2041,6 @@ Wire Wire Line
 	5700 1550 5650 1550
 Wire Wire Line
 	5650 1550 5650 2300
-Connection ~ 5900 2300
 Connection ~ 1800 6900
 Wire Wire Line
 	1800 6900 4900 6900
@@ -2091,9 +2074,7 @@ Wire Wire Line
 	6250 2400 6250 2300
 Connection ~ 6250 2300
 Wire Wire Line
-	6700 1250 6900 1250
-Wire Wire Line
-	6900 1250 6900 850 
+	6900 1250 6700 1250
 $Comp
 L CONN_01X03 P9
 U 1 1 5A022FD7
@@ -2228,7 +2209,7 @@ Wire Wire Line
 	6500 3350 6500 3400
 Connection ~ 6500 3400
 Wire Wire Line
-	6200 3300 6200 3650
+	6200 3100 6200 3650
 Connection ~ 6200 3600
 Wire Wire Line
 	5650 5950 5650 6000
@@ -2243,37 +2224,23 @@ P12: Half of Sullins PRPC040SAAN-RC ; jumper use Sullins PPPC202LFBN-RC
 $Comp
 L 74AHC1G00 U5
 U 1 1 5A9F1E75
-P 7450 800
-F 0 "U5" H 7350 950 50  0000 C CNN
-F 1 "74LVC1G00" H 7450 650 50  0000 C CNN
-F 2 "TO_SOT_Packages_SMD:SOT-23-5_HandSoldering" H 7450 800 50  0001 C CNN
-F 3 "" H 7450 800 50  0001 C CNN
-	1    7450 800 
+P 7700 800
+F 0 "U5" H 7600 950 50  0000 C CNN
+F 1 "74LVC1G00" H 7700 650 50  0000 C CNN
+F 2 "TO_SOT_Packages_SMD:SOT-23-5_HandSoldering" H 7700 800 50  0001 C CNN
+F 3 "" H 7700 800 50  0001 C CNN
+	1    7700 800 
 	1    0    0    -1  
 $EndComp
-Text GLabel 8150 2300 2    60   Input ~ 0
-Vcc
 Connection ~ 8000 2300
 Wire Wire Line
 	7000 1250 7000 1050
-Wire Wire Line
-	7000 1050 7700 1050
-Wire Wire Line
-	7700 1050 7700 800 
-Text GLabel 6950 600  0    60   Input ~ 0
+Text GLabel 7375 575  0    60   Input ~ 0
 INTTR
-Wire Wire Line
-	6950 600  7050 600 
-Wire Wire Line
-	7050 600  7050 750 
-Wire Wire Line
-	7050 750  7150 750 
 Wire Wire Line
 	6750 950  6750 1150
 Wire Wire Line
 	6750 1150 6700 1150
-Wire Wire Line
-	6900 850  7150 850 
 Text Notes 5250 6500 0    60   ~ 0
 Either install RV1 (50 ohms) and omit R1, or omit RV1 and install R1 (22 ohms).
 Connection ~ 10100 6300
@@ -2292,14 +2259,150 @@ Wire Wire Line
 $Comp
 L 1N4148 D3
 U 1 1 5ABD48D4
-P 6050 3300
-F 0 "D3" H 6050 3400 50  0000 C CNN
-F 1 "1N4148" H 5850 3250 50  0000 C CNN
-F 2 "Diodes_SMD:D_SOD-123" H 6050 3125 50  0001 C CNN
-F 3 "" H 6050 3300 50  0001 C CNN
-	1    6050 3300
+P 6050 3100
+F 0 "D3" H 6050 3000 50  0000 C CNN
+F 1 "1N4148" H 6250 3150 50  0000 C CNN
+F 2 "Diodes_SMD:D_SOD-123" H 6050 2925 50  0001 C CNN
+F 3 "" H 6050 3100 50  0001 C CNN
+	1    6050 3100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Ferrite_Bead_Small FB1
+U 1 1 5B3775A2
+P 5750 3100
+F 0 "FB1" V 5850 3050 50  0000 L CNN
+F 1 "Ferrite_Bead_Small" H 5825 3050 50  0001 L CNN
+F 2 "N2ADR:SMD_0805" V 5680 3100 50  0001 C CNN
+F 3 "" H 5750 3100 50  0001 C CNN
+	1    5750 3100
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5450 3100 5650 3100
+Wire Wire Line
+	5850 3100 5900 3100
+Wire Wire Line
+	5875 3100 5875 2300
+Connection ~ 5875 2300
+Connection ~ 5875 3100
+$Comp
+L C_Small C12
+U 1 1 5B3A5EE7
+P 1100 950
+F 0 "C12" H 1200 875 50  0000 L CNN
+F 1 "22uF" H 1150 1025 50  0000 L CNN
+F 2 "N2ADR:SMD_0805" H 1100 950 50  0001 C CNN
+F 3 "" H 1100 950 50  0000 C CNN
+	1    1100 950 
+	-1   0    0    1   
+$EndComp
+$Comp
+L C_Small C15
+U 1 1 5B3A9962
+P 1450 950
+F 0 "C15" H 1550 875 50  0000 L CNN
+F 1 "100uF" H 1475 1025 50  0000 L CNN
+F 2 "N2ADR:SMD-1206" H 1450 950 50  0001 C CNN
+F 3 "" H 1450 950 50  0000 C CNN
+	1    1450 950 
+	-1   0    0    1   
+$EndComp
+$Comp
+L GND #PWR022
+U 1 1 5B3A9F6E
+P 1100 1075
+F 0 "#PWR022" H 1100 825 50  0001 C CNN
+F 1 "GND" H 1100 925 50  0001 C CNN
+F 2 "" H 1100 1075 50  0000 C CNN
+F 3 "" H 1100 1075 50  0000 C CNN
+	1    1100 1075
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR023
+U 1 1 5B3AA1B5
+P 1450 1075
+F 0 "#PWR023" H 1450 825 50  0001 C CNN
+F 1 "GND" H 1450 925 50  0001 C CNN
+F 2 "" H 1450 1075 50  0000 C CNN
+F 3 "" H 1450 1075 50  0000 C CNN
+	1    1450 1075
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5900 2300 5900 3300
+	825  825  1800 825 
+Wire Wire Line
+	1100 850  1100 825 
+Connection ~ 1100 825 
+Wire Wire Line
+	1450 850  1450 825 
+Connection ~ 1450 825 
+Wire Wire Line
+	1100 1050 1100 1075
+Wire Wire Line
+	1450 1050 1450 1075
+Wire Wire Line
+	7950 800  8000 800 
+Wire Wire Line
+	8000 800  8000 1050
+Wire Wire Line
+	8000 1050 7000 1050
+Wire Wire Line
+	7375 575  7400 575 
+Wire Wire Line
+	7400 575  7400 750 
+$Comp
+L R R16
+U 1 1 5B3C8402
+P 6900 775
+F 0 "R16" H 7025 775 50  0000 C CNN
+F 1 "DNI" V 6900 775 50  0000 C CNN
+F 2 "N2ADR:SMD_0805" V 6830 775 50  0001 C CNN
+F 3 "" H 6900 775 50  0000 C CNN
+	1    6900 775 
+	1    0    0    -1  
+$EndComp
+$Comp
+L +3V3 #PWR024
+U 1 1 5B3C973C
+P 6900 600
+F 0 "#PWR024" H 6900 450 50  0001 C CNN
+F 1 "+3V3" H 6750 650 50  0000 C CNN
+F 2 "" H 6900 600 50  0001 C CNN
+F 3 "" H 6900 600 50  0001 C CNN
+	1    6900 600 
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7400 850  7400 950 
+Wire Wire Line
+	7400 950  6900 950 
+Wire Wire Line
+	6900 925  6900 1250
+Connection ~ 6900 950 
+Wire Wire Line
+	6900 600  6900 625 
+$Comp
+L +3V3 #PWR025
+U 1 1 5B3D5003
+P 8150 2300
+F 0 "#PWR025" H 8150 2150 50  0001 C CNN
+F 1 "+3V3" V 8150 2525 50  0000 C CNN
+F 2 "" H 8150 2300 50  0001 C CNN
+F 3 "" H 8150 2300 50  0001 C CNN
+	1    8150 2300
+	0    1    1    0   
+$EndComp
+$Comp
+L +3V3 #PWR026
+U 1 1 5B3D6466
+P 825 825
+F 0 "#PWR026" H 825 675 50  0001 C CNN
+F 1 "+3V3" V 825 1050 50  0000 C CNN
+F 2 "" H 825 825 50  0001 C CNN
+F 3 "" H 825 825 50  0001 C CNN
+	1    825  825 
+	0    -1   -1   0   
+$EndComp
 $EndSCHEMATC
