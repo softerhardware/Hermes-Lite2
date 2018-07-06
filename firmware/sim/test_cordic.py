@@ -51,7 +51,7 @@ class Test(object):
         f.close()
 
         self.sampling_freq = 76800000
-        self.rx_freq = 14049013 ##28000000
+        self.rx_freq = 20480000 ##28000000
         self.sigfreq = 0 #27500000
 
 
@@ -76,7 +76,7 @@ class Test(object):
         m3 = 16777216
 
         self.rx_phase = (self.rx_freq * m2 + m3) >> 25
-        self.rx_phase = 0x60103001
+        ##self.rx_phase = 0x60103001
 
         self.dt = 1.0/self.sampling_freq
 
