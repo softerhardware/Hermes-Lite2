@@ -178,7 +178,7 @@
 },		
 
 "U AD8692": {
-	"mpn":["AD8692ARMZ"],
+	"mpn":["AD8692ARMZ-R7"],
 	"spec":"AD8692 Op Amp",
 	"assembly":"SMT",
 	"pins":8,
@@ -227,7 +227,7 @@
 	"spec":"SS Diode",
 	"assembly":"SMT",
 	"pins":2,
-	"sub":0,
+	"sub":1,
 	"package":"SOD-123"
 },
 
@@ -308,7 +308,7 @@
 	"spec":"FB 0805 >=600R@100MHz <=200mOhm@DC >=1.5A",
 	"assembly":"SMT",
 	"pins":2,
-	"sub":0
+	"sub":1
 }
 
 }

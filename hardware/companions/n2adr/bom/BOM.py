@@ -326,8 +326,12 @@ class Part:
                 self.package = '0805'
             elif '0603' in self.spec or self.components[0].ext == '0603': 
                 self.package = '0603' 
-            elif '1206' in self.spec:
+            elif '1206' in self.spec or self.components[0].ext == '1206':
                 self.package = '1206'
+            elif '1210' in self.spec or self.components[0].ext == '1210':
+                self.package = '1210'
+            elif '1812' in self.spec or self.components[0].ext == '1812':
+                self.package = '1812'                
             else:
                 self.package = "Custom"
 
@@ -456,7 +460,7 @@ class Part:
         else:
             url = ""
             for mpn in self.mpns:
-                url = url + ' \href{{http://www.octopart.com/search?q={0}}}{{{1}}}'.format(self.mpns[0],self.mpns[0])
+                url = url + ' \href{{http://www.octopart.com/search?q={0}}}{{{1}}}'.format(mpn,mpn)
             ##url = '\href{{http://www.octopart.com/search?q={0}}}{{{1}}}'.format(self.mpns[0],self.mpns[0])
 
         ##for mpn in self.mpns:
@@ -710,6 +714,7 @@ class BOM:
 
         dni = []
 
+        c1 = 0
         for k in keys:
             p = self.parts[k]
 
@@ -718,7 +723,7 @@ class BOM:
             c8 = p.Quantities(self.optionset)[0]
             if c8 == 0: continue
 
-            c1 = "" ##p.ecid
+            c1 = c1+1 ##p.ecid
             c2 = LaTeXEscape(p.spec)
             c3 = p.LaTeXAssemblyLinks()
             c4 = p.sub
@@ -762,7 +767,7 @@ class BOM:
 
         f = open("bomassembly.csv","w")
 
-        s = '"Part ID", "Description", "Part Number", "Substitution\nOkay", "Designators", "Footprint", "Pins", "Quantity", "Part Reference Link"'
+        s = '"Line", "Description", "Part Number", "Substitution\nOkay", "Designators", "Footprint", "Pins", "Quantity", "Part Reference Link"'
         print >>f,s
 
         # itemspartspins
