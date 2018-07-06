@@ -2,7 +2,7 @@
 <export version="D">
   <design>
     <source>C:/cygwin64/home/shaynal/Hermes-Lite2/hardware/companions/n2adr/n2adr.sch</source>
-    <date>7/5/2018 9:32:34 PM</date>
+    <date>7/5/2018 10:15:53 PM</date>
     <tool>Eeschema 4.0.6</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -246,7 +246,7 @@
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F65E8</tstamp>
     </comp>
-    <comp ref="P10">
+    <comp ref="CN4">
       <value>SMA</value>
       <footprint>Local:BNCEDGE</footprint>
       <fields>
@@ -261,6 +261,7 @@
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="n2adr" part="TST"/>
       <sheetpath names="/" tstamps="/"/>
@@ -271,6 +272,7 @@
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="n2adr" part="TST"/>
       <sheetpath names="/" tstamps="/"/>
@@ -281,6 +283,7 @@
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="n2adr" part="TST"/>
       <sheetpath names="/" tstamps="/"/>
@@ -291,6 +294,7 @@
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="n2adr" part="TST"/>
       <sheetpath names="/" tstamps="/"/>
@@ -301,6 +305,7 @@
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="n2adr" part="TST"/>
       <sheetpath names="/" tstamps="/"/>
@@ -556,6 +561,7 @@
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="n2adr" part="TST"/>
       <sheetpath names="/" tstamps="/"/>
@@ -716,12 +722,13 @@
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="n2adr" part="TST"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59CD2DA2</tstamp>
     </comp>
-    <comp ref="P11">
+    <comp ref="CN3">
       <value>SMA</value>
       <footprint>Local:BNCEDGE</footprint>
       <fields>
@@ -745,7 +752,7 @@
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59DBB14F</tstamp>
     </comp>
-    <comp ref="P9">
+    <comp ref="CN5">
       <value>CONN_01X03</value>
       <footprint>Pin_Headers:Pin_Header_Straight_1x03</footprint>
       <fields>
@@ -765,7 +772,7 @@
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5A022783</tstamp>
     </comp>
-    <comp ref="P12">
+    <comp ref="CN2">
       <value>Conn_01x20</value>
       <footprint>Pin_Headers:Pin_Header_Straight_1x20_Pitch2.54mm</footprint>
       <fields>
@@ -780,6 +787,7 @@
       <footprint>Pin_Headers:Pin_Header_Straight_1x01_Pitch2.54mm</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="n2adr" part="Conn_01x01"/>
       <sheetpath names="/" tstamps="/"/>
@@ -790,12 +798,13 @@
       <footprint>Wire_Pads:SolderWirePad_single_0-8mmDrill</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="n2adr" part="TST"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5A06042C</tstamp>
     </comp>
-    <comp ref="J4">
+    <comp ref="CN1">
       <value>Audio-Jack-2</value>
       <footprint>Local:PhonoRcaRCJ-04x</footprint>
       <fields>
@@ -810,6 +819,7 @@
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="n2adr" part="TST"/>
       <sheetpath names="/" tstamps="/"/>
@@ -820,6 +830,7 @@
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="n2adr" part="TST"/>
       <sheetpath names="/" tstamps="/"/>
@@ -830,6 +841,7 @@
       <footprint>Wire_Pads:SolderWirePad_single_0-8mmDrill</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="n2adr" part="TST"/>
       <sheetpath names="/" tstamps="/"/>
@@ -840,6 +852,7 @@
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
         <field name="Option">DNI</field>
+        <field name="Key">NOBOM</field>
       </fields>
       <libsource lib="n2adr" part="TST"/>
       <sheetpath names="/" tstamps="/"/>
@@ -1367,8 +1380,8 @@
       <node ref="U1" pin="17"/>
       <node ref="U2" pin="2"/>
     </net>
-    <net code="8" name="Net-(JP1-Pad1)">
-      <node ref="P10" pin="1"/>
+    <net code="8" name="Net-(CN4-Pad1)">
+      <node ref="CN4" pin="1"/>
       <node ref="JP1" pin="1"/>
     </net>
     <net code="9" name="Net-(U1-Pad16)">
@@ -1502,12 +1515,12 @@
       <node ref="RV1" pin="1"/>
       <node ref="R3" pin="1"/>
     </net>
-    <net code="38" name="Net-(P12-Pad14)">
+    <net code="38" name="Net-(CN2-Pad14)">
       <node ref="P8" pin="1"/>
-      <node ref="P12" pin="14"/>
+      <node ref="CN2" pin="14"/>
     </net>
-    <net code="39" name="Net-(P12-Pad6)">
-      <node ref="P12" pin="6"/>
+    <net code="39" name="Net-(CN2-Pad6)">
+      <node ref="CN2" pin="6"/>
       <node ref="P15" pin="1"/>
     </net>
     <net code="40" name="Net-(P13-Pad1)">
@@ -1524,7 +1537,7 @@
       <node ref="C9" pin="1"/>
       <node ref="C8" pin="1"/>
       <node ref="C4" pin="1"/>
-      <node ref="J4" pin="2"/>
+      <node ref="CN1" pin="2"/>
       <node ref="C3" pin="1"/>
       <node ref="C1" pin="1"/>
       <node ref="U1" pin="5"/>
@@ -1544,7 +1557,7 @@
       <node ref="C28" pin="1"/>
       <node ref="C27" pin="1"/>
       <node ref="C13" pin="2"/>
-      <node ref="P10" pin="2"/>
+      <node ref="CN4" pin="2"/>
       <node ref="C2" pin="1"/>
       <node ref="C25" pin="1"/>
       <node ref="C24" pin="1"/>
@@ -1568,26 +1581,26 @@
       <node ref="D1" pin="1"/>
       <node ref="C43" pin="1"/>
       <node ref="C38" pin="1"/>
-      <node ref="P11" pin="2"/>
+      <node ref="CN3" pin="2"/>
       <node ref="C50" pin="1"/>
       <node ref="C46" pin="1"/>
       <node ref="R1" pin="1"/>
       <node ref="C7" pin="1"/>
-      <node ref="P12" pin="8"/>
-      <node ref="P9" pin="3"/>
-      <node ref="P12" pin="1"/>
+      <node ref="CN2" pin="8"/>
+      <node ref="CN5" pin="3"/>
+      <node ref="CN2" pin="1"/>
       <node ref="C15" pin="1"/>
-      <node ref="P12" pin="3"/>
-      <node ref="P12" pin="4"/>
-      <node ref="P12" pin="5"/>
-      <node ref="P12" pin="7"/>
+      <node ref="CN2" pin="3"/>
+      <node ref="CN2" pin="4"/>
+      <node ref="CN2" pin="5"/>
+      <node ref="CN2" pin="7"/>
       <node ref="C12" pin="1"/>
-      <node ref="P12" pin="9"/>
-      <node ref="P12" pin="12"/>
+      <node ref="CN2" pin="9"/>
+      <node ref="CN2" pin="12"/>
       <node ref="J3" pin="1"/>
       <node ref="RV1" pin="2"/>
       <node ref="U5" pin="3"/>
-      <node ref="P12" pin="11"/>
+      <node ref="CN2" pin="11"/>
     </net>
     <net code="43" name="Net-(U2-Pad1)">
       <node ref="U5" pin="4"/>
@@ -1629,23 +1642,23 @@
       <node ref="U5" pin="1"/>
       <node ref="P14" pin="1"/>
       <node ref="D3" pin="2"/>
-      <node ref="P12" pin="13"/>
+      <node ref="CN2" pin="13"/>
     </net>
-    <net code="47" name="Net-(J4-Pad1)">
-      <node ref="P12" pin="15"/>
-      <node ref="J4" pin="1"/>
+    <net code="47" name="Net-(CN1-Pad1)">
+      <node ref="CN2" pin="15"/>
+      <node ref="CN1" pin="1"/>
       <node ref="P16" pin="1"/>
     </net>
-    <net code="48" name="Net-(P12-Pad16)">
+    <net code="48" name="Net-(CN2-Pad16)">
       <node ref="U1" pin="2"/>
-      <node ref="P12" pin="16"/>
+      <node ref="CN2" pin="16"/>
     </net>
-    <net code="49" name="Net-(P12-Pad17)">
-      <node ref="P12" pin="17"/>
+    <net code="49" name="Net-(CN2-Pad17)">
+      <node ref="CN2" pin="17"/>
       <node ref="U1" pin="1"/>
     </net>
-    <net code="50" name="Net-(FB1-Pad2)">
-      <node ref="P12" pin="18"/>
+    <net code="50" name="Net-(CN2-Pad18)">
+      <node ref="CN2" pin="18"/>
       <node ref="FB1" pin="2"/>
     </net>
     <net code="51" name="Band3">
@@ -1698,14 +1711,14 @@
       <node ref="K2" pin="7"/>
       <node ref="K2" pin="2"/>
     </net>
-    <net code="61" name="Net-(P12-Pad20)">
-      <node ref="P12" pin="20"/>
-      <node ref="P9" pin="2"/>
+    <net code="61" name="Net-(CN2-Pad20)">
+      <node ref="CN2" pin="20"/>
+      <node ref="CN5" pin="2"/>
       <node ref="R12" pin="2"/>
     </net>
-    <net code="62" name="Net-(P12-Pad19)">
-      <node ref="P9" pin="1"/>
-      <node ref="P12" pin="19"/>
+    <net code="62" name="Net-(CN2-Pad19)">
+      <node ref="CN5" pin="1"/>
+      <node ref="CN2" pin="19"/>
       <node ref="R15" pin="2"/>
     </net>
     <net code="63" name="Net-(D2-Pad4)">
@@ -1788,11 +1801,11 @@
     </net>
     <net code="80" name="RFInput">
       <node ref="K6" pin="3"/>
-      <node ref="P12" pin="2"/>
+      <node ref="CN2" pin="2"/>
     </net>
-    <net code="81" name="Net-(P11-Pad1)">
-      <node ref="P11" pin="1"/>
-      <node ref="P12" pin="10"/>
+    <net code="81" name="Net-(CN2-Pad10)">
+      <node ref="CN3" pin="1"/>
+      <node ref="CN2" pin="10"/>
     </net>
     <net code="82" name="Net-(R8-Pad1)">
       <node ref="R8" pin="1"/>
