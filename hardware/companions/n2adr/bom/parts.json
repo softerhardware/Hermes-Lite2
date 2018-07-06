@@ -1,0 +1,315 @@
+{
+
+"C 100n 0805" : {
+	"mpn":["08055C104JAT2A","C0805C104M3RACTU"],
+	"spec":"0.1uF 0805>=X5R>=25V<=20%",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":1
+},
+
+"C 1500p 0805" : {
+	"mpn":["08055A152JAT2A","885012007064","CL21C152JBFNNNE"],
+	"spec":"1500pF 0805NP0>=50V<=5%",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"C 680p 0805" : {
+	"mpn":["08055A681JAT2A","885012007062","CC0805JRNPO0BN681"],
+	"spec":"680pF 0805NP0>=50V<=5%",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"C 1000p 1206" : {
+	"mpn":["GRM31B5C2J102JW01L","885342008003","C1206C102K2GACTU"],
+	"spec":"1000pF 1206NP0>=200V<=5%",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"C 100p 1206" : {
+	"mpn":["GRM31A5C2J101JW01D","CC1206JKNPOZBN101","C3216C0G2J101J060AA"],
+	"spec":"100pF 1206NP0>=200V<=5%",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"C 150p 1206" : {
+	"mpn":["GRM31A5C2J151JW01D","12067A151JAT2A","CC1206JKNPOZBN151","C3216C0G2J151K060AA"],
+	"spec":"150pF 1206NP0>=200V<=5%",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"C 1800p 1206" : {
+	"mpn":["C3216C0G2J182J115AA","C3216C0G2J182K115AA","C1206C182JBGAC7800"],
+	"spec":"1800pF 1206NP0>=200V<=5%",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"C 180p 1206" : {
+	"mpn":["GRM31A5C2J181JW01D","C3216C0G2J181K060AA","CL31C181JHFNNNE","C1206C181JGGAC7800"],
+	"spec":"180pF 1206NP0>=200V<=5%",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"C 220p 1206" : {
+	"mpn":["GRM31A5C2J221JW01D","C3216C0G2J221J060AA","CL31C221JGFNNNE"],
+	"spec":"220pF 1206NP0>=200V<=5%",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"C 270p 1206" : {
+	"mpn":["GRM31A5C2J271JW01D","C3216C0G2J271J060AA","CL31C271JIHNNNE"],
+	"spec":"270pF 1206NP0>=200V<=5%",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"C 3300p 1206" : {
+	"mpn":["C1206C332JBGACTU","C3216C0G2E332J085AA","CL31C332JHHNFNE"],
+	"spec":"3300pF 1206NP0>=200V<=5%",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"C 330p 1206" : {
+	"mpn":["GRM31A5C2J331JW01D","C3216C0G2J331J060AA","CL31C331JHFNNNE"],
+	"spec":"330pF 1206NP0>=200V<=5%",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"C 39p 1206" : {
+	"mpn":["GRM31A5C2J390JW01D","GRM31A5C3A390JW01D"],
+	"spec":"39pF 1206NP0>=200V<=5%",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"C 560p 1206" : {
+	"mpn":["GRM31A5C2J561JW01D","CC1206JRNPOBBN561","C3216C0G2J561J085AA"],
+	"spec":"560pF 1206NP0>=200V<=5%",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"C 68p 1206" : {
+	"mpn":["GRM31A5C2J680JW01D","CL31C680JHFNNNE","C1206C680J2GAC7800"],
+	"spec":"68pF 1206NP0>=200V<=5%",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+
+"R 18 1% 0805": {
+	"mpn":["RC0805FR-0718RL","CRG0805F18R"],
+	"spec":"18 0805<=1%>=1/10W",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":1
+},	
+
+"R 22 1% 0805": {
+	"mpn":["RC0805FR-0722RL","ERJ-6ENF22R0V"],
+	"spec":"22 0805<=1%>=1/10W",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":1
+},	
+
+"R 2K2 1% 0805": {
+	"mpn":["RC0805FR-072K2L","CRG0805F2K2"],
+	"spec":"2.2K 0805<=1%>=1/10W",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":1
+},	
+
+"R 6K2 1% 0805": {
+	"mpn":["RC0805FR-076K2L","ERJ-6ENF6201V"],
+	"spec":"6.2K 0805<=1%>=1/10W",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":1
+},
+
+"R 330 0805": {
+	"mpn":["RC0805JR-07330RL","RC2012F331CS","CRG0805F330R"],
+	"spec":"330 0805<=1%>=1/10W",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":1
+},
+
+"R 4K7 0805": {
+	"mpn":["RC0805JR-074K7L","CRG0805F4K7","RC2012F472CS"],
+	"spec":"4.7K 0805<=1%>=1/10W",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":1
+},		
+
+"R 56 1% 0805": {
+	"mpn":["RC0805FR-0756RL","ERJ-6ENF56R0V","CRGCQ0805F56R"],
+	"spec":"56 0805<=1%>=1/10W",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":1
+},		
+
+"U AD8692": {
+	"mpn":["AD8692ARMZ"],
+	"spec":"AD8692 Op Amp",
+	"assembly":"SMT",
+	"pins":8,
+	"sub":0,
+	"package":"MSOP-8"
+},
+
+"U 74LVC1G00": {
+	"mpn":["SN74LVC1G00DBVR"],
+	"spec":"NAND Gate",
+	"assembly":"SMT",
+	"pins":5,
+	"sub":0,
+	"package":"SOT-23-5"
+},
+
+"U MCP23008": {
+	"mpn":["MCP23008T-E/SS"],
+	"spec":"I2C Bus Expander",
+	"assembly":"SMT",
+	"pins":20,
+	"sub":0,
+	"package":"SSOP-20"
+},
+
+"U ULN2003LV": {
+	"mpn":["ULN2003LVPWR"],
+	"spec":"Relay Driver",
+	"assembly":"SMT",
+	"pins":16,
+	"sub":0,
+	"package":"TSSOP-16"
+},
+
+"D BAS40-07": {
+	"mpn":["BAS40-07,215","BAS4007E6327HTSA1"],
+	"spec":"Schottky Diode",
+	"assembly":"SMT",
+	"pins":4,
+	"sub":0,
+	"package":"SOT-143"
+},
+
+"D 1N4148": {
+	"mpn":["1N4148W-7-F"],
+	"spec":"SS Diode",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0,
+	"package":"SOD-123"
+},
+
+"L 1.8u 0805": {
+	"mpn":["LBM2016T1R8J"],
+	"spec":"1.8uH",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},		
+
+"L 220n 1210": {
+	"mpn":["AISC-1210-R22J-T"],
+	"spec":"220nH",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},	
+
+"L 270n 1210": {
+	"mpn":["AISC-1210-R27J-T"],
+	"spec":"270nH",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},	
+
+"L 390n 1210": {
+	"mpn":["AISC-1210-R39J-T"],
+	"spec":"390nH",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"L 560n 1210": {
+	"mpn":["AISC-1210-R56J-T"],
+	"spec":"560nH",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"L 680n 1210": {
+	"mpn":["AISC-1210-R68J-T"],
+	"spec":"680nH",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"L 1.8u 1812": {
+	"mpn":["CC453232-1R8KL"],
+	"spec":"1.8uH",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"L 1000n 1812": {
+	"mpn":["CC453232-1R0KL"],
+	"spec":"1000nH",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"L 3.9u 1812": {
+	"mpn":["7447669039"],
+	"spec":"3.9uH",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+},
+
+"FB FB 0805": {
+	"mpn":["MPZ2012S102AT000","ILHB0805ER601V"],
+	"spec":"FB 0805 >=600R@100MHz <=200mOhm@DC >=1.5A",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":0
+}
+
+}
+

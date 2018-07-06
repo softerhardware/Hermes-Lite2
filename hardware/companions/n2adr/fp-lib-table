@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name N2ADR)(type KiCad)(uri ${KIPRJMOD}/libs/n2adr.pretty)(options "")(descr ""))
+)
