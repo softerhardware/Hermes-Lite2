@@ -280,6 +280,7 @@ parameter     HERMES_SERIALNO = 8'h0;
 logic         vna = 1'b0;                    // Selects vna mode when set.
 logic         pa_enable = 1'b0;
 logic         tr_disable = 1'b0;
+logic [9:0]   cw_hang_time;
 
 logic [11:0]  fwd_pwr;
 logic [11:0]  rev_pwr;
@@ -300,8 +301,10 @@ logic [31:0]  resp_cmd_data = 32'h00, resp_cmd_data_next;
 
 logic         int_ptt = 1'b0;
 
-logic [16:0]  led_count;
+logic [5:0]   led_count;
 logic         led_saturate;
+logic [11:0]  millisec_count;
+logic         millisec_pulse;
 
 logic         ext_txinhibit, ext_cwkey, ext_ptt;
 
@@ -356,6 +359,9 @@ always @(posedge clk) begin
       pa_enable    <= cmd_data[19];
       tr_disable   <= cmd_data[18];
     end
+    else if (cmd_addr == 6'h10) begin
+      cw_hang_time <= {cmd_data[31:24], cmd_data[17:16]};
+    end
   end
 end
 
@@ -403,18 +409,26 @@ slow_adc slow_adc_i (
 
 // 6.5 ms debounce with 2.5MHz clock 
 debounce de_cwkey(.clean_pb(ext_cwkey), .pb(~io_phone_tip), .clk(clk));
-assign io_db1_5 = ext_cwkey;
-assign cw_keydown = ext_cwkey;
+assign io_db1_5 = cw_keydown;
 
 debounce de_ptt(.clean_pb(ext_ptt), .pb(~io_phone_ring), .clk(clk));
 debounce de_txinhibit(.clean_pb(ext_txinhibit), .pb(~io_cn8), .clk(clk));
 
 
-assign tx_on = (int_ptt | ext_cwkey | ext_ptt) & ~ext_txinhibit & run;
-//assign tx_on = (int_ptt | ext_cwkey | ext_ptt | vna) & ~ext_txinhibit & run;
+assign tx_on = (int_ptt | cw_keydown | ext_ptt) & ~ext_txinhibit & run;
 
-// At 2.5 MHz, led_saturate occurs about every 50ms
-always @(posedge clk) led_count <= led_count + 1;
+// Gererate two slow pulses for timing.  millisec_pulse occurs every one millisecond.
+// led_saturate occurs every 64 milliseconds.
+always @(posedge clk) begin	// clock is 2.5 MHz
+  if (millisec_count == 12'd2500) begin
+    millisec_count <= 12'b0;
+    millisec_pulse <= 1'b1;
+    led_count <= led_count + 1'b1;
+  end else begin
+    millisec_count <= millisec_count + 1'b1;
+    millisec_pulse <= 1'b0;
+  end
+end
 assign led_saturate = &led_count;
 
 led_flash led_run(.clk(clk), .cnt(led_saturate), .sig(run), .led(io_led_d2));
@@ -426,21 +440,51 @@ led_flash led_rxclip(.clk(clk), .cnt(led_saturate), .sig(rxclip), .led(io_led_d5
 always @(posedge clk) rxclrstatus <= ~rxclrstatus;
 
 
+// TX sequence logic. Delay CW envelope until T/R relay switches and the amp power turns on.
+logic [16:0] cw_delay_line = 17'b0;	// Delay CW press/release one mSec per unit. There is additional delay from debounce ext_cwkey.
+logic [9:0]  cw_power_timeout = 10'b0;	// Keep power on after the key goes up. Delay is one mSec per count starting from key down.
+logic        cw_count_state;		// State 0: first count for KEY_UP_TIMEOUT; State 1: second count for cw_hang_time.
+logic        cw_power_on = 1'b0;	// Does CW key action demand that the power be on?
+localparam KEY_UP_TIMEOUT = 10'd41;	// Minimum timeout. Must be the delay line time plus waveform decay time plus ending time.
+logic io_phone_tip_sync;
+sync sync_io_phtip(.clock(clk), .sig_in(io_phone_tip), .sig_out(io_phone_tip_sync));
+
+always @(posedge clk)       // Delay the CW key press and release while preserving the timing.
+  if (millisec_pulse)
+    cw_delay_line <= {cw_delay_line[15:0], ext_cwkey};
+assign cw_keydown = cw_delay_line[16];
+
+always @(posedge clk) begin		// Turn on CW power and T/R relay at first key press and hold for the delay time.
+  if (~io_phone_tip_sync) begin		// Start timing when the key first goes down.
+    cw_power_timeout <= KEY_UP_TIMEOUT;
+    cw_count_state <= 1'b0;
+    cw_power_on <= 1'b1;
+  end else if (millisec_pulse) begin	// Check every millisecond
+    if (cw_power_timeout != 0) begin
+      cw_power_timeout <= cw_power_timeout - 1'b1;
+    end else if (cw_count_state == 1'b0) begin	// First count for KEY_UP_TIMEOUT, the minimum count.
+      cw_power_timeout <= cw_hang_time;
+      cw_count_state <= 1'b1;
+    end else begin		// Second count for extra time cw_hang_time.
+      cw_power_on <= 1'b0;
+    end
+  end
+end
+logic        tx_power_on;		// Is the power on?
+assign tx_power_on = cw_power_on | tx_on;
 
 
-
-// FIXME: Sequence power
 // FIXME: External TR won't work in low power mode
 `ifdef BETA2
-assign pa_tr = tx_on & ~vna & (pa_enable | ~tr_disable);
-assign pa_en = tx_on & ~vna & pa_enable;
-assign pwr_envpa = tx_on;
+assign pa_tr = tx_power_on & ~vna & (pa_enable | ~tr_disable);
+assign pa_en = tx_power_on & ~vna & pa_enable;
+assign pwr_envpa = tx_power_on;
 `else
-assign pwr_envbias = tx_on & ~vna & pa_enable;
-assign pwr_envop = tx_on;
-assign pa_exttr = tx_on;
-assign pa_inttr = tx_on & ~vna & (pa_enable | ~tr_disable);
-assign pwr_envpa = tx_on & ~vna & pa_enable;
+assign pwr_envbias = tx_power_on & ~vna & pa_enable;
+assign pwr_envop = tx_power_on;
+assign pa_exttr = tx_power_on;
+assign pa_inttr = tx_power_on & ~vna & (pa_enable | ~tr_disable);
+assign pwr_envpa = tx_power_on & ~vna & pa_enable;
 `endif
 
 assign rffe_rfsw_sel = ~vna & pa_enable;
