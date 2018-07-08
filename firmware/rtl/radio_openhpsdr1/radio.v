@@ -5,6 +5,7 @@ module radio (
 
   cw_keydown,
   tx_on,
+  tx_cw_key,    // CW waveform is active, tx_cw_level is not zero
 
   // Transmit
   tx_tdata,
@@ -74,6 +75,7 @@ input             clk_2x;
 
 input             cw_keydown;
 input             tx_on;
+output            tx_cw_key;
 
 input   [31:0]    tx_tdata;
 input   [ 2:0]    tx_tid;
@@ -619,8 +621,7 @@ end else begin
   
   logic [31:0]  tx_phase [0:NT-1];    // The Tx phase calculated from the frequency sent by the PC.
   
-  logic               tx_cw_key;
-  logic [17:0]        tx_cw_level;
+  logic [18:0]        tx_cw_level;
 
 // TX 
 for (c = 0; c < NT; c = c + 1) begin: TXIFFREQ
@@ -657,7 +658,7 @@ end
 //---------------------------------------------------------
 
   // Code rotates input at set frequency and produces I & Q
-  assign          tx_i = vna ? 16'h4d80 : (tx_cw_key ? {1'b0, tx_cw_level[17:3]} : y2_i);    // select vna mode if active. Set CORDIC for max DAC output
+  assign          tx_i = vna ? 16'h4d80 : (tx_cw_key ? {1'b0, tx_cw_level[18:4]} : y2_i);    // select vna mode if active. Set CORDIC for max DAC output
   assign          tx_q = (vna | tx_cw_key) ? 16'h0 : y2_r;                   // taking into account CORDICs gain i.e. 0x7FFF/1.7
 
 
@@ -812,13 +813,13 @@ end else begin
 end 
 
 
-localparam MAX_CWLEVEL = 18'h26c00; //(16'h4d80 << 3);
+localparam MAX_CWLEVEL = 19'h4d800; //(16'h4d80 << 4);
 
 if (CWSHAPE == 1) begin: CW1
 
   logic [1:0]         cwstate;
 
-  // 2 ms rise and fall, not shaped, but like HiQSDR
+  // 4 ms rise and fall, not shaped, but like HiQSDR
   // MAX CWLEVEL is picked to be 8*max cordic level for transmit
   // ADJUST if cordic max changes...  
   localparam  cwrx = 2'b00, 
@@ -829,22 +830,22 @@ if (CWSHAPE == 1) begin: CW1
   always @(posedge clk) begin 
     case (cwstate)
       cwrx: begin
-        tx_cw_level <= 18'h00;
+        tx_cw_level <= 1'b0;
         if (cw_keydown) cwstate <= cw_keydowndown;
         else cwstate <= cwrx;
       end
   
       cw_keydowndown: begin
-        if (tx_cw_level != MAX_CWLEVEL) tx_cw_level <= tx_cw_level + 18'h01;
+        if (tx_cw_level != MAX_CWLEVEL) tx_cw_level <= tx_cw_level + 1'b1;
         if (cw_keydown) cwstate <= cw_keydowndown;
         else cwstate <= cw_keydownup;
       end
   
       cw_keydownup: begin
-        if (tx_cw_level == 18'h00) cwstate <= cwrx;
+        if (tx_cw_level == 0) cwstate <= cwrx;
         else begin
           cwstate <= cw_keydownup;
-          tx_cw_level <= tx_cw_level - 18'h01;
+          tx_cw_level <= tx_cw_level - 1'b1;
         end
       end
     endcase
