@@ -152,6 +152,7 @@ logic           cmd_requires_resp;
 
 logic           tx_on, tx_on_ad9866sync;
 logic           cw_keydown, cw_keydown_ad9866sync;
+logic           tx_cw_waveform;     // CW waveform is active. Keep transmit enabled while waveform decays to zero.
 
 logic   [7:0]   dseth_tdata;
 
@@ -593,7 +594,7 @@ ad9866 ad9866_i (
 
   .tx_data(tx_data),
   .rx_data(rx_data),
-  .tx_en(tx_on_ad9866sync),
+  .tx_en(tx_on_ad9866sync | tx_cw_waveform),
 
   .rxclip(rxclip),
   .rxgoodlvl(rxgoodlvl),
@@ -627,6 +628,7 @@ radio_i
 
   .cw_keydown(cw_keydown_ad9866sync),
   .tx_on(tx_on_ad9866sync),
+  .tx_cw_key(tx_cw_waveform),
 
   // Transmit
   .tx_tdata({dsiq_tdata[7:0],dsiq_tdata[15:8],dsiq_tdata[23:16],dsiq_tdata[31:24]}),
