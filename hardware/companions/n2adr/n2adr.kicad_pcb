@@ -3,7 +3,7 @@
   (general
     (links 287)
     (no_connects 0)
-    (area 64.924999 54.924999 165.075001 105.075001)
+    (area 62.5 52.295903 165.414286 115.34)
     (thickness 1.6)
     (drawings 17)
     (tracks 641)
@@ -15,7 +15,7 @@
   (page USLetter)
   (title_block
     (title "HL2 Filter Board")
-    (date 2018-07-01)
+    (date 2018-07-08)
     (rev E5)
     (company N2ADR)
   )
