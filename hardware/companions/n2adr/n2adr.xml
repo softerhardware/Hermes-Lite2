@@ -2,14 +2,14 @@
 <export version="D">
   <design>
     <source>C:/cygwin64/home/shaynal/Hermes-Lite2/hardware/companions/n2adr/n2adr.sch</source>
-    <date>7/5/2018 10:15:53 PM</date>
+    <date>7/8/2018 6:23:31 PM</date>
     <tool>Eeschema 4.0.6</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
         <title>HL2 Filter Board</title>
         <company>N2ADR</company>
         <rev>E5</rev>
-        <date>2018-07-01</date>
+        <date>2018-07-08</date>
         <source>n2adr.sch</source>
         <comment number="1" value=""/>
         <comment number="2" value=""/>
@@ -838,7 +838,7 @@
     </comp>
     <comp ref="P15">
       <value>TST</value>
-      <footprint>Wire_Pads:SolderWirePad_single_0-8mmDrill</footprint>
+      <footprint>N2ADR:SolderWirePad_single_0-8mmDrill</footprint>
       <fields>
         <field name="Option">DNI</field>
         <field name="Key">NOBOM</field>
