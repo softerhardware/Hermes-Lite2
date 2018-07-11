@@ -85,6 +85,8 @@ special = {
     "T37-6":[Quote(Decimal(0.25),'*Kits&Parts','http://www.kitsandparts.com','','T37-6','T37-6')],
     "RD15HVF1":[Quote(Decimal(4.00),'*AliExpress','http://www.aliexpress.com','Mitsubishi','RD15HVF1','RD15HVF1')],
     "PCB":[Quote(Decimal(18.00),'*Tindie','http://www.tindie.com','Elecrow','','PCB')],
+    "PCB 40P":[Quote(Decimal(1.00),'*Elecrow','http://www.elecrow.com','Elecrow','','PCB Short to HL2')],
+    "PCB 5x10":[Quote(Decimal(4.00),'*Elecrow','http://www.elecrow.com','Elecrow','','PCB Main Board')],
     "AK-C-C12":[Quote(Decimal(16.78),'*AliExpress','https://www.aliexpress.com/item/4-pieces-a-lot-top-sales-china-die-casting-aluminum-housing-55-106-150-mm/1243767700.html','Various','','Aluminum 100x100x50')],
     "PROG":[Quote(Decimal(3.00),'*EBay','http://www.ebay.com/itm/altera-Mini-Usb-Blaster-Cable-For-CPLD-FPGA-NIOS-JTAG-Altera-Programmer-/200943750380?hash=item2ec92e4cec:g:YyMAAOSw0fhXieqQ','Various','','USB Blaster')]
 }
@@ -168,6 +170,8 @@ class Octopart:
 
         if v == None: 
             ## Add any special quotes
+
+            ##print "!!!",mpn,special
             if mpn in special:
                 quotes.extend(special[mpn])            
             ##print "MPN",mpn,"does not exist in DB"
@@ -195,6 +199,7 @@ class Octopart:
 
         ## Add any special quotes
         if mpn in special:
+            ##print "!!!!!",mpn,special
             quotes.extend(special[mpn])
         
         return quotes
@@ -779,6 +784,7 @@ class BOM:
 
         dni = []
 
+        c1 = 0
         for k in keys:
             p = self.parts[k]
 
@@ -787,7 +793,7 @@ class BOM:
             c8 = p.Quantities(self.optionset)[0]
             if c8 == 0: continue
 
-            c1 = p.ecid
+            c1 = c1 + 1 ## p.ecid
             c2 = p.spec
             c3 = p.mpns[0] 
             c4 = p.sub

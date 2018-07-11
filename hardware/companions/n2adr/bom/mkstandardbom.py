@@ -4,7 +4,7 @@ import BOM
 
 ## Add ADNI to include assembly DNI parts that are required
 optionset = set(["ADNI"])
-optionset = set([""])
+##optionset = set([""])
 
 bom = BOM.BOM("../n2adr.xml",optionset=optionset)
 
