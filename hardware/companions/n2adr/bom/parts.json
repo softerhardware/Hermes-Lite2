@@ -1,7 +1,7 @@
 {
 
 "C 100n 0805" : {
-	"mpn":["08055C104JAT2A","C0805C104M3RACTU"],
+	"mpn":["08055C104JAT2A","C0805C104M3RACTU","885012207128"],
 	"spec":"0.1uF 0805>=X5R>=25V<=20%",
 	"assembly":"SMT",
 	"pins":2,
@@ -309,6 +309,70 @@
 	"assembly":"SMT",
 	"pins":2,
 	"sub":1
+},
+
+"K EC2-3NU": {
+	"mpn":["EC2-3NU","NA-3W-K"],
+	"spec":"Relay",
+	"assembly":"MTH",
+	"pins":10
+},
+
+"CN SMA": {
+	"mpn":["5-1814832-1"],
+	"spec":"SMA Straight",
+	"altsrc":[["www.ebay.com",1.00]],
+	"assembly":"MTH",
+	"pins":5	
+},
+
+"CN 20P": {
+	"mpn":["PRPC040SAAN-RC"],
+	"spec":"20 Pin Single Row",
+	"assembly":"MTH",
+	"pins":20
+},
+
+"CN 40P": {
+	"mpn":["PRPC040SAAN-RC"],
+	"spec":"40 Pin Dual Female",
+	"assembly":"MTH",
+	"pins":40
+},
+
+"CN Audio-Jack-2": {
+	"mpn":["RCJ-041"],
+	"spec":"External PA Jack",
+	"assembly":"MTH",
+	"pins":2
+},
+
+"L 10T": {
+	"mpn":["5977000211"],
+	"spec":"T37 Toroid",
+	"assembly":"MTH",
+	"pins":2
+},
+
+"JP 1T": {
+	"mpn":["400R0111-24-9"],
+	"spec":"Toroid Wire",
+	"assembly":"MTH",
+	"pins":2
+},
+
+"PB 40P": {
+	"mpn":["PCB 40P"],
+	"spec":"PCB HL2 Short",
+	"assembly":"MTH",
+	"pins":40
+},
+
+"PB 5x10": {
+	"mpn":["PCB 5x10"],
+	"spec":"Main PCB",
+	"assembly":"MTH",
+	"pins":40
 }
 
 }

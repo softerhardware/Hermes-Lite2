@@ -6,7 +6,7 @@ optionset = set([])
 
 ## 'NOASSEMBLY' to include parts needed by not put on by assembly house
 
-bom = BOM.BOM("../hermeslite.xml",optionset=optionset)
+bom = BOM.BOM("../n2adr.xml",optionset=optionset)
 
 
 bom.CSVAssemblyPrint(['Mouser','Digi-Key'])
