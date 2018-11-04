@@ -8,6 +8,8 @@ Only the gerber files in the .zip packages are required if just printed circuit 
 
 The hermeslite2build7_manual.zip package contains gerber files with large holes present to facilitate manually soldering of the thermal pads. The hermeslite2build7.zip package doesn't contain these holes and is for automated assembly.
 
+See the [interactive BOM](https://github.com/softerhardware/Hermes-Lite2/raw/master/hardware/hl/releases/hl2p0build7/hl2b7-ibom.html)
+
 Changes since hl2beta6:
 
  * Silkscreen text upated to build7
