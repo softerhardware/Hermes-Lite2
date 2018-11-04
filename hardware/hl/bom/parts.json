@@ -745,8 +745,7 @@
 	},	
 
 "L 2.2uH PS": {
-	"mpn":["SRN5020-2R2Y"],
-	"altmpn":["NRS6045T2R3NMGK"],
+	"mpn":["SRR4528A-2R2Y"],
 	"spec":"2.2uH >=2.4A",
 	"assembly":"SMT",
 	"pins":2,
@@ -755,7 +754,7 @@
 	},		
 
 "L 3.3uH PS": {
-	"mpn":["SRN5020-3R3M"],
+	"mpn":["SRR4528A-3R3Y"],
 	"spec":"3.3uH >=2.4A",
 	"assembly":"SMT",
 	"pins":2,
