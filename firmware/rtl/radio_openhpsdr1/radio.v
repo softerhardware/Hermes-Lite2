@@ -16,7 +16,10 @@ module radio (
 
   tx_data_dac,
 
-  // Optional audio stream for repurposed programming
+  clk_envelope,
+  tx_envelope_pwm_out,
+
+  // Optional audio stream for repurposed programming or EER
   lr_tdata,
   lr_tid,
   lr_tlast,
@@ -41,7 +44,7 @@ module radio (
 
 parameter         NR = 3;
 parameter         NT = 1;
-parameter         PREDISTORT = 0;
+parameter         LRDATA = 0;
 parameter         VNA = 1;
 parameter         CWSHAPE = 1;
 parameter         CLK_FREQ = 76800000;
@@ -76,6 +79,9 @@ input             clk_2x;
 input             cw_keydown;
 input             tx_on;
 output            tx_cw_key;
+
+input             clk_envelope;
+output            tx_envelope_pwm_out;
 
 input   [31:0]    tx_tdata;
 input   [ 2:0]    tx_tid;
@@ -130,6 +136,13 @@ logic  [ 4:0]       chan_next;
 logic               duplex = 1'b0;
 logic               duplex_next;
 
+logic               pa_mode = 1'b0;
+logic               pa_mode_next;
+logic  [ 9:0]       PWM_min = 10'd0; // minimum width of TX envelope PWM pulse
+logic  [ 9:0]       PWM_min_next;
+logic  [ 9:0]       PWM_max = 10'd1023; // maximum width of TX envelope PWM pulse
+logic  [ 9:0]       PWM_max_next;
+
 logic   [5:0]       rate;
 logic   [11:0]      adcpipe [0:3];
 
@@ -169,6 +182,9 @@ always @(posedge clk) begin
   tx_predistort <= tx_predistort_next;
   last_chan <= last_chan_next;
   duplex <= duplex_next;
+  pa_mode <= pa_mode_next;
+  PWM_min <= PWM_min_next;
+  PWM_max <= PWM_max_next;
 end
 
 always @* begin
@@ -181,6 +197,9 @@ always @* begin
   tx_predistort_next = tx_predistort;
   last_chan_next = last_chan;
   duplex_next = duplex;
+  pa_mode_next = pa_mode;
+  PWM_min_next = PWM_min;
+  PWM_max_next = PWM_max;
 
   case(cmd_state)
 
@@ -205,6 +224,7 @@ always @* begin
           // Control with no acknowledge
           6'h00: begin
             rx_rate_next              = cmd_data[25:24];
+            pa_mode_next              = cmd_data[16];
             last_chan_next            = cmd_data[7:3];
             duplex_next               = cmd_data[2];
           end
@@ -214,6 +234,12 @@ always @* begin
             vna_count_next   = cmd_data[15:0];
           end
           6'h0a:    pure_signal_next  = cmd_data[22];
+
+          6'h11: begin
+            // TX envelope PWM min and max
+            PWM_min_next = {cmd_data[31:24], cmd_data[17:16]};
+            PWM_max_next = {cmd_data[15:8], cmd_data[1:0]};
+          end
 
           6'h2b: begin
             //predistortion control sub index
@@ -713,105 +739,175 @@ end
 //    if (~extreset) lfsr <= 16'h0001;
 //    else lfsr <= {lfsr[0],lfsr[15],lfsr[14] ^ lfsr[0], lfsr[13] ^ lfsr[0], lfsr[12], lfsr[11] ^ lfsr[0], lfsr[10:1]};
 
-// apply amplitude & phase linearity correction
 
-/*
-Lookup tables
-These are sent continuously in the unused audio out packets sent to the radio.
-The left channel is an index into the table and the right channel has the value.
-Indexes 0-4097 go into DACLUTI and 4096-8191 go to DACLUTQ.
-The values are sent as signed 16bit numbers but the value is never bigger than 13 bits.
+//generate
 
-DACLUTI has the out of phase distortion and DACLUTQ has the in phase distortion.
+case (LRDATA)
+  0: begin // Left/Right downstream (PC->Card) audio data not used
+    assign lr_tready = 1'b0;
 
-The tables can represent arbitary functions, for now my console software just uses a power series
+	 always @ (posedge clk)
+      tx_data_dac <= txsum[11:0]; // + {10'h0,lfsr[2:1]};
+  end
+  1: begin: PD1 // TX predistortion
+    // apply amplitude & phase linearity correction
 
-DACLUTI[x] = 0x + gain2*sin(phase2)*x^2 +  gain3*sin(phase3)*x^3 + gain4*sin(phase4)*x^4 + gain5*sin(phase5)*x^5
-DACLUTQ[x] = 1x + gain2*cos(phase2)*x^2 +  gain3*cos(phase3)*x^3 + gain4*cos(phase4)*x^4 + gain5*cos(phase5)*x^5
+    /*
+    Lookup tables
+    These are sent continuously in the unused audio out packets sent to the radio.
+    The left channel is an index into the table and the right channel has the value.
+    Indexes 0-4097 go into DACLUTI and 4096-8191 go to DACLUTQ.
+    The values are sent as signed 16bit numbers but the value is never bigger than 13 bits.
 
-The table indexes are signed so the tables are in 2's complement order ie. 0,1,2...2047,-2048,-2047...-1.
+    DACLUTI has the out of phase distortion and DACLUTQ has the in phase distortion.
 
-The table values are scaled to keep the output of DACLUTI[I]-DACLUTI[Q]+DACLUTQ[(I+Q)/root2] to fit in 12 bits,
-the intermediate values and table values can be larger.
-Zero input produces centre of the dac range output(signed 0) so with some settings one end or the other of the dac range is not used.
+    The tables can represent arbitary functions, for now my console software just uses a power series
 
-The predistortion is turned on and off by a new command and control packet this follows the last of the 32 receiver frequencies.
-There is a sub index so this can be used for many other things.
-control cc packet
+    DACLUTI[x] = 0x + gain2*sin(phase2)*x^2 +  gain3*sin(phase3)*x^3 + gain4*sin(phase4)*x^4 + gain5*sin(phase5)*x^5
+    DACLUTQ[x] = 1x + gain2*cos(phase2)*x^2 +  gain3*cos(phase3)*x^3 + gain4*cos(phase4)*x^4 + gain5*cos(phase5)*x^5
 
-c0 101011x
-c1 sub index 0 for predistortion control-
-c2 mode 0 off 1 on, (higher numbers can be used to experiment without so much fpga recompilation).
+    The table indexes are signed so the tables are in 2's complement order ie. 0,1,2...2047,-2048,-2047...-1.
 
-*/
-if (PREDISTORT == 1) begin: PD1
+    The table values are scaled to keep the output of DACLUTI[I]-DACLUTI[Q]+DACLUTQ[(I+Q)/root2] to fit in 12 bits,
+    the intermediate values and table values can be larger.
+    Zero input produces centre of the dac range output(signed 0) so with some settings one end or the other of the dac range is not used.
 
-  // lookup tables for dac phase and amplitude linearity correction
-  logic signed [12:0] DACLUTI[4096];
-  logic signed [12:0] DACLUTQ[4096];
+    The predistortion is turned on and off by a new command and control packet this follows the last of the 32 receiver frequencies.
+    There is a sub index so this can be used for many other things.
+    control cc packet
 
-  logic signed [15:0] distorted_dac;
+    c0 101011x
+    c1 sub index 0 for predistortion control-
+    c2 mode 0 off 1 on, (higher numbers can be used to experiment without so much fpga recompilation).
 
-  logic signed [15:0] iplusq;
-  logic signed [15:0] iplusq_over_root2;
+    */
 
-  logic signed [15:0] txsumr;
-  logic signed [15:0] txsumqr;
-  logic signed [15:0] iplusqr;
+    // lookup tables for dac phase and amplitude linearity correction
+    logic signed [12:0] DACLUTI[4096];
+    logic signed [12:0] DACLUTQ[4096];
 
-  //FSM to write DACLUTI and DACLUTQ
-  assign lr_tready = 1'b1; // Always ready
-  always @(posedge clk) begin
-    if (lr_tvalid) begin
-      if (lr_tdata[12+16]) begin // Always write??
-        DACLUTQ[lr_tdata[(11+16):16]] <= lr_tdata[12:0];
-      end else begin
-        DACLUTI[lr_tdata[(11+16):16]] <= lr_tdata[12:0];
+    logic signed [15:0] distorted_dac;
+
+    logic signed [15:0] iplusq;
+    logic signed [15:0] iplusq_over_root2;
+
+    logic signed [15:0] txsumr;
+    logic signed [15:0] txsumqr;
+    logic signed [15:0] iplusqr;
+
+    //FSM to write DACLUTI and DACLUTQ
+    assign lr_tready = 1'b1; // Always ready
+    always @(posedge clk) begin
+      if (lr_tvalid) begin
+        if (lr_tdata[12+16]) begin // Always write??
+          DACLUTQ[lr_tdata[(11+16):16]] <= lr_tdata[12:0];
+        end else begin
+          DACLUTI[lr_tdata[(11+16):16]] <= lr_tdata[12:0];
+        end
       end
+    end
+
+    assign iplusq = txsum+txsumq;
+
+    always @ (posedge clk) begin
+      txsumr<=txsum;
+      txsumqr<=txsumq;
+      iplusqr<=iplusq;
+    end
+
+    //approximation to dividing by root 2 to reduce lut size, the error can be corrected in the lut data
+    assign iplusq_over_root2 = iplusqr+(iplusqr>>>2)+(iplusqr>>>3)+(iplusqr>>>5);
+
+    logic signed [15:0] txsumr2;
+    logic signed [15:0] txsumqr2;
+    logic signed [15:0] iplusq_over_root2r;
+
+    always @ (posedge clk) begin
+      txsumr2<=txsumr;
+      txsumqr2<=txsumqr;
+      iplusq_over_root2r<=iplusq_over_root2;
+    end
+  
+    assign distorted_dac = DACLUTI[txsumr2[11:0]]-DACLUTI[txsumqr2[11:0]]+DACLUTQ[iplusq_over_root2r[12:1]];
+
+    always @ (posedge clk) begin
+      case( tx_predistort[1:0] )
+        0: tx_data_dac <= txsum[11:0];
+        1: tx_data_dac <= distorted_dac[11:0];
+        //other modes
+        default: tx_data_dac <= txsum[11:0];
+      endcase
     end
   end
 
-  assign iplusq = txsum+txsumq;
+  2: begin: EER1 // TX envelope PWM generation for ET/EER
+    //   cannot be used with TX predistortion as it uses the same audio lrdata
+    always @ (posedge clk)
+      tx_data_dac <= txsum[11:0]; // + {10'h0,lfsr[2:1]};
 
-  always @ (posedge clk) begin
-    txsumr<=txsum;
-    txsumqr<=txsumq;
-    iplusqr<=iplusq;
+    reg signed [15:0]tx_EER_fir_i;
+    reg signed [15:0]tx_EER_fir_q;
+
+    // latch I&Q data on strobe from FIR
+    // FIXME: no backpressure from FIR for now
+    always @ (posedge clk) begin
+      if (lr_tready & lr_tvalid) begin
+        tx_EER_fir_i = lr_tdata[31:16];
+        tx_EER_fir_q = lr_tdata[15:0];
+      end
+    end
+
+    // Interpolate by 5 FIR for Envelope generation - straight FIR, no CIC compensation.
+    wire [19:0] I_EER, Q_EER;
+    wire EER_req;
+
+    // Note: Coefficients are scaled by 0.85 so that unity I&Q input give unity amplitude envelope signal.
+    FirInterp5_1025_EER fiEER (clk, EER_req, lr_tready, tx_EER_fir_i, tx_EER_fir_q, I_EER, Q_EER);   // EER_req enables an output sample, lr_tready requests next input sample.
+
+    assign EER_req = (ramp == 10'd0 | ramp == 10'd1); // need an enable at clk_envelopw/2 to enable EER FIR data out
+
+    // calculate the envelope of the SSB signal using SQRT(I^2 + Q^2)
+    wire [31:0] Isquare;
+    wire [31:0] Qsquare;
+    wire [32:0] sum;                // 32 bits + 32 bits requires 33 bit accumulator.
+    wire [15:0] envelope;
+
+    // use I&Q x 5 from EER iFIR output
+    square square_I (.clock(clk), .dataa(I_EER[19:4]), .result(Isquare));
+    square square_Q (.clock(clk), .dataa(Q_EER[19:4]), .result(Qsquare));
+    assign sum = Isquare + Qsquare;
+    sqroot sqroot_inst (.clk(clk), .radical(sum[32:1]), .q(envelope));
+
+    //--------------------------------------------------------
+    // Generate 240 kHz PWM signal from Envelope
+    //--------------------------------------------------------
+    // Since the envelope will always have positive values we can ignore the sign bit.
+    // Also use the top 10 bits since this is what the ramp uses.
+    // clock clk_envelope runs at 245.76 MHz (1024 x 240 kHz).
+    reg  [9:0] ramp = 0;
+    reg PWM = 0;
+
+    counter counter_inst (.clock(clk_envelope), .q(ramp));  // count to 1024 [10:0] = 240kHz, 640 [9:0] for 384kHz
+
+    wire [9:0] envelope_level = envelope[14:5] + (envelope[14:5] >>> 2)  + (envelope[14:5] >>> 3);  // Multiply by 1.25
+
+    always @ (posedge clk_envelope)
+    begin
+      if ((ramp < PWM_min | envelope_level > ramp) && ramp < PWM_max)
+        PWM <= 1'b1;
+      else
+        PWM <= 1'b0;
+    end
+
+    // FIXME: disable EER when VNA is enabled? is CW handled correctly?
+    assign tx_envelope_pwm_out = (tx_on & pa_mode) ? PWM : 1'b0;  // PWM only when TX and EER mode are selected
+
   end
+endcase
 
-  //approximation to dividing by root 2 to reduce lut size, the error can be corrected in the lut data
-  assign iplusq_over_root2 = iplusqr+(iplusqr>>>2)+(iplusqr>>>3)+(iplusqr>>>5);
+//endgenerate
 
-  logic signed [15:0] txsumr2;
-  logic signed [15:0] txsumqr2;
-  logic signed [15:0] iplusq_over_root2r;
-
-  always @ (posedge clk) begin
-    txsumr2<=txsumr;
-    txsumqr2<=txsumqr;
-    iplusq_over_root2r<=iplusq_over_root2;
-  end
-  
-  assign distorted_dac = DACLUTI[txsumr2[11:0]]-DACLUTI[txsumqr2[11:0]]+DACLUTQ[iplusq_over_root2r[12:1]];
-
-  always @ (posedge clk) begin
-    case( tx_predistort[1:0] )
-      0: tx_data_dac <= txsum[11:0];
-      1: tx_data_dac <= distorted_dac[11:0];
-      //other modes
-      default: tx_data_dac <= txsum[11:0];
-    endcase
-  end
-
-end else begin
-
-  assign lr_tready = 1'b0;
-
-  always @ (posedge clk)
-    tx_data_dac <= txsum[11:0]; // + {10'h0,lfsr[2:1]};
-
-end 
-
+//----------------------------------------
 
 localparam MAX_CWLEVEL = 19'h4d800; //(16'h4d80 << 4);
 
