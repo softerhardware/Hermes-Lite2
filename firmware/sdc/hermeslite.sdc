@@ -59,6 +59,7 @@ create_generated_clock -source {ad9866pll_inst|altpll_component|auto_generated|p
 
 create_generated_clock -source {ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -multiply_by 2 -duty_cycle 50.00 -name clock_153p6_mhz {ad9866pll_inst|altpll_component|auto_generated|pll1|clk[1]}
 
+create_generated_clock -source {ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -multiply_by 16 -divide_by 5 -duty_cycle 50.00 -name clock_245p76_mhz {ad9866pll_inst|altpll_component|auto_generated|pll1|clk[2]}
 
 derive_clock_uncertainty
 
