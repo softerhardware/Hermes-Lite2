@@ -88,7 +88,7 @@ module hermeslite(
   output          io_led_d5,
   input           io_lvds_rxn,
   input           io_lvds_rxp,
-  input           io_lvds_txn,
+  output          io_lvds_txn, // TX envelope PWM
   input           io_lvds_txp,
   input           io_cn8,
   input           io_cn9,
@@ -138,8 +138,8 @@ localparam       IP = {8'd0,8'd0,8'd0,8'd0};
 // ADC Oscillator
 localparam       CLK_FREQ = 76800000;
 
-// Experimental Predistort On=1 Off=0
-localparam      PREDISTORT = 0;
+// Downstream audio channel usage. 0=not used, 1=predistortion, 2=TX envelope PWM
+localparam      LRDATA = 2;
 
 localparam      NR = 3; // Recievers
 localparam      NT = 1; // Transmitters
@@ -166,6 +166,7 @@ logic   [31:0]  dslr_tdata;
 logic           dslr_tready;    // controls reading of fifo
 logic           dslr_tvalid;
 logic           dsethlr_tvalid;
+logic           dsethlr_tlast;
 
 logic  [23:0]   rx_tdata;
 logic           rx_tlast;
@@ -207,6 +208,7 @@ logic           ethup;
 
 logic           clk_ad9866;
 logic           clk_ad9866_2x;
+logic           clk_envelope;
 logic           ad9866up;
 
 logic           run, run_sync, run_iosync;
@@ -361,6 +363,7 @@ ad9866pll ad9866pll_inst (
   .areset   (~ethup),      //   reset.reset
   .c0 (clk_ad9866), // outclk0.clk
   .c1 (clk_ad9866_2x), // outclk1.clk
+  .c2 (clk_envelope),
   .locked (ad9866up)
 );
 
@@ -440,7 +443,7 @@ dsopenhpsdr1 dsopenhpsdr1_i (
   .dsethiq_tvalid(dsethiq_tvalid),
   .dsethiq_tlast(dsethiq_tlast),
   .dsethlr_tvalid(dsethlr_tvalid),
-  .dsethlr_tlast()
+  .dsethlr_tlast(dsethlr_tlast)
 );
 
 dsiq_fifo #(.depth(16384)) dsiq_fifo_i (
@@ -459,27 +462,43 @@ dsiq_fifo #(.depth(16384)) dsiq_fifo_i (
 
 generate 
 
-if(PREDISTORT==1) begin: PD2
+case (LRDATA)
+  0: begin // Left/Right downstream (PC->Card) audio data not used
+    assign dslr_tvalid = 1'b0;
+    assign dslr_tdata = 32'h0;
+  end
+  1: begin: PD2 // TX predistortion
+    // simple fifo to get predistortion tables
+    dslr_fifo dslr_fifo_i (
+      .wr_clk(clock_ethrxint),
+      .wr_tdata(dseth_tdata),
+      .wr_tvalid(dsethlr_tvalid),
+      .wr_tready(),
 
-dslr_fifo dslr_fifo_i (
-  .wr_clk(clock_ethrxint),
-  .wr_tdata(dseth_tdata),
-  .wr_tvalid(dsethlr_tvalid),
-  .wr_tready(),
+      .rd_clk(clk_ad9866),
+      .rd_tdata(dslr_tdata),
+      .rd_tvalid(dslr_tvalid),
+      .rd_tready(dslr_tready)
+    );
+  end
+  2: begin // TX envelope PWM generation for ET/EER
+    // need to use same fifo as the TX I/Q data to keep the envelope in sync
+    dsiq_fifo #(.depth(16384)) dslr_fifo_i (
+      .wr_clk(clock_ethrxint),
+      .wr_tdata(dseth_tdata),
+      .wr_tvalid(dsethlr_tvalid),
+      .wr_tready(),
+      .wr_tlast(dsethlr_tlast),
 
-  .rd_clk(clk_ad9866),
-  .rd_tdata(dslr_tdata),
-  .rd_tvalid(dslr_tvalid),
-  .rd_tready(dslr_tready)
-  );
+      .rd_clk(clk_ad9866),
+      .rd_tdata(dslr_tdata),
+      .rd_tvalid(dslr_tvalid),
+      .rd_tready(dslr_tready)
+    );
+  end
+endcase
 
-end else begin
-  assign dslr_tvalid = 1'b0;
-  assign dslr_tdata = 32'h0;
-
-end
 endgenerate
-
 
 ///////////////////////////////////////////////
 // Upstream ethtxint clock domain
@@ -618,7 +637,7 @@ ad9866 ad9866_i (
 radio #(
   .NR(NR), 
   .NT(NT),
-  .PREDISTORT(PREDISTORT),
+  .LRDATA(LRDATA),
   .CLK_FREQ(CLK_FREQ)
 ) 
 radio_i 
@@ -638,6 +657,9 @@ radio_i
   .tx_tvalid(dsiq_tvalid),
 
   .tx_data_dac(tx_data),
+
+  .clk_envelope(clk_envelope),
+  .tx_envelope_pwm_out(io_lvds_txn),
 
   // Optional Audio Stream
   .lr_tdata({dslr_tdata[7:0],dslr_tdata[15:8],dslr_tdata[23:16],dslr_tdata[31:24]}),
