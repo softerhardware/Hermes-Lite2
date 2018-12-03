@@ -10,6 +10,8 @@ The hermeslite2build7_manual.zip package contains gerber files with large holes 
 
 See the [interactive BOM](http://www.hermeslite.com/hl2b7-ibom.html) for help with hand assembly.
 
+Stencil gerber files are available in hermeslite2build7_stencil.zip.
+
 Changes since hl2beta6:
 
  * Silkscreen text upated to build7
