@@ -89,7 +89,7 @@ module hermeslite(
   input           io_lvds_rxn,
   input           io_lvds_rxp,
   output          io_lvds_txn, // TX envelope PWM
-  input           io_lvds_txp,
+  output          io_lvds_txp,
   input           io_cn8,
   input           io_cn9,
   input           io_cn10,
@@ -139,7 +139,7 @@ localparam       IP = {8'd0,8'd0,8'd0,8'd0};
 localparam       CLK_FREQ = 76800000;
 
 // Downstream audio channel usage. 0=not used, 1=predistortion, 2=TX envelope PWM
-localparam      LRDATA = 2;
+localparam      LRDATA = 0;
 
 localparam      NR = 3; // Recievers
 localparam      NT = 1; // Transmitters
@@ -805,8 +805,8 @@ control #(.HERMES_SERIALNO(HERMES_SERIALNO)) control_i (
   .io_led_d5(io_led_d5),
   .io_lvds_rxn(io_lvds_rxn),
   .io_lvds_rxp(io_lvds_rxp),
-  .io_lvds_txn(io_lvds_txn),
-  .io_lvds_txp(io_lvds_txp),
+  //.io_lvds_txn(io_lvds_txn),
+  //.io_lvds_txp(io_lvds_txp),
   .io_cn8(io_cn8),
   .io_cn9(io_cn9),
   .io_cn10(io_cn10),
@@ -835,6 +835,8 @@ control #(.HERMES_SERIALNO(HERMES_SERIALNO)) control_i (
   .pa_exttr(pa_exttr)
 `endif
 );
+
+assign io_lvds_txp = 1'b0;
 
 assign scl1_i = clk_scl1;
 assign clk_scl1 = scl1_t ? 1'bz : scl1_o;

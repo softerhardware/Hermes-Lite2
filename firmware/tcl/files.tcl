@@ -24,6 +24,13 @@ set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/vna_scanner.v
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firrom/firromH.v
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firrom/firromI_1024.v
 
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/FirInterp5_1025_EER.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/counter.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firrom/firrom1_1025.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/firram36I_205.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/square.v
+set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/sqroot.v
+
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/receiver2/recv2_cic.v
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/receiver2/recv2_cordic.v
 set_global_assignment -name VERILOG_FILE rtl/radio_openhpsdr1/receiver2/receiver2.v

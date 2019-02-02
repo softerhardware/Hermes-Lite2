@@ -132,8 +132,8 @@ module control(
   io_led_d5,
   io_lvds_rxn,
   io_lvds_rxp,
-  io_lvds_txn,
-  io_lvds_txp,
+  //io_lvds_txn,
+ // io_lvds_txp,
   io_cn8,
   io_cn9,
   io_cn10,
@@ -244,8 +244,8 @@ output          io_led_d4;
 output          io_led_d5;
 input           io_lvds_rxn;
 input           io_lvds_rxp;
-input           io_lvds_txn;
-input           io_lvds_txp;
+//input           io_lvds_txn;
+//input           io_lvds_txp;
 input           io_cn8;
 input           io_cn9;
 input           io_cn10;
