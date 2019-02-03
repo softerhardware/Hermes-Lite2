@@ -124,6 +124,8 @@ module hermeslite(
 
 
 // PARAMETERS
+parameter       NR = 3; // Recievers
+localparam      NT = 1; // Transmitters
 
 // Ethernet Interface
 `ifdef BETA2
@@ -140,9 +142,6 @@ localparam       CLK_FREQ = 76800000;
 
 // Downstream audio channel usage. 0=not used, 1=predistortion, 2=TX envelope PWM
 localparam      LRDATA = 0;
-
-localparam      NR = 3; // Recievers
-localparam      NT = 1; // Transmitters
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;

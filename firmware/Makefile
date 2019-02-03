@@ -1,5 +1,7 @@
 ## Quartus tools quartus_sh and quartus_cpf must be in your path
 
+all: hl2b5up hl2b3to4 hl2b2
+
 hl2b5up/hl2b5up.sof:
 	quartus_sh --flow compile hermeslite -c hl2b5up
 
@@ -60,6 +62,26 @@ hl2b2: hl2b2/hl2b2.sof hl2b2/hl2b2.jic hl2b2/hl2b2jic.jam hl2b2/hl2b2sof.jam
 	cp hl2b2/hl2b2sof.jam release/hl2b2
 
 
+hl2b5upce15/hl2b5upce15.sof:
+	quartus_sh --flow compile hermeslite -c hl2b5upce15
+
+hl2b5upce15/hl2b5upce15.jic: hl2b5upce15/hl2b5upce15.sof
+	quartus_cpf -c hl2b5upce15.cof
+
+hl2b5upce15/hl2b5upce15jic.jam: hl2b5upce15/hl2b5upce15.jic
+	quartus_cpf -c hl2b5upce15/hl2b5upce15.jic hl2b5upce15/hl2b5upce15jic.jam
+
+hl2b5upce15/hl2b5upce15sof.jam: hl2b5upce15/hl2b5upce15.sof
+	quartus_cpf -c hl2b5upce15/hl2b5upce15.sof hl2b5upce15/hl2b5upce15sof.jam
+
+hl2b5upce15: hl2b5upce15/hl2b5upce15.sof hl2b5upce15/hl2b5upce15.jic hl2b5upce15/hl2b5upce15jic.jam hl2b5upce15/hl2b5upce15sof.jam
+	mkdir -p release/hl2b5upce15
+	cp hl2b5upce15/hl2b5upce15.sof release/hl2b5upce15
+	cp hl2b5upce15/hl2b5upce15.jic release/hl2b5upce15
+	cp hl2b5upce15/hl2b5upce15jic.jam release/hl2b5upce15
+	cp hl2b5upce15/hl2b5upce15sof.jam release/hl2b5upce15
+
+
 hl2b5uphd/hl2b5uphd.sof:
 	quartus_sh --flow compile hermeslite -c hl2b5uphd
 
@@ -99,8 +121,6 @@ hl2b3to4hd: hl2b3to4hd/hl2b3to4hd.sof hl2b3to4hd/hl2b3to4hd.jic hl2b3to4hd/hl2b3
 	cp hl2b3to4hd/hl2b3to4hdsof.jam release/hl2b3to4hd
 
 halfduplex: hl2b5uphd hl2b3to4hd
-
-all: hl2b5up hl2b3to4 hl2b2
 
 clean:
 	rm -rf hl2b2 hl2b3to4 hl2b3to4hd hl2b5up hl2b5uphd release
