@@ -103,7 +103,7 @@ logic           cmd_resprqst_next;
 
 logic           watchdog_clr;
 
-logic   [ 7:0]  watchdog_cnt = 8'h00;
+logic   [ 9:0]  watchdog_cnt = 10'h00;
 
 // State
 always @ (posedge clk) begin
@@ -303,9 +303,9 @@ assign dseth_tdata = eth_data;
 // without receiving packets
 always @(posedge clk) begin
   if (~run | watchdog_clr) begin
-    watchdog_cnt <= 8'h00;
+    watchdog_cnt <= 10'h00;
   end else if (watchdog_up) begin
-    watchdog_cnt <= watchdog_cnt + 8'h01;
+    watchdog_cnt <= watchdog_cnt + 10'h01;
   end
 end 
 

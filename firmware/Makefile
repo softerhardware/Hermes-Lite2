@@ -123,6 +123,9 @@ hl2b3to4hd: hl2b3to4hd/hl2b3to4hd.sof hl2b3to4hd/hl2b3to4hd.jic hl2b3to4hd/hl2b3
 halfduplex: hl2b5uphd hl2b3to4hd
 
 clean:
-	rm -rf hl2b2 hl2b3to4 hl2b3to4hd hl2b5up hl2b5uphd release
+	rm -rf hl2b2 hl2b3to4 hl2b3to4hd hl2b5up hl2b5uphd hl2b5upce15 release
+
+realclean:
+	rm -rf db incremental_db
 
 .PHONY: hl2b5up hl2b3to4 hl2b2 hl2b5uphd hl2b3to4hd halfduplex all clean
