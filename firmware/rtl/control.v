@@ -315,6 +315,8 @@ logic         clk_i2c_start;
 logic [15:0]  resetcounter = 16'h0000;
 logic         resetsaturate;
 
+logic [ 1:0]  clip_cnt = 2'b00;
+  
 localparam RESP_START   = 2'b00,
            RESP_ACK     = 2'b01,
            RESP_WAIT    = 2'b10;
@@ -584,19 +586,22 @@ end
 // Output register iresp will be stable before required in any other clock domain
 always @(posedge clk) begin
   if (resp_rqst) begin
+    clip_cnt  <= 2'b00;
     resp_addr <= resp_addr + 2'b01; // Slot will be skipped if command response
     if (cmd_resp_rqst) begin
       // Command response
       iresp <= {1'b1,resp_cmd_addr,tx_on, resp_cmd_data}; // Queue size is 1
     end else begin
       case( resp_addr) 
-        2'b00: iresp <= {3'b000,resp_addr,1'b0, ext_cwkey, ext_ptt, 7'b0001111,(~io_led_d4 | ~io_led_d5), 8'h00, 8'h00, HERMES_SERIALNO};
+        2'b00: iresp <= {3'b000,resp_addr,1'b0, ext_cwkey, ext_ptt, 7'b0001111,(&clip_cnt), 8'h00, 8'h00, HERMES_SERIALNO};
         2'b01: iresp <= {3'b000,resp_addr,1'b0, ext_cwkey, ext_ptt, 4'h0,temperature, 4'h0,fwd_pwr};
         2'b10: iresp <= {3'b000,resp_addr,1'b0, ext_cwkey, ext_ptt, 4'h0,rev_pwr, 4'h0,bias_current};
         2'b11: iresp <= {3'b000,resp_addr,1'b0, ext_cwkey, ext_ptt, 32'h0}; // Unused in HL
       endcase 
     end
-  end 
+  end else if (~(&clip_cnt)) begin
+    clip_cnt <= clip_cnt + {1'b0,rxclip};
+  end
 end
 
 assign resp = iresp;
