@@ -1,6 +1,6 @@
 ## Quartus tools quartus_sh and quartus_cpf must be in your path
 
-all: hl2b5up hl2b3to4 hl2b2
+all: hl2b5up hl2b3to4 hl2b2 hl2b5upce15
 
 hl2b5up/hl2b5up.sof:
 	quartus_sh --flow compile hermeslite -c hl2b5up

@@ -1,36 +1,5 @@
-EESchema Schematic File Version 2
-LIBS:power
-LIBS:device
-LIBS:transistors
-LIBS:conn
-LIBS:linear
-LIBS:regul
-LIBS:74xx
-LIBS:cmos4000
-LIBS:adc-dac
-LIBS:memory
-LIBS:xilinx
-LIBS:microcontrollers
-LIBS:dsp
-LIBS:microchip
-LIBS:analog_switches
-LIBS:motorola
-LIBS:texas
-LIBS:intel
-LIBS:audio
-LIBS:interface
-LIBS:digital-audio
-LIBS:philips
-LIBS:display
-LIBS:cypress
-LIBS:siliconi
-LIBS:opto
-LIBS:atmel
-LIBS:contrib
-LIBS:valves
-LIBS:hermeslite
-LIBS:hermeslite-cache
-EELAYER 25 0
+EESchema Schematic File Version 4
+EELAYER 26 0
 EELAYER END
 $Descr USLetter 11000 8500
 encoding utf-8
@@ -45,7 +14,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L GND #PWR0177
+L power:GND #PWR0177
 U 1 1 578473DC
 P 3225 5975
 F 0 "#PWR0177" H 3225 5725 50  0001 C CNN
@@ -60,7 +29,7 @@ bias1
 Text Label 4650 5700 0    39   ~ 0
 bias0
 $Comp
-L +3V3 #PWR0178
+L power:+3V3 #PWR0178
 U 1 1 5785175F
 P 3225 5225
 F 0 "#PWR0178" H 3225 5075 50  0001 C CNN
@@ -71,7 +40,7 @@ F 3 "" H 3225 5225 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C_Small B108
+L hermeslite:C_Small B108
 U 1 1 57852881
 P 3350 5350
 F 0 "B108" V 3475 5150 39  0000 L CNN
@@ -82,7 +51,7 @@ F 3 "" H 3350 5350 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L GND #PWR0179
+L power:GND #PWR0179
 U 1 1 5785299C
 P 3475 5375
 F 0 "#PWR0179" H 3475 5125 50  0001 C CNN
@@ -93,7 +62,7 @@ F 3 "" H 3475 5375 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R127
+L hermeslite:R R127
 U 1 1 57859054
 P 4600 5325
 F 0 "R127" H 4475 5200 39  0000 C CNN
@@ -104,7 +73,7 @@ F 3 "" H 4600 5325 30  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L C_Small B99
+L hermeslite:C_Small B99
 U 1 1 57858511
 P 3900 3075
 F 0 "B99" V 3800 3025 39  0000 L CNN
@@ -115,7 +84,7 @@ F 3 "" H 3900 3075 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R94
+L hermeslite:R R94
 U 1 1 578577DF
 P 2750 3075
 F 0 "R94" V 2675 3075 39  0000 C CNN
@@ -126,7 +95,7 @@ F 3 "" H 2750 3075 30  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R92
+L hermeslite:R R92
 U 1 1 5785748F
 P 4200 2700
 F 0 "R92" V 4125 2700 39  0000 C CNN
@@ -137,7 +106,7 @@ F 3 "" H 4200 2700 30  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L C_Small B97
+L hermeslite:C_Small B97
 U 1 1 578567F1
 P 4475 2700
 F 0 "B97" V 4375 2650 39  0000 L CNN
@@ -148,7 +117,7 @@ F 3 "" H 4475 2700 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L L_Small L33
+L hermeslite:L_Small L33
 U 1 1 578550B1
 P 4175 3075
 F 0 "L33" V 4250 3075 39  0000 L CNN
@@ -160,7 +129,7 @@ F 4 "J JNC" V 4175 3075 60  0001 C CNN "Key"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L RD16HHF1 Q3
+L hermeslite:RD16HHF1 Q3
 U 1 1 54AE9D92
 P 4500 3075
 F 0 "Q3" H 4475 3250 39  0000 R CNN
@@ -171,7 +140,7 @@ F 3 "" H 4500 3075 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C_Small C148
+L hermeslite:C_Small C148
 U 1 1 5785AB0F
 P 4775 2825
 F 0 "C148" H 4600 2900 39  0000 L CNN
@@ -183,7 +152,7 @@ F 4 "DNI" H 4650 2825 39  0000 C CNN "Option"
 	-1   0    0    -1  
 $EndComp
 $Comp
-L +VPA #PWR0180
+L hermeslite:+VPA #PWR0180
 U 1 1 5785B361
 P 6100 975
 F 0 "#PWR0180" H 6100 825 50  0001 C CNN
@@ -194,7 +163,7 @@ F 3 "" H 6100 975 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C_Small C144
+L hermeslite:C_Small C144
 U 1 1 5785D37B
 P 4550 2125
 F 0 "C144" H 4560 2195 39  0000 L CNN
@@ -206,7 +175,7 @@ F 4 "HV" H 4550 2125 60  0001 C CNN "Ext"
 	1    0    0    -1  
 $EndComp
 $Comp
-L C_Small C145
+L hermeslite:C_Small C145
 U 1 1 5785D49D
 P 4750 2125
 F 0 "C145" H 4760 2195 39  0000 L CNN
@@ -218,7 +187,7 @@ F 4 "HV" H 4750 2125 60  0001 C CNN "Ext"
 	1    0    0    -1  
 $EndComp
 $Comp
-L C_Small C146
+L hermeslite:C_Small C146
 U 1 1 5785D597
 P 4950 2125
 F 0 "C146" H 4960 2195 39  0000 L CNN
@@ -230,7 +199,7 @@ F 4 "HV" H 4950 2125 60  0001 C CNN "Ext"
 	1    0    0    -1  
 $EndComp
 $Comp
-L C_Small C147
+L hermeslite:C_Small C147
 U 1 1 5785D61C
 P 5150 2125
 F 0 "C147" H 5160 2195 39  0000 L CNN
@@ -242,7 +211,7 @@ F 4 "HV" H 5150 2125 60  0001 C CNN "Ext"
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R93
+L hermeslite:R R93
 U 1 1 5785EF26
 P 5725 3050
 F 0 "R93" H 5600 3125 39  0000 C CNN
@@ -254,7 +223,7 @@ F 4 "DNI" V 5725 3050 39  0000 C CNN "Option"
 	-1   0    0    1   
 $EndComp
 $Comp
-L R R96
+L hermeslite:R R96
 U 1 1 578605E7
 P 5725 3400
 F 0 "R96" H 5600 3325 39  0000 C CNN
@@ -266,7 +235,7 @@ F 4 "DNI" V 5725 3400 39  0000 C CNN "Option"
 	-1   0    0    1   
 $EndComp
 $Comp
-L GND #PWR0181
+L power:GND #PWR0181
 U 1 1 57861403
 P 4775 3100
 F 0 "#PWR0181" H 4775 2850 50  0001 C CNN
@@ -277,7 +246,7 @@ F 3 "" H 4775 3100 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR0182
+L power:GND #PWR0182
 U 1 1 578618BD
 P 4600 3300
 F 0 "#PWR0182" H 4600 3050 50  0001 C CNN
@@ -288,7 +257,7 @@ F 3 "" H 4600 3300 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C_Small B101
+L hermeslite:C_Small B101
 U 1 1 57861C49
 P 5125 3350
 F 0 "B101" H 5150 3275 39  0000 L CNN
@@ -299,7 +268,7 @@ F 3 "" H 5125 3350 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L C_Small B102
+L hermeslite:C_Small B102
 U 1 1 57861D84
 P 5325 3350
 F 0 "B102" H 5350 3275 39  0000 L CNN
@@ -310,7 +279,7 @@ F 3 "" H 5325 3350 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L C_Small B103
+L hermeslite:C_Small B103
 U 1 1 57861E18
 P 5525 3350
 F 0 "B103" H 5550 3275 39  0000 L CNN
@@ -321,7 +290,7 @@ F 3 "" H 5525 3350 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L C_Small B100
+L hermeslite:C_Small B100
 U 1 1 57861ED7
 P 4925 3350
 F 0 "B100" H 4950 3275 39  0000 L CNN
@@ -334,7 +303,7 @@ $EndComp
 Text Label 3450 3325 0    39   ~ 0
 bias0
 $Comp
-L R R70
+L hermeslite:R R70
 U 1 1 57864A97
 P 4450 5325
 F 0 "R70" H 4575 5200 39  0000 C CNN
@@ -345,7 +314,7 @@ F 3 "" H 4450 5325 30  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L C_Small B106
+L hermeslite:C_Small B106
 U 1 1 57864A9D
 P 3900 4175
 F 0 "B106" V 3800 4125 39  0000 L CNN
@@ -356,7 +325,7 @@ F 3 "" H 3900 4175 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R99
+L hermeslite:R R99
 U 1 1 57864AA9
 P 4200 3800
 F 0 "R99" V 4125 3800 39  0000 C CNN
@@ -367,7 +336,7 @@ F 3 "" H 4200 3800 30  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L C_Small B105
+L hermeslite:C_Small B105
 U 1 1 57864AAF
 P 4475 3800
 F 0 "B105" V 4375 3750 39  0000 L CNN
@@ -378,7 +347,7 @@ F 3 "" H 4475 3800 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L L_Small L34
+L hermeslite:L_Small L34
 U 1 1 57864AB5
 P 4175 4175
 F 0 "L34" V 4250 4175 39  0000 L CNN
@@ -390,7 +359,7 @@ F 4 "J JNC" V 4175 4175 60  0001 C CNN "Key"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L RD16HHF1 Q4
+L hermeslite:RD16HHF1 Q4
 U 1 1 57864ABB
 P 4500 4175
 F 0 "Q4" H 4475 4350 39  0000 R CNN
@@ -401,7 +370,7 @@ F 3 "" H 4500 4175 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C_Small C149
+L hermeslite:C_Small C149
 U 1 1 57864AC1
 P 4775 3925
 F 0 "C149" H 4600 4000 39  0000 L CNN
@@ -413,7 +382,7 @@ F 4 "DNI" H 4650 3925 39  0000 C CNN "Option"
 	-1   0    0    -1  
 $EndComp
 $Comp
-L GND #PWR0183
+L power:GND #PWR0183
 U 1 1 57864AD2
 P 4775 4225
 F 0 "#PWR0183" H 4775 3975 50  0001 C CNN
@@ -424,7 +393,7 @@ F 3 "" H 4775 4225 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR0184
+L power:GND #PWR0184
 U 1 1 57864AD8
 P 4600 4400
 F 0 "#PWR0184" H 4600 4150 50  0001 C CNN
@@ -437,7 +406,7 @@ $EndComp
 Text Label 3450 4425 0    39   ~ 0
 bias1
 $Comp
-L GND #PWR0185
+L power:GND #PWR0185
 U 1 1 5786643A
 P 5125 3500
 F 0 "#PWR0185" H 5125 3250 50  0001 C CNN
@@ -448,7 +417,7 @@ F 3 "" H 5125 3500 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR0186
+L power:GND #PWR0186
 U 1 1 578678D9
 P 4750 2275
 F 0 "#PWR0186" H 4750 2025 50  0001 C CNN
@@ -459,7 +428,7 @@ F 3 "" H 4750 2275 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R100
+L hermeslite:R R100
 U 1 1 5786B904
 P 2750 4175
 F 0 "R100" V 2675 4175 39  0000 C CNN
@@ -470,7 +439,7 @@ F 3 "" H 2750 4175 30  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L C_Small B98
+L hermeslite:C_Small B98
 U 1 1 578769D8
 P 6900 3025
 F 0 "B98" V 6800 2975 39  0000 L CNN
@@ -481,7 +450,7 @@ F 3 "" H 6900 3025 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L TRANSF4CT T3
+L hermeslite:TRANSF4CT T3
 U 1 1 578786AD
 P 6325 3225
 F 0 "T3" H 6325 3575 50  0000 C CNN
@@ -493,7 +462,7 @@ F 4 "DNI" H 6325 3500 39  0001 C CNN "Option"
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR0187
+L power:GND #PWR0187
 U 1 1 57879272
 P 6750 3450
 F 0 "#PWR0187" H 6750 3200 50  0001 C CNN
@@ -510,7 +479,7 @@ TXPAn
 Text Notes 1100 7625 0    60   ~ 0
 Design based on work by Claudio IN3OTD/DK1CG, John W9JSW, and other LDMOS/MOSFET QRP PA designs
 $Comp
-L R R98
+L hermeslite:R R98
 U 1 1 57959FC4
 P 3025 3625
 F 0 "R98" H 3150 3550 39  0000 C CNN
@@ -523,7 +492,7 @@ F 5 "R 1K" H 3025 3625 60  0001 C CNN "Key"
 	-1   0    0    1   
 $EndComp
 $Comp
-L R R97
+L hermeslite:R R97
 U 1 1 5795A3F7
 P 2475 3625
 F 0 "R97" H 2600 3550 39  0000 C CNN
@@ -536,7 +505,7 @@ F 5 "R 1K" H 2475 3625 60  0001 C CNN "Key"
 	-1   0    0    1   
 $EndComp
 $Comp
-L DIODESCH3 D6
+L hermeslite:DIODESCH3 D6
 U 1 1 5795C950
 P 5050 2900
 F 0 "D6" V 5200 2850 39  0000 C CNN
@@ -548,7 +517,7 @@ F 4 "DNI" V 5125 2800 39  0000 C CNN "Option"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L DIODESCH3 D7
+L hermeslite:DIODESCH3 D7
 U 1 1 5795CFB0
 P 5050 4000
 F 0 "D7" V 5200 3925 39  0000 C CNN
@@ -564,7 +533,7 @@ Hand Wind\nB62152A4X30 or BN43-202\n4T Secondary, 1+1T Primary\nBN43-1502\n8T Se
 Text GLabel 8150 1575 0    39   Output ~ 0
 PATRRX
 $Comp
-L BNC RF2
+L hermeslite:BNC RF2
 U 1 1 58023060
 P 9125 2025
 F 0 "RF2" H 9125 2200 39  0000 C CNN
@@ -577,7 +546,7 @@ F 5 "CL SMA" H 9125 2025 60  0001 C CNN "Key"
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR0188
+L power:GND #PWR0188
 U 1 1 5802335F
 P 9125 2250
 F 0 "#PWR0188" H 9125 2000 50  0001 C CNN
@@ -588,7 +557,7 @@ F 3 "" H 9125 2250 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3V3 #PWR0189
+L power:+3V3 #PWR0189
 U 1 1 58025686
 P 7325 2125
 F 0 "#PWR0189" H 7325 1975 50  0001 C CNN
@@ -599,7 +568,7 @@ F 3 "" H 7325 2125 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L C_Small C81
+L hermeslite:C_Small C81
 U 1 1 58026324
 P 7375 2350
 F 0 "C81" H 7425 2425 39  0000 L CNN
@@ -610,7 +579,7 @@ F 3 "" H 7375 2350 50  0000 C CNN
 	-1   0    0    -1  
 $EndComp
 $Comp
-L GND #PWR0190
+L power:GND #PWR0190
 U 1 1 58026DD8
 P 7375 2475
 F 0 "#PWR0190" H 7375 2225 50  0001 C CNN
@@ -621,7 +590,7 @@ F 3 "" H 7375 2475 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L MOSFET_N Q2
+L hermeslite:MOSFET_N Q2
 U 1 1 58027236
 P 8275 4700
 F 0 "Q2" H 8275 4500 39  0000 R CNN
@@ -632,7 +601,7 @@ F 3 "" H 8275 4700 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L FPGA U2
+L hermeslite:FPGA U2
 U 6 1 58033DE9
 P 7075 5425
 F 0 "U2" H 7225 5375 60  0000 C CNN
@@ -644,7 +613,7 @@ F 4 "ADNI" H 7075 5425 60  0001 C CNN "Option"
 	-1   0    0    -1  
 $EndComp
 $Comp
-L MOSFET_N Q5
+L hermeslite:MOSFET_N Q5
 U 1 1 58037F7F
 P 8275 5325
 F 0 "Q5" H 8275 5125 39  0000 R CNN
@@ -655,7 +624,7 @@ F 3 "" H 8275 5325 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R125
+L hermeslite:R R125
 U 1 1 58037F8E
 P 7725 5500
 F 0 "R125" H 7875 5525 39  0000 C CNN
@@ -666,7 +635,7 @@ F 3 "" H 7725 5500 30  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L GND #PWR0191
+L power:GND #PWR0191
 U 1 1 58037FA1
 P 8375 5550
 F 0 "#PWR0191" H 8375 5550 30  0001 C CNN
@@ -677,7 +646,7 @@ F 3 "" H 8375 5550 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR0192
+L power:GND #PWR0192
 U 1 1 58037FA7
 P 7725 5675
 F 0 "#PWR0192" H 7725 5675 30  0001 C CNN
@@ -700,7 +669,7 @@ Any or all components may be excluded if PA is unused.
 Text Notes 925  1775 0    60   ~ 0
 SOT-89 or TO-220 LDMOS supported on main circuit board\nTO-220 mounts to side of enclosure\nSOT-89 dissipates heat to PCB and side of enclosure\n\nDeafult build uses 2 AFT05MS003 mounted on main board, 110mA bias\n\nPLD-1.5 and alternate SOT-89 supported by adapter board\nAdapter board dissipates heat to side of enclosure
 $Comp
-L DPDTR_GND K2
+L hermeslite:DPDTR_GND K2
 U 1 1 58084EBB
 P 8050 2025
 F 0 "K2" H 8025 2025 39  0000 C CNN
@@ -712,7 +681,7 @@ F 4 "DNI" H 8025 1950 39  0001 C CNN "Option"
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR0193
+L power:GND #PWR0193
 U 1 1 580E97CB
 P 7850 2475
 F 0 "#PWR0193" H 7850 2225 50  0001 C CNN
@@ -723,7 +692,7 @@ F 3 "" H 7850 2475 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR0194
+L power:GND #PWR0194
 U 1 1 580E99C0
 P 7650 1725
 F 0 "#PWR0194" H 7650 1475 50  0001 C CNN
@@ -738,7 +707,7 @@ SCL2
 Text GLabel 2175 5350 0    39   BiDi ~ 0
 SDA2
 $Comp
-L C_Small C84
+L hermeslite:C_Small C84
 U 1 1 5816E929
 P 5625 2825
 F 0 "C84" H 5700 2900 39  0000 L CNN
@@ -751,7 +720,7 @@ $EndComp
 Text Notes 1975 2900 0    60   ~ 0
 Add attenuation with R97,R98,R94,R100\nif PA is overdriven
 $Comp
-L C_Small C85
+L hermeslite:C_Small C85
 U 1 1 58173BC3
 P 5475 2000
 F 0 "C85" V 5575 1950 39  0000 L CNN
@@ -763,7 +732,7 @@ F 4 "DNI" V 5375 2000 39  0000 C CNN "Option"
 	0    1    -1   0   
 $EndComp
 $Comp
-L R R60
+L hermeslite:R R60
 U 1 1 58173C9A
 P 5775 2000
 F 0 "R60" V 5700 2000 39  0000 C CNN
@@ -775,7 +744,7 @@ F 4 "DNI" V 5775 2000 39  0000 C CNN "Option"
 	0    1    1    0   
 $EndComp
 $Comp
-L GND #PWR0195
+L power:GND #PWR0195
 U 1 1 58173FC5
 P 5950 2025
 F 0 "#PWR0195" H 5950 1775 50  0001 C CNN
@@ -792,7 +761,7 @@ RD15HVF1 Build Option
 Text Notes 2525 6200 0    39   ~ 0
 I2C ADDR 0x2C
 $Comp
-L MCP4662 U15
+L hermeslite:MCP4662 U15
 U 1 1 59197C9A
 P 2500 6150
 F 0 "U15" H 2750 7100 39  0000 C CNN
@@ -803,7 +772,7 @@ F 3 "" H 2500 6150 39  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR0196
+L power:GND #PWR0196
 U 1 1 5919A4C2
 P 2275 6100
 F 0 "#PWR0196" H 2275 5850 50  0001 C CNN
@@ -814,7 +783,7 @@ F 3 "" H 2275 6100 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R47
+L hermeslite:R R47
 U 1 1 591A9C13
 P 4275 5600
 F 0 "R47" V 4350 5650 39  0000 C CNN
@@ -825,7 +794,7 @@ F 3 "" H 4275 5600 30  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L R R66
+L hermeslite:R R66
 U 1 1 591AA42D
 P 4275 5700
 F 0 "R66" V 4175 5750 39  0000 C CNN
@@ -1065,7 +1034,7 @@ R127,R70,R47,R66 set for AFT05MS003. Bias voltage ranges from 2.5 to 3.5V\nSet R
 Wire Wire Line
 	4350 2000 5375 2000
 $Comp
-L INA199x1 U14
+L hermeslite:INA199x1 U14
 U 1 1 591F78EF
 P 5775 1650
 F 0 "U14" H 5775 2150 39  0000 C CNN
@@ -1076,7 +1045,7 @@ F 3 "" H 5775 1650 60  0000 C CNN
 	-1   0    0    -1  
 $EndComp
 $Comp
-L R R123
+L hermeslite:R R123
 U 1 1 591F79D2
 P 5775 1000
 F 0 "R123" V 5700 1000 39  0000 C CNN
@@ -1087,7 +1056,7 @@ F 3 "" H 5775 1000 30  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L GND #PWR0197
+L power:GND #PWR0197
 U 1 1 591F92E3
 P 5450 1600
 F 0 "#PWR0197" H 5450 1350 50  0001 C CNN
@@ -1124,7 +1093,7 @@ Vipa
 Wire Wire Line
 	6075 1575 6175 1575
 $Comp
-L C_Small B122
+L hermeslite:C_Small B122
 U 1 1 592081CD
 P 6225 1125
 F 0 "B122" H 6235 1195 39  0000 L CNN
@@ -1135,7 +1104,7 @@ F 3 "" H 6225 1125 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR0198
+L power:GND #PWR0198
 U 1 1 59209ADC
 P 6225 1275
 F 0 "#PWR0198" H 6225 1025 50  0001 C CNN
@@ -1150,7 +1119,7 @@ Wire Wire Line
 Wire Wire Line
 	6225 1225 6225 1275
 $Comp
-L R R126
+L hermeslite:R R126
 U 1 1 59254B97
 P 7725 4875
 F 0 "R126" H 7875 4900 39  0000 C CNN
@@ -1161,7 +1130,7 @@ F 3 "" H 7725 4875 30  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L GND #PWR0199
+L power:GND #PWR0199
 U 1 1 59254DE1
 P 7725 5050
 F 0 "#PWR0199" H 7725 5050 30  0001 C CNN
@@ -1172,7 +1141,7 @@ F 3 "" H 7725 5050 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R J31
+L hermeslite:R J31
 U 1 1 5926C00A
 P 3850 3325
 F 0 "J31" V 3775 3325 39  0000 C CNN
@@ -1185,7 +1154,7 @@ $EndComp
 Wire Wire Line
 	4025 3325 4000 3325
 $Comp
-L R J32
+L hermeslite:R J32
 U 1 1 5926CFC8
 P 3850 4425
 F 0 "J32" V 3775 4425 39  0000 C CNN
@@ -1198,7 +1167,7 @@ $EndComp
 Wire Wire Line
 	4025 4425 4000 4425
 $Comp
-L C_Small B107
+L hermeslite:C_Small B107
 U 1 1 59274635
 P 3625 4550
 F 0 "B107" H 3675 4475 39  0000 L CNN
@@ -1210,7 +1179,7 @@ F 4 "DNI" H 3775 4525 39  0000 C CNN "Option"
 	-1   0    0    1   
 $EndComp
 $Comp
-L C_Small B104
+L hermeslite:C_Small B104
 U 1 1 59274E81
 P 3625 3450
 F 0 "B104" H 3675 3375 39  0000 L CNN
@@ -1227,7 +1196,7 @@ Wire Wire Line
 	3625 3350 3625 3325
 Connection ~ 3625 3325
 $Comp
-L GND #PWR0200
+L power:GND #PWR0200
 U 1 1 5927546A
 P 3625 3575
 F 0 "#PWR0200" H 3625 3325 50  0001 C CNN
@@ -1245,7 +1214,7 @@ Wire Wire Line
 	3625 4450 3625 4425
 Connection ~ 3625 4425
 $Comp
-L GND #PWR0201
+L power:GND #PWR0201
 U 1 1 5927603D
 P 3625 4675
 F 0 "#PWR0201" H 3625 4425 50  0001 C CNN
@@ -1258,7 +1227,7 @@ $EndComp
 Wire Wire Line
 	3625 4650 3625 4675
 $Comp
-L R R128
+L hermeslite:R R128
 U 1 1 59276F21
 P 3775 5900
 F 0 "R128" H 3700 5750 39  0000 C CNN
@@ -1270,7 +1239,7 @@ F 4 "DNI" V 3775 5900 39  0000 C CNN "Option"
 	-1   0    0    1   
 $EndComp
 $Comp
-L R R129
+L hermeslite:R R129
 U 1 1 59277239
 P 3975 5900
 F 0 "R129" H 3900 5750 39  0000 C CNN
@@ -1288,7 +1257,7 @@ Wire Wire Line
 Connection ~ 3775 5600
 Connection ~ 3975 5700
 $Comp
-L GND #PWR0202
+L power:GND #PWR0202
 U 1 1 592783C9
 P 3875 6100
 F 0 "#PWR0202" H 3875 5850 50  0001 C CNN
@@ -1316,7 +1285,7 @@ Wire Wire Line
 Wire Wire Line
 	3225 5950 3225 5975
 $Comp
-L +VBIAS #PWR0203
+L hermeslite:+VBIAS #PWR0203
 U 1 1 5938ECBB
 P 4525 5125
 F 0 "#PWR0203" H 4525 4975 50  0001 C CNN
@@ -1332,7 +1301,7 @@ Wire Wire Line
 	4525 5125 4525 5150
 Connection ~ 4525 5150
 $Comp
-L GND #PWR0204
+L power:GND #PWR0204
 U 1 1 593B091D
 P 8375 4925
 F 0 "#PWR0204" H 8375 4675 50  0001 C CNN
@@ -1368,7 +1337,7 @@ Connection ~ 7375 2225
 Wire Wire Line
 	7375 2450 7375 2475
 $Comp
-L TEST_1P TP1
+L hermeslite:TEST_1P TP1
 U 1 1 593B60F3
 P 7425 4675
 F 0 "TP1" H 7425 4950 39  0000 C CNN
@@ -1381,7 +1350,7 @@ F 5 "DNI" H 7425 4875 39  0000 C CNN "Option"
 	1    0    0    -1  
 $EndComp
 $Comp
-L TEST_1P TP4
+L hermeslite:TEST_1P TP4
 U 1 1 593B9AAF
 P 7425 5300
 F 0 "TP4" H 7425 5575 39  0000 C CNN
@@ -1400,7 +1369,7 @@ Wire Wire Line
 	7425 5300 7425 5325
 Connection ~ 7425 5325
 $Comp
-L C_Small C92
+L hermeslite:C_Small C92
 U 1 1 59C47D18
 P 4350 2125
 F 0 "C92" H 4360 2195 39  0000 L CNN
@@ -1425,7 +1394,7 @@ Wire Wire Line
 Wire Wire Line
 	7325 2125 7400 2125
 $Comp
-L MCP9700 Q6
+L hermeslite:MCP9700 Q6
 U 1 1 59F2E634
 P 7550 6125
 F 0 "Q6" V 7350 6150 39  0000 C CNN
@@ -1436,7 +1405,7 @@ F 3 "" H 7550 6125 60  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L GND #PWR0205
+L power:GND #PWR0205
 U 1 1 59F2E63B
 P 8000 6550
 F 0 "#PWR0205" H 8000 6300 50  0001 C CNN
@@ -1447,7 +1416,7 @@ F 3 "" H 8000 6550 50  0000 C CNN
 	-1   0    0    -1  
 $EndComp
 $Comp
-L +3.3V #PWR0206
+L power:+3.3V #PWR0206
 U 1 1 59F2E641
 P 8000 6125
 F 0 "#PWR0206" H 8000 5975 50  0001 C CNN
@@ -1458,7 +1427,7 @@ F 3 "" H 8000 6125 50  0000 C CNN
 	-1   0    0    -1  
 $EndComp
 $Comp
-L C_Small B118
+L hermeslite:C_Small B118
 U 1 1 59F2E648
 P 8000 6425
 F 0 "B118" H 7825 6500 39  0000 L CNN
@@ -1469,7 +1438,7 @@ F 3 "" H 8000 6425 50  0000 C CNN
 	-1   0    0    -1  
 $EndComp
 $Comp
-L GND #PWR0207
+L power:GND #PWR0207
 U 1 1 59F2E64F
 P 7600 6300
 F 0 "#PWR0207" H 7600 6050 50  0001 C CNN
@@ -1505,7 +1474,7 @@ Wire Wire Line
 Text GLabel 7225 2225 0    39   Input ~ 0
 INTTR
 $Comp
-L C_Small B55
+L hermeslite:C_Small B55
 U 1 1 59F6CA44
 P 6750 2725
 F 0 "B55" H 6875 2700 39  0000 L CNN
@@ -1517,7 +1486,7 @@ F 4 "DNI" H 6925 2775 39  0000 C CNN "Option"
 	-1   0    0    1   
 $EndComp
 $Comp
-L GND #PWR0208
+L power:GND #PWR0208
 U 1 1 59F6E419
 P 6525 2475
 F 0 "#PWR0208" H 6525 2475 39  0001 C CNN
@@ -1528,7 +1497,7 @@ F 3 "" H 6525 2475 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L BNC RF7
+L hermeslite:BNC RF7
 U 1 1 59F6E420
 P 6750 2450
 F 0 "RF7" V 6775 2600 39  0000 C CNN
@@ -1549,7 +1518,7 @@ Wire Wire Line
 Wire Wire Line
 	6525 2450 6525 2475
 $Comp
-L R J14
+L hermeslite:R J14
 U 1 1 59F8B642
 P 8450 2525
 F 0 "J14" V 8525 2525 39  0000 C CNN
@@ -1561,7 +1530,7 @@ F 4 "DNI" V 8575 2525 39  0000 C CNN "Option"
 	0    1    1    0   
 $EndComp
 $Comp
-L GND #PWR0209
+L power:GND #PWR0209
 U 1 1 59F99F50
 P 8725 2250
 F 0 "#PWR0209" H 8725 2000 50  0001 C CNN
