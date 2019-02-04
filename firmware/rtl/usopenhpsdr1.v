@@ -233,7 +233,7 @@ always @* begin
     end // DISCOVER1:
 
     DISCOVER2: begin
-      byte_no_next = byte_no - 'd1;
+      byte_no_next = byte_no - 11'd1;
       udp_tx_data = discover_data;      
       case (byte_no[5:0])
         6'h3a: discover_data_next = 8'hfe;
@@ -274,7 +274,7 @@ always @* begin
     end 
 
     WIDE2: begin
-      byte_no_next = byte_no - 'd1;
+      byte_no_next = byte_no - 11'd1;
       udp_tx_data = wide_data;
       case (byte_no[2:0])
         3'h6: wide_data_next = 8'hfe;
@@ -293,7 +293,7 @@ always @* begin
     end
 
     WIDE3: begin
-      byte_no_next = byte_no - 'd1;
+      byte_no_next = byte_no - 11'd1;
       udp_tx_data = wide_data;
       //wide_data_next = {{4{bs_tdata[11]}}, bs_tdata};
       wide_data_next = bs_tdata[7:0];
@@ -303,7 +303,7 @@ always @* begin
     end 
 
     WIDE4: begin
-      byte_no_next = byte_no - 'd1;
+      byte_no_next = byte_no - 11'd1;
       udp_tx_data = wide_data;
       //wide_data_next = bs_tdata[7:0];
       wide_data_next = {{4{bs_tdata[11]}}, bs_tdata[11:8]};
@@ -321,7 +321,7 @@ always @* begin
     end
     
     UDP2: begin
-      byte_no_next = byte_no - 'd1;
+      byte_no_next = byte_no - 11'd1;
       case (byte_no[2:0])
         3'h6: udp_data_next = 8'hfe;
         3'h5: udp_data_next = 8'h01;
@@ -332,7 +332,7 @@ always @* begin
         3'h0: begin
           udp_data_next = ep6_seq_no[7:0];
           ep6_seq_no_next = ep6_seq_no + 'h1;
-          bs_cnt_next = bs_cnt - 'd1;
+          bs_cnt_next = bs_cnt - 7'd1;
           state_next = SYNC_RESP;
         end
         default: udp_data_next = 8'hxx;
@@ -340,7 +340,7 @@ always @* begin
     end // UDP2:
 
     SYNC_RESP: begin
-      byte_no_next = byte_no - 'd1;
+      byte_no_next = byte_no - 11'd1;
       round_bytes_next = 'd0;
       case (byte_no[8:0])
         9'h1ff: udp_data_next = 8'h7f;
@@ -360,8 +360,8 @@ always @* begin
     end
 
     RXDATA2: begin
-      byte_no_next = byte_no - 'd1;
-      round_bytes_next = round_bytes + 'd1;
+      byte_no_next = byte_no - 11'd1;
+      round_bytes_next = round_bytes + 7'd1;
       udp_data_next = us_tdata[23:16];
       vna_mic_bit_next = us_tuser[0]; // Save mic bit for use laster with mic data
 
@@ -373,8 +373,8 @@ always @* begin
     end      
 
     RXDATA1: begin
-      byte_no_next = byte_no - 'd1;
-      round_bytes_next = round_bytes + 'd1;
+      byte_no_next = byte_no - 11'd1;
+      round_bytes_next = round_bytes + 7'd1;
       udp_data_next = us_tdata[15:8];
 
       if (|byte_no[8:0]) begin
@@ -385,8 +385,8 @@ always @* begin
     end   
 
     RXDATA0: begin
-      byte_no_next = byte_no - 'd1;
-      round_bytes_next = round_bytes + 'd1;
+      byte_no_next = byte_no - 11'd1;
+      round_bytes_next = round_bytes + 7'd1;
       udp_data_next = us_tdata[7:0];
       us_tready = 1'b1; // Pop next word
 
@@ -402,8 +402,8 @@ always @* begin
     end 
 
     MIC1: begin
-      byte_no_next = byte_no - 'd1;
-      round_bytes_next = round_bytes + 'd1;
+      byte_no_next = byte_no - 11'd1;
+      round_bytes_next = round_bytes + 7'd1;
       udp_data_next = 'd0;
       
       if (|byte_no[8:0]) begin
@@ -414,7 +414,7 @@ always @* begin
     end 
 
     MIC0: begin
-      byte_no_next = byte_no - 'd1;
+      byte_no_next = byte_no - 11'd1;
       round_bytes_next = 'd0;
       udp_data_next = vna ? {7'h00,vna_mic_bit} : 8'h00; // VNA, may need to be in MIC1
 
@@ -427,7 +427,7 @@ always @* begin
     end
 
     PAD: begin
-      byte_no_next = byte_no - 'd1;
+      byte_no_next = byte_no - 11'd1;
       udp_data_next = 8'h00;
 
       if (~(|byte_no[8:0])) begin

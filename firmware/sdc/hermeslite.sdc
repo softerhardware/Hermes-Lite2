@@ -290,8 +290,8 @@ set_multicycle_path -from [get_keepers {usopenhpsdr1:usopenhpsdr1_i|udp_tx_lengt
 
 ## Multicycle for frequency computation
 
-set_multicycle_path 2 -from {radio_i|wbs_dat_i[*]} -to {radio_i|freqcompp[*][*]} -setup -end 
-set_multicycle_path 1 -from {radio_i|wbs_dat_i[*]} -to {radio_i|freqcompp[*][*]} -hold -end 
+##set_multicycle_path 2 -from {radio_i|wbs_dat_i[*]} -to {radio_i|freqcompp[*][*]} -setup -end 
+##set_multicycle_path 1 -from {radio_i|wbs_dat_i[*]} -to {radio_i|freqcompp[*][*]} -hold -end 
 
 
 

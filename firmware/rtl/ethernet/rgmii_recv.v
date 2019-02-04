@@ -19,8 +19,8 @@ module rgmii_recv (
   
   //hardware pins
   input  [3:0]PHY_RX,     
-  input  PHY_DV,
-  input  PHY_RX_CLOCK
+  input  PHY_DV
+  //input  PHY_RX_CLOCK
   );
   
   

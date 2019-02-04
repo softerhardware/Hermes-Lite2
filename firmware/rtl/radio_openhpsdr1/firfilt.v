@@ -271,9 +271,9 @@ module fir256(
   begin
     if (we)   // Wait until a new sample is written to memory
       begin
-        counter = TAPS[ADDRBITS:0] + 4;     // count samples and pipeline latency (delay of 3 clocks from address being presented)
-        raddr = waddr;                  // read address -> newest sample
-        caddr = 1'd0;                 // start at coefficient zero
+        counter <= TAPS[ADDRBITS:0] + 4;     // count samples and pipeline latency (delay of 3 clocks from address being presented)
+        raddr <= waddr;                  // read address -> newest sample
+        caddr <= 1'd0;                 // start at coefficient zero
         Raccum <= 0;
         Iaccum <= 0;
         Rmult <= 0;
