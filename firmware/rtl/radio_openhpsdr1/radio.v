@@ -350,7 +350,7 @@ logic [31:0]  rx0_phase;    // For VNAscan, equals tx0_phase; else rx_phase[0].
 // This firmware supports two VNA modes: scanning by the PC (original method) and scanning in the FPGA.
 // The VNA bit must be turned on for either.  So VNA is one for either method, and zero otherwise.
 // The scan method depends on the number of VNA scan points, vna_count.  This is zero for the original method.
-wire VNA_SCAN_PC   = vna & (vna_count == 0);    // The PC changes the frequency for VNA.
+// wire VNA_SCAN_PC   = vna & (vna_count == 0);    // The PC changes the frequency for VNA.
 wire VNA_SCAN_FPGA = vna & (vna_count != 0);    // The firmware changes the frequency.
 
 wire signed [17:0] cordic_data_I, cordic_data_Q;
@@ -745,6 +745,7 @@ end
 case (LRDATA)
   0: begin // Left/Right downstream (PC->Card) audio data not used
     assign lr_tready = 1'b0;
+    assign tx_envelope_pwm_out = 1'b0;
 
 	 always @ (posedge clk)
       tx_data_dac <= txsum[11:0]; // + {10'h0,lfsr[2:1]};
@@ -795,6 +796,7 @@ case (LRDATA)
     logic signed [15:0] txsumqr;
     logic signed [15:0] iplusqr;
 
+    assign tx_envelope_pwm_out = 1'b0;
     //FSM to write DACLUTI and DACLUTQ
     assign lr_tready = 1'b1; // Always ready
     always @(posedge clk) begin
