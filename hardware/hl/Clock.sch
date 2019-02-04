@@ -1,36 +1,5 @@
-EESchema Schematic File Version 2
-LIBS:power
-LIBS:device
-LIBS:transistors
-LIBS:conn
-LIBS:linear
-LIBS:regul
-LIBS:74xx
-LIBS:cmos4000
-LIBS:adc-dac
-LIBS:memory
-LIBS:xilinx
-LIBS:microcontrollers
-LIBS:dsp
-LIBS:microchip
-LIBS:analog_switches
-LIBS:motorola
-LIBS:texas
-LIBS:intel
-LIBS:audio
-LIBS:interface
-LIBS:digital-audio
-LIBS:philips
-LIBS:display
-LIBS:cypress
-LIBS:siliconi
-LIBS:opto
-LIBS:atmel
-LIBS:contrib
-LIBS:valves
-LIBS:hermeslite
-LIBS:hermeslite-cache
-EELAYER 25 0
+EESchema Schematic File Version 4
+EELAYER 26 0
 EELAYER END
 $Descr USLetter 11000 8500
 encoding utf-8
@@ -45,7 +14,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L 5P49V5923 U6
+L hermeslite:5P49V5923 U6
 U 1 1 56B0541A
 P 5400 5800
 F 0 "U6" H 5400 7750 60  0000 C CNN
@@ -64,7 +33,7 @@ NoConn ~ 4500 5700
 NoConn ~ 4500 4600
 NoConn ~ 4500 4700
 $Comp
-L C_Small B59
+L hermeslite:C_Small B59
 U 1 1 56B05549
 P 6450 4325
 F 0 "B59" H 6460 4395 39  0000 L CNN
@@ -75,7 +44,7 @@ F 3 "" H 6450 4325 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C_Small B60
+L hermeslite:C_Small B60
 U 1 1 56B0557E
 P 6650 4325
 F 0 "B60" H 6660 4395 39  0000 L CNN
@@ -86,7 +55,7 @@ F 3 "" H 6650 4325 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C_Small B61
+L hermeslite:C_Small B61
 U 1 1 56B0559B
 P 6850 4325
 F 0 "B61" H 6860 4395 39  0000 L CNN
@@ -97,7 +66,7 @@ F 3 "" H 6850 4325 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C_Small B64
+L hermeslite:C_Small B64
 U 1 1 56B055BA
 P 8350 4825
 F 0 "B64" H 8360 4895 39  0000 L CNN
@@ -108,7 +77,7 @@ F 3 "" H 8350 4825 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C_Small B62
+L hermeslite:C_Small B62
 U 1 1 56B05A9B
 P 6450 4825
 F 0 "B62" H 6460 4895 39  0000 L CNN
@@ -119,7 +88,7 @@ F 3 "" H 6450 4825 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C_Small B63
+L hermeslite:C_Small B63
 U 1 1 56B05AC8
 P 6650 4825
 F 0 "B63" H 6660 4895 39  0000 L CNN
@@ -130,7 +99,7 @@ F 3 "" H 6650 4825 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C_Small B113
+L hermeslite:C_Small B113
 U 1 1 56B05AEF
 P 6850 4825
 F 0 "B113" H 6860 4895 39  0000 L CNN
@@ -144,7 +113,7 @@ Connection ~ 6450 4700
 Connection ~ 6650 4700
 Connection ~ 6850 4700
 $Comp
-L GND #PWR089
+L power:GND #PWR089
 U 1 1 56B05C80
 P 7875 4975
 F 0 "#PWR089" H 7875 4725 39  0001 C CNN
@@ -155,7 +124,7 @@ F 3 "" H 7875 4975 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R42
+L hermeslite:R R42
 U 1 1 56B06059
 P 6550 5300
 F 0 "R42" V 6630 5300 39  0000 C CNN
@@ -166,7 +135,7 @@ F 3 "" H 6550 5300 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R45
+L hermeslite:R R45
 U 1 1 56B06092
 P 6550 5500
 F 0 "R45" V 6630 5500 39  0000 C CNN
@@ -181,7 +150,7 @@ Wire Wire Line
 Wire Wire Line
 	6300 5500 6400 5500
 $Comp
-L FB FB13
+L hermeslite:FB FB13
 U 1 1 56B062DD
 P 7700 4700
 F 0 "FB13" H 7775 4650 39  0000 C CNN
@@ -196,7 +165,7 @@ Wire Wire Line
 Text GLabel 6725 5300 2    39   Output ~ 0
 RFFE_CLK
 $Comp
-L GND #PWR090
+L power:GND #PWR090
 U 1 1 56B0826C
 P 6400 5800
 F 0 "#PWR090" H 6400 5550 39  0001 C CNN
@@ -211,7 +180,7 @@ Wire Wire Line
 Wire Wire Line
 	6400 5700 6400 5800
 $Comp
-L BNC CL1
+L hermeslite:BNC CL1
 U 1 1 56BF7799
 P 2950 4300
 F 0 "CL1" H 2960 4420 39  0000 C CNN
@@ -223,7 +192,7 @@ F 4 "DNI" H 3100 4250 39  0000 C CNN "Option"
 	-1   0    0    -1  
 $EndComp
 $Comp
-L R R39
+L hermeslite:R R39
 U 1 1 56BF7957
 P 3800 4300
 F 0 "R39" V 3700 4300 39  0000 C CNN
@@ -234,7 +203,7 @@ F 3 "" H 3800 4300 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R40
+L hermeslite:R R40
 U 1 1 56BF79F4
 P 4100 4450
 F 0 "R40" H 3950 4450 39  0000 C CNN
@@ -250,7 +219,7 @@ Connection ~ 4100 4300
 Wire Wire Line
 	3100 4300 3300 4300
 $Comp
-L GND #PWR091
+L power:GND #PWR091
 U 1 1 56BF7B1E
 P 4300 4600
 F 0 "#PWR091" H 4300 4350 39  0001 C CNN
@@ -268,7 +237,7 @@ Wire Wire Line
 	4300 4600 4100 4600
 Connection ~ 4300 4600
 $Comp
-L GND #PWR092
+L power:GND #PWR092
 U 1 1 56BF7BE2
 P 2950 4550
 F 0 "#PWR092" H 2950 4300 39  0001 C CNN
@@ -283,7 +252,7 @@ Wire Wire Line
 Wire Wire Line
 	4200 3500 4200 4000
 $Comp
-L C_Small C42
+L hermeslite:C_Small C42
 U 1 1 56BF8D13
 P 4350 3150
 F 0 "C42" V 4300 3200 39  0000 L CNN
@@ -295,7 +264,7 @@ F 4 "DNI" V 4400 3250 39  0000 C CNN "Option"
 	0    1    1    0   
 $EndComp
 $Comp
-L adcosc X2
+L hermeslite:adcosc X2
 U 1 1 56BFC48E
 P 3750 2750
 F 0 "X2" H 3625 3000 60  0000 C CNN
@@ -306,7 +275,7 @@ F 3 "" H 3750 2750 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C_Small B57
+L hermeslite:C_Small B57
 U 1 1 56BFC4F0
 P 4200 3400
 F 0 "B57" H 4210 3470 39  0000 L CNN
@@ -321,7 +290,7 @@ Wire Wire Line
 Wire Wire Line
 	4200 2850 4200 3300
 $Comp
-L FB FB12
+L hermeslite:FB FB12
 U 1 1 56BFC5FD
 P 5650 2650
 F 0 "FB12" H 5725 2600 39  0000 C CNN
@@ -332,7 +301,7 @@ F 3 "" H 5650 2650 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C_Small C41
+L hermeslite:C_Small C41
 U 1 1 56BFC646
 P 5350 2775
 F 0 "C41" H 5360 2845 39  0000 L CNN
@@ -344,7 +313,7 @@ F 3 "" H 5350 2775 50  0000 C CNN
 $EndComp
 Connection ~ 5150 2650
 $Comp
-L GND #PWR093
+L power:GND #PWR093
 U 1 1 56BFC8C6
 P 5150 3200
 F 0 "#PWR093" H 5150 2950 39  0001 C CNN
@@ -355,7 +324,7 @@ F 3 "" H 5150 3200 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR094
+L power:GND #PWR094
 U 1 1 56BFF78A
 P 3200 3100
 F 0 "#PWR094" H 3200 2850 39  0001 C CNN
@@ -366,7 +335,7 @@ F 3 "" H 3200 3100 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R36
+L hermeslite:R R36
 U 1 1 56BFF836
 P 3200 2450
 F 0 "R36" H 3300 2575 39  0000 C CNN
@@ -379,7 +348,7 @@ F 5 "R 10K" H 3200 2450 60  0001 C CNN "Key"
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R38
+L hermeslite:R R38
 U 1 1 56BFF939
 P 3200 2850
 F 0 "R38" H 3300 2975 39  0000 C CNN
@@ -408,7 +377,7 @@ Wire Wire Line
 Wire Wire Line
 	3200 2050 4550 2050
 $Comp
-L C_Small B56
+L hermeslite:C_Small B56
 U 1 1 56C01E82
 P 5150 2775
 F 0 "B56" H 5160 2845 39  0000 L CNN
@@ -422,7 +391,7 @@ Wire Wire Line
 	5800 2650 5850 2650
 Connection ~ 5350 2650
 $Comp
-L C_Small C44
+L hermeslite:C_Small C44
 U 1 1 56D2D3FF
 P 7050 4825
 F 0 "C44" H 7060 4895 39  0000 L CNN
@@ -456,7 +425,7 @@ Wire Wire Line
 	5150 2875 5150 3200
 Connection ~ 5150 3150
 $Comp
-L R R41
+L hermeslite:R R41
 U 1 1 577CF89C
 P 6550 5100
 F 0 "R41" V 6630 5100 39  0000 C CNN
@@ -471,7 +440,7 @@ Wire Wire Line
 Wire Wire Line
 	8200 4700 8750 4700
 $Comp
-L C_Small C45
+L hermeslite:C_Small C45
 U 1 1 577F0CB4
 P 8550 4825
 F 0 "C45" H 8560 4895 39  0000 L CNN
@@ -523,7 +492,7 @@ Wire Wire Line
 Connection ~ 6850 4000
 Connection ~ 6450 4200
 $Comp
-L GND #PWR095
+L power:GND #PWR095
 U 1 1 577F4566
 P 6650 4475
 F 0 "#PWR095" H 6650 4225 39  0001 C CNN
@@ -551,7 +520,7 @@ Wire Wire Line
 	6300 4800 6325 4800
 Connection ~ 6325 4800
 $Comp
-L JNO J4
+L hermeslite:JNO J4
 U 1 1 5782A6C2
 P 2950 3400
 F 0 "J4" H 2825 3425 39  0000 C CNN
@@ -563,7 +532,7 @@ F 4 "DNI" H 2850 3350 39  0000 C CNN "Option"
 	1    0    0    -1  
 $EndComp
 $Comp
-L BNC CL2
+L hermeslite:BNC CL2
 U 1 1 578D434B
 P 7375 5500
 F 0 "CL2" H 7375 5625 39  0000 C CNN
@@ -577,7 +546,7 @@ $EndComp
 Wire Wire Line
 	7025 5500 7225 5500
 $Comp
-L GND #PWR096
+L power:GND #PWR096
 U 1 1 578D45DB
 P 7375 5750
 F 0 "#PWR096" H 7375 5500 39  0001 C CNN
@@ -592,7 +561,7 @@ Build Options:
 Text Notes 1325 1275 0    60   ~ 0
 Default Versa with oscillator: Include FB12,C41,B56,B57,X2. Include R36,R38 if required by oscillator. Exclude J3,J4,C42.\nVersa with crystal: Include X2 as crystal, B57,J4,J3 as jumper, C42,R38 as 15pF. Exclude FB12,C41,B56,R36.\nExternal clock: Configure U6 for CLKIN input and correct ratio, drive CL1 or CL5 with external clock.\nOther experimental options possible with uFL connectors. See RF Frontend sheet for additional AD9866 clock options.
 $Comp
-L C_Small B114
+L hermeslite:C_Small B114
 U 1 1 57C7D417
 P 7250 4825
 F 0 "B114" H 7260 4895 39  0000 L CNN
@@ -603,7 +572,7 @@ F 3 "" H 7250 4825 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C_Small C12
+L hermeslite:C_Small C12
 U 1 1 57C7D4F7
 P 7450 4825
 F 0 "C12" H 7460 4895 39  0000 L CNN
@@ -620,7 +589,7 @@ Wire Wire Line
 	7250 4925 7250 4950
 Connection ~ 7250 4950
 $Comp
-L FB FB26
+L hermeslite:FB FB26
 U 1 1 57C7D7CE
 P 7700 4600
 F 0 "FB26" H 7825 4625 39  0000 C CNN
@@ -631,7 +600,7 @@ F 3 "" H 7700 4600 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R10
+L hermeslite:R R10
 U 1 1 57C7D9F2
 P 8050 4700
 F 0 "R10" V 8130 4700 39  0000 C CNN
@@ -642,7 +611,7 @@ F 3 "" H 8050 4700 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L C_Small B115
+L hermeslite:C_Small B115
 U 1 1 57C7DB00
 P 7875 4825
 F 0 "B115" H 7700 4750 39  0000 L CNN
@@ -653,7 +622,7 @@ F 3 "" H 7875 4825 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3V3 #PWR097
+L power:+3V3 #PWR097
 U 1 1 57C7DDE6
 P 8750 4700
 F 0 "#PWR097" H 8750 4550 50  0001 C CNN
@@ -682,7 +651,7 @@ Wire Wire Line
 Wire Wire Line
 	7850 4600 8350 4600
 $Comp
-L FB FB25
+L hermeslite:FB FB25
 U 1 1 57C7E9F8
 P 7700 4200
 F 0 "FB25" H 7825 4225 39  0000 C CNN
@@ -693,7 +662,7 @@ F 3 "" H 7700 4200 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L FB FB24
+L hermeslite:FB FB24
 U 1 1 57C7EAAB
 P 7700 4100
 F 0 "FB24" H 7825 4125 39  0000 C CNN
@@ -704,7 +673,7 @@ F 3 "" H 7700 4100 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L FB FB23
+L hermeslite:FB FB23
 U 1 1 57C7EB49
 P 7700 4000
 F 0 "FB23" H 7825 4025 39  0000 C CNN
@@ -730,7 +699,7 @@ Wire Wire Line
 	7450 4725 7450 4600
 Connection ~ 7450 4600
 $Comp
-L +3V3 #PWR098
+L power:+3V3 #PWR098
 U 1 1 57CAA351
 P 5850 2650
 F 0 "#PWR098" H 5850 2500 50  0001 C CNN
@@ -747,7 +716,7 @@ Connection ~ 4550 2650
 Wire Wire Line
 	4550 2050 4550 2700
 $Comp
-L JNO J3
+L hermeslite:JNO J3
 U 1 1 5782ED21
 P 4550 2850
 F 0 "J3" H 4650 2875 39  0000 C CNN
@@ -763,7 +732,7 @@ I2C ADDR 0xD4
 Wire Wire Line
 	2950 2650 2950 3250
 $Comp
-L BNC CL5
+L hermeslite:BNC CL5
 U 1 1 59EA9A36
 P 3200 4525
 F 0 "CL5" V 3325 4525 39  0000 C CNN
@@ -783,7 +752,7 @@ Wire Wire Line
 	3000 4525 2950 4525
 Connection ~ 2950 4525
 $Comp
-L BNC CL7
+L hermeslite:BNC CL7
 U 1 1 59EBB4DA
 P 7150 5725
 F 0 "CL7" V 7275 5725 39  0000 C CNN
@@ -803,7 +772,7 @@ Wire Wire Line
 	7375 5700 7375 5750
 Connection ~ 7375 5725
 $Comp
-L BNC CL6
+L hermeslite:BNC CL6
 U 1 1 59EBC4AC
 P 7150 5100
 F 0 "CL6" H 7150 5200 39  0000 C CNN
@@ -817,7 +786,7 @@ $EndComp
 Wire Wire Line
 	6700 5300 6725 5300
 $Comp
-L GND #PWR099
+L power:GND #PWR099
 U 1 1 59EBCED3
 P 7150 5325
 F 0 "#PWR099" H 7150 5075 39  0001 C CNN
@@ -830,7 +799,7 @@ $EndComp
 Wire Wire Line
 	7150 5300 7150 5325
 $Comp
-L BNC CL3
+L hermeslite:BNC CL3
 U 1 1 59EC1785
 P 4000 3150
 F 0 "CL3" H 4000 3275 39  0000 C CNN
@@ -842,7 +811,7 @@ F 4 "DNI" H 4125 3125 39  0000 C CNN "Option"
 	-1   0    0    -1  
 $EndComp
 $Comp
-L GND #PWR0100
+L power:GND #PWR0100
 U 1 1 59EC1A0D
 P 4000 3375
 F 0 "#PWR0100" H 4000 3125 39  0001 C CNN
@@ -867,7 +836,7 @@ Wire Wire Line
 Wire Wire Line
 	4450 5000 4500 5000
 $Comp
-L JNC J5
+L hermeslite:JNC J5
 U 1 1 59EC286C
 P 3450 4300
 F 0 "J5" V 3350 4300 39  0000 C CNN
@@ -880,7 +849,7 @@ $EndComp
 Wire Wire Line
 	3600 4300 3650 4300
 $Comp
-L JNC J13
+L hermeslite:JNC J13
 U 1 1 59EC5741
 P 6875 5500
 F 0 "J13" V 6950 5500 39  0000 C CNN

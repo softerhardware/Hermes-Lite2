@@ -41,11 +41,12 @@ set_global_assignment -name VERILOG_MACRO "USE_ALTSYNCRAM=1"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY hl2b5upce15
 source ./tcl/general.tcl
 set_global_assignment -name DEVICE EP4CE15E22C8
-source ./tcl/locations_hl2b5up.tcl
+source ./tcl/locations_hl2b5upce15.tcl
 source ./tcl/files.tcl
 set_parameter -name NR 1
 set_global_assignment -name TOP_LEVEL_ENTITY hermeslite
 set_global_assignment -name SDC_FILE sdc/hermeslite.sdc
 
 set_global_assignment -name LAST_QUARTUS_VERSION "18.1.0 Lite Edition"
+
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
