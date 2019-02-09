@@ -52,7 +52,7 @@ class Test(object):
 
         self.sampling_freq = 76800000
         self.rx_freq = 20480000 ##28000000
-        self.sigfreq = 0 #27500000
+        self.sigfreq = 20590000 #27500000
 
 
         module = 'cordic'
