@@ -430,7 +430,7 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (	// use this output fo
   for (c = 1; c < NR; c = c + 1) begin: MDC
     if (c & 2'h01) begin
       // Build double mixer
-      mix2 mix2_i (
+      mix2 #(.CALCTYPE( c == 1 ? 3 : 4)) mix2_i (
         .clk(clk),
         .clk_2x(clk_2x),
         .rst(1'b0),

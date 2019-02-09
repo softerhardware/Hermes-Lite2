@@ -80,20 +80,13 @@ generate
       .q(fine_sin)
     );
 
-    assign sin_mult_res = sin_opa * sin_opb;
-    always @(posedge clk) begin
-      sin_opa <= coarse_sinp[17:0];
-      sin_opb <= {9'h00,fine_sin};
-      scsf_ff <= sin_mult_res;
-    end
-
-    assign cos_mult_res = cos_opa * cos_opb;
-    always @(posedge clk) begin
-      cos_opa <= coarse_cosp[17:0];
-      cos_opb <= {9'h00,fine_sin};
-      ccsf_ff <= cos_mult_res;
-    end
-
+    assign sin_opa = coarse_sinp[17:0];
+    assign sin_opb = {9'h00,fine_sin};
+    assign scsf_ff = sin_mult_res;
+    assign cos_opa = coarse_cosp[17:0];
+    assign cos_opb = {9'h00,fine_sin};
+    assign ccsf_ff = cos_mult_res;
+    
     assign scsf = scsf_ff[26:17];
     assign ccsf = ccsf_ff[26:17];
 
@@ -109,19 +102,12 @@ generate
       fine_sin <= 9'h193 * {fine_addr[8:1],1'b1};
     end
 
-    assign sin_mult_res = sin_opa * sin_opb;
-    always @(posedge clk) begin
-      sin_opa <= coarse_sinp[17:0];
-      sin_opb <= fine_sin;
-      scsf_ff <= sin_mult_res;
-    end
-
-    assign cos_mult_res = cos_opa * cos_opb;
-    always @(posedge clk) begin
-      cos_opa <= coarse_cosp[17:0];
-      cos_opb <= fine_sin;
-      ccsf_ff <= cos_mult_res;
-    end
+    assign sin_opa = coarse_sinp[17:0];
+    assign sin_opb = fine_sin;
+    assign scsf_ff = sin_mult_res;
+    assign cos_opa = coarse_cosp[17:0];
+    assign cos_opb = fine_sin;
+    assign ccsf_ff = cos_mult_res;
 
     // Only 10 bits required for correction factor
     assign scsf = scsf_ff[35:26];
@@ -137,19 +123,12 @@ generate
     end
 
     // Restrict output to 8 bits to reduce LUT usage
-    assign sin_mult_res = sin_opa * sin_opb;
-    always @(posedge clk) begin
-      sin_opa <= coarse_sinp[17:0];
-      sin_opb <= {10'h00,fine_sin[15:8]};
-      scsf_ff <= sin_mult_res;
-    end
-
-    assign cos_mult_res = cos_opa * cos_opb;
-    always @(posedge clk) begin
-      cos_opa <= coarse_cosp[17:0];
-      cos_opb <= {10'h00,fine_sin[15:8]};
-      ccsf_ff <= cos_mult_res;
-    end
+    assign sin_opa = coarse_sinp[17:0];
+    assign sin_opb = {10'h00,fine_sin[15:8]};
+    assign scsf_ff = sin_mult_res;
+    assign cos_opa = coarse_cosp[17:0];
+    assign cos_opb = {10'h00,fine_sin[15:8]};
+    assign ccsf_ff = cos_mult_res;
 
     // Only 10 bits required for correction factor
     assign scsf = scsf_ff[25:16];
@@ -159,61 +138,19 @@ generate
 
     logic  [13:0]   fine_sin;
 
-    // 8x8 unsigned multiply in logic
     always @(posedge clk) begin
       // 7x7
       fine_sin <= 7'h65 * {fine_addr[8:3],1'b1};
     end
 
     // Restrict output to 7 bits to reduce LUT usage
-    //assign sin_mult_res = sin_opa * sin_opb;
-    //always @(posedge clk) begin
-    //  sin_opa <= coarse_sinp[17:0];
-    //  sin_opb <= {11'h00,fine_sin[13:7]};
-    //  scsf_ff <= sin_mult_res;
-    //end
-
-    lpm_mult #( .lpm_hint("DEDICATED_MULTIPLIER_CIRCUITRY=YES,MAXIMIZE_SPEED=5"),
-                .lpm_pipeline(2),
-                .lpm_representation("UNSIGNED"),
-                .lpm_type("LPM_MULT"),
-                .lpm_widtha(18),
-                .lpm_widthb(18),
-                .lpm_widthp(36)) 
-
-    sinmult (   .clock(clk),
-                .dataa(coarse_sinp[17:0]),
-                .datab({11'h00,fine_sin[13:7]}),
-                .result(scsf_ff),
-                .aclr(1'b0),
-                .clken(1'b1),
-                .sclr(1'b0),
-                .sum(1'b0));
-
-    lpm_mult #( .lpm_hint("DEDICATED_MULTIPLIER_CIRCUITRY=YES,MAXIMIZE_SPEED=5"),
-                .lpm_pipeline(2),
-                .lpm_representation("UNSIGNED"),
-                .lpm_type("LPM_MULT"),
-                .lpm_widtha(18),
-                .lpm_widthb(18),
-                .lpm_widthp(36)) 
-
-    cosmult (   .clock(clk),
-                .dataa(coarse_cosp[17:0]),
-                .datab({11'h00,fine_sin[13:7]}),
-                .result(ccsf_ff),
-                .aclr(1'b0),
-                .clken(1'b1),
-                .sclr(1'b0),
-                .sum(1'b0));
-
-    //assign cos_mult_res = cos_opa * cos_opb;
-    //always @(posedge clk) begin
-    //  cos_opa <= coarse_cosp[17:0];
-    //  cos_opb <= {11'h00,fine_sin[13:7]};
-    //  ccsf_ff <= cos_mult_res;
-    //end
-
+    assign sin_opa = coarse_sinp[17:0];
+    assign sin_opb = {11'h00,fine_sin[13:7]};
+    assign scsf_ff = sin_mult_res;
+    assign cos_opa = coarse_cosp[17:0];
+    assign cos_opb = {11'h00,fine_sin[13:7]};
+    assign ccsf_ff = cos_mult_res;
+ 
     // Only 10 bits required for correction factor
     assign scsf = scsf_ff[24:15];
     assign ccsf = ccsf_ff[24:15];
@@ -222,27 +159,19 @@ generate
 
     logic  [16:0]   fine_sin;
 
-    // 8x8 unsigned multiply in logic
     always @(posedge clk) begin
       // 7x10
       fine_sin <= 7'h65 * {fine_addr[8:0],1'b1};
     end
 
     // Restrict output to 8 bits to reduce LUT usage
-    assign sin_mult_res = sin_opa * sin_opb;
-    always @(posedge clk) begin
-      sin_opa <= coarse_sinp[17:0];
-      sin_opb <= {10'h00,fine_sin[16:9]};
-      scsf_ff <= sin_mult_res;
-    end
-
-    assign cos_mult_res = cos_opa * cos_opb;
-    always @(posedge clk) begin
-      cos_opa <= coarse_cosp[17:0];
-      cos_opb <= {10'h00,fine_sin[16:9]};
-      ccsf_ff <= cos_mult_res;
-    end
-
+    assign sin_opa = coarse_sinp[17:0];
+    assign sin_opb = {10'h00,fine_sin[16:9]};
+    assign scsf_ff = sin_mult_res;
+    assign cos_opa = coarse_cosp[17:0];
+    assign cos_opb = {10'h00,fine_sin[16:9]};
+    assign ccsf_ff = cos_mult_res;
+ 
     // Only 10 bits required for correction factor
     assign scsf = scsf_ff[25:16];
     assign ccsf = ccsf_ff[25:16];
@@ -251,6 +180,55 @@ generate
 
 endgenerate
 
+
+
+lpm_mult #( .lpm_hint("DEDICATED_MULTIPLIER_CIRCUITRY=YES,MAXIMIZE_SPEED=5"),
+            .lpm_pipeline(2),
+            .lpm_representation("UNSIGNED"),
+            .lpm_type("LPM_MULT"),
+            .lpm_widtha(18),
+            .lpm_widthb(18),
+            .lpm_widthp(36)) 
+
+sinmult (   .clock(clk),
+            .dataa(sin_opa),
+            .datab(sin_opb),
+            .result(sin_mult_res),
+            .aclr(1'b0),
+            .clken(1'b1),
+            .sclr(1'b0),
+            .sum(1'b0));
+
+lpm_mult #( .lpm_hint("DEDICATED_MULTIPLIER_CIRCUITRY=YES,MAXIMIZE_SPEED=5"),
+            .lpm_pipeline(2),
+            .lpm_representation("UNSIGNED"),
+            .lpm_type("LPM_MULT"),
+            .lpm_widtha(18),
+            .lpm_widthb(18),
+            .lpm_widthp(36)) 
+
+cosmult (   .clock(clk),
+            .dataa(cos_opa),
+            .datab(cos_opb),
+            .result(cos_mult_res),
+            .aclr(1'b0),
+            .clken(1'b1),
+            .sclr(1'b0),
+            .sum(1'b0));
+
+//    assign sin_mult_res = sin_opa * sin_opb;
+//    always @(posedge clk) begin
+//      sin_opa <= coarse_sinp[17:0];
+//      sin_opb <= {9'h00,fine_sin};
+//      scsf_ff <= sin_mult_res;
+//    end
+//
+//    assign cos_mult_res = cos_opa * cos_opb;
+//    always @(posedge clk) begin
+//      cos_opa <= coarse_cosp[17:0];
+//      cos_opb <= {9'h00,fine_sin};
+//      ccsf_ff <= cos_mult_res;
+//    end
 
 
 // Pipestate3

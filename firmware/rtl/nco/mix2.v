@@ -25,6 +25,8 @@ output signed [17:0]  mixdata0_q;
 output signed [17:0]  mixdata1_i;
 output signed [17:0]  mixdata1_q;
 
+parameter CALCTYPE = 0;
+
 logic         [18:0]  sin, ssin;
 logic         [18:0]  cos, scos;
 
@@ -35,7 +37,8 @@ logic signed  [11:0]  adci, adcq;
 
 logic                 state = 1'b0;
 
-nco2 #(.CALCTYPE(3)) nco2_i (
+
+nco2 #(.CALCTYPE(CALCTYPE)) nco2_i (
   .state(state),
   .clk_2x(clk_2x),
   .rst(rst),
