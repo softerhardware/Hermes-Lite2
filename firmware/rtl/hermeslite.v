@@ -124,7 +124,7 @@ module hermeslite(
 
 
 // PARAMETERS
-parameter       NR = 3; // Recievers
+parameter       NR = 4; // Recievers
 localparam      NT = 1; // Transmitters
 
 // Ethernet Interface

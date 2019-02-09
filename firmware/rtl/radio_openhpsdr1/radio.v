@@ -156,9 +156,12 @@ logic [31:0]  freqcompp [0:3];
 logic [5:0]   chanp [0:3];
 
 
-logic [31:0]  rx_phase [0:NR-1];    // The Rx phase calculated from the frequency sent by the PC.
+logic [31:0]  rx_phase [0:NR];    // The Rx phase calculated from the frequency sent by the PC.
 logic [31:0]  tx_phase0;
 
+// Always one more so that dangling assignment can be made
+logic signed [17:0]   mixdata_i [0:NR];
+logic signed [17:0]   mixdata_q [0:NR]; 
 
 
 genvar c;
@@ -398,30 +401,59 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (	// use this output fo
     .cordic_outdata_Q(cordic_data_Q)
   );
 
+  //for (c = 1; c < NR; c = c + 1) begin: MDC
+  //  if((c==3 && NR>3) || (c==1 && NR<=3)) begin
+  //      receiver #(.CICRATE(CICRATE)) receiver_inst (
+  //        .clock(clk),
+  //        .clock_2x(clk_2x),
+  //        .rate(rate),
+  //        .frequency(rx_phase[c]),
+  //        .out_strobe(rx_data_rdy[c]),
+  //        .in_data((tx_on & pure_signal) ? tx_data_dac : adcpipe[c/8]), //tx_data was pipelined here once
+  //        .out_data_I(rx_data_i[c]),
+  //        .out_data_Q(rx_data_q[c])
+  //      );
+  //  end else begin
+  //      receiver_nco #(.CICRATE(CICRATE)) receiver_inst (
+  //        .clock(clk),
+  //        .clock_2x(clk_2x),
+  //        .rate(rate),
+  //        .frequency(rx_phase[c]),
+  //        .out_strobe(rx_data_rdy[c]),
+  //        .in_data(adcpipe[c/8]),
+  //        .out_data_I(rx_data_i[c]),
+  //        .out_data_Q(rx_data_q[c])
+  //      );
+  //  end
+  //end
+
   for (c = 1; c < NR; c = c + 1) begin: MDC
-    if((c==3 && NR>3) || (c==1 && NR<=3)) begin
-        receiver #(.CICRATE(CICRATE)) receiver_inst (
-          .clock(clk),
-          .clock_2x(clk_2x),
-          .rate(rate),
-          .frequency(rx_phase[c]),
-          .out_strobe(rx_data_rdy[c]),
-          .in_data((tx_on & pure_signal) ? tx_data_dac : adcpipe[c/8]), //tx_data was pipelined here once
-          .out_data_I(rx_data_i[c]),
-          .out_data_Q(rx_data_q[c])
-        );
-    end else begin
-        receiver #(.CICRATE(CICRATE)) receiver_inst (
-          .clock(clk),
-          .clock_2x(clk_2x),
-          .rate(rate),
-          .frequency(rx_phase[c]),
-          .out_strobe(rx_data_rdy[c]),
-          .in_data(adcpipe[c/8]),
-          .out_data_I(rx_data_i[c]),
-          .out_data_Q(rx_data_q[c])
-        );
+    if (c & 2'h01) begin
+      // Build double mixer
+      mix2 mix2_i (
+        .clk(clk),
+        .clk_2x(clk_2x),
+        .rst(1'b0),
+        .phi0(rx_phase[c]),
+        .phi1(rx_phase[c+1]),
+        .adc(adcpipe[c/8]),
+        .mixdata0_i(mixdata_i[c]),
+        .mixdata0_q(mixdata_q[c]),
+        .mixdata1_i(mixdata_i[c+1]),
+        .mixdata1_q(mixdata_q[c+1])
+      );
     end
+
+    receiver_nco #(.CICRATE(CICRATE)) receiver_inst (
+      .clock(clk),
+      .clock_2x(clk_2x),
+      .rate(rate),
+      .mixdata_I(mixdata_i[c]),
+      .mixdata_Q(mixdata_q[c]),
+      .out_strobe(rx_data_rdy[c]),
+      .out_data_I(rx_data_i[c]),
+      .out_data_Q(rx_data_q[c])
+    );
   end
 
 end else if (RECEIVER2==1) begin
