@@ -694,6 +694,13 @@
 	"pins":5	
 	},	
 
+"DB IO22": {
+	"mpn":["M20-9960245"],
+	"spec":"2x1 M 0.1in HDR RA",
+	"assembly":"MTH",
+	"pins":2
+	},	
+
 "X 38.4MHz": {
 	"mpn":["ASTXR-12-38.400MHZ-514054-T"],
 	"altmpn":["520L15IA38M4000","TSX-3225 38.4000MF10Z-AS3"],

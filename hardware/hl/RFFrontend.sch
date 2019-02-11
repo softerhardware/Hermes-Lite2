@@ -1,12 +1,13 @@
 EESchema Schematic File Version 4
+LIBS:hermeslite-cache
 EELAYER 26 0
 EELAYER END
 $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 5 7
 Title "RF Frontend"
-Date "2018-06-11"
-Rev "2.0-build7"
+Date "2019-02-10"
+Rev "2.0-build8"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
 Comment2 ""
