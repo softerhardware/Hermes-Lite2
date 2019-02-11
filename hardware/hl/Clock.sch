@@ -1,12 +1,13 @@
 EESchema Schematic File Version 4
+LIBS:hermeslite-cache
 EELAYER 26 0
 EELAYER END
 $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 4 7
 Title "Clock"
-Date "2018-06-11"
-Rev "2.0-build7"
+Date "2019-02-10"
+Rev "2.0-build8"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
 Comment2 ""
@@ -161,7 +162,7 @@ F 3 "" H 7700 4700 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	6300 4700 7550 4700
+	6300 4700 6325 4700
 Text GLabel 6725 5300 2    39   Output ~ 0
 RFFE_CLK
 $Comp
@@ -214,10 +215,10 @@ F 3 "" H 4100 4450 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	3950 4300 4500 4300
+	3950 4300 4100 4300
 Connection ~ 4100 4300
 Wire Wire Line
-	3100 4300 3300 4300
+	3100 4300 3200 4300
 $Comp
 L power:GND #PWR091
 U 1 1 56BF7B1E
@@ -288,7 +289,7 @@ $EndComp
 Wire Wire Line
 	4150 2850 4200 2850
 Wire Wire Line
-	4200 2850 4200 3300
+	4200 2850 4200 3150
 $Comp
 L hermeslite:FB FB12
 U 1 1 56BFC5FD
@@ -361,12 +362,12 @@ F 5 "R 10K" H 3200 2850 60  0001 C CNN "Key"
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	3200 2600 3200 2700
+	3200 2600 3200 2650
 Wire Wire Line
-	2950 2650 3350 2650
+	2950 2650 3200 2650
 Connection ~ 3200 2650
 Wire Wire Line
-	3200 3000 3200 3100
+	3200 3000 3200 3050
 Wire Wire Line
 	3350 2850 3350 3050
 Wire Wire Line
@@ -409,12 +410,12 @@ Wire Wire Line
 Wire Wire Line
 	2950 4100 4500 4100
 Wire Wire Line
-	4150 3150 4250 3150
+	4150 3150 4200 3150
 Connection ~ 4200 3150
 Wire Wire Line
-	4150 2650 5500 2650
+	4150 2650 4550 2650
 Wire Wire Line
-	4450 3150 5350 3150
+	4450 3150 4550 3150
 Wire Wire Line
 	5150 2675 5150 2650
 Wire Wire Line
@@ -422,7 +423,7 @@ Wire Wire Line
 Wire Wire Line
 	5350 3150 5350 2875
 Wire Wire Line
-	5150 2875 5150 3200
+	5150 2875 5150 3150
 Connection ~ 5150 3150
 $Comp
 L hermeslite:R R41
@@ -438,7 +439,7 @@ $EndComp
 Wire Wire Line
 	6400 5100 6300 5100
 Wire Wire Line
-	8200 4700 8750 4700
+	8200 4700 8350 4700
 $Comp
 L hermeslite:C_Small C45
 U 1 1 577F0CB4
@@ -461,7 +462,7 @@ Wire Wire Line
 Wire Wire Line
 	7050 4950 7050 4925
 Wire Wire Line
-	6450 4950 8550 4950
+	6450 4950 6650 4950
 Wire Wire Line
 	6450 4950 6450 4925
 Wire Wire Line
@@ -477,9 +478,9 @@ Wire Wire Line
 Wire Wire Line
 	8350 4950 8350 4925
 Wire Wire Line
-	6300 4100 7550 4100
+	6300 4100 6650 4100
 Wire Wire Line
-	6300 4200 7550 4200
+	6300 4200 6450 4200
 Wire Wire Line
 	6450 4200 6450 4225
 Wire Wire Line
@@ -488,7 +489,7 @@ Connection ~ 6650 4100
 Wire Wire Line
 	6850 4225 6850 4000
 Wire Wire Line
-	6300 4000 7550 4000
+	6300 4000 6850 4000
 Connection ~ 6850 4000
 Connection ~ 6450 4200
 $Comp
@@ -505,16 +506,16 @@ $EndComp
 Wire Wire Line
 	6450 4425 6450 4450
 Wire Wire Line
-	6450 4450 6850 4450
+	6450 4450 6650 4450
 Wire Wire Line
 	6850 4450 6850 4425
 Wire Wire Line
-	6650 4425 6650 4475
+	6650 4425 6650 4450
 Connection ~ 6650 4450
 Wire Wire Line
 	6325 4900 6300 4900
 Wire Wire Line
-	6325 4700 6325 4900
+	6325 4700 6325 4800
 Connection ~ 6325 4700
 Wire Wire Line
 	6300 4800 6325 4800
@@ -544,7 +545,7 @@ F 4 "DNI" H 7525 5475 39  0000 C CNN "Option"
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	7025 5500 7225 5500
+	7025 5500 7150 5500
 $Comp
 L power:GND #PWR096
 U 1 1 578D45DB
@@ -633,21 +634,21 @@ F 3 "" H 8750 4700 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	8350 4000 8350 4725
+	8350 4000 8350 4100
 Wire Wire Line
-	7850 4700 7900 4700
+	7850 4700 7875 4700
 Wire Wire Line
 	7875 4725 7875 4700
 Connection ~ 7875 4700
 Connection ~ 8350 4950
 Connection ~ 7450 4950
 Wire Wire Line
-	7875 4925 7875 4975
+	7875 4925 7875 4950
 Connection ~ 7875 4950
 Wire Wire Line
 	6850 4925 6850 4950
 Wire Wire Line
-	6300 4600 7550 4600
+	6300 4600 7250 4600
 Wire Wire Line
 	7850 4600 8350 4600
 $Comp
@@ -714,7 +715,7 @@ Wire Wire Line
 	4550 3150 4550 3000
 Connection ~ 4550 2650
 Wire Wire Line
-	4550 2050 4550 2700
+	4550 2050 4550 2650
 $Comp
 L hermeslite:JNO J3
 U 1 1 5782ED21
@@ -747,7 +748,7 @@ Wire Wire Line
 	3200 4375 3200 4300
 Connection ~ 3200 4300
 Wire Wire Line
-	2950 4500 2950 4550
+	2950 4500 2950 4525
 Wire Wire Line
 	3000 4525 2950 4525
 Connection ~ 2950 4525
@@ -769,7 +770,7 @@ Connection ~ 7150 5500
 Wire Wire Line
 	7350 5725 7375 5725
 Wire Wire Line
-	7375 5700 7375 5750
+	7375 5700 7375 5725
 Connection ~ 7375 5725
 $Comp
 L hermeslite:BNC CL6
@@ -863,4 +864,94 @@ Wire Wire Line
 	6700 5100 7000 5100
 Wire Wire Line
 	6700 5500 6725 5500
+Wire Wire Line
+	6450 4700 6650 4700
+Wire Wire Line
+	6650 4700 6850 4700
+Wire Wire Line
+	6850 4700 7050 4700
+Wire Wire Line
+	4100 4300 4500 4300
+Wire Wire Line
+	5150 2650 5350 2650
+Wire Wire Line
+	3200 2650 3200 2700
+Wire Wire Line
+	3200 2650 3350 2650
+Wire Wire Line
+	3200 3050 3200 3100
+Wire Wire Line
+	5350 2650 5500 2650
+Wire Wire Line
+	7050 4700 7550 4700
+Wire Wire Line
+	4200 3150 4200 3300
+Wire Wire Line
+	4200 3150 4250 3150
+Wire Wire Line
+	5150 3150 5350 3150
+Wire Wire Line
+	5150 3150 5150 3200
+Wire Wire Line
+	6650 4950 6850 4950
+Wire Wire Line
+	6850 4950 7050 4950
+Wire Wire Line
+	8550 4700 8750 4700
+Wire Wire Line
+	8350 4700 8550 4700
+Wire Wire Line
+	8350 4700 8350 4725
+Wire Wire Line
+	6650 4100 7550 4100
+Wire Wire Line
+	6850 4000 7550 4000
+Wire Wire Line
+	6450 4200 7550 4200
+Wire Wire Line
+	6650 4450 6850 4450
+Wire Wire Line
+	6650 4450 6650 4475
+Wire Wire Line
+	6325 4700 6450 4700
+Wire Wire Line
+	6325 4800 6325 4900
+Wire Wire Line
+	7050 4950 7250 4950
+Wire Wire Line
+	7250 4950 7450 4950
+Wire Wire Line
+	7875 4700 7900 4700
+Wire Wire Line
+	8350 4950 8550 4950
+Wire Wire Line
+	7450 4950 7875 4950
+Wire Wire Line
+	7875 4950 7875 4975
+Wire Wire Line
+	7875 4950 8350 4950
+Wire Wire Line
+	8350 4600 8350 4700
+Wire Wire Line
+	8350 4200 8350 4600
+Wire Wire Line
+	8350 4100 8350 4200
+Wire Wire Line
+	7250 4600 7450 4600
+Wire Wire Line
+	7450 4600 7550 4600
+Wire Wire Line
+	4550 3150 5150 3150
+Wire Wire Line
+	4550 2650 5150 2650
+Wire Wire Line
+	4550 2650 4550 2700
+Wire Wire Line
+	3200 4300 3300 4300
+Wire Wire Line
+	2950 4525 2950 4550
+Wire Wire Line
+	7150 5500 7225 5500
+Wire Wire Line
+	7375 5725 7375 5750
 $EndSCHEMATC
