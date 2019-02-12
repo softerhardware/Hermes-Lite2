@@ -86,7 +86,9 @@ special = {
     "RD15HVF1":[Quote(Decimal(4.00),'*AliExpress','http://www.aliexpress.com','Mitsubishi','RD15HVF1','RD15HVF1')],
     "PCB":[Quote(Decimal(18.00),'*Tindie','http://www.tindie.com','Elecrow','','PCB')],
     "AK-C-C12":[Quote(Decimal(16.78),'*AliExpress','https://www.aliexpress.com/item/4-pieces-a-lot-top-sales-china-die-casting-aluminum-housing-55-106-150-mm/1243767700.html','Various','','Aluminum 100x100x50')],
-    "PROG":[Quote(Decimal(3.00),'*EBay','http://www.ebay.com/itm/altera-Mini-Usb-Blaster-Cable-For-CPLD-FPGA-NIOS-JTAG-Altera-Programmer-/200943750380?hash=item2ec92e4cec:g:YyMAAOSw0fhXieqQ','Various','','USB Blaster')]
+    "PROG":[Quote(Decimal(3.00),'*EBay','http://www.ebay.com/itm/altera-Mini-Usb-Blaster-Cable-For-CPLD-FPGA-NIOS-JTAG-Altera-Programmer-/200943750380?hash=item2ec92e4cec:g:YyMAAOSw0fhXieqQ','Various','','USB Blaster')],
+    "PFTE":[Quote(Decimal(0.25),'*AliExpress','https://www.aliexpress.com/item/30AWG-Imported-Teflon-Silver-Plated-Copper-Wires-high-temperature-cable-headphone-Line-10-Meters/32530506093.html','Various','','PFTE Teflon Wire Silver Placed 30AWG')]
+
 }
 
 ## Override for problems with OctoPart
@@ -700,6 +702,7 @@ class BOM:
         dni = []
 
         for k in keys:
+            ##print "Key is",k
             p = self.parts[k]
 
             dni.extend(p.DNIRefs(self.optionset))

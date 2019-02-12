@@ -1700,4 +1700,19 @@ Wire Wire Line
 	8250 2525 8250 3025
 Wire Wire Line
 	8900 2025 8975 2025
+$Comp
+L hermeslite:R W1
+U 1 1 5C636986
+P 6250 4250
+F 0 "W1" V 6175 4250 39  0000 C CNN
+F 1 "21" V 6257 4251 39  0000 C CNN
+F 2 "" V 6180 4250 30  0001 C CNN
+F 3 "" H 6250 4250 30  0000 C CNN
+	1    6250 4250
+	0    1    1    0   
+$EndComp
+Text Notes 6100 4400 0    60   ~ 0
+21 cm wire required
+NoConn ~ 6100 4250
+NoConn ~ 6400 4250
 $EndSCHEMATC

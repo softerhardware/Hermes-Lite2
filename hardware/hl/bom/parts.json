@@ -659,11 +659,10 @@
 
 "CN2S": {
 	"mpn":["M20-9990245"],
-	"spec":"2x1 M 0.1in HDR S",
-	"assembly":"MTH",
-	"pins":2
+    "spec":"2x1 M 0.1in HDR S",
+    "assembly":"MTH",
+    "pins":2
 	},
-
 
 "CN2Ss": {
 	"mpn":["M20-9990245"],
@@ -695,11 +694,11 @@
 	},	
 
 "DB IO22": {
-	"mpn":["M20-9960245"],
-	"spec":"2x1 M 0.1in HDR RA",
-	"assembly":"MTH",
-	"pins":2
-	},	
+	"mpn":["PRPC040SAAN-RC"],
+	"spec":"20 Pin Single Row 0.1in",
+	"assembly":"TH",
+	"pins":20
+	},
 
 "X 38.4MHz": {
 	"mpn":["ASTXR-12-38.400MHZ-514054-T"],
@@ -864,7 +863,7 @@
 "T 4:1 Z": {
 	"mpn":["B62152A4X30"],
 	"spec":"4:1 RF Transformer",
-	"assembly":"MTH",
+	"assembly":"TH",
 	"pins":4
 	},
 
@@ -894,8 +893,14 @@
 	"spec":"PCB",
 	"assembly":"MTH",
 	"pins":0
-	}	
+	},
 
-
+"W 21": {
+	"mpn":["PFTE"],
+	"altmpn":["400R0111-24-9","55A0111-24-9"],
+	"spec":"21cm 24to30AWG PFTE teflon silver plated wire",
+	"assembly":"MTH",
+	"pins":5
+	}
 }
 
