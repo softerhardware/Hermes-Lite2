@@ -10,7 +10,7 @@
 	},
 
 "C 1uF 0805 HV": {
-	"mpn":["CL21B105KAFNNNE","CL21B105KBFNFNE","CL21A105KACLNNC"],
+	"mpn":["CL21B105KAFNNNE","CL21B105KBFNFNE","CL21A105KACLNNC","GRM219R71E105KA88D"],
 	"spec":"1uF 0805>=X5R>=25V<=20%",
 	"assembly":"SMT",
 	"pins":2,
@@ -55,7 +55,7 @@
 	},
 
 "C 10uF HV": {
-	"mpn":["CL31A106KAHNNNE","TMK316AB7106KL-T"],
+	"mpn":["CL31A106KAHNNNE","TMK316AB7106KL-T","TMK316BJ106ML-T"],
 	"spec":"10uF 1206>=X5R>=25V<=20%",
 	"assembly":"SMT",
 	"pins":2,
@@ -64,7 +64,7 @@
 	},
 
 "C 4.7uF 0805 HV": {
-	"mpn":["GRM21BR61E475KA12L"],
+	"mpn":["GRM21BR61E475KA12L","TMK212BJ475KG-T"],
 	"spec":"4.7uF 0805>=X5R>=25V<=20%",
 	"assembly":"SMT",
 	"pins":2,
@@ -81,7 +81,7 @@
 	},
 
 "C 4.7nF 0603": {
-	"mpn":["CL10B472KB8NNNC"],
+	"mpn":["CL10B472KB8NNNC","C0603C472K5RACTU"],
 	"spec":"4.7nF 0603>=X5R>=25V<=20%",
 	"assembly":"SMT",
 	"pins":2,
@@ -90,7 +90,7 @@
 	},
 
 "C 270pF 0805": {
-	"mpn":["CC0805JRNPO0BN271","GRM2195C2A271JA01D","CL21C271JCANNNC","C0805C271J1GACTU","251R15S271JV4E"],
+	"mpn":["CC0805JRNPO0BN271","GRM2195C2A271JA01D","251R15S271JV4E"],
 	"spec":"270pF 0805NP0>=50V<=5%",
 	"assembly":"SMT",
 	"pins":2,
@@ -864,14 +864,17 @@
 	"mpn":["B62152A4X30"],
 	"spec":"4:1 RF Transformer",
 	"assembly":"TH",
-	"pins":4
+	"pins":4,
+	"sub":0
 	},
 
 "K NA3WK-K": {
 	"mpn":["EC2-3NU","NA-3W-K"],
 	"spec":"Relay",
 	"assembly":"TH",
-	"pins":10
+	"pins":10,
+	"sub":0,
+	"aliexpress":"EC2-3NU"
 	},	
 
 "CASE": {
@@ -896,11 +899,12 @@
 	},
 
 "W 21": {
-	"mpn":["PFTE"],
+	"mpn":["30AWG Teflon PFTE"],
 	"altmpn":["400R0111-24-9","55A0111-24-9"],
-	"spec":"21cm 24to30AWG PFTE teflon silver plated wire",
+	"spec":"21cm PFTE 24to30AWG wire",
 	"assembly":"MTH",
-	"pins":5
+	"pins":5,
+	"aliexpress":"PFTE Teflon Silver Plated Wire 30AWG"
 	}
 }
 

@@ -87,7 +87,7 @@ special = {
     "PCB":[Quote(Decimal(18.00),'*Tindie','http://www.tindie.com','Elecrow','','PCB')],
     "AK-C-C12":[Quote(Decimal(16.78),'*AliExpress','https://www.aliexpress.com/item/4-pieces-a-lot-top-sales-china-die-casting-aluminum-housing-55-106-150-mm/1243767700.html','Various','','Aluminum 100x100x50')],
     "PROG":[Quote(Decimal(3.00),'*EBay','http://www.ebay.com/itm/altera-Mini-Usb-Blaster-Cable-For-CPLD-FPGA-NIOS-JTAG-Altera-Programmer-/200943750380?hash=item2ec92e4cec:g:YyMAAOSw0fhXieqQ','Various','','USB Blaster')],
-    "PFTE":[Quote(Decimal(0.25),'*AliExpress','https://www.aliexpress.com/item/30AWG-Imported-Teflon-Silver-Plated-Copper-Wires-high-temperature-cable-headphone-Line-10-Meters/32530506093.html','Various','','PFTE Teflon Wire Silver Placed 30AWG')]
+    "PFTE":[Quote(Decimal(0.25),'*AliExpress','https://www.aliexpress.com/item/30AWG-Imported-Teflon-Silver-Plated-Copper-Wires-high-temperature-cable-headphone-Line-10-Meters/32530506093.html','Various','','PFTE Tef SilPlated 30AWG')]
 
 }
 
@@ -95,7 +95,10 @@ special = {
 overrides = {
     ##"OPA2677IDDA":[Quote(Decimal(3.90),'Digi-Key','http://www.digikey.com','','OPA2677IDDA','OPA2677IDDA')],
     ##"INA199A1DC":[Quote(Decimal(0.84),'Mouser','http://www.mouser.com','','INA199A1DC','INA199A1DC')],
-    "ST1S10PHR":[Quote(Decimal(1.82),'Digi-Key','http://www.digikey.com','','ST1S10PHR','ST1S10PHR')]
+    ##"ST1S10PHR":[Quote(Decimal(1.82),'Digi-Key','http://www.digikey.com','','ST1S10PHR','ST1S10PHR')],
+    "ASTXR-12-38.400MHZ-514054-T":[Quote(Decimal(2.12),'Digi-Key','http://www.digikey.com','','535-13192-1-ND','ASTXR-12-38.400MHZ-514054-T')],
+    "AP2204MP-ADJTRG1":[Quote(Decimal(0.47),'Digi-Key','http://www.digikey.com','','AP2204MP-ADJTRG1','AP2204MP-ADJTRG1')],
+
 }
 
 #overrides = {}
@@ -244,16 +247,16 @@ class Component:
         except:
             pass
 
-    	## Handle option ORs
-    	if '_' in self.option:
-    		options = self.option.split('_')
-    		for o in options:
-    			no,nk = o.split(":")
-    			if no in optionset:
-    				self.option = no
-    				self.key = nk
-    				print "Forcing OR option",no,nk
-    				break
+        ## Handle option ORs
+        if '_' in self.option:
+            options = self.option.split('_')
+            for o in options:
+                no,nk = o.split(":")
+                if no in optionset:
+                    self.option = no
+                    self.key = nk
+                    print "Forcing OR option",no,nk
+                    break
 
         if '&' in self.option:
             options = self.option.split('&')
@@ -450,7 +453,10 @@ class Part:
         if self.aliexpress:
             url = '\href{{http://www.aliexpress.com/wholesale?SearchText={0}}}{{{1}}}'.format(self.aliexpress,self.mpns[0])
         else:
-            url = '\href{{http://www.octopart.com/search?q={0}}}{{{1}}}'.format(self.mpns[0],self.mpns[0])
+            url = ""
+            for mpn in self.mpns:
+                url = url + ' \href{{http://www.octopart.com/search?q={0}}}{{{1}}}'.format(mpn,mpn)
+            ##url = '\href{{http://www.octopart.com/search?q={0}}}{{{1}}}'.format(self.mpns[0],self.mpns[0])
 
         ##for mpn in self.mpns:
         ##    urls.append('\href{{http://www.octopart.com/search?q={0}}}{{{1}}}'.format(mpn,i) )
@@ -511,8 +517,8 @@ class BOM:
             else:
                 self.parts[c.key] = Part(c)
             if c.option:
-            	if c.option not in self.optionset:
-            		self.unusedoptions.add(c.option)
+                if c.option not in self.optionset:
+                    self.unusedoptions.add(c.option)
 
         ## Pair with mpn
         f = open("parts.json")
@@ -679,7 +685,7 @@ class BOM:
         f.close()
 
 
-    def LaTeXAssemblyPrint(self,pre="",prefer=None):
+    def LaTeXAssemblyPrint(self,pre="",prefer=None,linenumber=False):
         keys = self.parts.keys()
         keys.sort(key=lambda x: self.parts[x].FirstRef(self.optionset))
         ##keys.sort(key=lambda x: self.parts[x].components[0].ref)
@@ -701,6 +707,7 @@ class BOM:
 
         dni = []
 
+        c1 = 0
         for k in keys:
             ##print "Key is",k
             p = self.parts[k]
@@ -710,7 +717,10 @@ class BOM:
             c8 = p.Quantities(self.optionset)[0]
             if c8 == 0: continue
 
-            c1 = p.ecid
+            if linenumber:
+                c1 = c1+1
+            else:
+                c1 = p.ecid
             c2 = LaTeXEscape(p.spec)
             c3 = p.LaTeXAssemblyLinks()
             c4 = p.sub
@@ -776,7 +786,11 @@ class BOM:
 
             c1 = p.ecid
             c2 = p.spec
-            c3 = p.mpns[0] 
+            ##c3 = p.mpns[0]
+            c3 = ""
+            for mpn in p.mpns:
+                if c3 == "": c3 = mpn
+                else: c3 = c3 + "\n" + mpn 
             c4 = p.sub
             c5 = p.CSVRefs(self.optionset)
             c6 = p.package
@@ -814,7 +828,7 @@ class BOM:
                 if i > llen:
                     res = res + '\n'
                     i = 0
-                ref = ref[0]+str(ref[1])
+                ##ref = ref[0]+str(ref[1])
                 res = res + ref + ","
                 i = i + 1 + len(ref)
     
@@ -839,7 +853,6 @@ class BOM:
         ## 20 parts at a time
         for i in range(0,len(mpns),20):
             sl = mpns[i:i+20]
-            ##print "SL",sl
             octopart.QueryWeb(sl)
 
     def PrintOptional(self):
