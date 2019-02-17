@@ -6,7 +6,7 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 7 7
 Title "Hermes-Lite V2 5W Power Amplifier"
-Date "2019-02-10"
+Date "2019-02-16"
 Rev "2.0-build8"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
@@ -608,7 +608,6 @@ F 0 "U2" H 7225 5375 60  0000 C CNN
 F 1 "FPGA" H 7575 5375 60  0000 C CNN
 F 2 "HERMESLITE:CYCLONEIV" H 7075 5925 60  0001 C CNN
 F 3 "" H 7075 5925 60  0000 C CNN
-F 4 "ADNI" H 7075 5425 60  0001 C CNN "Option"
 	6    7075 5425
 	-1   0    0    -1  
 $EndComp

@@ -2,14 +2,14 @@
 <export version="D">
   <design>
     <source>/home/shaynal/Hermes-Lite2/hardware/hl/hermeslite.sch</source>
-    <date>Mon 11 Feb 2019 10:48:24 PM PST</date>
+    <date>Sat 16 Feb 2019 05:47:36 PM PST</date>
     <tool>Eeschema 5.0.2-bee76a0~70~ubuntu16.04.1</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
         <title>Hermes-Lite</title>
         <company>SofterHardware</company>
         <rev>2.0-build8</rev>
-        <date>2019-02-10</date>
+        <date>2019-02-16</date>
         <source>hermeslite.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -22,7 +22,7 @@
         <title>Power</title>
         <company>SofterHardware</company>
         <rev>2.0-build8</rev>
-        <date>2019-02-10</date>
+        <date>2019-02-16</date>
         <source>Power.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -35,7 +35,7 @@
         <title>Ethernet</title>
         <company>SofterHardware</company>
         <rev>2.0-build8</rev>
-        <date>2019-02-10</date>
+        <date>2019-02-16</date>
         <source>Ethernet.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -48,7 +48,7 @@
         <title>Clock</title>
         <company>SofterHardware</company>
         <rev>2.0-build8</rev>
-        <date>2019-02-10</date>
+        <date>2019-02-16</date>
         <source>Clock.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -61,7 +61,7 @@
         <title>RF Frontend</title>
         <company>SofterHardware</company>
         <rev>2.0-build8</rev>
-        <date>2019-02-10</date>
+        <date>2019-02-16</date>
         <source>RFFrontend.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -74,7 +74,7 @@
         <title>Hermes-Lite Input Output</title>
         <company>SofterHardware</company>
         <rev>2.0-build8</rev>
-        <date>2019-02-10</date>
+        <date>2019-02-16</date>
         <source>InputOutput.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -87,7 +87,7 @@
         <title>Hermes-Lite V2 5W Power Amplifier</title>
         <company>SofterHardware</company>
         <rev>2.0-build8</rev>
-        <date>2019-02-10</date>
+        <date>2019-02-16</date>
         <source>PA.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -350,9 +350,6 @@
     <comp ref="U2">
       <value>FPGA</value>
       <footprint>HERMESLITE:CYCLONEIV</footprint>
-      <fields>
-        <field name="Option">ADNI</field>
-      </fields>
       <libsource lib="hermeslite" part="FPGA" description=""/>
       <sheetpath names="/Power and FPGA/" tstamps="/56C9CAA0/"/>
       <tstamp>56F0DF15</tstamp>
@@ -1823,7 +1820,7 @@
     </comp>
     <comp ref="X2">
       <value>38.4MHz</value>
-      <footprint>HERMESLITE:MULTIOSC</footprint>
+      <footprint>HERMESLITE:SMALLOSC</footprint>
       <libsource lib="hermeslite" part="adcosc" description=""/>
       <sheetpath names="/Clock/" tstamps="/56B04D05/"/>
       <tstamp>56BFC48E</tstamp>
@@ -3201,21 +3198,21 @@
       <tstamp>58045274</tstamp>
     </comp>
     <comp ref="R117">
-      <value>3.3K</value>
+      <value>4.7K</value>
       <footprint>HERMESLITE:SMD-0603</footprint>
       <libsource lib="hermeslite" part="R" description="Resistor"/>
       <sheetpath names="/Input Output/" tstamps="/56C6CB95/"/>
       <tstamp>580473F9</tstamp>
     </comp>
     <comp ref="R118">
-      <value>3.3K</value>
+      <value>4.7K</value>
       <footprint>HERMESLITE:SMD-0603</footprint>
       <libsource lib="hermeslite" part="R" description="Resistor"/>
       <sheetpath names="/Input Output/" tstamps="/56C6CB95/"/>
       <tstamp>58047537</tstamp>
     </comp>
     <comp ref="R119">
-      <value>3.3K</value>
+      <value>4.7K</value>
       <footprint>HERMESLITE:SMD-0603</footprint>
       <libsource lib="hermeslite" part="R" description="Resistor"/>
       <sheetpath names="/Input Output/" tstamps="/56C6CB95/"/>
