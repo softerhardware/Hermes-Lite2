@@ -19,3 +19,6 @@ os.rename("hermeslite-Edge.Cuts.gbr","pcb/hermeslite2.GML")
 
 os.rename("hermeslite-top.pos","position/hermeslite2-top.pos")
 os.rename("hermeslite-bottom.pos","position/hermeslite2-bot.pos")
+
+os.rename("hermeslite-F.Paste.gbr","stencil/hermeslite-F.Paste.gbr")
+os.rename("hermeslite-B.Paste.gbr","stencil/hermeslite-B.Paste.gbr")
