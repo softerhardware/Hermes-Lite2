@@ -2,7 +2,7 @@
 <export version="D">
   <design>
     <source>/home/shaynal/Hermes-Lite2/hardware/hl/hermeslite.sch</source>
-    <date>Sat 16 Feb 2019 05:47:36 PM PST</date>
+    <date>Sat 16 Feb 2019 11:09:03 PM PST</date>
     <tool>Eeschema 5.0.2-bee76a0~70~ubuntu16.04.1</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -3296,7 +3296,7 @@
       <footprint>HERMESLITE:TP</footprint>
       <fields>
         <field name="Key">NOBOM</field>
-        <field name="Optoin">DNI</field>
+        <field name="Option">DNI</field>
       </fields>
       <libsource lib="hermeslite" part="TEST_1P" description="point"/>
       <sheetpath names="/Input Output/" tstamps="/56C6CB95/"/>

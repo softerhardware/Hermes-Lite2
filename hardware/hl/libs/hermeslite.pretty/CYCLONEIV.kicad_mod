@@ -1,4 +1,4 @@
-(module CYCLONEIV (layer F.Cu) (tedit 5A91A303)
+(module CYCLONEIV (layer F.Cu) (tedit 5C6A1D17)
   (fp_text reference REF** (at -10.6 -11.2) (layer F.SilkS)
     (effects (font (size 0.8 0.8) (thickness 0.1)))
   )
@@ -16,6 +16,7 @@
   (fp_line (start 11.5 -11.5) (end 11.5 11.5) (layer F.CrtYd) (width 0.15))
   (fp_line (start 11.5 11.5) (end -11.5 11.5) (layer F.CrtYd) (width 0.15))
   (fp_line (start -11.5 11.5) (end -11.5 -11.5) (layer F.CrtYd) (width 0.15))
+  (fp_poly (pts (xy 1.5 -1.5) (xy 1.5 1.5) (xy -1.5 1.5) (xy -1.5 -1.5)) (layer F.Paste) (width 0.15))
   (pad 145 thru_hole circle (at -1.5 1.5) (size 0.5 0.5) (drill 0.3) (layers *.Cu *.Mask F.SilkS)
     (zone_connect 2))
   (pad 145 thru_hole circle (at 0 -1.5) (size 0.5 0.5) (drill 0.3) (layers *.Cu *.Mask F.SilkS)
