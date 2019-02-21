@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <export version="D">
   <design>
-    <source>C:/cygwin64/home/shaynal/Hermes-Lite2/hardware/companions/n2adr/n2adr.sch</source>
-    <date>7/10/2018 9:14:25 PM</date>
-    <tool>Eeschema 4.0.6</tool>
+    <source>/home/shaynal/Hermes-Lite2/hardware/companions/n2adr/n2adr.sch</source>
+    <date>Wed 20 Feb 2019 09:10:06 PM PST</date>
+    <tool>Eeschema 5.0.2-bee76a0~70~ubuntu16.04.1</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
         <title>HL2 Filter Board</title>
         <company>N2ADR</company>
-        <rev>E5</rev>
-        <date>2018-07-10</date>
+        <rev>E5build8</rev>
+        <date>2019-02-20</date>
         <source>n2adr.sch</source>
         <comment number="1" value=""/>
         <comment number="2" value=""/>
@@ -22,227 +22,203 @@
     <comp ref="K1">
       <value>EC2-3NU</value>
       <footprint>Local:RelayDPDT01</footprint>
-      <fields>
-        <field name="Option">ADNI</field>
-      </fields>
-      <libsource lib="n2adr" part="RELAY_DPDT"/>
+      <libsource lib="n2adr" part="RELAY_DPDT" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F17C6</tstamp>
     </comp>
     <comp ref="L2">
       <value>1.8u</value>
       <footprint>Local:SMD_1812</footprint>
-      <libsource lib="n2adr" part="INDUCTOR"/>
+      <libsource lib="n2adr" part="INDUCTOR" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F17CD</tstamp>
     </comp>
     <comp ref="C8">
       <value>1000p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F17D4</tstamp>
     </comp>
     <comp ref="L1">
       <value>1.8u</value>
       <footprint>Local:SMD_1812</footprint>
-      <libsource lib="n2adr" part="INDUCTOR"/>
+      <libsource lib="n2adr" part="INDUCTOR" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F17DB</tstamp>
     </comp>
     <comp ref="C9">
       <value>1800p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F17E2</tstamp>
     </comp>
     <comp ref="C10">
       <value>1000p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F17E9</tstamp>
     </comp>
     <comp ref="C1">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F17F7</tstamp>
     </comp>
     <comp ref="K2">
       <value>EC2-3NU</value>
       <footprint>Local:RelayDPDT01</footprint>
-      <fields>
-        <field name="Option">ADNI</field>
-      </fields>
-      <libsource lib="n2adr" part="RELAY_DPDT"/>
+      <libsource lib="n2adr" part="RELAY_DPDT" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F214C</tstamp>
     </comp>
     <comp ref="C2">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F2153</tstamp>
     </comp>
     <comp ref="K3">
       <value>EC2-3NU</value>
       <footprint>Local:RelayDPDT01</footprint>
-      <fields>
-        <field name="Option">ADNI</field>
-      </fields>
-      <libsource lib="n2adr" part="RELAY_DPDT"/>
+      <libsource lib="n2adr" part="RELAY_DPDT" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F24D4</tstamp>
     </comp>
     <comp ref="C4">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F24DB</tstamp>
     </comp>
     <comp ref="K4">
       <value>EC2-3NU</value>
       <footprint>Local:RelayDPDT01</footprint>
-      <fields>
-        <field name="Option">ADNI</field>
-      </fields>
-      <libsource lib="n2adr" part="RELAY_DPDT"/>
+      <libsource lib="n2adr" part="RELAY_DPDT" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F24E4</tstamp>
     </comp>
     <comp ref="C3">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F24EB</tstamp>
     </comp>
     <comp ref="K5">
       <value>EC2-3NU</value>
       <footprint>Local:RelayDPDT01</footprint>
-      <fields>
-        <field name="Option">ADNI</field>
-      </fields>
-      <libsource lib="n2adr" part="RELAY_DPDT"/>
+      <libsource lib="n2adr" part="RELAY_DPDT" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F3380</tstamp>
     </comp>
     <comp ref="K6">
       <value>EC2-3NU</value>
       <footprint>Local:RelayDPDT01</footprint>
-      <fields>
-        <field name="Option">ADNI</field>
-      </fields>
-      <libsource lib="n2adr" part="RELAY_DPDT"/>
+      <libsource lib="n2adr" part="RELAY_DPDT" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F33EB</tstamp>
     </comp>
     <comp ref="C6">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F3D27</tstamp>
     </comp>
     <comp ref="C5">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F3D9A</tstamp>
     </comp>
     <comp ref="U1">
       <value>MCP23008</value>
       <footprint>Housings_SSOP:SSOP-20_5.3x7.2mm_Pitch0.65mm</footprint>
-      <libsource lib="n2adr" part="MCP23008-E/SS"/>
+      <libsource lib="n2adr-rescue" part="MCP23008-E_SS" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F6569</tstamp>
     </comp>
     <comp ref="JP1">
       <value>1T</value>
       <footprint>Wire_Connections_Bridges:WireConnection_1.20mmDrill</footprint>
-      <fields>
-        <field name="Option">ADNI</field>
-      </fields>
-      <libsource lib="n2adr" part="JUMPER"/>
+      <libsource lib="n2adr" part="JUMPER" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F658C</tstamp>
     </comp>
     <comp ref="L3">
       <value>10T</value>
       <footprint>Local:ToroidT37</footprint>
-      <fields>
-        <field name="Option">ADNI</field>
-      </fields>
-      <libsource lib="n2adr" part="INDUCTOR"/>
+      <libsource lib="n2adr" part="INDUCTOR" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F6593</tstamp>
     </comp>
     <comp ref="R6">
       <value>18 1%</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="R"/>
+      <libsource lib="n2adr" part="R" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F659A</tstamp>
     </comp>
     <comp ref="R7">
       <value>18 1%</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="R"/>
+      <libsource lib="n2adr" part="R" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F65A1</tstamp>
     </comp>
     <comp ref="C11">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F65B6</tstamp>
     </comp>
     <comp ref="C13">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F65BD</tstamp>
     </comp>
     <comp ref="R2">
       <value>2K2 1%</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="R"/>
+      <libsource lib="n2adr" part="R" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F65C4</tstamp>
     </comp>
     <comp ref="R3">
       <value>56 1%</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="R"/>
+      <libsource lib="n2adr" part="R" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F65CB</tstamp>
     </comp>
     <comp ref="R8">
       <value>4K7</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="R"/>
+      <libsource lib="n2adr" part="R" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F65DA</tstamp>
     </comp>
     <comp ref="R5">
       <value>4K7</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="R"/>
+      <libsource lib="n2adr" part="R" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F65E1</tstamp>
     </comp>
     <comp ref="U2">
       <value>ULN2003LV</value>
       <footprint>Housings_SSOP:TSSOP-16_4.4x5mm_Pitch0.65mm</footprint>
-      <libsource lib="n2adr" part="ULN2003LV"/>
+      <libsource lib="n2adr" part="ULN2003LV" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F65E8</tstamp>
     </comp>
@@ -252,7 +228,7 @@
       <fields>
         <field name="Option">ADNI</field>
       </fields>
-      <libsource lib="n2adr" part="BNC"/>
+      <libsource lib="n2adr" part="BNC" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F65F5</tstamp>
     </comp>
@@ -260,10 +236,10 @@
       <value>TST</value>
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
-        <field name="Option">DNI</field>
         <field name="Key">NOBOM</field>
+        <field name="Option">DNI</field>
       </fields>
-      <libsource lib="n2adr" part="TST"/>
+      <libsource lib="n2adr" part="TST" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F6621</tstamp>
     </comp>
@@ -271,10 +247,10 @@
       <value>TST</value>
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
-        <field name="Option">DNI</field>
         <field name="Key">NOBOM</field>
+        <field name="Option">DNI</field>
       </fields>
-      <libsource lib="n2adr" part="TST"/>
+      <libsource lib="n2adr" part="TST" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F6629</tstamp>
     </comp>
@@ -282,10 +258,10 @@
       <value>TST</value>
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
-        <field name="Option">DNI</field>
         <field name="Key">NOBOM</field>
+        <field name="Option">DNI</field>
       </fields>
-      <libsource lib="n2adr" part="TST"/>
+      <libsource lib="n2adr" part="TST" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F6630</tstamp>
     </comp>
@@ -293,10 +269,10 @@
       <value>TST</value>
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
-        <field name="Option">DNI</field>
         <field name="Key">NOBOM</field>
+        <field name="Option">DNI</field>
       </fields>
-      <libsource lib="n2adr" part="TST"/>
+      <libsource lib="n2adr" part="TST" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F6637</tstamp>
     </comp>
@@ -304,255 +280,255 @@
       <value>TST</value>
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
-        <field name="Option">DNI</field>
         <field name="Key">NOBOM</field>
+        <field name="Option">DNI</field>
       </fields>
-      <libsource lib="n2adr" part="TST"/>
+      <libsource lib="n2adr" part="TST" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F6654</tstamp>
     </comp>
     <comp ref="C14">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F665B</tstamp>
     </comp>
     <comp ref="L5">
       <value>3.9u</value>
       <footprint>Local:SMD_1812</footprint>
-      <libsource lib="n2adr" part="INDUCTOR"/>
+      <libsource lib="n2adr" part="INDUCTOR" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598FA088</tstamp>
     </comp>
     <comp ref="L6">
       <value>3.9u</value>
       <footprint>Local:SMD_1812</footprint>
-      <libsource lib="n2adr" part="INDUCTOR"/>
+      <libsource lib="n2adr" part="INDUCTOR" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598FA17C</tstamp>
     </comp>
     <comp ref="C21">
       <value>1800p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598FA249</tstamp>
     </comp>
     <comp ref="C22">
       <value>3300p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598FA35D</tstamp>
     </comp>
     <comp ref="C23">
       <value>1800p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598FA444</tstamp>
     </comp>
     <comp ref="L8">
       <value>220n</value>
       <footprint>Local:SMD_1210</footprint>
-      <libsource lib="n2adr" part="INDUCTOR"/>
+      <libsource lib="n2adr" part="INDUCTOR" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598FBB26</tstamp>
     </comp>
     <comp ref="C24">
       <value>150p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598FBB2C</tstamp>
     </comp>
     <comp ref="L7">
       <value>220n</value>
       <footprint>Local:SMD_1210</footprint>
-      <libsource lib="n2adr" part="INDUCTOR"/>
+      <libsource lib="n2adr" part="INDUCTOR" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598FBB32</tstamp>
     </comp>
     <comp ref="C25">
       <value>330p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598FBB38</tstamp>
     </comp>
     <comp ref="C26">
       <value>150p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598FBB3E</tstamp>
     </comp>
     <comp ref="C27">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59920E2C</tstamp>
     </comp>
     <comp ref="C28">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59920F00</tstamp>
     </comp>
     <comp ref="C29">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59920FDB</tstamp>
     </comp>
     <comp ref="C30">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>599210B5</tstamp>
     </comp>
     <comp ref="C31">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59921192</tstamp>
     </comp>
     <comp ref="L14">
       <value>390n</value>
       <footprint>Local:SMD_1210</footprint>
-      <libsource lib="n2adr" part="INDUCTOR"/>
+      <libsource lib="n2adr" part="INDUCTOR" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59934E9E</tstamp>
     </comp>
     <comp ref="C34">
       <value>180p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59934EA4</tstamp>
     </comp>
     <comp ref="L11">
       <value>390n</value>
       <footprint>Local:SMD_1210</footprint>
-      <libsource lib="n2adr" part="INDUCTOR"/>
+      <libsource lib="n2adr" part="INDUCTOR" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59934EAA</tstamp>
     </comp>
     <comp ref="C39">
       <value>330p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59934EB0</tstamp>
     </comp>
     <comp ref="C44">
       <value>180p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59934EB6</tstamp>
     </comp>
     <comp ref="L13">
       <value>270n</value>
       <footprint>Local:SMD_1210</footprint>
-      <libsource lib="n2adr" part="INDUCTOR"/>
+      <libsource lib="n2adr" part="INDUCTOR" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>599356CE</tstamp>
     </comp>
     <comp ref="C33">
       <value>150p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>599356D4</tstamp>
     </comp>
     <comp ref="L10">
       <value>560n</value>
       <footprint>Local:SMD_1210</footprint>
-      <libsource lib="n2adr" part="INDUCTOR"/>
+      <libsource lib="n2adr" part="INDUCTOR" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>599356DA</tstamp>
     </comp>
     <comp ref="C38">
       <value>270p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>599356E0</tstamp>
     </comp>
     <comp ref="C43">
       <value>68p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>599356E6</tstamp>
     </comp>
     <comp ref="C36">
       <value>39p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59936242</tstamp>
     </comp>
     <comp ref="C41">
       <value>220p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>599364BF</tstamp>
     </comp>
     <comp ref="L12">
       <value>680n</value>
       <footprint>Local:SMD_1210</footprint>
-      <libsource lib="n2adr" part="INDUCTOR"/>
+      <libsource lib="n2adr" part="INDUCTOR" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5993828A</tstamp>
     </comp>
     <comp ref="C32">
       <value>270p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59938290</tstamp>
     </comp>
     <comp ref="L9">
       <value>1000n</value>
       <footprint>Local:SMD_1812</footprint>
-      <libsource lib="n2adr" part="INDUCTOR"/>
+      <libsource lib="n2adr" part="INDUCTOR" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59938296</tstamp>
     </comp>
     <comp ref="C37">
       <value>560p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5993829C</tstamp>
     </comp>
     <comp ref="C42">
       <value>220p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>599382A2</tstamp>
     </comp>
     <comp ref="C35">
       <value>100p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>599382B4</tstamp>
     </comp>
     <comp ref="C40">
       <value>270p</value>
       <footprint>Local:SMD_1206</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>599382BA</tstamp>
     </comp>
@@ -560,160 +536,157 @@
       <value>TST</value>
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
-        <field name="Option">DNI</field>
         <field name="Key">NOBOM</field>
+        <field name="Option">DNI</field>
       </fields>
-      <libsource lib="n2adr" part="TST"/>
+      <libsource lib="n2adr" part="TST" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>599183A4</tstamp>
     </comp>
     <comp ref="C20">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>599432EC</tstamp>
     </comp>
     <comp ref="D1">
       <value>BAS40-07</value>
       <footprint>TO_SOT_Packages_SMD:SOT-143</footprint>
-      <libsource lib="n2adr" part="D_Schottky_dual"/>
+      <libsource lib="n2adr" part="D_Schottky_dual" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59B2AF42</tstamp>
     </comp>
     <comp ref="D2">
       <value>BAS40-07</value>
       <footprint>TO_SOT_Packages_SMD:SOT-143</footprint>
-      <libsource lib="n2adr" part="D_Schottky_dual"/>
+      <libsource lib="n2adr" part="D_Schottky_dual" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59B2B089</tstamp>
     </comp>
     <comp ref="R4">
       <value>4K7</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="R"/>
+      <libsource lib="n2adr" part="R" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59B34B6B</tstamp>
     </comp>
     <comp ref="R9">
       <value>4K7</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="R"/>
+      <libsource lib="n2adr" part="R" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59B34C91</tstamp>
     </comp>
     <comp ref="U3">
       <value>AD8692</value>
       <footprint>Housings_SSOP:MSOP-8_3x3mm_Pitch0.65mm</footprint>
-      <libsource lib="n2adr" part="LM358"/>
+      <libsource lib="n2adr" part="LM358" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59B43AA0</tstamp>
     </comp>
     <comp ref="R11">
       <value>6K2 1%</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="R"/>
+      <libsource lib="n2adr" part="R" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59B46451</tstamp>
     </comp>
     <comp ref="R10">
       <value>2K2 1%</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="R"/>
+      <libsource lib="n2adr" part="R" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59B4687B</tstamp>
     </comp>
     <comp ref="R12">
       <value>330</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="R"/>
+      <libsource lib="n2adr" part="R" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59B46A06</tstamp>
     </comp>
     <comp ref="R15">
       <value>330</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="R"/>
+      <libsource lib="n2adr" part="R" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59B49BAA</tstamp>
     </comp>
     <comp ref="R14">
       <value>6K2 1%</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="R"/>
+      <libsource lib="n2adr" part="R" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59B49D27</tstamp>
     </comp>
     <comp ref="R13">
       <value>2K2 1%</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="R"/>
+      <libsource lib="n2adr" part="R" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59B49FC9</tstamp>
     </comp>
     <comp ref="C45">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59B8A979</tstamp>
     </comp>
     <comp ref="K7">
       <value>EC2-3NU</value>
       <footprint>Local:RelayDPDT01</footprint>
-      <fields>
-        <field name="Option">ADNI</field>
-      </fields>
-      <libsource lib="n2adr" part="RELAY_DPDT"/>
+      <libsource lib="n2adr" part="RELAY_DPDT" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59CC7D37</tstamp>
     </comp>
     <comp ref="L4">
       <value>1.8u</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="INDUCTOR"/>
+      <libsource lib="n2adr" part="INDUCTOR" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59CC7D3D</tstamp>
     </comp>
     <comp ref="L15">
       <value>1.8u</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="INDUCTOR"/>
+      <libsource lib="n2adr" part="INDUCTOR" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59CC7D43</tstamp>
     </comp>
     <comp ref="C47">
       <value>1500p</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59CC7D49</tstamp>
     </comp>
     <comp ref="C48">
       <value>680p</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59CC7D4F</tstamp>
     </comp>
     <comp ref="C49">
       <value>1500p</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C"/>
+      <libsource lib="n2adr" part="C" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59CC7D55</tstamp>
     </comp>
     <comp ref="C46">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59CCC6C2</tstamp>
     </comp>
     <comp ref="C50">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59CD2670</tstamp>
     </comp>
@@ -721,10 +694,10 @@
       <value>TST</value>
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
-        <field name="Option">DNI</field>
         <field name="Key">NOBOM</field>
+        <field name="Option">DNI</field>
       </fields>
-      <libsource lib="n2adr" part="TST"/>
+      <libsource lib="n2adr" part="TST" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59CD2DA2</tstamp>
     </comp>
@@ -734,21 +707,21 @@
       <fields>
         <field name="Option">ADNI</field>
       </fields>
-      <libsource lib="n2adr" part="BNC"/>
+      <libsource lib="n2adr" part="BNC" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59D9F834</tstamp>
     </comp>
     <comp ref="C7">
       <value>100n</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59D4240A</tstamp>
     </comp>
     <comp ref="R1">
       <value>22 1%</value>
       <footprint>Local:SMD_0805</footprint>
-      <libsource lib="n2adr" part="R"/>
+      <libsource lib="n2adr" part="R" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59DBB14F</tstamp>
     </comp>
@@ -758,7 +731,7 @@
       <fields>
         <field name="Option">DNI</field>
       </fields>
-      <libsource lib="n2adr" part="CONN_01X03"/>
+      <libsource lib="n2adr" part="CONN_01X03" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5A022FD7</tstamp>
     </comp>
@@ -768,17 +741,14 @@
       <fields>
         <field name="Option">DNI</field>
       </fields>
-      <libsource lib="n2adr" part="POT"/>
+      <libsource lib="n2adr" part="POT" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5A022783</tstamp>
     </comp>
     <comp ref="CN2">
-      <value>20P</value>
+      <value>Conn_01x20</value>
       <footprint>Pin_Headers:Pin_Header_Straight_1x20_Pitch2.54mm</footprint>
-      <fields>
-        <field name="Option">ADNI</field>
-      </fields>
-      <libsource lib="n2adr" part="Conn_01x20"/>
+      <libsource lib="n2adr" part="Conn_01x20" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5A046D10</tstamp>
     </comp>
@@ -786,10 +756,10 @@
       <value>Conn_01x01</value>
       <footprint>Pin_Headers:Pin_Header_Straight_1x01_Pitch2.54mm</footprint>
       <fields>
-        <field name="Option">DNI</field>
         <field name="Key">NOBOM</field>
+        <field name="Option">DNI</field>
       </fields>
-      <libsource lib="n2adr" part="Conn_01x01"/>
+      <libsource lib="n2adr" part="Conn_01x01" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5A04974F</tstamp>
     </comp>
@@ -797,10 +767,10 @@
       <value>TST</value>
       <footprint>Wire_Pads:SolderWirePad_single_0-8mmDrill</footprint>
       <fields>
-        <field name="Option">DNI</field>
         <field name="Key">NOBOM</field>
+        <field name="Option">DNI</field>
       </fields>
-      <libsource lib="n2adr" part="TST"/>
+      <libsource lib="n2adr" part="TST" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5A06042C</tstamp>
     </comp>
@@ -810,7 +780,7 @@
       <fields>
         <field name="Option">ADNI</field>
       </fields>
-      <libsource lib="n2adr" part="Audio-Jack-2"/>
+      <libsource lib="n2adr" part="Audio-Jack-2" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5A0A1986</tstamp>
     </comp>
@@ -818,10 +788,10 @@
       <value>TST</value>
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
-        <field name="Option">DNI</field>
         <field name="Key">NOBOM</field>
+        <field name="Option">DNI</field>
       </fields>
-      <libsource lib="n2adr" part="TST"/>
+      <libsource lib="n2adr" part="TST" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5A0DA7AF</tstamp>
     </comp>
@@ -829,10 +799,10 @@
       <value>TST</value>
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
-        <field name="Option">DNI</field>
         <field name="Key">NOBOM</field>
+        <field name="Option">DNI</field>
       </fields>
-      <libsource lib="n2adr" part="TST"/>
+      <libsource lib="n2adr" part="TST" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5A0DAED0</tstamp>
     </comp>
@@ -840,10 +810,10 @@
       <value>TST</value>
       <footprint>N2ADR:SolderWirePad_single_0-8mmDrill</footprint>
       <fields>
-        <field name="Option">DNI</field>
         <field name="Key">NOBOM</field>
+        <field name="Option">DNI</field>
       </fields>
-      <libsource lib="n2adr" part="TST"/>
+      <libsource lib="n2adr" part="TST" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5A0DB450</tstamp>
     </comp>
@@ -851,31 +821,31 @@
       <value>TST</value>
       <footprint>Local:WirePad_0.5mm</footprint>
       <fields>
-        <field name="Option">DNI</field>
         <field name="Key">NOBOM</field>
+        <field name="Option">DNI</field>
       </fields>
-      <libsource lib="n2adr" part="TST"/>
+      <libsource lib="n2adr" part="TST" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5A0DBD9A</tstamp>
     </comp>
     <comp ref="U5">
       <value>74LVC1G00</value>
       <footprint>TO_SOT_Packages_SMD:SOT-23-5_HandSoldering</footprint>
-      <libsource lib="n2adr" part="74AHC1G00"/>
+      <libsource lib="n2adr" part="74AHC1G00" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5A9F1E75</tstamp>
     </comp>
     <comp ref="D3">
       <value>1N4148</value>
       <footprint>Diodes_SMD:D_SOD-123</footprint>
-      <libsource lib="n2adr" part="1N4148"/>
+      <libsource lib="n2adr" part="1N4148" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5ABD48D4</tstamp>
     </comp>
     <comp ref="FB1">
       <value>FB</value>
       <footprint>N2ADR:SMD_0805</footprint>
-      <libsource lib="device" part="Ferrite_Bead_Small"/>
+      <libsource lib="n2adr" part="FB" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5B3775A2</tstamp>
     </comp>
@@ -885,7 +855,7 @@
       <fields>
         <field name="Option">DNI</field>
       </fields>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5B3A5EE7</tstamp>
     </comp>
@@ -895,7 +865,7 @@
       <fields>
         <field name="Option">DNI</field>
       </fields>
-      <libsource lib="n2adr" part="C_Small"/>
+      <libsource lib="n2adr" part="C_Small" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5B3A9962</tstamp>
     </comp>
@@ -905,45 +875,9 @@
       <fields>
         <field name="Option">DNI</field>
       </fields>
-      <libsource lib="n2adr" part="R"/>
+      <libsource lib="n2adr" part="R" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5B3C8402</tstamp>
-    </comp>
-    <comp ref="CN6">
-      <value>20P</value>
-      <fields>
-        <field name="Option">ADNI</field>
-      </fields>
-      <libsource lib="n2adr" part="R"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamp>5B45E333</tstamp>
-    </comp>
-    <comp ref="CN7">
-      <value>40P</value>
-      <fields>
-        <field name="Option">ADNI</field>
-      </fields>
-      <libsource lib="n2adr" part="R"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamp>5B469121</tstamp>
-    </comp>
-    <comp ref="PB1">
-      <value>40P</value>
-      <fields>
-        <field name="Option">ADNI</field>
-      </fields>
-      <libsource lib="n2adr" part="R"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamp>5B46938E</tstamp>
-    </comp>
-    <comp ref="PB2">
-      <value>5x10</value>
-      <fields>
-        <field name="Option">ADNI</field>
-      </fields>
-      <libsource lib="n2adr" part="R"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamp>5B469606</tstamp>
     </comp>
   </components>
   <libparts>
@@ -1143,20 +1077,14 @@
         <pin num="4" name="A" type="passive"/>
       </pins>
     </libpart>
-    <libpart lib="device" part="Ferrite_Bead_Small">
-      <description>Ferrite bead, small symbol</description>
-      <footprints>
-        <fp>Inductor_*</fp>
-        <fp>L_*</fp>
-        <fp>*Ferrite*</fp>
-      </footprints>
+    <libpart lib="n2adr" part="FB">
       <fields>
-        <field name="Reference">L</field>
-        <field name="Value">Ferrite_Bead_Small</field>
+        <field name="Reference">FB</field>
+        <field name="Value">FB</field>
       </fields>
       <pins>
         <pin num="1" name="~" type="passive"/>
-        <pin num="2" name="~" type="passive"/>
+        <pin num="2" name="~" type="input"/>
       </pins>
     </libpart>
     <libpart lib="n2adr" part="INDUCTOR">
@@ -1260,34 +1188,6 @@
         <pin num="8" name="V+" type="power_in"/>
       </pins>
     </libpart>
-    <libpart lib="n2adr" part="MCP23008-E/SS">
-      <fields>
-        <field name="Reference">U</field>
-        <field name="Value">MCP23008-E/SS</field>
-      </fields>
-      <pins>
-        <pin num="1" name="SCL" type="input"/>
-        <pin num="2" name="SDA" type="BiDi"/>
-        <pin num="3" name="A2" type="input"/>
-        <pin num="4" name="A1" type="input"/>
-        <pin num="5" name="A0" type="input"/>
-        <pin num="6" name="Rst/" type="input"/>
-        <pin num="7" name="NC" type="NotConnected"/>
-        <pin num="8" name="INT" type="output"/>
-        <pin num="9" name="Vss" type="passive"/>
-        <pin num="10" name="NC" type="NotConnected"/>
-        <pin num="11" name="NC" type="NotConnected"/>
-        <pin num="12" name="GP0" type="output"/>
-        <pin num="13" name="GP1" type="output"/>
-        <pin num="14" name="GP2" type="output"/>
-        <pin num="15" name="GP3" type="output"/>
-        <pin num="16" name="GP4" type="output"/>
-        <pin num="17" name="GP5" type="output"/>
-        <pin num="18" name="GP6" type="output"/>
-        <pin num="19" name="GP7" type="output"/>
-        <pin num="20" name="Vdd" type="power_in"/>
-      </pins>
-    </libpart>
     <libpart lib="n2adr" part="POT">
       <footprints>
         <fp>Potentiometer*</fp>
@@ -1365,527 +1265,533 @@
         <pin num="16" name="OUT1" type="input"/>
       </pins>
     </libpart>
+    <libpart lib="n2adr-rescue" part="MCP23008-E_SS">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">MCP23008-E_SS</field>
+      </fields>
+      <pins>
+        <pin num="1" name="SCL" type="input"/>
+        <pin num="2" name="SDA" type="BiDi"/>
+        <pin num="3" name="A2" type="input"/>
+        <pin num="4" name="A1" type="input"/>
+        <pin num="5" name="A0" type="input"/>
+        <pin num="6" name="Rst/" type="input"/>
+        <pin num="7" name="NC" type="NotConnected"/>
+        <pin num="8" name="INT" type="output"/>
+        <pin num="9" name="Vss" type="passive"/>
+        <pin num="10" name="NC" type="NotConnected"/>
+        <pin num="11" name="NC" type="NotConnected"/>
+        <pin num="12" name="GP0" type="output"/>
+        <pin num="13" name="GP1" type="output"/>
+        <pin num="14" name="GP2" type="output"/>
+        <pin num="15" name="GP3" type="output"/>
+        <pin num="16" name="GP4" type="output"/>
+        <pin num="17" name="GP5" type="output"/>
+        <pin num="18" name="GP6" type="output"/>
+        <pin num="19" name="GP7" type="output"/>
+        <pin num="20" name="Vdd" type="power_in"/>
+      </pins>
+    </libpart>
   </libparts>
   <libraries>
     <library logical="n2adr">
-      <uri>C:\cygwin64\home\shaynal\Hermes-Lite2\hardware\companions\n2adr\libs\n2adr.lib</uri>
+      <uri>/home/shaynal/Hermes-Lite2/hardware/companions/n2adr/libs/n2adr.lib</uri>
     </library>
-    <library logical="device">
-      <uri>C:\Program Files\KiCad\share\kicad\library\device.lib</uri>
+    <library logical="n2adr-rescue">
+      <uri>/home/shaynal/Hermes-Lite2/hardware/companions/n2adr/n2adr-rescue.lib</uri>
     </library>
   </libraries>
   <nets>
-    <net code="1" name="Net-(C32-Pad2)">
-      <node ref="C35" pin="2"/>
-      <node ref="C32" pin="2"/>
-      <node ref="L9" pin="1"/>
-      <node ref="K3" pin="4"/>
+    <net code="1" name="Net-(K6-Pad2)">
+      <node ref="K6" pin="7"/>
+      <node ref="K6" pin="2"/>
     </net>
-    <net code="2" name="Net-(C36-Pad1)">
-      <node ref="C36" pin="1"/>
-      <node ref="L13" pin="1"/>
-      <node ref="L10" pin="2"/>
-      <node ref="C38" pin="2"/>
-      <node ref="C41" pin="2"/>
-    </net>
-    <net code="3" name="Net-(C33-Pad2)">
-      <node ref="C33" pin="2"/>
-      <node ref="L10" pin="1"/>
-      <node ref="K4" pin="4"/>
-      <node ref="C36" pin="2"/>
-    </net>
-    <net code="4" name="Net-(C35-Pad1)">
-      <node ref="L9" pin="2"/>
-      <node ref="C37" pin="2"/>
-      <node ref="L12" pin="1"/>
-      <node ref="C35" pin="1"/>
-      <node ref="C40" pin="2"/>
-    </net>
-    <net code="5" name="Net-(C44-Pad2)">
-      <node ref="K5" pin="5"/>
-      <node ref="L14" pin="2"/>
-      <node ref="C44" pin="2"/>
-    </net>
-    <net code="6" name="Net-(U1-Pad12)">
-      <node ref="U1" pin="12"/>
-      <node ref="U2" pin="7"/>
-    </net>
-    <net code="7" name="Net-(CN4-Pad1)">
-      <node ref="JP1" pin="1"/>
-      <node ref="CN4" pin="1"/>
-    </net>
-    <net code="8" name="Net-(U1-Pad17)">
-      <node ref="U2" pin="2"/>
-      <node ref="U1" pin="17"/>
-    </net>
-    <net code="9" name="Net-(U1-Pad16)">
-      <node ref="U2" pin="3"/>
-      <node ref="U1" pin="16"/>
-    </net>
-    <net code="10" name="Net-(U1-Pad15)">
-      <node ref="U2" pin="4"/>
-      <node ref="U1" pin="15"/>
-    </net>
-    <net code="11" name="Net-(U1-Pad14)">
-      <node ref="U2" pin="5"/>
-      <node ref="U1" pin="14"/>
-    </net>
-    <net code="12" name="Net-(U1-Pad13)">
-      <node ref="U2" pin="6"/>
-      <node ref="U1" pin="13"/>
-    </net>
-    <net code="13" name="Net-(C41-Pad1)">
-      <node ref="C43" pin="2"/>
-      <node ref="L13" pin="2"/>
-      <node ref="C41" pin="1"/>
-      <node ref="K4" pin="5"/>
-    </net>
-    <net code="14" name="Net-(C40-Pad1)">
-      <node ref="K3" pin="5"/>
-      <node ref="C40" pin="1"/>
-      <node ref="L12" pin="2"/>
-      <node ref="C42" pin="2"/>
-    </net>
-    <net code="15" name="Net-(C10-Pad2)">
-      <node ref="L2" pin="2"/>
-      <node ref="C10" pin="2"/>
+    <net code="2" name="Net-(C10-Pad2)">
       <node ref="K2" pin="5"/>
+      <node ref="C10" pin="2"/>
+      <node ref="L2" pin="2"/>
     </net>
-    <net code="16" name="Net-(C26-Pad2)">
-      <node ref="L8" pin="2"/>
-      <node ref="C26" pin="2"/>
+    <net code="3" name="Net-(C8-Pad2)">
+      <node ref="L1" pin="1"/>
+      <node ref="C8" pin="2"/>
+      <node ref="K2" pin="4"/>
+    </net>
+    <net code="4" name="Net-(C26-Pad2)">
       <node ref="K6" pin="5"/>
+      <node ref="C26" pin="2"/>
+      <node ref="L8" pin="2"/>
     </net>
-    <net code="17" name="Net-(K2-Pad3)">
+    <net code="5" name="Net-(C24-Pad2)">
+      <node ref="L7" pin="1"/>
+      <node ref="K6" pin="4"/>
+      <node ref="C24" pin="2"/>
+    </net>
+    <net code="6" name="Net-(C25-Pad2)">
+      <node ref="L8" pin="1"/>
+      <node ref="C25" pin="2"/>
+      <node ref="L7" pin="2"/>
+    </net>
+    <net code="7" name="Net-(K5-Pad2)">
+      <node ref="K5" pin="7"/>
+      <node ref="K5" pin="2"/>
+    </net>
+    <net code="8" name="Net-(K4-Pad2)">
+      <node ref="K4" pin="7"/>
+      <node ref="K4" pin="2"/>
+    </net>
+    <net code="9" name="Net-(K3-Pad2)">
+      <node ref="K3" pin="2"/>
+      <node ref="K3" pin="7"/>
+    </net>
+    <net code="10" name="Net-(K2-Pad2)">
+      <node ref="K2" pin="2"/>
+      <node ref="K2" pin="7"/>
+    </net>
+    <net code="11" name="Net-(K2-Pad3)">
       <node ref="K2" pin="3"/>
       <node ref="K3" pin="6"/>
     </net>
-    <net code="18" name="Net-(K3-Pad3)">
+    <net code="12" name="Net-(K3-Pad3)">
       <node ref="K4" pin="6"/>
       <node ref="K3" pin="3"/>
     </net>
-    <net code="19" name="Net-(K4-Pad3)">
-      <node ref="K4" pin="3"/>
+    <net code="13" name="Net-(K4-Pad3)">
       <node ref="K5" pin="6"/>
+      <node ref="K4" pin="3"/>
     </net>
-    <net code="20" name="Net-(K5-Pad3)">
-      <node ref="K5" pin="3"/>
+    <net code="14" name="Net-(K5-Pad3)">
       <node ref="K6" pin="6"/>
+      <node ref="K5" pin="3"/>
     </net>
-    <net code="21" name="Net-(K7-Pad4)">
-      <node ref="K7" pin="4"/>
-      <node ref="K7" pin="5"/>
+    <net code="15" name="Net-(D1-Pad3)">
+      <node ref="D1" pin="3"/>
+      <node ref="L3" pin="1"/>
+      <node ref="R6" pin="2"/>
     </net>
-    <net code="22" name="FilterOut">
-      <node ref="R2" pin="2"/>
-      <node ref="JP1" pin="2"/>
-      <node ref="K7" pin="6"/>
-    </net>
-    <net code="23" name="Band7">
-      <node ref="K7" pin="8"/>
-      <node ref="C46" pin="2"/>
-      <node ref="P7" pin="1"/>
-      <node ref="U2" pin="16"/>
-    </net>
-    <net code="24" name="Net-(C47-Pad2)">
-      <node ref="C47" pin="2"/>
-      <node ref="K7" pin="2"/>
-    </net>
-    <net code="25" name="Band6">
-      <node ref="C5" pin="2"/>
-      <node ref="K6" pin="8"/>
-      <node ref="P6" pin="1"/>
-      <node ref="U2" pin="15"/>
-    </net>
-    <net code="26" name="Net-(R13-Pad2)">
-      <node ref="R13" pin="2"/>
-      <node ref="U3" pin="6"/>
-      <node ref="R14" pin="1"/>
-    </net>
-    <net code="27" name="Net-(R14-Pad2)">
-      <node ref="R14" pin="2"/>
-      <node ref="R15" pin="1"/>
-      <node ref="U3" pin="7"/>
-    </net>
-    <net code="28" name="Net-(R10-Pad2)">
-      <node ref="R10" pin="2"/>
-      <node ref="R11" pin="1"/>
-      <node ref="U3" pin="2"/>
-    </net>
-    <net code="29" name="Net-(K1-Pad6)">
-      <node ref="K2" pin="6"/>
-      <node ref="K1" pin="6"/>
-    </net>
-    <net code="30" name="Net-(K1-Pad3)">
-      <node ref="K7" pin="3"/>
-      <node ref="K1" pin="3"/>
-    </net>
-    <net code="31" name="Net-(C49-Pad1)">
-      <node ref="C49" pin="1"/>
-      <node ref="K7" pin="7"/>
-    </net>
-    <net code="32" name="Net-(D2-Pad3)">
-      <node ref="R9" pin="1"/>
-      <node ref="D2" pin="3"/>
-    </net>
-    <net code="33" name="Net-(K1-Pad2)">
-      <node ref="K1" pin="2"/>
-      <node ref="K1" pin="7"/>
-    </net>
-    <net code="34" name="Net-(C23-Pad1)">
-      <node ref="L6" pin="2"/>
-      <node ref="C23" pin="1"/>
-      <node ref="K1" pin="5"/>
-    </net>
-    <net code="35" name="Net-(R11-Pad2)">
-      <node ref="U3" pin="1"/>
-      <node ref="R11" pin="2"/>
-      <node ref="R12" pin="1"/>
-    </net>
-    <net code="36" name="Net-(D1-Pad4)">
-      <node ref="D1" pin="4"/>
-      <node ref="R4" pin="2"/>
-    </net>
-    <net code="37" name="Net-(R1-Pad2)">
-      <node ref="R1" pin="2"/>
-      <node ref="RV1" pin="1"/>
-      <node ref="R3" pin="1"/>
-    </net>
-    <net code="38" name="Net-(R16-Pad2)">
-      <node ref="R16" pin="2"/>
-      <node ref="U1" pin="18"/>
-      <node ref="U5" pin="2"/>
-    </net>
-    <net code="39" name="GND">
-      <node ref="C10" pin="1"/>
-      <node ref="C6" pin="1"/>
-      <node ref="U1" pin="9"/>
-      <node ref="U1" pin="5"/>
-      <node ref="U1" pin="4"/>
-      <node ref="U1" pin="3"/>
-      <node ref="C5" pin="1"/>
-      <node ref="C1" pin="1"/>
-      <node ref="C9" pin="1"/>
-      <node ref="C8" pin="1"/>
-      <node ref="U2" pin="8"/>
-      <node ref="CN4" pin="2"/>
-      <node ref="R1" pin="1"/>
-      <node ref="C3" pin="1"/>
-      <node ref="C23" pin="2"/>
-      <node ref="C22" pin="2"/>
-      <node ref="C21" pin="2"/>
-      <node ref="C14" pin="1"/>
-      <node ref="C44" pin="1"/>
-      <node ref="C39" pin="1"/>
-      <node ref="C34" pin="1"/>
-      <node ref="C31" pin="1"/>
-      <node ref="C27" pin="1"/>
-      <node ref="C28" pin="1"/>
-      <node ref="C30" pin="1"/>
-      <node ref="C4" pin="1"/>
-      <node ref="C11" pin="2"/>
-      <node ref="C13" pin="2"/>
-      <node ref="C29" pin="1"/>
-      <node ref="C2" pin="1"/>
-      <node ref="C26" pin="1"/>
-      <node ref="C25" pin="1"/>
-      <node ref="C24" pin="1"/>
-      <node ref="C43" pin="1"/>
-      <node ref="C38" pin="1"/>
-      <node ref="C33" pin="1"/>
-      <node ref="D1" pin="1"/>
-      <node ref="C20" pin="1"/>
-      <node ref="C42" pin="1"/>
-      <node ref="L4" pin="1"/>
-      <node ref="R10" pin="1"/>
-      <node ref="U3" pin="4"/>
-      <node ref="D2" pin="2"/>
-      <node ref="L15" pin="1"/>
-      <node ref="C45" pin="1"/>
-      <node ref="R13" pin="1"/>
-      <node ref="C37" pin="1"/>
-      <node ref="C32" pin="1"/>
-      <node ref="CN3" pin="2"/>
-      <node ref="C50" pin="1"/>
-      <node ref="C46" pin="1"/>
-      <node ref="C7" pin="1"/>
-      <node ref="C15" pin="1"/>
-      <node ref="CN2" pin="1"/>
-      <node ref="CN2" pin="7"/>
-      <node ref="CN2" pin="8"/>
-      <node ref="CN2" pin="3"/>
-      <node ref="CN2" pin="4"/>
-      <node ref="CN2" pin="9"/>
-      <node ref="CN2" pin="5"/>
-      <node ref="C12" pin="1"/>
-      <node ref="CN2" pin="11"/>
-      <node ref="CN2" pin="12"/>
-      <node ref="J3" pin="1"/>
-      <node ref="CN1" pin="2"/>
-      <node ref="U5" pin="3"/>
-      <node ref="RV1" pin="2"/>
-      <node ref="CN5" pin="3"/>
-    </net>
-    <net code="40" name="Net-(CN2-Pad6)">
-      <node ref="CN2" pin="6"/>
-      <node ref="P15" pin="1"/>
-    </net>
-    <net code="41" name="+3V3">
-      <node ref="FB1" pin="1"/>
-      <node ref="C14" pin="2"/>
-      <node ref="K2" pin="1"/>
-      <node ref="U1" pin="6"/>
-      <node ref="U1" pin="20"/>
-      <node ref="K5" pin="1"/>
-      <node ref="K4" pin="1"/>
-      <node ref="K6" pin="1"/>
-      <node ref="C7" pin="2"/>
-      <node ref="C50" pin="2"/>
-      <node ref="K3" pin="1"/>
-      <node ref="C15" pin="2"/>
-      <node ref="C12" pin="2"/>
-      <node ref="U2" pin="9"/>
-      <node ref="C45" pin="2"/>
-      <node ref="K7" pin="1"/>
-      <node ref="U3" pin="8"/>
-      <node ref="K1" pin="1"/>
-      <node ref="U5" pin="5"/>
-      <node ref="C27" pin="2"/>
-      <node ref="R16" pin="1"/>
-      <node ref="C31" pin="2"/>
-      <node ref="C28" pin="2"/>
-      <node ref="C29" pin="2"/>
-      <node ref="C30" pin="2"/>
-      <node ref="C20" pin="2"/>
-      <node ref="D3" pin="1"/>
-    </net>
-    <net code="42" name="Net-(U2-Pad1)">
-      <node ref="U2" pin="1"/>
-      <node ref="U5" pin="4"/>
-    </net>
-    <net code="43" name="INTTR">
-      <node ref="U5" pin="1"/>
-      <node ref="P14" pin="1"/>
-      <node ref="D3" pin="2"/>
-      <node ref="CN2" pin="13"/>
-    </net>
-    <net code="44" name="Net-(P13-Pad1)">
-      <node ref="P13" pin="1"/>
-      <node ref="U1" pin="19"/>
-    </net>
-    <net code="45" name="Net-(CN1-Pad1)">
-      <node ref="CN2" pin="15"/>
-      <node ref="CN1" pin="1"/>
-      <node ref="P16" pin="1"/>
-    </net>
-    <net code="46" name="Net-(CN2-Pad14)">
-      <node ref="CN2" pin="14"/>
-      <node ref="P8" pin="1"/>
-    </net>
-    <net code="47" name="Net-(CN2-Pad16)">
-      <node ref="CN2" pin="16"/>
-      <node ref="U1" pin="2"/>
-    </net>
-    <net code="48" name="Net-(CN2-Pad17)">
-      <node ref="CN2" pin="17"/>
-      <node ref="U1" pin="1"/>
-    </net>
-    <net code="49" name="Net-(CN6-Pad1)">
-      <node ref="CN6" pin="1"/>
-    </net>
-    <net code="50" name="Net-(CN6-Pad2)">
-      <node ref="CN6" pin="2"/>
-    </net>
-    <net code="51" name="Net-(CN7-Pad1)">
-      <node ref="CN7" pin="1"/>
-    </net>
-    <net code="52" name="Net-(CN7-Pad2)">
-      <node ref="CN7" pin="2"/>
-    </net>
-    <net code="53" name="Net-(PCB1-Pad1)">
-      <node ref="PCB1" pin="1"/>
-    </net>
-    <net code="54" name="Net-(PCB1-Pad2)">
-      <node ref="PCB1" pin="2"/>
-    </net>
-    <net code="55" name="Net-(PCB2-Pad1)">
-      <node ref="PCB2" pin="1"/>
-    </net>
-    <net code="56" name="Net-(PCB2-Pad2)">
-      <node ref="PCB2" pin="2"/>
-    </net>
-    <net code="57" name="Net-(CN2-Pad18)">
-      <node ref="FB1" pin="2"/>
-      <node ref="CN2" pin="18"/>
-    </net>
-    <net code="58" name="Band4">
-      <node ref="C3" pin="2"/>
-      <node ref="K4" pin="8"/>
-      <node ref="U2" pin="13"/>
-      <node ref="P4" pin="1"/>
-    </net>
-    <net code="59" name="Band3">
-      <node ref="P3" pin="1"/>
-      <node ref="K3" pin="8"/>
-      <node ref="U2" pin="12"/>
-      <node ref="C4" pin="2"/>
-    </net>
-    <net code="60" name="Band2">
-      <node ref="P2" pin="1"/>
-      <node ref="U2" pin="11"/>
-      <node ref="C2" pin="2"/>
-      <node ref="K2" pin="8"/>
-    </net>
-    <net code="61" name="Band1">
-      <node ref="K1" pin="8"/>
-      <node ref="U2" pin="10"/>
-      <node ref="P1" pin="1"/>
-      <node ref="C1" pin="2"/>
-    </net>
-    <net code="62" name="Band5">
-      <node ref="U2" pin="14"/>
-      <node ref="K5" pin="8"/>
-      <node ref="P5" pin="1"/>
-      <node ref="C6" pin="2"/>
-    </net>
-    <net code="63" name="Net-(D2-Pad4)">
+    <net code="16" name="Net-(D2-Pad4)">
       <node ref="R7" pin="1"/>
       <node ref="D2" pin="4"/>
       <node ref="L3" pin="2"/>
     </net>
-    <net code="64" name="Net-(D1-Pad3)">
-      <node ref="R6" pin="2"/>
-      <node ref="L3" pin="1"/>
-      <node ref="D1" pin="3"/>
+    <net code="17" name="Net-(CN2-Pad16)">
+      <node ref="CN2" pin="16"/>
+      <node ref="U1" pin="2"/>
     </net>
-    <net code="65" name="Net-(K3-Pad2)">
-      <node ref="K3" pin="7"/>
-      <node ref="K3" pin="2"/>
+    <net code="18" name="Net-(CN2-Pad17)">
+      <node ref="CN2" pin="17"/>
+      <node ref="U1" pin="1"/>
     </net>
-    <net code="66" name="Net-(K6-Pad2)">
-      <node ref="K6" pin="7"/>
-      <node ref="K6" pin="2"/>
+    <net code="19" name="INTTR">
+      <node ref="CN2" pin="13"/>
+      <node ref="P14" pin="1"/>
+      <node ref="U5" pin="1"/>
+      <node ref="D3" pin="2"/>
     </net>
-    <net code="67" name="Net-(K5-Pad2)">
-      <node ref="K5" pin="7"/>
-      <node ref="K5" pin="2"/>
+    <net code="20" name="GND">
+      <node ref="U5" pin="3"/>
+      <node ref="RV1" pin="2"/>
+      <node ref="R10" pin="1"/>
+      <node ref="CN2" pin="1"/>
+      <node ref="CN2" pin="11"/>
+      <node ref="CN2" pin="12"/>
+      <node ref="R13" pin="1"/>
+      <node ref="CN4" pin="2"/>
+      <node ref="C12" pin="1"/>
+      <node ref="C15" pin="1"/>
+      <node ref="D1" pin="1"/>
+      <node ref="D2" pin="2"/>
+      <node ref="C50" pin="1"/>
+      <node ref="C20" pin="1"/>
+      <node ref="CN3" pin="2"/>
+      <node ref="J3" pin="1"/>
+      <node ref="CN5" pin="3"/>
+      <node ref="CN1" pin="2"/>
+      <node ref="CN2" pin="9"/>
+      <node ref="CN2" pin="8"/>
+      <node ref="CN2" pin="7"/>
+      <node ref="CN2" pin="5"/>
+      <node ref="CN2" pin="4"/>
+      <node ref="CN2" pin="3"/>
+      <node ref="C42" pin="1"/>
+      <node ref="C5" pin="1"/>
+      <node ref="C6" pin="1"/>
+      <node ref="C13" pin="2"/>
+      <node ref="C11" pin="2"/>
+      <node ref="U1" pin="9"/>
+      <node ref="U1" pin="5"/>
+      <node ref="U1" pin="4"/>
+      <node ref="U1" pin="3"/>
+      <node ref="C1" pin="1"/>
+      <node ref="C29" pin="1"/>
+      <node ref="C37" pin="1"/>
+      <node ref="C32" pin="1"/>
+      <node ref="C44" pin="1"/>
+      <node ref="C43" pin="1"/>
+      <node ref="C38" pin="1"/>
+      <node ref="C33" pin="1"/>
+      <node ref="C25" pin="1"/>
+      <node ref="U2" pin="8"/>
+      <node ref="U3" pin="4"/>
+      <node ref="C24" pin="1"/>
+      <node ref="C23" pin="2"/>
+      <node ref="C22" pin="2"/>
+      <node ref="C21" pin="2"/>
+      <node ref="C31" pin="1"/>
+      <node ref="C10" pin="1"/>
+      <node ref="C8" pin="1"/>
+      <node ref="C9" pin="1"/>
+      <node ref="C3" pin="1"/>
+      <node ref="C4" pin="1"/>
+      <node ref="C2" pin="1"/>
+      <node ref="C39" pin="1"/>
+      <node ref="C34" pin="1"/>
+      <node ref="C14" pin="1"/>
+      <node ref="C30" pin="1"/>
+      <node ref="U3" pin="4"/>
+      <node ref="C28" pin="1"/>
+      <node ref="C27" pin="1"/>
+      <node ref="C26" pin="1"/>
+      <node ref="L15" pin="1"/>
+      <node ref="C45" pin="1"/>
+      <node ref="L4" pin="1"/>
+      <node ref="R1" pin="1"/>
+      <node ref="C46" pin="1"/>
+      <node ref="C7" pin="1"/>
     </net>
-    <net code="68" name="Net-(K4-Pad2)">
-      <node ref="K4" pin="7"/>
-      <node ref="K4" pin="2"/>
+    <net code="21" name="Band3">
+      <node ref="U2" pin="12"/>
+      <node ref="K3" pin="8"/>
+      <node ref="C4" pin="2"/>
+      <node ref="P3" pin="1"/>
     </net>
-    <net code="69" name="Net-(K2-Pad2)">
-      <node ref="K2" pin="2"/>
-      <node ref="K2" pin="7"/>
+    <net code="22" name="Net-(C9-Pad2)">
+      <node ref="L2" pin="1"/>
+      <node ref="L1" pin="2"/>
+      <node ref="C9" pin="2"/>
     </net>
-    <net code="70" name="Net-(CN2-Pad19)">
-      <node ref="CN5" pin="1"/>
-      <node ref="R15" pin="2"/>
-      <node ref="CN2" pin="19"/>
+    <net code="23" name="Band5">
+      <node ref="K5" pin="8"/>
+      <node ref="U2" pin="14"/>
+      <node ref="P5" pin="1"/>
+      <node ref="C6" pin="2"/>
     </net>
-    <net code="71" name="Net-(RV1-Pad3)">
-      <node ref="RV1" pin="3"/>
+    <net code="24" name="Band4">
+      <node ref="P4" pin="1"/>
+      <node ref="U2" pin="13"/>
+      <node ref="C3" pin="2"/>
+      <node ref="K4" pin="8"/>
     </net>
-    <net code="72" name="Net-(C13-Pad1)">
-      <node ref="R8" pin="2"/>
-      <node ref="C13" pin="1"/>
-      <node ref="D2" pin="1"/>
-    </net>
-    <net code="73" name="Net-(C11-Pad1)">
-      <node ref="C11" pin="1"/>
-      <node ref="R5" pin="2"/>
-      <node ref="D1" pin="2"/>
-    </net>
-    <net code="74" name="Net-(C34-Pad2)">
-      <node ref="L11" pin="1"/>
+    <net code="25" name="Net-(C34-Pad2)">
       <node ref="C34" pin="2"/>
       <node ref="K5" pin="4"/>
+      <node ref="L11" pin="1"/>
     </net>
-    <net code="75" name="Net-(C39-Pad2)">
-      <node ref="L14" pin="1"/>
-      <node ref="C39" pin="2"/>
-      <node ref="L11" pin="2"/>
+    <net code="26" name="Band2">
+      <node ref="K2" pin="8"/>
+      <node ref="P2" pin="1"/>
+      <node ref="U2" pin="11"/>
+      <node ref="C2" pin="2"/>
     </net>
-    <net code="76" name="Net-(C21-Pad1)">
+    <net code="27" name="Band1">
+      <node ref="P1" pin="1"/>
+      <node ref="K1" pin="8"/>
+      <node ref="U2" pin="10"/>
+      <node ref="C1" pin="2"/>
+    </net>
+    <net code="28" name="Net-(C22-Pad1)">
+      <node ref="L6" pin="1"/>
+      <node ref="L5" pin="2"/>
+      <node ref="C22" pin="1"/>
+    </net>
+    <net code="29" name="Net-(D2-Pad3)">
+      <node ref="R9" pin="1"/>
+      <node ref="D2" pin="3"/>
+    </net>
+    <net code="30" name="Net-(K1-Pad2)">
+      <node ref="K1" pin="7"/>
+      <node ref="K1" pin="2"/>
+    </net>
+    <net code="31" name="Net-(C23-Pad1)">
+      <node ref="L6" pin="2"/>
+      <node ref="C23" pin="1"/>
+      <node ref="K1" pin="5"/>
+    </net>
+    <net code="32" name="Net-(C21-Pad1)">
       <node ref="K1" pin="4"/>
       <node ref="L5" pin="1"/>
       <node ref="C21" pin="1"/>
     </net>
-    <net code="77" name="Net-(C22-Pad1)">
-      <node ref="L5" pin="2"/>
-      <node ref="L6" pin="1"/>
-      <node ref="C22" pin="1"/>
+    <net code="33" name="Net-(R10-Pad2)">
+      <node ref="R11" pin="1"/>
+      <node ref="R10" pin="2"/>
+      <node ref="U3" pin="2"/>
     </net>
-    <net code="78" name="Net-(C24-Pad2)">
-      <node ref="K6" pin="4"/>
-      <node ref="C24" pin="2"/>
-      <node ref="L7" pin="1"/>
+    <net code="34" name="Net-(R11-Pad2)">
+      <node ref="U3" pin="1"/>
+      <node ref="R11" pin="2"/>
+      <node ref="R12" pin="1"/>
     </net>
-    <net code="79" name="Net-(C25-Pad2)">
-      <node ref="L7" pin="2"/>
-      <node ref="L8" pin="1"/>
-      <node ref="C25" pin="2"/>
+    <net code="35" name="Net-(D1-Pad4)">
+      <node ref="D1" pin="4"/>
+      <node ref="R4" pin="2"/>
     </net>
-    <net code="80" name="Net-(C8-Pad2)">
-      <node ref="K2" pin="4"/>
-      <node ref="L1" pin="1"/>
-      <node ref="C8" pin="2"/>
+    <net code="36" name="Net-(C33-Pad2)">
+      <node ref="C36" pin="2"/>
+      <node ref="C33" pin="2"/>
+      <node ref="K4" pin="4"/>
+      <node ref="L10" pin="1"/>
     </net>
-    <net code="81" name="Net-(C9-Pad2)">
-      <node ref="L1" pin="2"/>
-      <node ref="L2" pin="1"/>
-      <node ref="C9" pin="2"/>
+    <net code="37" name="Net-(C35-Pad1)">
+      <node ref="C40" pin="2"/>
+      <node ref="L9" pin="2"/>
+      <node ref="L12" pin="1"/>
+      <node ref="C37" pin="2"/>
+      <node ref="C35" pin="1"/>
     </net>
-    <net code="82" name="Net-(U1-Pad10)">
-      <node ref="U1" pin="10"/>
+    <net code="38" name="Net-(C32-Pad2)">
+      <node ref="C32" pin="2"/>
+      <node ref="L9" pin="1"/>
+      <node ref="C35" pin="2"/>
+      <node ref="K3" pin="4"/>
     </net>
-    <net code="83" name="Net-(U1-Pad7)">
-      <node ref="U1" pin="7"/>
+    <net code="39" name="Net-(C44-Pad2)">
+      <node ref="C44" pin="2"/>
+      <node ref="K5" pin="5"/>
+      <node ref="L14" pin="2"/>
     </net>
-    <net code="84" name="Net-(U1-Pad8)">
-      <node ref="U1" pin="8"/>
+    <net code="40" name="Net-(C39-Pad2)">
+      <node ref="L14" pin="1"/>
+      <node ref="L11" pin="2"/>
+      <node ref="C39" pin="2"/>
     </net>
-    <net code="85" name="Net-(U1-Pad11)">
-      <node ref="U1" pin="11"/>
+    <net code="41" name="Net-(C41-Pad1)">
+      <node ref="L13" pin="2"/>
+      <node ref="K4" pin="5"/>
+      <node ref="C41" pin="1"/>
+      <node ref="C43" pin="2"/>
     </net>
-    <net code="86" name="Net-(R2-Pad1)">
-      <node ref="R3" pin="2"/>
-      <node ref="R2" pin="1"/>
-      <node ref="R6" pin="1"/>
-      <node ref="R7" pin="2"/>
+    <net code="42" name="Net-(CN4-Pad1)">
+      <node ref="CN4" pin="1"/>
+      <node ref="JP1" pin="1"/>
     </net>
-    <net code="87" name="Net-(R8-Pad1)">
-      <node ref="R9" pin="2"/>
-      <node ref="R8" pin="1"/>
-      <node ref="U3" pin="3"/>
+    <net code="43" name="Net-(U1-Pad17)">
+      <node ref="U1" pin="17"/>
+      <node ref="U2" pin="2"/>
     </net>
-    <net code="88" name="RFInput">
-      <node ref="K6" pin="3"/>
-      <node ref="CN2" pin="2"/>
+    <net code="44" name="Net-(U1-Pad16)">
+      <node ref="U1" pin="16"/>
+      <node ref="U2" pin="3"/>
     </net>
-    <net code="89" name="Net-(CN2-Pad10)">
+    <net code="45" name="Net-(U1-Pad15)">
+      <node ref="U2" pin="4"/>
+      <node ref="U1" pin="15"/>
+    </net>
+    <net code="46" name="Net-(U1-Pad14)">
+      <node ref="U1" pin="14"/>
+      <node ref="U2" pin="5"/>
+    </net>
+    <net code="47" name="Net-(U1-Pad13)">
+      <node ref="U1" pin="13"/>
+      <node ref="U2" pin="6"/>
+    </net>
+    <net code="48" name="Net-(U1-Pad12)">
+      <node ref="U1" pin="12"/>
+      <node ref="U2" pin="7"/>
+    </net>
+    <net code="49" name="Net-(C40-Pad1)">
+      <node ref="K3" pin="5"/>
+      <node ref="L12" pin="2"/>
+      <node ref="C42" pin="2"/>
+      <node ref="C40" pin="1"/>
+    </net>
+    <net code="50" name="Net-(C36-Pad1)">
+      <node ref="C41" pin="2"/>
+      <node ref="C36" pin="1"/>
+      <node ref="C38" pin="2"/>
+      <node ref="L10" pin="2"/>
+      <node ref="L13" pin="1"/>
+    </net>
+    <net code="51" name="Net-(C48-Pad1)">
+      <node ref="L4" pin="2"/>
+      <node ref="C48" pin="1"/>
+      <node ref="C49" pin="2"/>
+    </net>
+    <net code="52" name="Net-(C47-Pad1)">
+      <node ref="L15" pin="2"/>
+      <node ref="C48" pin="2"/>
+      <node ref="C47" pin="1"/>
+    </net>
+    <net code="53" name="Net-(R14-Pad2)">
+      <node ref="R15" pin="1"/>
+      <node ref="R14" pin="2"/>
+      <node ref="U3" pin="7"/>
+    </net>
+    <net code="54" name="Net-(CN2-Pad19)">
+      <node ref="CN2" pin="19"/>
+      <node ref="CN5" pin="1"/>
+      <node ref="R15" pin="2"/>
+    </net>
+    <net code="55" name="Net-(P13-Pad1)">
+      <node ref="U1" pin="19"/>
+      <node ref="P13" pin="1"/>
+    </net>
+    <net code="56" name="Net-(CN2-Pad14)">
+      <node ref="CN2" pin="14"/>
+      <node ref="P8" pin="1"/>
+    </net>
+    <net code="57" name="Net-(CN2-Pad6)">
+      <node ref="P15" pin="1"/>
+      <node ref="CN2" pin="6"/>
+    </net>
+    <net code="58" name="Net-(CN1-Pad1)">
+      <node ref="CN1" pin="1"/>
+      <node ref="CN2" pin="15"/>
+      <node ref="P16" pin="1"/>
+    </net>
+    <net code="59" name="Net-(RV1-Pad3)">
+      <node ref="RV1" pin="3"/>
+    </net>
+    <net code="60" name="Net-(CN2-Pad10)">
       <node ref="CN3" pin="1"/>
       <node ref="CN2" pin="10"/>
     </net>
-    <net code="90" name="Net-(R4-Pad1)">
-      <node ref="R5" pin="1"/>
-      <node ref="U3" pin="5"/>
-      <node ref="R4" pin="1"/>
+    <net code="61" name="Net-(U2-Pad1)">
+      <node ref="U2" pin="1"/>
+      <node ref="U5" pin="4"/>
     </net>
-    <net code="91" name="Net-(CN2-Pad20)">
+    <net code="62" name="Net-(R16-Pad2)">
+      <node ref="U1" pin="18"/>
+      <node ref="R16" pin="2"/>
+      <node ref="U5" pin="2"/>
+    </net>
+    <net code="63" name="Net-(R1-Pad2)">
+      <node ref="R1" pin="2"/>
+      <node ref="R3" pin="1"/>
+      <node ref="RV1" pin="1"/>
+    </net>
+    <net code="64" name="Net-(CN2-Pad18)">
+      <node ref="FB1" pin="2"/>
+      <node ref="CN2" pin="18"/>
+    </net>
+    <net code="65" name="Net-(C13-Pad1)">
+      <node ref="C13" pin="1"/>
+      <node ref="R8" pin="2"/>
+      <node ref="D2" pin="1"/>
+    </net>
+    <net code="66" name="Net-(C11-Pad1)">
+      <node ref="R5" pin="2"/>
+      <node ref="C11" pin="1"/>
+      <node ref="D1" pin="2"/>
+    </net>
+    <net code="67" name="Band7">
+      <node ref="K7" pin="8"/>
+      <node ref="C46" pin="2"/>
+      <node ref="U2" pin="16"/>
+      <node ref="P7" pin="1"/>
+    </net>
+    <net code="68" name="Net-(K1-Pad6)">
+      <node ref="K2" pin="6"/>
+      <node ref="K1" pin="6"/>
+    </net>
+    <net code="69" name="Net-(K1-Pad3)">
+      <node ref="K7" pin="3"/>
+      <node ref="K1" pin="3"/>
+    </net>
+    <net code="70" name="Net-(U1-Pad7)">
+      <node ref="U1" pin="7"/>
+    </net>
+    <net code="71" name="Net-(U1-Pad8)">
+      <node ref="U1" pin="8"/>
+    </net>
+    <net code="72" name="RFInput">
+      <node ref="CN2" pin="2"/>
+      <node ref="K6" pin="3"/>
+    </net>
+    <net code="73" name="Band6">
+      <node ref="C5" pin="2"/>
+      <node ref="K6" pin="8"/>
+      <node ref="U2" pin="15"/>
+      <node ref="P6" pin="1"/>
+    </net>
+    <net code="74" name="Net-(U1-Pad10)">
+      <node ref="U1" pin="10"/>
+    </net>
+    <net code="75" name="Net-(U1-Pad11)">
+      <node ref="U1" pin="11"/>
+    </net>
+    <net code="76" name="+3V3">
+      <node ref="C20" pin="2"/>
+      <node ref="U3" pin="8"/>
+      <node ref="C7" pin="2"/>
+      <node ref="C50" pin="2"/>
+      <node ref="U3" pin="8"/>
+      <node ref="C45" pin="2"/>
+      <node ref="K7" pin="1"/>
+      <node ref="K1" pin="1"/>
+      <node ref="R16" pin="1"/>
+      <node ref="FB1" pin="1"/>
+      <node ref="D3" pin="1"/>
+      <node ref="U5" pin="5"/>
+      <node ref="C15" pin="2"/>
+      <node ref="C12" pin="2"/>
+      <node ref="K6" pin="1"/>
+      <node ref="C30" pin="2"/>
+      <node ref="C31" pin="2"/>
+      <node ref="K3" pin="1"/>
+      <node ref="K4" pin="1"/>
+      <node ref="K5" pin="1"/>
+      <node ref="K2" pin="1"/>
+      <node ref="U1" pin="20"/>
+      <node ref="U1" pin="6"/>
+      <node ref="C14" pin="2"/>
+      <node ref="U2" pin="9"/>
+      <node ref="C29" pin="2"/>
+      <node ref="C27" pin="2"/>
+      <node ref="C28" pin="2"/>
+    </net>
+    <net code="77" name="Net-(CN2-Pad20)">
       <node ref="R12" pin="2"/>
       <node ref="CN2" pin="20"/>
       <node ref="CN5" pin="2"/>
     </net>
-    <net code="92" name="Net-(C48-Pad1)">
-      <node ref="L4" pin="2"/>
-      <node ref="C49" pin="2"/>
-      <node ref="C48" pin="1"/>
+    <net code="78" name="Net-(R8-Pad1)">
+      <node ref="R9" pin="2"/>
+      <node ref="R8" pin="1"/>
+      <node ref="U3" pin="3"/>
     </net>
-    <net code="93" name="Net-(C47-Pad1)">
-      <node ref="C48" pin="2"/>
-      <node ref="L15" pin="2"/>
-      <node ref="C47" pin="1"/>
+    <net code="79" name="Net-(R2-Pad1)">
+      <node ref="R6" pin="1"/>
+      <node ref="R3" pin="2"/>
+      <node ref="R7" pin="2"/>
+      <node ref="R2" pin="1"/>
+    </net>
+    <net code="80" name="Net-(R4-Pad1)">
+      <node ref="U3" pin="5"/>
+      <node ref="R5" pin="1"/>
+      <node ref="R4" pin="1"/>
+    </net>
+    <net code="81" name="Net-(C47-Pad2)">
+      <node ref="C47" pin="2"/>
+      <node ref="K7" pin="2"/>
+    </net>
+    <net code="82" name="Net-(K7-Pad4)">
+      <node ref="K7" pin="5"/>
+      <node ref="K7" pin="4"/>
+    </net>
+    <net code="83" name="FilterOut">
+      <node ref="R2" pin="2"/>
+      <node ref="JP1" pin="2"/>
+      <node ref="K7" pin="6"/>
+    </net>
+    <net code="84" name="Net-(R13-Pad2)">
+      <node ref="R14" pin="1"/>
+      <node ref="R13" pin="2"/>
+      <node ref="U3" pin="6"/>
+    </net>
+    <net code="85" name="Net-(C49-Pad1)">
+      <node ref="C49" pin="1"/>
+      <node ref="K7" pin="7"/>
     </net>
   </nets>
 </export>
