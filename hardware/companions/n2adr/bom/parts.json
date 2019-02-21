@@ -314,7 +314,7 @@
 "K EC2-3NU": {
 	"mpn":["EC2-3NU","NA-3W-K"],
 	"spec":"Relay",
-	"assembly":"MTH",
+	"assembly":"TH",
 	"pins":10
 },
 
@@ -322,35 +322,42 @@
 	"mpn":["5-1814832-1"],
 	"spec":"SMA Straight",
 	"altsrc":[["www.ebay.com",1.00]],
-	"assembly":"MTH",
+	"assembly":"TH",
 	"pins":5	
 },
 
 "CN 20P": {
 	"mpn":["PRPC040SAAN-RC"],
 	"spec":"20 Pin Single Row",
-	"assembly":"MTH",
+	"assembly":"TH",
 	"pins":20
 },
 
 "CN 40P": {
 	"mpn":["PRPC040SAAN-RC"],
 	"spec":"40 Pin Dual Female",
-	"assembly":"MTH",
+	"assembly":"TH",
 	"pins":40
 },
 
 "CN Audio-Jack-2": {
 	"mpn":["RCJ-041"],
 	"spec":"External PA Jack",
-	"assembly":"MTH",
+	"assembly":"TH",
 	"pins":2
+},
+
+"CN Conn01_20": {
+	"mpn":["PRPC040SAAN-RC"],
+	"spec":"20 Pin Single Row 0.1in",
+	"assembly":"TH",
+	"pins":20
 },
 
 "L 10T": {
 	"mpn":["5977000211"],
 	"spec":"T37 Toroid",
-	"assembly":"MTH",
+	"assembly":"TH",
 	"pins":2
 },
 
@@ -361,14 +368,14 @@
 	"pins":2
 },
 
-"PB 40P": {
+"PCB 40P": {
 	"mpn":["PCB 40P"],
 	"spec":"PCB HL2 Short",
 	"assembly":"MTH",
 	"pins":40
 },
 
-"PB 5x10": {
+"PCB 5x10": {
 	"mpn":["PCB 5x10"],
 	"spec":"Main PCB",
 	"assembly":"MTH",

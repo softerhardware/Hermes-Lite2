@@ -289,8 +289,10 @@ class Component:
         ## Convert ref to sortable ascii,integer tuple
         if self.ref[1].isdigit():
             self.ref = self.ref[0],int(self.ref[1:])
-        else:
+        elif self.ref[2].isdigit():
             self.ref = self.ref[:2],int(self.ref[2:])
+        else:
+            self.ref = self.ref[:3],int(self.ref[3:])
 
     def DebugStr(self):
         ##print "{0:15}{1:5}{2:20}{3:10}{4}".format(self.key,self.quantity,self.option,self.notes,self.mpns)
