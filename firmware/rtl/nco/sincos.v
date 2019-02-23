@@ -180,7 +180,24 @@ generate
 
 endgenerate
 
+`ifdef SIMULATION
 
+logic  unsigned [17:0]  isin_opa, isin_opb, icos_opa, icos_opb;
+
+always @(posedge clk) begin
+  isin_opa <= sin_opa;
+  isin_opb <= sin_opb;
+  sin_mult_res <= isin_opa * isin_opb;
+end
+
+always @(posedge clk) begin
+  icos_opa <= cos_opa;
+  icos_opb <= cos_opb;
+  cos_mult_res <= icos_opa * icos_opb;
+end
+
+
+`else
 
 lpm_mult #( .lpm_hint("DEDICATED_MULTIPLIER_CIRCUITRY=YES,MAXIMIZE_SPEED=5"),
             .lpm_pipeline(2),
@@ -188,8 +205,7 @@ lpm_mult #( .lpm_hint("DEDICATED_MULTIPLIER_CIRCUITRY=YES,MAXIMIZE_SPEED=5"),
             .lpm_type("LPM_MULT"),
             .lpm_widtha(18),
             .lpm_widthb(18),
-            .lpm_widthp(36)) 
-
+            .lpm_widthp(36))
 sinmult (   .clock(clk),
             .dataa(sin_opa),
             .datab(sin_opb),
@@ -199,6 +215,7 @@ sinmult (   .clock(clk),
             .sclr(1'b0),
             .sum(1'b0));
 
+
 lpm_mult #( .lpm_hint("DEDICATED_MULTIPLIER_CIRCUITRY=YES,MAXIMIZE_SPEED=5"),
             .lpm_pipeline(2),
             .lpm_representation("UNSIGNED"),
@@ -206,7 +223,6 @@ lpm_mult #( .lpm_hint("DEDICATED_MULTIPLIER_CIRCUITRY=YES,MAXIMIZE_SPEED=5"),
             .lpm_widtha(18),
             .lpm_widthb(18),
             .lpm_widthp(36)) 
-
 cosmult (   .clock(clk),
             .dataa(cos_opa),
             .datab(cos_opb),
@@ -215,6 +231,8 @@ cosmult (   .clock(clk),
             .clken(1'b1),
             .sclr(1'b0),
             .sum(1'b0));
+
+`endif
 
 //    assign sin_mult_res = sin_opa * sin_opb;
 //    always @(posedge clk) begin

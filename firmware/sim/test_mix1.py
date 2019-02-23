@@ -65,7 +65,7 @@ class Test(object):
 
         src = ' '.join(srcs)
 
-        self.build_cmd = "iverilog -g2012 -o %s.vvp %s" % (self.testbench,src)
+        self.build_cmd = "iverilog -DSIMULATION -g2012 -o %s.vvp %s" % (self.testbench,src)
         print(self.build_cmd)
 
         self.res = np.zeros(16384,'complex64')

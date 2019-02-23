@@ -54,8 +54,12 @@ endmodule
 module control(
   // Internal
   clk,
+  clk_ad9866,
   
   ethup,
+  have_dhcp_ip,
+  have_fixed_ip,
+  network_speed,
   ad9866up,
 
   rxclip,
@@ -165,8 +169,12 @@ module control(
 
 // Internal
 input           clk;
+input           clk_ad9866;
 
 input           ethup;
+input           have_dhcp_ip;
+input           have_fixed_ip;
+input  [1:0]    network_speed;
 input           ad9866up;
 
 input           rxclip;
@@ -301,7 +309,7 @@ logic [31:0]  resp_cmd_data = 32'h00, resp_cmd_data_next;
 
 logic         int_ptt = 1'b0;
 
-logic [5:0]   led_count;
+logic [8:0]   led_count;
 logic         led_saturate;
 logic [11:0]  millisec_count;
 logic         millisec_pulse;
@@ -316,6 +324,8 @@ logic [15:0]  resetcounter = 16'h0000;
 logic         resetsaturate;
 
 logic [ 1:0]  clip_cnt = 2'b00;
+
+logic         led_d2, led_d3, led_d4, led_d5;
   
 localparam RESP_START   = 2'b00,
            RESP_ACK     = 2'b01,
@@ -431,12 +441,40 @@ always @(posedge clk) begin	// clock is 2.5 MHz
     millisec_pulse <= 1'b0;
   end
 end
-assign led_saturate = &led_count;
+assign led_saturate = &led_count[5:0];
 
-led_flash led_run(.clk(clk), .cnt(led_saturate), .sig(run), .led(io_led_d2));
-led_flash led_tx(.clk(clk), .cnt(led_saturate), .sig(tx_on), .led(io_led_d3));
-led_flash led_rxgoodlvl(.clk(clk), .cnt(led_saturate), .sig(rxgoodlvl), .led(io_led_d4));
-led_flash led_rxclip(.clk(clk), .cnt(led_saturate), .sig(rxclip), .led(io_led_d5));
+//led_flash led_run(.clk(clk), .cnt(led_saturate), .sig(run), .led(io_led_d2));
+//led_flash led_tx(.clk(clk), .cnt(led_saturate), .sig(tx_on), .led(io_led_d3));
+led_flash led_rxgoodlvl(.clk(clk), .cnt(led_saturate), .sig(rxgoodlvl), .led(led_d4));
+led_flash led_rxclip(.clk(clk), .cnt(led_saturate), .sig(rxclip), .led(led_d5));
+
+// For test, measure the ad9866 clock, if it is 
+logic [5:0] fast_clk_cnt;
+always @(posedge clk_ad9866) begin
+  // Count when 1x, at 76.8 MHz we should see 62 ticks when 1x is true
+  if (millisec_count[1] & ~(&fast_clk_cnt)) fast_clk_cnt <= fast_clk_cnt + 6'h01;
+  // Clear when 01 to prepare for next count
+  else if (millisec_count[0]) fast_clk_cnt <= 6'h00;
+end
+
+logic good_fast_clk;
+always @(posedge clk) begin
+  // Compute when 00
+  if (millisec_count[1:0] == 2'b00) good_fast_clk <= ~(&fast_clk_cnt);
+end
+
+// Solid when connected to software
+// Blinking to indicate good ethernet clock
+assign io_led_d2 = run ? ~run : ~(ethup & led_count[8]);
+
+// Blinking indicates fixed ip, solid indicates dhcp
+assign io_led_d3 = run ? ~tx_on : ~((have_fixed_ip & led_count[8]) | have_dhcp_ip); 
+
+// Blinks if 100 Mbps, solid if 1Gbs, off otherwise
+assign io_led_d4 = run ? led_d4 : ~(((network_speed == 2'b01) & led_count[8]) | network_speed == 2'b10);
+
+// Lights if ad9866 is up and the  clock is less than 80 MHz
+assign io_led_d5 = run ? led_d5 : ~(ad9866up & good_fast_clk);
 
 // Clear status
 always @(posedge clk) rxclrstatus <= ~rxclrstatus;

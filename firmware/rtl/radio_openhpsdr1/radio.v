@@ -428,15 +428,34 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (	// use this output fo
   //end
 
   for (c = 1; c < NR; c = c + 1) begin: MDC
-    if (c & 2'h01) begin
+
+    if (c == 1) begin
       // Build double mixer
-      mix2 #(.CALCTYPE( c == 1 ? 3 : 4)) mix2_i (
+      mix2 #(.CALCTYPE(3)) mix2_i (
         .clk(clk),
         .clk_2x(clk_2x),
         .rst(1'b0),
         .phi0(rx_phase[c]),
         .phi1(rx_phase[c+1]),
-        .adc(adcpipe[c/8]),
+        .adc(adcpipe[c/8]), 
+        .mixdata0_i(mixdata_i[c]),
+        .mixdata0_q(mixdata_q[c]),
+        .mixdata1_i(mixdata_i[c+1]),
+        .mixdata1_q(mixdata_q[c+1])
+      );
+    end
+
+    if (c == 3) begin
+      // Build double mixer
+      // Receiver 3 (zero indexed so fourth RX) is feedback for puresignal
+      // Will need to split this later if more than 4 receivers
+      mix2 #(.CALCTYPE(4)) mix2_i (
+        .clk(clk),
+        .clk_2x(clk_2x),
+        .rst(1'b0),
+        .phi0(rx_phase[c]),
+        .phi1(rx_phase[c+1]),
+        .adc( (tx_on & pure_signal) ? tx_data_dac : adcpipe[c/8]),
         .mixdata0_i(mixdata_i[c]),
         .mixdata0_q(mixdata_q[c]),
         .mixdata1_i(mixdata_i[c+1]),
@@ -454,6 +473,7 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (	// use this output fo
       .out_data_I(rx_data_i[c]),
       .out_data_Q(rx_data_q[c])
     );
+
   end
 
 end else if (RECEIVER2==1) begin

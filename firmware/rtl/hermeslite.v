@@ -129,10 +129,10 @@ localparam      NT = 1; // Transmitters
 
 // Ethernet Interface
 `ifdef BETA2
-localparam       HERMES_SERIALNO = 8'd42;     // Serial number of this version
+localparam       HERMES_SERIALNO = 8'd43;     // Serial number of this version
 localparam       MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h12,8'hdd};
 `else 
-localparam       HERMES_SERIALNO = 8'd62;     // Serial number of this version
+localparam       HERMES_SERIALNO = 8'd63;     // Serial number of this version
 localparam       MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd};
 `endif
 localparam       IP = {8'd0,8'd0,8'd0,8'd0};
@@ -226,7 +226,8 @@ logic           broadcast;
 logic           udp_rx_active;
 logic [ 7:0]    udp_rx_data;
 
-logic           network_state;
+logic           network_state_dhcp, network_state_fixedip;
+logic [ 1:0]    network_speed;
 
 logic [47:0]    local_mac;
 
@@ -395,8 +396,9 @@ network network_inst(
   .static_ip(IP),
   .local_mac(local_mac),
   .speed_1gb(speed_1gb),
-  .network_state(network_state),
-  .network_status(),
+  .network_state_dhcp(network_state_dhcp),
+  .network_state_fixedip(network_state_fixedip),
+  .network_speed(network_speed),
 
   .PHY_TX(phy_tx),
   .PHY_TX_EN(phy_tx_en),
@@ -514,7 +516,7 @@ sync_pulse sync_pulse_usopenhpsdr1 (
 
 usopenhpsdr1 #(.NR(NR), .HERMES_SERIALNO(HERMES_SERIALNO)) usopenhpsdr1_i (
   .clk(clock_ethtxint),
-  .have_ip(~network_state), // network_state is on sync 2.5 MHz domain
+  .have_ip(~(network_state_dhcp & network_state_fixedip)), // network_state is on sync 2.5 MHz domain
   .run(run_sync),
   .wide_spectrum(wide_spectrum_sync),
   .idhermeslite(io_cn9),
@@ -724,8 +726,12 @@ sync syncio_run (
 control #(.HERMES_SERIALNO(HERMES_SERIALNO)) control_i (
   // Internal
   .clk(clk_ctrl),
+  .clk_ad9866(clk_ad9866), // Just for measurement
 
   .ethup(ethup),
+  .have_dhcp_ip(~network_state_dhcp),
+  .have_fixed_ip(~network_state_fixedip),
+  .network_speed(network_speed),
   .ad9866up(ad9866up),
 
   .rxclip(rxclip_iosync),

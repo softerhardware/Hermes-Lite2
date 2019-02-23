@@ -45,8 +45,8 @@ always @(posedge clk) begin
   q_data_d <= $signed(adc) * ssin_q;
 end
 
-assign i_data = i_data_d[28:11];
-assign q_data = q_data_d[28:11];
+assign i_data = i_data_d[28:11] + {17'h00,i_data_d[10]};
+assign q_data = q_data_d[28:11] + {17'h00,q_data_d[10]};
 
 endmodule 
 
