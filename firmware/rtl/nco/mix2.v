@@ -32,6 +32,7 @@ logic         [18:0]  cos, scos;
 
 logic  signed [17:0]  ssin_q, scos_q;
 logic  signed [35:0]  i_data_d, q_data_d;  
+logic  signed [18:0]  i_rounded, q_rounded;
 
 logic signed  [11:0]  adci, adcq;
 
@@ -70,13 +71,16 @@ always @(posedge clk_2x) begin
   q_data_d <= $signed(adcq) * ssin_q;
 end
 
+assign i_rounded = i_data_d[28:11] + {17'h00,i_data_d[10]};
+assign q_rounded = q_data_d[28:11] + {17'h00,q_data_d[10]};
+
 always @(posedge clk_2x) begin
   if (~state) begin
-    mixdata0_i <= i_data_d[28:11];
-    mixdata0_q <= q_data_d[28:11];
+    mixdata0_i <= i_rounded;
+    mixdata0_q <= q_rounded;
   end else begin
-    mixdata1_i <= i_data_d[28:11];
-    mixdata1_q <= q_data_d[28:11];
+    mixdata1_i <= i_rounded;
+    mixdata1_q <= q_rounded;
   end
 end
 
