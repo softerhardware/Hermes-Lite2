@@ -1,7 +1,7 @@
 Hermes-Lite 2.x Gateware
 ========================
 
-20190223 Release
+## 20190223 Release
 
 * Fixed small DC spur in new NCO.
 * Enabled PureSignal for 4 RX architecture. The TX feedback is now on receiver 4. PowerSDR users may need to select a model other than Anan10E.
