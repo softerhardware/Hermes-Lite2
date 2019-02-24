@@ -312,10 +312,12 @@
 },
 
 "K EC2-3NU": {
-	"mpn":["EC2-3NU","NA-3W-K"],
+	"mpn":["EC2-3NU","EC2-3NJ"],
 	"spec":"Relay",
 	"assembly":"TH",
-	"pins":10
+	"pins":10,
+	"sub":0,
+	"aliexpress":"EC2-3NJ"
 },
 
 "CN SMA": {
@@ -323,7 +325,8 @@
 	"spec":"SMA Straight",
 	"altsrc":[["www.ebay.com",1.00]],
 	"assembly":"TH",
-	"pins":5	
+	"pins":5,
+	"aliexpress":"ELECAPITAL End Launch PCB Mount SMA Female"
 },
 
 "CN 20P": {
@@ -344,28 +347,33 @@
 	"mpn":["RCJ-041"],
 	"spec":"External PA Jack",
 	"assembly":"TH",
-	"pins":2
+	"pins":2,
+	"aliexpress":"MAXRUINOR RCA Socket PCB"
 },
 
-"CN Conn01_20": {
-	"mpn":["PRPC040SAAN-RC"],
+"CN Conn_01x20": {
+	"mpn":["PRPC020SAAN-RC"],
 	"spec":"20 Pin Single Row 0.1in",
 	"assembly":"TH",
-	"pins":20
+	"pins":20,
+	"badaliexpress":"20Pin 2.54mm Single Row Straight Male Pin Header"
 },
 
 "L 10T": {
 	"mpn":["5977000211"],
 	"spec":"T37 Toroid",
 	"assembly":"TH",
-	"pins":2
+	"pins":5,
+	"sub":0
 },
 
 "JP 1T": {
 	"mpn":["400R0111-24-9"],
-	"spec":"Toroid Wire",
+	"altmpn":["400R0111-24-9","55A0111-24-9"],
+	"spec":"21cm PFTE silver plated 24to30AWG wire",
 	"assembly":"MTH",
-	"pins":2
+	"pins":5,
+	"aliexpress":"PFTE Teflon Silver Plated Wire 30AWG"
 },
 
 "PCB 40P": {

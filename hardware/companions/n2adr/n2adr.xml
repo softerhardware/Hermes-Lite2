@@ -2,7 +2,7 @@
 <export version="D">
   <design>
     <source>/home/shaynal/Hermes-Lite2/hardware/companions/n2adr/n2adr.sch</source>
-    <date>Wed 20 Feb 2019 09:10:06 PM PST</date>
+    <date>Sat 23 Feb 2019 09:00:22 PM PST</date>
     <tool>Eeschema 5.0.2-bee76a0~70~ubuntu16.04.1</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -225,9 +225,6 @@
     <comp ref="CN4">
       <value>SMA</value>
       <footprint>Local:BNCEDGE</footprint>
-      <fields>
-        <field name="Option">ADNI</field>
-      </fields>
       <libsource lib="n2adr" part="BNC" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>598F65F5</tstamp>
@@ -704,9 +701,6 @@
     <comp ref="CN3">
       <value>SMA</value>
       <footprint>Local:BNCEDGE</footprint>
-      <fields>
-        <field name="Option">ADNI</field>
-      </fields>
       <libsource lib="n2adr" part="BNC" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>59D9F834</tstamp>
@@ -777,9 +771,6 @@
     <comp ref="CN1">
       <value>Audio-Jack-2</value>
       <footprint>Local:PhonoRcaRCJ-04x</footprint>
-      <fields>
-        <field name="Option">ADNI</field>
-      </fields>
       <libsource lib="n2adr" part="Audio-Jack-2" description=""/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>5A0A1986</tstamp>

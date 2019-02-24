@@ -85,10 +85,11 @@ special = {
     "T37-6":[Quote(Decimal(0.25),'*Kits&Parts','http://www.kitsandparts.com','','T37-6','T37-6')],
     "RD15HVF1":[Quote(Decimal(4.00),'*AliExpress','http://www.aliexpress.com','Mitsubishi','RD15HVF1','RD15HVF1')],
     "PCB":[Quote(Decimal(18.00),'*Tindie','http://www.tindie.com','Elecrow','','PCB')],
+    "PCB 40P":[Quote(Decimal(1.00),'*Elecrow','http://www.elecrow.com','Elecrow','','PCB Short to HL2')],
+    "PCB 5x10":[Quote(Decimal(4.00),'*Elecrow','http://www.elecrow.com','Elecrow','','PCB Main Board')],
     "AK-C-C12":[Quote(Decimal(16.78),'*AliExpress','https://www.aliexpress.com/item/4-pieces-a-lot-top-sales-china-die-casting-aluminum-housing-55-106-150-mm/1243767700.html','Various','','Aluminum 100x100x50')],
     "PROG":[Quote(Decimal(3.00),'*EBay','http://www.ebay.com/itm/altera-Mini-Usb-Blaster-Cable-For-CPLD-FPGA-NIOS-JTAG-Altera-Programmer-/200943750380?hash=item2ec92e4cec:g:YyMAAOSw0fhXieqQ','Various','','USB Blaster')],
     "30AWG Teflon PFTE":[Quote(Decimal(0.25),'*AliExpress','https://www.aliexpress.com/item/30AWG-Imported-Teflon-Silver-Plated-Copper-Wires-high-temperature-cable-headphone-Line-10-Meters/32530506093.html','Various','','PFTE Tef SilPlated 30AWG')]
-
 }
 
 ## Override for problems with OctoPart
@@ -98,7 +99,6 @@ overrides = {
     ##"ST1S10PHR":[Quote(Decimal(1.82),'Digi-Key','http://www.digikey.com','','ST1S10PHR','ST1S10PHR')],
     "ASTXR-12-38.400MHZ-514054-T":[Quote(Decimal(2.12),'Digi-Key','http://www.digikey.com','','535-13192-1-ND','ASTXR-12-38.400MHZ-514054-T')],
     "AP2204MP-ADJTRG1":[Quote(Decimal(0.47),'Digi-Key','http://www.digikey.com','','AP2204MP-ADJTRG1','AP2204MP-ADJTRG1')],
-
 }
 
 #overrides = {}
@@ -224,6 +224,12 @@ class Component:
                 self.ext = '0603'
             elif '0805' in fp:
                 self.ext = '0805'
+            elif "1206" in fp:
+                self.ext = "1206"
+            elif "1210" in fp:
+                self.ext = "1210"
+            elif "1812" in fp:
+                self.ext = "1812"
         except:
             pass
 
@@ -283,8 +289,10 @@ class Component:
         ## Convert ref to sortable ascii,integer tuple
         if self.ref[1].isdigit():
             self.ref = self.ref[0],int(self.ref[1:])
-        else:
+        elif self.ref[2].isdigit():
             self.ref = self.ref[:2],int(self.ref[2:])
+        else:
+            self.ref = self.ref[:3],int(self.ref[3:])
 
     def DebugStr(self):
         ##print "{0:15}{1:5}{2:20}{3:10}{4}".format(self.key,self.quantity,self.option,self.notes,self.mpns)
@@ -325,8 +333,12 @@ class Part:
                 self.package = '0805'
             elif '0603' in self.spec or self.components[0].ext == '0603': 
                 self.package = '0603' 
-            elif '1206' in self.spec:
+            elif '1206' in self.spec or self.components[0].ext == '1206':
                 self.package = '1206'
+            elif '1210' in self.spec or self.components[0].ext == '1210':
+                self.package = '1210'
+            elif '1812' in self.spec or self.components[0].ext == '1812':
+                self.package = '1812'                
             else:
                 self.package = "Custom"
 
@@ -447,32 +459,29 @@ class Part:
 
         return res
 
-
     def LaTeXAssemblyLinks(self):
 
+        url = ""
         if self.aliexpress:
-            url = '\href{{http://www.aliexpress.com/wholesale?SearchText={0}}}{{{1}}}'.format(self.aliexpress,self.mpns[0])
-        else:
-            url = ""
-            for mpn in self.mpns:
-                url = url + ' \href{{http://www.octopart.com/search?q={0}}}{{{1}}}'.format(mpn,mpn)
-            ##url = '\href{{http://www.octopart.com/search?q={0}}}{{{1}}}'.format(self.mpns[0],self.mpns[0])
+            url = '\href{{http://www.aliexpress.com/wholesale?SearchText={0}}}{{{1}}}'.format(self.aliexpress,"AliExpress")
 
-        ##for mpn in self.mpns:
-        ##    urls.append('\href{{http://www.octopart.com/search?q={0}}}{{{1}}}'.format(mpn,i) )
-        
+        for mpn in self.mpns:
+            url = url + '  \href{{http://www.octopart.com/search?q={0}}}{{{1}}}'.format(mpn,mpn)
+
         return url
 
     def CSVAssemblyLinks(self):
-        if self.aliexpress:
-            url = '=HYPERLINK("http://www.aliexpress.com/wholesale?SearchText={0}")'.format(self.aliexpress)
-        else:
-            url = '=HYPERLINK("http://www.octopart.com/search?q={0}")'.format(self.mpns[0])
 
-        ##for mpn in self.mpns:
-        ##    urls.append('\href{{http://www.octopart.com/search?q={0}}}{{{1}}}'.format(mpn,i) )
+        url = ""
+        if self.aliexpress:
+            url = '"=HYPERLINK("http://www.aliexpress.com/wholesale?SearchText={0}")"'.format(self.aliexpress)
         
-        return url        
+        for mpn in self.mpns:
+            if url != "":
+                url = url +', '
+            url = url + '"=HYPERLINK("http://www.octopart.com/search?q={0}")"'.format(mpn)
+        
+        return url
 
     def DNIRefs(self,options):
         return [c.ref for c in self.components if (c.option not in options and "NOBOM" not in c.key)]
@@ -685,7 +694,7 @@ class BOM:
         f.close()
 
 
-    def LaTeXAssemblyPrint(self,pre="",prefer=None,linenumber=True):
+    def LaTeXAssemblyPrint(self,pre="",prefer=None):
         keys = self.parts.keys()
         keys.sort(key=lambda x: self.parts[x].FirstRef(self.optionset))
         ##keys.sort(key=lambda x: self.parts[x].components[0].ref)
@@ -709,7 +718,6 @@ class BOM:
 
         c1 = 0
         for k in keys:
-            ##print "Key is",k
             p = self.parts[k]
 
             dni.extend(p.DNIRefs(self.optionset))
@@ -717,10 +725,7 @@ class BOM:
             c8 = p.Quantities(self.optionset)[0]
             if c8 == 0: continue
 
-            if linenumber:
-                c1 = c1+1
-            else:
-                c1 = p.ecid
+            c1 = c1+1 ##c1 = p.ecid
             c2 = LaTeXEscape(p.spec)
             c3 = p.LaTeXAssemblyLinks()
             c4 = p.sub
@@ -758,13 +763,16 @@ class BOM:
 
         f.close()
 
-    def CSVAssemblyPrint(self,prefer=None):
+    def CSVAssemblyPrint(self,prefer=None,ecid=False):
         keys = self.parts.keys()
         keys.sort(key=lambda x: self.parts[x].FirstRef(self.optionset))
 
         f = open("bomassembly.csv","w")
 
-        s = '"Line", "Part ID", "Description", "Part Number", "Substitution\nOkay", "Designators", "Footprint", "Pins", "Quantity", "Part Reference Link"'
+        if ecid:
+            s = '"Line", "Part ID", "Description", "Part Number", "Substitution\nOkay", "Designators", "Footprint", "Pins", "Quantity", "Part Reference Link"'
+        else:
+            s = '"Line", "Description", "Part Number", "Substitution\nOkay", "Designators", "Footprint", "Pins", "Quantity", "Part Reference Links"'
         print >>f,s
 
         # itemspartspins
@@ -792,7 +800,7 @@ class BOM:
             c3 = ""
             for mpn in p.mpns:
                 if c3 == "": c3 = mpn
-                else: c3 = c3 + "\n" + mpn 
+                else: c3 = c3 + "\n" + mpn
             c4 = p.sub
             c5 = p.CSVRefs(self.optionset)
             c6 = p.package
@@ -802,9 +810,10 @@ class BOM:
             items,parts,pins = ipp[p.assembly]
             ipp[p.assembly] = items+1,parts+c8,pins+(p.pins*c8)
 
-            s = '{9}, {0}, "{1}", "{2}", {3}, "{4}", "{5}", {6}, {7}, "{8}"'.format(c1,c2,c3,c4,c5,c6,c7,c8,c9,c0)
-            
-            ##print c1,c2,c3,c4,c5,c6,c7,c8
+            if ecid:
+                s = '{9}, {0}, "{1}", "{2}", {3}, "{4}", "{5}", {6}, {7}, {8}'.format(c1,c2,c3,c4,c5,c6,c7,c8,c9,c0)
+            else:
+                s = '{0}, "{1}", "{2}", {3}, "{4}", "{5}", {6}, {7}, {8}'.format(c0,c2,c3,c4,c5,c6,c7,c8,c9)
             
             print >>f,s
 

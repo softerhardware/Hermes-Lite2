@@ -864,7 +864,7 @@
 	"mpn":["B62152A4X30"],
 	"spec":"4:1 RF Transformer",
 	"assembly":"TH",
-	"pins":4,
+	"pins":5,
 	"sub":0
 	},
 
@@ -901,7 +901,7 @@
 "W 21": {
 	"mpn":["30AWG Teflon PFTE"],
 	"altmpn":["400R0111-24-9","55A0111-24-9"],
-	"spec":"21cm PFTE 24to30AWG wire",
+	"spec":"21cm PFTE silver plated 24to30AWG wire",
 	"assembly":"MTH",
 	"pins":5,
 	"aliexpress":"PFTE Teflon Silver Plated Wire 30AWG"
