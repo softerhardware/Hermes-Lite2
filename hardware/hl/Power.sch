@@ -6,7 +6,7 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 2 7
 Title "Power"
-Date "2019-02-16"
+Date "2019-02-23"
 Rev "2.0-build8"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
@@ -3101,7 +3101,7 @@ Wire Wire Line
 Wire Wire Line
 	1925 3475 2075 3475
 Wire Wire Line
-	1475 2950 1475 3475
+	1475 2950 1475 3150
 Connection ~ 1475 3475
 Wire Wire Line
 	1475 3850 1475 3925
@@ -3888,4 +3888,44 @@ Wire Wire Line
 	1950 4600 1950 4850
 Wire Wire Line
 	1950 4850 1950 5000
+$Comp
+L hermeslite:TEST_1P MH?
+U 1 1 5C79B307
+P 1500 3150
+AR Path="/5C79B307" Ref="MH?"  Part="1" 
+AR Path="/56C9CAA0/5C79B307" Ref="MH7"  Part="1" 
+F 0 "MH7" V 1500 3400 39  0000 C CNN
+F 1 "DNI" H 1500 3350 50  0001 C CNN
+F 2 "HERMESLITE:m1d1" H 1700 3150 50  0001 C CNN
+F 3 "" H 1700 3150 50  0000 C CNN
+F 4 "DNI" H 1500 3150 60  0001 C CNN "Option"
+F 5 "NOBOM" H 1500 3150 60  0001 C CNN "Key"
+	1    1500 3150
+	0    1    1    0   
+$EndComp
+$Comp
+L hermeslite:TEST_1P MH?
+U 1 1 5C81309B
+P 1500 3250
+AR Path="/5C81309B" Ref="MH?"  Part="1" 
+AR Path="/56C9CAA0/5C81309B" Ref="MH8"  Part="1" 
+F 0 "MH8" V 1500 3500 39  0000 C CNN
+F 1 "DNI" H 1500 3450 50  0001 C CNN
+F 2 "HERMESLITE:m1d1" H 1700 3250 50  0001 C CNN
+F 3 "" H 1700 3250 50  0000 C CNN
+F 4 "DNI" H 1500 3250 60  0001 C CNN "Option"
+F 5 "NOBOM" H 1500 3250 60  0001 C CNN "Key"
+	1    1500 3250
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	1500 3150 1475 3150
+Connection ~ 1475 3150
+Wire Wire Line
+	1475 3150 1475 3250
+Wire Wire Line
+	1500 3250 1475 3250
+Connection ~ 1475 3250
+Wire Wire Line
+	1475 3250 1475 3475
 $EndSCHEMATC
