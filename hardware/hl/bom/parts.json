@@ -54,7 +54,7 @@
 	"sub":1
 	},
 
-"C 10uF HV": {
+"C 10uF 1206 HV": {
 	"mpn":["CL31A106KAHNNNE","TMK316AB7106KL-T","TMK316BJ106ML-T"],
 	"spec":"10uF 1206>=X5R>=25V<=20%",
 	"assembly":"SMT",
@@ -72,7 +72,7 @@
 	"sub":1
 	},
 
-"C 100uF": {
+"C 100uF 1210": {
 	"mpn":["GRM31CR60J107ME39K"],
 	"spec":"100uF 1206>=X5R>=6.3V<=20%",
 	"assembly":"SMT",
@@ -598,7 +598,7 @@
 	"ecid":23666
 	},
 
-"R 0.04": {
+"R 0.04 1206": {
 	"mpn":["RL1206FR-070R04L","PE1206FRM070R04L"],
 	"spec":"0.04 1206<=1%>=1/4W",
 	"assembly":"SMT",
@@ -632,14 +632,16 @@
 	"mpn":["PJ-102AH"],
 	"spec":"Power",
 	"assembly":"TH",
-	"pins":3
+	"pins":3,
+	"aliexpress":"DIKAVS DC005"
 	},
 
 "CN STEREO": {
 	"mpn":["SJ1-3525N"],
 	"spec":"CW Jack",
 	"assembly":"TH",
-	"pins":5
+	"pins":5,
+	"aliexpress":"PJ-307"
 	},	
 
 "CN MagJack": {
@@ -869,12 +871,13 @@
 	},
 
 "K NA3WK-K": {
-	"mpn":["EC2-3NU","NA-3W-K"],
+	"mpn":["EC2-3NU","EC2-3NJ"],
+	"altpmn":["NA-3W-K"],
 	"spec":"Relay",
 	"assembly":"TH",
 	"pins":10,
 	"sub":0,
-	"aliexpress":"EC2-3NU"
+	"aliexpress":"EC2-3NJ"
 	},	
 
 "CASE": {
@@ -899,11 +902,11 @@
 	},
 
 "W 21": {
-	"mpn":["30AWG Teflon PFTE"],
+	"mpn":["400R0111-24-9"],
 	"altmpn":["400R0111-24-9","55A0111-24-9"],
 	"spec":"21cm PFTE silver plated 24to30AWG wire",
-	"assembly":"MTH",
-	"pins":5,
+	"assembly":"TH",
+	"pins":0,
 	"aliexpress":"PFTE Teflon Silver Plated Wire 30AWG"
 	}
 }

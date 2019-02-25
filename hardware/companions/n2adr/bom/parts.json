@@ -371,8 +371,8 @@
 	"mpn":["400R0111-24-9"],
 	"altmpn":["400R0111-24-9","55A0111-24-9"],
 	"spec":"21cm PFTE silver plated 24to30AWG wire",
-	"assembly":"MTH",
-	"pins":5,
+	"assembly":"TH",
+	"pins":0,
 	"aliexpress":"PFTE Teflon Silver Plated Wire 30AWG"
 },
 
