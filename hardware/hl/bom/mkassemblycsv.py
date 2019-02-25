@@ -9,6 +9,6 @@ optionset = set([])
 bom = BOM.BOM("../hermeslite.xml",optionset=optionset)
 
 
-bom.CSVAssemblyPrint(['Mouser','Digi-Key'])
+bom.CSVAssemblyPrint(['Mouser','Digi-Key'],ecid=True)
 
 

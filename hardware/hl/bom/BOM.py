@@ -92,11 +92,12 @@ special = {
     "30AWG Teflon PFTE":[Quote(Decimal(0.25),'*AliExpress','https://www.aliexpress.com/item/30AWG-Imported-Teflon-Silver-Plated-Copper-Wires-high-temperature-cable-headphone-Line-10-Meters/32530506093.html','Various','','PFTE Tef SilPlated 30AWG')]
 }
 
-## Override for problems with OctoPart
+## Override for problems with OctoPart or to point to other source
 overrides = {
     ##"OPA2677IDDA":[Quote(Decimal(3.90),'Digi-Key','http://www.digikey.com','','OPA2677IDDA','OPA2677IDDA')],
     ##"INA199A1DC":[Quote(Decimal(0.84),'Mouser','http://www.mouser.com','','INA199A1DC','INA199A1DC')],
     ##"ST1S10PHR":[Quote(Decimal(1.82),'Digi-Key','http://www.digikey.com','','ST1S10PHR','ST1S10PHR')],
+    "AD9866BCPZ":[Quote(Decimal(27.30),'Analog Devices','https://www.analog.com/en/products/ad9866.html#product-samplebuy','','AD9866BCPZ','AD9866BCPZ')],
     "ASTXR-12-38.400MHZ-514054-T":[Quote(Decimal(2.12),'Digi-Key','http://www.digikey.com','','535-13192-1-ND','ASTXR-12-38.400MHZ-514054-T')],
     "AP2204MP-ADJTRG1":[Quote(Decimal(0.47),'Digi-Key','http://www.digikey.com','','AP2204MP-ADJTRG1','AP2204MP-ADJTRG1')],
 }
@@ -462,8 +463,11 @@ class Part:
     def LaTeXAssemblyLinks(self):
 
         url = ""
-        if self.aliexpress:
-            url = '\href{{http://www.aliexpress.com/wholesale?SearchText={0}}}{{{1}}}'.format(self.aliexpress,"AliExpress")
+        try:
+            if self.aliexpress:
+                url = '\href{{http://www.aliexpress.com/wholesale?SearchText={0}}}{{{1}}}'.format(self.aliexpress,"AliExpress")
+        except:
+            pass #print "No aliexpress for",self.spec
 
         for mpn in self.mpns:
             url = url + '  \href{{http://www.octopart.com/search?q={0}}}{{{1}}}'.format(mpn,mpn)
@@ -539,7 +543,7 @@ class BOM:
                 print "WARNING: {0} in parts catalog but not used in design".format(k)
             else:
                 ##if k == 'CASE':
-                ##    print "Adding key",k,v
+                ##print "Adding key",k,v
                 p = self.parts[k]
                 p.AddPartSel(v)
 
@@ -724,6 +728,9 @@ class BOM:
 
             c8 = p.Quantities(self.optionset)[0]
             if c8 == 0: continue
+            if p.spec == "":
+                print "WARNING: Empty instance"
+                continue
 
             c1 = c1+1 ##c1 = p.ecid
             c2 = LaTeXEscape(p.spec)
