@@ -88,8 +88,8 @@ module hermeslite(
   output          io_led_d5,
   input           io_lvds_rxn,
   input           io_lvds_rxp,
-  output          io_lvds_txn, // TX envelope PWM
-  output          io_lvds_txp,
+  output          io_lvds_txn, // also TX envelope PWM inverted
+  output          io_lvds_txp, // also TX envelope PWM
   input           io_cn8,
   input           io_cn9,
   input           io_cn10,
@@ -140,7 +140,9 @@ localparam       IP = {8'd0,8'd0,8'd0,8'd0};
 // ADC Oscillator
 localparam       CLK_FREQ = 76800000;
 
-// Downstream audio channel usage. 0=not used, 1=predistortion, 2=TX envelope PWM
+// Downstream audio channel usage:
+//   0=not used, 1=predistortion, 2=TX envelope PWM
+//   when using the TX envelope PWM reduce the number of receivers (NR) above by 1
 localparam      LRDATA = 0;
 
 logic   [5:0]   cmd_addr;
@@ -679,7 +681,8 @@ radio_i
   .tx_data_dac(tx_data),
 
   .clk_envelope(clk_envelope),
-  .tx_envelope_pwm_out(io_lvds_txn),
+  .tx_envelope_pwm_out(io_lvds_txp),
+  .tx_envelope_pwm_out_inv(io_lvds_txn),
 
   // Optional Audio Stream
   .lr_tdata({dslr_tdata[7:0],dslr_tdata[15:8],dslr_tdata[23:16],dslr_tdata[31:24]}),
@@ -861,7 +864,6 @@ control #(.HERMES_SERIALNO(HERMES_SERIALNO)) control_i (
 `endif
 );
 
-assign io_lvds_txp = 1'b0;
 
 assign scl1_i = clk_scl1;
 assign clk_scl1 = scl1_t ? 1'bz : scl1_o;
