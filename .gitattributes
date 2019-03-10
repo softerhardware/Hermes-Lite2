@@ -1,0 +1,6 @@
+hardware/hl/bom/* linguist-vendored
+hardware/hl/libs/* linguist-vendored
+hardware/hl/releases/* linguist-vendored
+hardware/hl/gerber/* linguist-vendored
+hardware/companions/* linguist-vendored
+gateware/bitfiles/* linguist-vendored
