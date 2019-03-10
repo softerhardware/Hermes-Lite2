@@ -368,12 +368,12 @@
 },
 
 "JP 1T": {
-	"mpn":["400R0111-24-9"],
+	"mpn":[],
 	"altmpn":["400R0111-24-9","55A0111-24-9"],
-	"spec":"21cm PFTE silver plated 24to30AWG wire",
+	"spec":"21cm Enameled Coopper Wire 24AWG",
 	"assembly":"TH",
 	"pins":0,
-	"aliexpress":"PFTE Teflon Silver Plated Wire 30AWG"
+	"aliexpress":"Magnet Wire 0.5mm Enameled Copper Wire"
 },
 
 "PCB 40P": {
