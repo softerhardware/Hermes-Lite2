@@ -268,6 +268,14 @@ logic           resp_rqst, resp_rqst_iosync;
 
 logic           watchdog_up, watchdog_up_sync;
 
+logic           dsethasmi_erase, dsethasmi_erase_ack;
+logic           usethasmi_send_more, usethasmi_erase_done, usethasmi_ack;
+logic [13:0]    asmi_cnt = 14'h0000;
+logic           dsethasmi_tvalid;
+
+logic [ 7:0]    asmi_data;
+logic [ 9:0]    asmi_rx_used;
+logic           asmi_rdreq;
 
 /////////////////////////////////////////////////////
 // Clocks
@@ -444,7 +452,13 @@ dsopenhpsdr1 dsopenhpsdr1_i (
   .dsethiq_tvalid(dsethiq_tvalid),
   .dsethiq_tlast(dsethiq_tlast),
   .dsethlr_tvalid(dsethlr_tvalid),
-  .dsethlr_tlast(dsethlr_tlast)
+  .dsethlr_tlast(dsethlr_tlast),
+
+  .dsethasmi_tvalid(dsethasmi_tvalid),
+  .dsethasmi_tlast(),
+  .asmi_cnt(asmi_cnt),
+  .dsethasmi_erase(dsethasmi_erase),
+  .dsethasmi_erase_ack(dsethasmi_erase_ack)
 );
 
 dsiq_fifo #(.depth(16384)) dsiq_fifo_i (
@@ -546,7 +560,11 @@ usopenhpsdr1 #(.NR(NR), .HERMES_SERIALNO(HERMES_SERIALNO)) usopenhpsdr1_i (
   .resp(resp),
   .resp_rqst(resp_rqst),
 
-  .watchdog_up(watchdog_up)
+  .watchdog_up(watchdog_up),
+
+  .usethasmi_send_more(usethasmi_send_more),
+  .usethasmi_erase_done(usethasmi_erase_done),
+  .usethasmi_ack(usethasmi_ack)
 );
 
 usiq_fifo usiq_fifo_i (
@@ -857,5 +875,36 @@ assign scl3_i = io_adc_scl;
 assign io_adc_scl = scl3_t ? 1'bz : scl3_o;
 assign sda3_i = io_adc_sda;
 assign io_adc_sda = sda3_t ? 1'bz : sda3_o;
+
+
+asmi_fifo asmi_fifo_i (
+  .wrclk (clock_ethrxint),
+  .wrreq(dsethasmi_tvalid), 
+  .data (dseth_tdata),
+
+  .rdreq (asmi_rdreq),
+  .rdclk (clk_ctrl),  
+  .q (asmi_data),
+  .rdusedw(asmi_rx_used),
+
+  .aclr(1'b0)
+);
+
+
+asmi_interface asmi_interface_i (
+  .clock(clk_ctrl),
+  .busy(),
+  .erase(dsethasmi_erase),
+  .erase_ACK(dsethasmi_erase_ack),
+  .IF_Rx_used(asmi_rx_used),
+  .rdreq(asmi_rdreq),
+  .IF_PHY_data(asmi_data),
+  .erase_done(usethasmi_erase_done),
+  .erase_done_ACK(usethasmi_ack),
+  .send_more(usethasmi_send_more),
+  .send_more_ACK(usethasmi_ack),
+  .num_blocks(asmi_cnt),
+  .NCONFIG()
+); 
 
 endmodule

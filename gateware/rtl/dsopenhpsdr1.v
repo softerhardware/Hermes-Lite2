@@ -24,7 +24,13 @@ module dsopenhpsdr1 (
   dsethiq_tvalid,
   dsethiq_tlast,
   dsethlr_tvalid,
-  dsethlr_tlast
+  dsethlr_tlast,
+
+  dsethasmi_tvalid,
+  dsethasmi_tlast,
+  asmi_cnt,
+  dsethasmi_erase,
+  dsethasmi_erase_ack
 );
 
 input               clk;
@@ -52,6 +58,11 @@ output              dsethiq_tvalid;
 output              dsethiq_tlast;
 output              dsethlr_tvalid;
 output              dsethlr_tlast;
+output              dsethasmi_tvalid;
+output              dsethasmi_tlast;
+output logic [13:0] asmi_cnt = 14'h000;
+output              dsethasmi_erase;
+input               dsethasmi_erase_ack;
 
 
 localparam START        = 'h00,
@@ -63,8 +74,14 @@ localparam START        = 'h00,
            SEQNO3       = 'h06,
            SEQNO2       = 'h07,
            SEQNO1       = 'h08,           
-           SEQNO0       = 'h0a,
-
+           SEQNO0       = 'h09,
+           ASMI_DECODE  = 'h2a,
+           ASMI_CNT3    = 'h2b,
+           ASMI_CNT2    = 'h2c,
+           ASMI_CNT1    = 'h2d,
+           ASMI_CNT0    = 'h2e,                                 
+           ASMI_PROGRAM = 'h2f,
+           ASMI_ERASE   = 'h20,
            SYNC2        = 'h10,
            SYNC1        = 'h11,
            SYNC0        = 'h12,
@@ -83,14 +100,14 @@ localparam START        = 'h00,
            PUSHQ0       = 'h1f;
 
 
-logic   [ 4:0]  state = START;
-logic   [ 4:0]  state_next;
+logic   [ 5:0]  state = START;
+logic   [ 5:0]  state_next;
 
-logic   [ 5:0]  pushcnt = 6'h00;
-logic   [ 5:0]  pushcnt_next; 
+logic   [ 7:0]  pushcnt = 8'h00;
+logic   [ 7:0]  pushcnt_next; 
 
-logic           framecnt = 1'b0;
-logic           framecnt_next; 
+//logic           framecnt = 1'b0;
+//logic           framecnt_next; 
 
 logic           run_next;
 logic           wide_spectrum_next;
@@ -105,15 +122,18 @@ logic           watchdog_clr;
 
 logic   [ 9:0]  watchdog_cnt = 10'h00;
 
+logic   [13:0]  asmi_cnt_next;
+
 // State
 always @ (posedge clk) begin
   pushcnt <= pushcnt_next;
-  framecnt <= framecnt_next;
+  //framecnt <= framecnt_next;
   cmd_resprqst <= cmd_resprqst_next;
   cmd_addr <= cmd_addr_next;
   cmd_ptt <= cmd_ptt_next;
   cmd_data <= cmd_data_next;
-  cmd_cnt <= cmd_cnt_next;  
+  cmd_cnt <= cmd_cnt_next; 
+  asmi_cnt <= asmi_cnt_next; 
   if ((eth_unreachable) | &watchdog_cnt) begin
     state <= START;
     run <= 1'b0;
@@ -135,12 +155,13 @@ always @* begin
   run_next = run;
   wide_spectrum_next = wide_spectrum;
   pushcnt_next = pushcnt;
-  framecnt_next = framecnt;
+  //framecnt_next = framecnt;
   cmd_resprqst_next = cmd_resprqst;
   cmd_addr_next = cmd_addr;
   cmd_ptt_next = cmd_ptt;
   cmd_data_next = cmd_data;
   cmd_cnt_next = cmd_cnt;
+  asmi_cnt_next = asmi_cnt;
 
   // Combinational output
   eth_metis_discovery = 1'b0;
@@ -150,9 +171,13 @@ always @* begin
   dsethiq_tlast  = 1'b0;
   dsethlr_tlast  = 1'b0;
 
+  dsethasmi_tvalid = 1'b0;
+  dsethasmi_tlast  = 1'b0;
+  dsethasmi_erase  = 1'b0;
+
   case (state)
     START: begin
-      framecnt_next = 1'b0;
+      //framecnt_next = 1'b0;
       if ((eth_data == 8'hef) & (eth_port == 1024)) state_next = PREAMBLE;
     end
 
@@ -164,6 +189,7 @@ always @* begin
       if (eth_data == 8'h01) state_next = ENDPOINT;
       else if (eth_data == 8'h04) state_next = RUNSTOP;
       else if ((eth_data == 8'h02) & eth_broadcast) state_next = DISCOVERY;
+      else if (eth_data == 8'h03) state_next = ASMI_DECODE;
     end
 
     RUNSTOP: begin
@@ -173,6 +199,48 @@ always @* begin
 
     DISCOVERY: begin
       eth_metis_discovery = 1'b1;
+    end
+
+    ASMI_DECODE: begin
+      pushcnt_next = 8'h00;
+      if (eth_data == 8'h01) state_next = ASMI_CNT3;
+      else if (eth_data == 8'h02) begin 
+        dsethasmi_erase = 1'b1;
+        state_next = ASMI_ERASE;
+      end
+    end
+
+    ASMI_CNT3: begin
+      state_next = ASMI_CNT2;
+    end
+
+    ASMI_CNT2: begin
+      state_next = ASMI_CNT1;
+    end
+
+    ASMI_CNT1: begin
+      state_next = ASMI_CNT0;
+      asmi_cnt_next = {eth_data[5:0],asmi_cnt[7:0]};
+    end  
+
+    ASMI_CNT0: begin
+      state_next = ASMI_PROGRAM;
+      asmi_cnt_next = {asmi_cnt[13:8],eth_data};
+    end     
+
+    ASMI_PROGRAM: begin
+      dsethasmi_tvalid = 1'b1;
+      pushcnt_next = pushcnt + 8'h01;
+      if (&pushcnt) begin
+        dsethasmi_tlast = 1'b1;
+      end else begin
+        state_next = ASMI_PROGRAM;
+      end
+    end
+
+    ASMI_ERASE: begin
+      dsethasmi_erase = 1'b1;
+      if (~dsethasmi_erase_ack) state_next = ASMI_ERASE;
     end
 
     ENDPOINT: begin
@@ -281,9 +349,9 @@ always @* begin
     PUSHQ0: begin
       dsethiq_tvalid = 1'b1;
       dsethiq_tlast  = 1'b1;
-      if (&pushcnt) begin
-        if (~framecnt) begin
-          framecnt_next = 1'b1;
+      if (&pushcnt[5:0]) begin
+        if (~pushcnt[6]) begin
+          //framecnt_next = 1'b1;
           state_next = SYNC2;
         end
       end else state_next = PUSHL1;
