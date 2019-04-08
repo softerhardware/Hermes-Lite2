@@ -34,7 +34,11 @@ module usopenhpsdr1 (
   resp,
   resp_rqst,
 
-  watchdog_up
+  watchdog_up,
+
+  usethasmi_send_more,
+  usethasmi_erase_done,
+  usethasmi_ack
 );
 
 input               clk;
@@ -70,6 +74,12 @@ input  [39:0]       resp;
 output logic        resp_rqst = 1'b0;
 
 output logic        watchdog_up = 1'b0;
+
+input               usethasmi_send_more;
+input               usethasmi_erase_done;
+output              usethasmi_ack;
+
+
 
 parameter           NR = 8'h0;
 parameter           HERMES_SERIALNO = 8'h0;
@@ -205,10 +215,12 @@ always @* begin
   us_tready = 1'b0;
   bs_tready = 1'b0;
 
+  usethasmi_ack = 1'b0;
+
   case (state)
     START: begin
  
-      if (discovery) begin 
+      if (discovery | usethasmi_erase_done | usethasmi_send_more) begin 
         udp_tx_length_next = 'h3c;
         state_next = DISCOVER1;
 
@@ -237,7 +249,7 @@ always @* begin
       udp_tx_data = discover_data;      
       case (byte_no[5:0])
         6'h3a: discover_data_next = 8'hfe;
-        6'h39: discover_data_next = run ? 8'h03 : 8'h02;
+        6'h39: discover_data_next = usethasmi_erase_done ? 8'h03 : (usethasmi_send_more ? 8'h04 : (run ? 8'h03 : 8'h02));
         6'h38: discover_data_next = mac[47:40];
         6'h37: discover_data_next = mac[39:32];
         6'h36: discover_data_next = mac[31:24];
@@ -258,10 +270,16 @@ always @* begin
         6'h28: discover_data_next = NR[7:0];
         6'h00: begin
           discover_data_next = idhermeslite ? 8'h06 : 8'h01;
-          state_next = START;
+          if (usethasmi_erase_done | usethasmi_send_more) byte_no_next = 6'h00;
+          else state_next = START;
         end
-        default: discover_data_next = idhermeslite ? 8'h06 : 8'h01;
+        default: begin
+          discover_data_next = idhermeslite ? 8'h06 : 8'h01;
+        end
       endcase
+
+      // Always acknowledge
+      usethasmi_ack = byte_no[5:0] <= 6'h38;
     end
 
     // start sending UDP/IP data

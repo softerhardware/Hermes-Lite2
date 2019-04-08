@@ -100,3 +100,5 @@ set_global_assignment -name VERILOG_FILE rtl/i2c_bus2.v
 set_global_assignment -name VERILOG_FILE rtl/i2c.v
 set_global_assignment -name VERILOG_FILE rtl/slow_adc.v
 
+set_global_assignment -name VERILOG_FILE rtl/asmi_asmi_parallel_0.v
+set_global_assignment -name VERILOG_FILE rtl/asmi_interface.v
