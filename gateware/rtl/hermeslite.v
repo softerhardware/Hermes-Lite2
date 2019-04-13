@@ -129,10 +129,10 @@ localparam      NT = 1; // Transmitters
 
 // Ethernet Interface
 `ifdef BETA2
-localparam       HERMES_SERIALNO = 8'd43;     // Serial number of this version
+localparam       HERMES_SERIALNO = 8'd45;     // Serial number of this version
 localparam       MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h12,8'hdd};
 `else 
-localparam       HERMES_SERIALNO = 8'd63;     // Serial number of this version
+localparam       HERMES_SERIALNO = 8'd65;     // Serial number of this version
 localparam       MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd};
 `endif
 localparam       IP = {8'd0,8'd0,8'd0,8'd0};
@@ -276,6 +276,7 @@ logic           dsethasmi_tvalid;
 logic [ 7:0]    asmi_data;
 logic [ 9:0]    asmi_rx_used;
 logic           asmi_rdreq;
+logic           asmi_reconfig;
 
 /////////////////////////////////////////////////////
 // Clocks
@@ -904,7 +905,29 @@ asmi_interface asmi_interface_i (
   .send_more(usethasmi_send_more),
   .send_more_ACK(usethasmi_ack),
   .num_blocks(asmi_cnt),
-  .NCONFIG()
+  .NCONFIG(asmi_reconfig)
 ); 
+
+
+
+`ifdef FACTORY
+
+remote_update_fac remote_update_fac_i (
+  .clk(clk_ctrl),
+  .rst(~ethpll_locked),
+  .bootapp(io_cn8)
+);
+
+
+`else
+
+remote_update_app remote_update_app_i (
+  .clk(clk_ctrl),
+  .rst(~ethpll_locked),
+  .reconfig(asmi_reconfig)
+);
+
+`endif
+
 
 endmodule
