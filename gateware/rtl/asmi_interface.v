@@ -56,7 +56,7 @@ reg     shift_bytes;
 reg 	[3:0]state;
 reg 	[13:0]page; 		// counts number of 256 byte blocks we are writing 
 reg 	[8:0]byte_count;	// holds number of bytes we have send to ASMI
-reg     [24:0]reset_delay;  // delays reset after last frame sent
+reg     [21:0]reset_delay = 22'h0;  // delays reset after last frame sent
 
 
 // reverse bit order into ASMI
@@ -168,7 +168,7 @@ case (state)
 	
 // delay so the PC sees the final send more then when not busy reset the FPGA		
 10:	begin
-		if (reset_delay == 25000000) begin		
+		if (&reset_delay) begin		
 			if (!busy)							// wait until the last frame has been written then reset
 				NCONFIG <= 1'b1;				// then reload FPGA from Flash	
 		end 																

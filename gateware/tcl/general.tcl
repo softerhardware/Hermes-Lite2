@@ -39,3 +39,8 @@ set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING OFF
 set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
 
 set_instance_assignment -name IO_MAXIMUM_TOGGLE_RATE "0 MHz" -to rffe_rfsw_sel
+
+#set_global_assignment -name STRATIXIII_UPDATE_MODE REMOTE
+#set_global_assignment -name VERILOG_MACRO "FACTORY=1"
+
+set_global_assignment -name GENERATE_RBF_FILE ON
