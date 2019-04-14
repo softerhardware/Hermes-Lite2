@@ -27,8 +27,8 @@ class MainWindow : public Fl_Window
 {
 private:
 	Fl_Button * setup_button;
-	Fl_Button * set_bias_button;
-	Fl_Button * test_bias_button;
+	//Fl_Button * set_bias_button;
+	//Fl_Button * test_bias_button;
 	const char * help_text;
 public:
 	Fl_Light_Button * power_button;
@@ -134,35 +134,26 @@ public:
 		x0 = tab1 * 2;
 		dx = (info_width - tab1 * 2 - ww * 3) / 2;
 		dx = ww + dx;
-		setup_button = new Fl_Button(x0, y, ww, hh, "Setup");
+		setup_button = new Fl_Button(x0, y, ww, hh, "Test");
 		setup_button->callback(btn_setup_callback);
 		setup_button->deactivate();
-		test_bias_button = new Fl_Button(x0 + dx, y, ww, hh, "Test PA Bias");
-		test_bias_button->callback(btn_test_bias_callback);
-		test_bias_button->when(FL_WHEN_CHANGED);
-		test_bias_button->deactivate();
-		set_bias_button = new Fl_Button(x0 + dx * 2, y, ww, hh, "Set PA Bias");
-		set_bias_button->callback(btn_set_bias_callback);
-		set_bias_button->deactivate();
+		//test_bias_button = new Fl_Button(x0 + dx, y, ww, hh, "Test PA Bias");
+		//test_bias_button->callback(btn_test_bias_callback);
+		//test_bias_button->when(FL_WHEN_CHANGED);
+		//test_bias_button->deactivate();
+		//set_bias_button = new Fl_Button(x0 + dx * 2, y, ww, hh, "Set PA Bias");
+		//set_bias_button->callback(btn_set_bias_callback);
+		//set_bias_button->deactivate();
 		y += hh + height;
 	
 		hh = height * 24;
-		help_text = "Turn on the power to the Hermes-Lite 2 and wait 30 seconds for DHCP. "
-"Then press the Connect button. Look at the Internet address. It should be an address on your "
-"local area network. If it starts with 169.254, then DHCP failed."
+		help_text = "Wait until the Hermes-Lite 2.0 has two solid LEDs and two blinking LEDs, "
+" or three solid LEDs and 1 blinking LED. Then Press connect. Look at the Internet address. "
+"There should be a valid IP address. If the IP address starts with 169.254, then DHCP failed."
 "\n\n"
-"Use the Setup button to test the hardware and set the bias. The filter tests assume that the N2ADR filter board is installed "
-"and that a 0.25 watt (or greater) 50 ohm terminator is connected to the SMA on the right. "
+"Connect a loop back 50 Ohm coax cable with inline 30dB attenuator from one SMA connector to the other."
 "\n\n"
-"Press Test PA Bias to turn on the power amp, and then look at the power amp current.  Correct bias is 100 ma for each of "
-"the two transistors, or 200 ma total.  Press Set PA Bias to adjust the bias. Watch the messages and wait for it to finish. "
-"To set the bias you must have a working HL2 with code version 60 or higher. "
-"Bias is temperature dependent, but not too critical. Set the bias with the HL2 warmed up a bit. "
-"If there are any errors, setting bias is cancelled. You can try again."
-"\n\n"
-"Windows Firewall can interfere with this program. When Firewall ask whether to allow network access, answer Yes. "
-"Or you could turn Firewall off, set the bias, and then turn Firewall on again. "
-"Or you could add hl2setup.exe to the list of programs allowed through the firewall.";
+"Press the Test button to start the automated tests and bias adjustments.";
 		output_buffer = new Fl_Text_Buffer();
 		output_window = new Fl_Text_Display(tab1, y, info_width, hh);
 		output_window->buffer(output_buffer);
@@ -176,17 +167,17 @@ public:
 
 	void EnableSetButton(void)
 	{
-		if (hermes_run_state == STATE_IDLE && code_version >= 60 && hermes_temperature >= 5.0 && hermes_temperature < 70.0)
-			set_bias_button->activate();
-		else
-			set_bias_button->deactivate();
+		//if (hermes_run_state == STATE_IDLE && code_version >= 60 && hermes_temperature >= 5.0 && hermes_temperature < 70.0)
+		//	set_bias_button->activate();
+		//else
+		//	set_bias_button->deactivate();
 		if (hermes_run_state == STATE_IDLE && code_version >= 60) {
 			setup_button->activate();
-			test_bias_button->activate();
+			//test_bias_button->activate();
 		}
 		else {
 			setup_button->deactivate();
-			test_bias_button->deactivate();
+			//test_bias_button->deactivate();
 		}
 	}
 
@@ -195,8 +186,8 @@ public:
 		hermes_key_down = 0;
 		hermes_run_state = STATE_IDLE;
 		this->setup_button->deactivate();
-		this->set_bias_button->deactivate();
-		this->test_bias_button->deactivate();
+		//this->set_bias_button->deactivate();
+		//this->test_bias_button->deactivate();
 		this->value_mac->copy_label("Unknown");
 		this->value_id->copy_label("Unknown");
 		this->value_ip->copy_label("Unknown");
