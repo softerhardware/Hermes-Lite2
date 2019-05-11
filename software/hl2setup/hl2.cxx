@@ -154,7 +154,7 @@ void HL2Run(void)
 		DELAY_NEXT
 		break;
 	case BACKGROUND_NOISE + 5:
-		snprintf(output120, 120, "Noise level on 20m at -48 dB LNA is %.0f", hermes_sample_rms);
+		snprintf(output120, 120, "Noise level on 20m at +48 dB LNA is %.0f", hermes_sample_rms);
 		CheckResult(output120, hermes_sample_rms, -85.0, 0.10);
 		hermes_run_state = SIGNAL_LEVEL;
 		break;
@@ -571,7 +571,7 @@ void HL2Run(void)
 		CheckResult(output120, hermes_pa_current, 0.33, 0.15);
 		hermes_key_down = 0;
 		snprintf(output120, 120, "Temperature change is %.2f", rms_ref);
-		CheckResult(output120, rms_ref, 0.75, 1.0);
+		CheckResult(output120, rms_ref, 1.25, 1.0);
 
 		hermes_run_state = END_OF_TESTS;
 		break;
