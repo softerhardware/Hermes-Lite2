@@ -931,8 +931,10 @@ case (LRDATA)
     wire [15:0] envelope;
 
     // use I&Q x 5 from EER iFIR output
-    square square_I (.clock(clk), .dataa(I_EER[19:4]), .result(Isquare));
-    square square_Q (.clock(clk), .dataa(Q_EER[19:4]), .result(Qsquare));
+    //square square_I (.clock(clk), .dataa(I_EER[19:4]), .result(Isquare));
+    //square square_Q (.clock(clk), .dataa(Q_EER[19:4]), .result(Qsquare));
+    square square_I (.dataa(I_EER[19:4]), .result(Isquare));
+    square square_Q (.dataa(Q_EER[19:4]), .result(Qsquare));
     assign sum = Isquare + Qsquare;
     sqroot sqroot_inst (.clk(clk), .radical(sum[32:1]), .q(envelope));
 
