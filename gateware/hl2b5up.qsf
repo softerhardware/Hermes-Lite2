@@ -48,4 +48,13 @@ set_global_assignment -name SDC_FILE sdc/hermeslite.sdc
 
 
 set_global_assignment -name LAST_QUARTUS_VERSION "18.1.0 Lite Edition"
+set_instance_assignment -name IO_STANDARD "2.5 V" -to io_lvds_txn
+set_instance_assignment -name IO_STANDARD "2.5 V" -to io_lvds_txp
+set_instance_assignment -name IO_STANDARD "2.5 V" -to io_lvds_rxp
+set_instance_assignment -name IO_STANDARD "2.5 V" -to io_lvds_rxn
+set_instance_assignment -name IO_STANDARD "2.5 V" -to io_db1_6
+set_instance_assignment -name IO_STANDARD "2.5 V" -to io_db1_5
+set_instance_assignment -name IO_STANDARD "2.5 V" -to io_db1_4
+set_instance_assignment -name IO_STANDARD "2.5 V" -to io_db1_3
+set_instance_assignment -name IO_STANDARD "2.5 V" -to io_db1_2
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
