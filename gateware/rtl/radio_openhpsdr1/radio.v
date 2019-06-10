@@ -949,7 +949,8 @@ case (LRDATA)
 
     counter counter_inst (.clock(clk_envelope), .q(ramp));  // count to 1024 [10:0] = 240kHz, 640 [9:0] for 384kHz
 
-    wire [9:0] envelope_level = envelope[14:5] + (envelope[14:5] >>> 2)  + (envelope[14:5] >>> 3);  // Multiply by 1.25
+    wire [14:0] envelope_scaled = envelope + (envelope >>> 2) + (envelope >>> 3);  // Multiply by 1.375, keep all bits for proper rounding
+    wire [9:0] envelope_level = envelope_scaled[14:5];
 
     always @ (posedge clk_envelope)
     begin
