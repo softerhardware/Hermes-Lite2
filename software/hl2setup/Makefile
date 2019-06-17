@@ -1,7 +1,7 @@
-CXX = $(shell fltk-config --cxx)
-CXXFLAGS = $(shell fltk-config --cxxflags ) -I.
-LDFLAGS = $(shell fltk-config --ldflags )
-LDSTATIC = $(shell fltk-config --ldstaticflags )
+CXX = $(shell fltk-config --cxx -g )
+CXXFLAGS = $(shell fltk-config --cxxflags -g ) -I.
+LDFLAGS = $(shell fltk-config --ldflags -g )
+LDSTATIC = $(shell fltk-config --ldstaticflags -g )
 LINK = $(CXX)
 
 .SUFFIXES: .o .cxx .c

@@ -55,6 +55,7 @@ module control(
   // Internal
   clk,
   clk_ad9866,
+  clk_125,
   
   ethup,
   have_dhcp_ip,
@@ -170,6 +171,7 @@ module control(
 // Internal
 input           clk;
 input           clk_ad9866;
+input           clk_125;
 
 input           ethup;
 input           have_dhcp_ip;
@@ -210,8 +212,8 @@ output          rffe_ad9866_pga5;
 `endif
 
 // Power
-output          pwr_clk3p3;
-output          pwr_clk1p2;
+output logic    pwr_clk3p3 = 1'b0;
+output logic    pwr_clk1p2 = 1'b0;
 output          pwr_envpa; 
 
 `ifdef BETA2
@@ -326,6 +328,12 @@ logic         resetsaturate;
 logic [ 1:0]  clip_cnt = 2'b00;
 
 logic         led_d2, led_d3, led_d4, led_d5;
+
+logic         disable_syncfreq = 1'b0;
+
+logic [ 5:0]  pwrcnt = 6'h10;
+//logic [ 2:0]  pwrphase = 3'b100;
+
   
 localparam RESP_START   = 2'b00,
            RESP_ACK     = 2'b01,
@@ -373,6 +381,9 @@ always @(posedge clk) begin
     end
     else if (cmd_addr == 6'h10) begin
       cw_hang_time <= {cmd_data[31:24], cmd_data[17:16]};
+    end
+    else if (cmd_addr == 6'h00) begin
+      disable_syncfreq <= cmd_data[12];
     end
   end
 end
@@ -529,9 +540,6 @@ assign pwr_envpa = tx_power_on & ~vna & pa_enable;
 
 assign rffe_rfsw_sel = ~vna & pa_enable;
 
-assign pwr_clk3p3 = 1'b0;
-assign pwr_clk1p2 = 1'b0;
-
 `ifdef BETA2
 assign pwr_clkvpa = 1'b0;
 `endif
@@ -643,5 +651,34 @@ always @(posedge clk) begin
 end
 
 assign resp = iresp;
+
+// sync clock
+always @(posedge clk_125) begin
+  if (pwrcnt == 6'h00) begin
+    //case(pwrphase)
+    //  3'b000: pwrcnt <= 6'd59;
+    //  3'b001: pwrcnt <= 6'd57;
+    //  3'b010: pwrcnt <= 6'd58;
+    //  3'b011: pwrcnt <= 6'd55;
+    //  3'b100: pwrcnt <= 6'd58;
+    //  3'b101: pwrcnt <= 6'd59;
+    //  3'b110: pwrcnt <= 6'd56;
+    //  3'b111: pwrcnt <= 6'd59;
+    //endcase 
+    //if (pwrphase == 3'b000) pwrphase <= 3'b110;
+    //else pwrphase <= pwrphase - 3'b001;
+    pwrcnt <= 6'd58;
+  end else begin
+    pwrcnt <= pwrcnt - 6'h01;
+  end
+
+  if (disable_syncfreq) begin
+    pwr_clk3p3 <= 1'b0;
+    pwr_clk1p2 <= 1'b0;
+  end else begin
+    if (pwrcnt == 6'h00) pwr_clk3p3 <= ~pwr_clk3p3;
+    if (pwrcnt == 6'h11) pwr_clk1p2 <= ~pwr_clk1p2;
+  end
+end
 
 endmodule // ioblock

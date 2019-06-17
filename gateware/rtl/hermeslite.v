@@ -129,10 +129,10 @@ localparam      NT = 1; // Transmitters
 
 // Ethernet Interface
 `ifdef BETA2
-localparam       HERMES_SERIALNO = 8'd45;     // Serial number of this version
+localparam       HERMES_SERIALNO = 8'd46;     // Serial number of this version
 localparam       MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h12,8'hdd};
 `else 
-localparam       HERMES_SERIALNO = 8'd65;     // Serial number of this version
+localparam       HERMES_SERIALNO = 8'd66;     // Serial number of this version
 localparam       MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd};
 `endif
 localparam       IP = {8'd0,8'd0,8'd0,8'd0};
@@ -746,6 +746,7 @@ control #(.HERMES_SERIALNO(HERMES_SERIALNO)) control_i (
   // Internal
   .clk(clk_ctrl),
   .clk_ad9866(clk_ad9866), // Just for measurement
+  .clk_125(clock_125_mhz_0_deg),
 
   .ethup(ethup),
   .have_dhcp_ip(~network_state_dhcp),
@@ -876,7 +877,6 @@ assign scl3_i = io_adc_scl;
 assign io_adc_scl = scl3_t ? 1'bz : scl3_o;
 assign sda3_i = io_adc_sda;
 assign io_adc_sda = sda3_t ? 1'bz : sda3_o;
-
 
 asmi_fifo asmi_fifo_i (
   .wrclk (clock_ethrxint),
