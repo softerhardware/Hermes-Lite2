@@ -44,7 +44,7 @@ class Test(object):
         f.close()
 
         self.sampling_freq = 76800000
-        self.rx_freq = 5000000
+        self.rx_freq = 7078132
         self.phi = int(0x7fffffff *float(self.rx_freq)/(self.sampling_freq/2))
 
         module = 'nco1'
