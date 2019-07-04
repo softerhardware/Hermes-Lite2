@@ -18,6 +18,7 @@ module radio (
 
   clk_envelope,
   tx_envelope_pwm_out,
+  tx_envelope_pwm_out_inv,
 
   // Optional audio stream for repurposed programming or EER
   lr_tdata,
@@ -82,6 +83,7 @@ output            tx_cw_key;
 
 input             clk_envelope;
 output            tx_envelope_pwm_out;
+output            tx_envelope_pwm_out_inv;
 
 input   [31:0]    tx_tdata;
 input   [ 2:0]    tx_tid;
@@ -798,6 +800,7 @@ case (LRDATA)
   0: begin // Left/Right downstream (PC->Card) audio data not used
     assign lr_tready = 1'b0;
     assign tx_envelope_pwm_out = 1'b0;
+    assign tx_envelope_pwm_out_inv = 1'b0;
 
 	 always @ (posedge clk)
       tx_data_dac <= txsum[11:0]; // + {10'h0,lfsr[2:1]};
@@ -849,6 +852,7 @@ case (LRDATA)
     logic signed [15:0] iplusqr;
 
     assign tx_envelope_pwm_out = 1'b0;
+    assign tx_envelope_pwm_out_inv = 1'b0;
     //FSM to write DACLUTI and DACLUTQ
     assign lr_tready = 1'b1; // Always ready
     always @(posedge clk) begin
@@ -918,7 +922,7 @@ case (LRDATA)
     // Note: Coefficients are scaled by 0.85 so that unity I&Q input give unity amplitude envelope signal.
     FirInterp5_1025_EER fiEER (clk, EER_req, lr_tready, tx_EER_fir_i, tx_EER_fir_q, I_EER, Q_EER);   // EER_req enables an output sample, lr_tready requests next input sample.
 
-    assign EER_req = (ramp == 10'd0 | ramp == 10'd1); // need an enable at clk_envelopw/2 to enable EER FIR data out
+    assign EER_req = (ramp == 10'd0 | ramp == 10'd1 | ramp == 10'd2 | ramp == 10'd3); // need an enable wide enough to be sampled by clk to enable EER FIR data out
 
     // calculate the envelope of the SSB signal using SQRT(I^2 + Q^2)
     wire [31:0] Isquare;
@@ -927,8 +931,10 @@ case (LRDATA)
     wire [15:0] envelope;
 
     // use I&Q x 5 from EER iFIR output
-    square square_I (.clock(clk), .dataa(I_EER[19:4]), .result(Isquare));
-    square square_Q (.clock(clk), .dataa(Q_EER[19:4]), .result(Qsquare));
+    //square square_I (.clock(clk), .dataa(I_EER[19:4]), .result(Isquare));
+    //square square_Q (.clock(clk), .dataa(Q_EER[19:4]), .result(Qsquare));
+    square square_I (.dataa(I_EER[19:4]), .result(Isquare));
+    square square_Q (.dataa(Q_EER[19:4]), .result(Qsquare));
     assign sum = Isquare + Qsquare;
     sqroot sqroot_inst (.clk(clk), .radical(sum[32:1]), .q(envelope));
 
@@ -943,7 +949,8 @@ case (LRDATA)
 
     counter counter_inst (.clock(clk_envelope), .q(ramp));  // count to 1024 [10:0] = 240kHz, 640 [9:0] for 384kHz
 
-    wire [9:0] envelope_level = envelope[14:5] + (envelope[14:5] >>> 2)  + (envelope[14:5] >>> 3);  // Multiply by 1.25
+    wire [14:0] envelope_scaled = envelope + (envelope >>> 2) + (envelope >>> 3);  // Multiply by 1.375, keep all bits for proper rounding
+    wire [9:0] envelope_level = envelope_scaled[14:5];
 
     always @ (posedge clk_envelope)
     begin
@@ -955,6 +962,7 @@ case (LRDATA)
 
     // FIXME: disable EER when VNA is enabled? is CW handled correctly?
     assign tx_envelope_pwm_out = (tx_on & pa_mode) ? PWM : 1'b0;  // PWM only when TX and EER mode are selected
+    assign tx_envelope_pwm_out_inv = ~tx_envelope_pwm_out;
 
   end
 endcase
