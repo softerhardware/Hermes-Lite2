@@ -6,7 +6,7 @@
 * Without kicad
   If you want end panels with horizontal labelling,
   take [[https://raw.githubusercontent.com/softerhardware/Hermes-Lite2/master/hardware/enclosure/endcaps/ad5dz/hl2-front-horiz/hl2-front-horiz.zip][hl2-front-horiz.zip]]
-  and [[https://raw.githubusercontent.com/softerhardware/Hermes-Lite2/master/hardware/enclosure/endcaps/ad5dz/hl2-front-horiz/hl2-back-horiz.zip][hl2-back-horiz.zip]].
+  and [[https://raw.githubusercontent.com/softerhardware/Hermes-Lite2/master/hardware/enclosure/endcaps/ad5dz/hl2-back-horiz/hl2-back-horiz.zip][hl2-back-horiz.zip]].
   Horizontal labels work if your Hermes Lite
   sits on the wide edge of the enclosure.
 
