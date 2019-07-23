@@ -1,0 +1,9 @@
+(module Oval_Mounting_Hole (layer F.Cu) (tedit 5D33CC53)
+  (fp_text reference REF** (at 0 0.5) (layer F.SilkS)
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+  (fp_text value Oval_Mounting_Hole (at 0 -0.5) (layer F.Fab) hide
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+  (pad 1 thru_hole oval (at 0 0) (size 4.45 4.2) (drill oval 3.45 3.2) (layers *.Cu *.Mask))
+)

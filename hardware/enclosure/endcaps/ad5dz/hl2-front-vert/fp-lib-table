@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name hl2-panel)(type KiCad)(uri ${KIPRJMOD}/hl2-panel.pretty)(options "")(descr ""))
+)

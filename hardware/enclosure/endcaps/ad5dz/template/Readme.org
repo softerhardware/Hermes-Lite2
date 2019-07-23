@@ -1,0 +1,6 @@
+* Templates
+  A kicad template is a kicad project with a meta sub-directory containing
+  info.html, icon.png, and brd.png which appears in one of the template
+  directories known to kicad.
+  This directory provides symbolic links to the kicad projects which are
+  used as templates.
