@@ -143,8 +143,20 @@ module FirInterp8_1024(
 	begin
 		rstate = rWait;
 		waddr = 0;
+		raddr = 0;
 		req = 0;
 		phase = 0;
+		reg_coef = 0;
+		Rmult = 0;
+		Imult = 0;
+		reg_q = 0;
+		Raccum = 0;
+		Iaccum = 0;
+		caddr = 0;
+		counter = 0;
+		req = 0;
+		y_real = 0;
+		y_imag = 0;
 	end
 
 `ifdef USE_ALTSYNCRAM	

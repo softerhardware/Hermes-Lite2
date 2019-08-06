@@ -6,6 +6,7 @@ module radio (
   cw_keydown,
   tx_on,
   tx_cw_key,    // CW waveform is active, tx_cw_level is not zero
+  tx_hang,
 
   // Transmit
   tx_tdata,
@@ -80,6 +81,7 @@ input             clk_2x;
 input             cw_keydown;
 input             tx_on;
 output            tx_cw_key;
+output            tx_hang;
 
 input             clk_envelope;
 output            tx_envelope_pwm_out;
@@ -367,7 +369,7 @@ assign rx_data_i[0] = VNA_SCAN_FPGA ? vna_out_I : rx0_out_I;
 assign rx_data_q[0] = VNA_SCAN_FPGA ? vna_out_Q : rx0_out_Q;
 
 // This module is a replacement for receiver zero when the FPGA scans in VNA mode.
-vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (	// use this output for VNA_SCAN_FPGA
+vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output for VNA_SCAN_FPGA
     //control
     .clock(clk),
     .freq_delta(rx_phase[0]),
@@ -390,18 +392,45 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (	// use this output fo
   // If in VNA mode use the Tx[0] phase word for the first receiver phase
   assign rx0_phase = vna ? tx0_phase : rx_phase[0];
 
-  receiver #(.CICRATE(CICRATE)) receiver_0_inst (
+  mix2 #(.CALCTYPE(3)) mix2_0 (
+    .clk(clk),
+    .clk_2x(clk_2x),
+    .rst(1'b0),
+    .phi0(rx0_phase),
+    .phi1(rx_phase[1]),
+    .adc(adcpipe[0]), 
+    .mixdata0_i(mixdata_i[0]),
+    .mixdata0_q(mixdata_q[0]),
+    .mixdata1_i(mixdata_i[1]),
+    .mixdata1_q(mixdata_q[1])
+  );
+
+  receiver_nco #(.CICRATE(CICRATE)) receiver_0 (
     .clock(clk),
     .clock_2x(clk_2x),
     .rate(rate),
-    .frequency(rx0_phase),
+    .mixdata_I(mixdata_i[0]),
+    .mixdata_Q(mixdata_q[0]),
     .out_strobe(rx0_strobe),
-    .in_data(adcpipe[0]),
     .out_data_I(rx0_out_I),
-    .out_data_Q(rx0_out_Q),
-    .cordic_outdata_I(cordic_data_I),
-    .cordic_outdata_Q(cordic_data_Q)
+    .out_data_Q(rx0_out_Q)
   );
+
+  assign cordic_data_I = mixdata_i[0];
+  assign cordic_data_Q = mixdata_q[0];
+
+//  receiver #(.CICRATE(CICRATE)) receiver_0_inst (
+//    .clock(clk),
+//    .clock_2x(clk_2x),
+//    .rate(rate),
+//    .frequency(rx0_phase),
+//    .out_strobe(rx0_strobe),
+//    .in_data(adcpipe[0]),
+//    .out_data_I(rx0_out_I),
+//    .out_data_Q(rx0_out_Q),
+//    .cordic_outdata_I(cordic_data_I),
+//    .cordic_outdata_Q(cordic_data_Q)
+//  );
 
   //for (c = 1; c < NR; c = c + 1) begin: MDC
   //  if((c==3 && NR>3) || (c==1 && NR<=3)) begin
@@ -431,7 +460,7 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (	// use this output fo
 
   for (c = 1; c < NR; c = c + 1) begin: MDC
 
-    if (c == 1) begin
+    if (c == 2) begin
       // Build double mixer
       mix2 #(.CALCTYPE(3)) mix2_i (
         .clk(clk),
@@ -447,7 +476,7 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (	// use this output fo
       );
     end
 
-    if (c == 3) begin
+    if (c == 4) begin
       // Build double mixer
       // Receiver 3 (zero indexed so fourth RX) is feedback for puresignal
       // Will need to split this later if more than 4 receivers
@@ -540,7 +569,7 @@ end else begin
 
   assign tx0_phase = tx_phase0;
 
-  // Defaul to receiver type 1
+  // Default to receiver type 1
   for (c = 0; c < NR; c = c + 1) begin: MDC
     if((c==3 && NR>3) || (c==1 && NR<=3)) begin
         receiver #(.CICRATE(CICRATE)) receiver_inst (
@@ -679,6 +708,7 @@ generate if (NT == 0) begin
   // No transmit
   assign tx_tready = 1'b0;
   assign tx_data_dac = 12'h000;
+  assign tx_hang = 1'b0;
 
 end else begin
 
@@ -719,13 +749,16 @@ for (c = 0; c < NT; c = c + 1) begin: TXIFFREQ
 end
 
   // latch I&Q data on strobe from FIR
-  // FIXME: no backpressure from FIR for now
+  // No backpressure from FIR for now
   always @ (posedge clk) begin
-    if (tx_tready & tx_tvalid) begin
-      tx_fir_i = tx_tdata[31:16];
-      tx_fir_q = tx_tdata[15:0];
+    if (tx_tready) begin
+      tx_fir_i <= tx_tdata[31:16];
+      tx_fir_q <= tx_tdata[15:0];
     end
   end
+
+  // Hang TX until fifo drains
+  assign tx_hang = tx_tvalid;
 
   // Interpolate I/Q samples from 48 kHz to the clock frequency
   FirInterp8_1024 fi (clk, req2, tx_tready, tx_fir_i, tx_fir_q, y1_r, y1_i);  // req2 enables an output sample, tx_tready requests next input sample.
@@ -802,7 +835,7 @@ case (LRDATA)
     assign tx_envelope_pwm_out = 1'b0;
     assign tx_envelope_pwm_out_inv = 1'b0;
 
-	 always @ (posedge clk)
+   always @ (posedge clk)
       tx_data_dac <= txsum[11:0]; // + {10'h0,lfsr[2:1]};
   end
   1: begin: PD1 // TX predistortion

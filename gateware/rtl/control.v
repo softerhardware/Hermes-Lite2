@@ -67,6 +67,7 @@ module control(
   rxgoodlvl,
   rxclrstatus,
   run,
+  tx_hang,
 
   cmd_addr,
   cmd_data,
@@ -183,6 +184,7 @@ input           rxclip;
 input           rxgoodlvl;
 output logic    rxclrstatus = 1'b0;
 input           run;
+input           tx_hang;
 
 input  [5:0]    cmd_addr;
 input  [31:0]   cmd_data;
@@ -342,6 +344,11 @@ localparam RESP_START   = 2'b00,
 logic [1:0]   resp_state = RESP_START, resp_state_next;
 
 
+logic         cw_keydown;
+logic         cw_power_on;
+
+
+
 
 /////////////////////////////////////////////////////
 // Reset
@@ -431,14 +438,14 @@ slow_adc slow_adc_i (
 
 
 // 6.5 ms debounce with 2.5MHz clock 
-debounce de_cwkey(.clean_pb(ext_cwkey), .pb(~io_phone_tip), .clk(clk));
+debounce de_phone_tip(.clean_pb(ext_cwkey), .pb(~io_phone_tip), .clk(clk));
 assign io_db1_5 = cw_keydown;
 
-debounce de_ptt(.clean_pb(ext_ptt), .pb(~io_phone_ring), .clk(clk));
+debounce de_phone_ring(.clean_pb(ext_ptt), .pb(~io_phone_ring), .clk(clk));
 debounce de_txinhibit(.clean_pb(ext_txinhibit), .pb(~io_cn8), .clk(clk));
 
 
-assign tx_on = (int_ptt | cw_keydown | ext_ptt) & ~ext_txinhibit & run;
+assign tx_on = (int_ptt | cw_keydown | ext_ptt | tx_hang) & ~ext_txinhibit & run;
 
 // Gererate two slow pulses for timing.  millisec_pulse occurs every one millisecond.
 // led_saturate occurs every 64 milliseconds.
@@ -491,36 +498,20 @@ assign io_led_d5 = run ? led_d5 : ~(ad9866up & good_fast_clk);
 always @(posedge clk) rxclrstatus <= ~rxclrstatus;
 
 
-// TX sequence logic. Delay CW envelope until T/R relay switches and the amp power turns on.
-logic [16:0] cw_delay_line = 17'b0;	// Delay CW press/release one mSec per unit. There is additional delay from debounce ext_cwkey.
-logic [9:0]  cw_power_timeout = 10'b0;	// Keep power on after the key goes up. Delay is one mSec per count starting from key down.
-logic        cw_count_state;		// State 0: first count for KEY_UP_TIMEOUT; State 1: second count for cw_hang_time.
-logic        cw_power_on = 1'b0;	// Does CW key action demand that the power be on?
-localparam KEY_UP_TIMEOUT = 10'd41;	// Minimum timeout. Must be the delay line time plus waveform decay time plus ending time.
-logic io_phone_tip_sync;
-sync sync_io_phtip(.clock(clk), .sig_in(io_phone_tip), .sig_out(io_phone_tip_sync));
 
-always @(posedge clk)       // Delay the CW key press and release while preserving the timing.
-  if (millisec_pulse)
-    cw_delay_line <= {cw_delay_line[15:0], ext_cwkey};
-assign cw_keydown = cw_delay_line[16];
+cw_support cw_support_i(
+  .clk(clk),
+  .millisec_pulse(millisec_pulse),
+  .dot_key(~io_phone_tip),
+  .dash_key(~io_phone_ring),
+  .dot_key_debounced(ext_cwkey),
+  .dash_key_debounced(ext_ptt),
+  .cw_power_on(cw_power_on),
+  .cw_keydown(cw_keydown)
+);
 
-always @(posedge clk) begin		// Turn on CW power and T/R relay at first key press and hold for the delay time.
-  if (~io_phone_tip_sync) begin		// Start timing when the key first goes down.
-    cw_power_timeout <= KEY_UP_TIMEOUT;
-    cw_count_state <= 1'b0;
-    cw_power_on <= 1'b1;
-  end else if (millisec_pulse) begin	// Check every millisecond
-    if (cw_power_timeout != 0) begin
-      cw_power_timeout <= cw_power_timeout - 1'b1;
-    end else if (cw_count_state == 1'b0) begin	// First count for KEY_UP_TIMEOUT, the minimum count.
-      cw_power_timeout <= cw_hang_time;
-      cw_count_state <= 1'b1;
-    end else begin		// Second count for extra time cw_hang_time.
-      cw_power_on <= 1'b0;
-    end
-  end
-end
+
+
 logic        tx_power_on;		// Is the power on?
 assign tx_power_on = cw_power_on | tx_on;
 

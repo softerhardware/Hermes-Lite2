@@ -213,6 +213,7 @@ logic           clk_envelope;
 logic           ad9866up;
 
 logic           run, run_sync, run_iosync;
+logic           tx_hang, tx_hang_iosync;
 logic           wide_spectrum, wide_spectrum_sync;
 logic           discovery_reply, discovery_reply_sync;
 
@@ -464,7 +465,7 @@ dsopenhpsdr1 dsopenhpsdr1_i (
   .dsethasmi_erase_ack(dsethasmi_erase_ack)
 );
 
-dsiq_fifo #(.depth(16384)) dsiq_fifo_i (
+dsiq_fifo #(.depth(8192)) dsiq_fifo_i (
   .wr_clk(clock_ethrxint),
   .wr_tdata(dseth_tdata),
   .wr_tvalid(dsethiq_tvalid),
@@ -670,6 +671,7 @@ radio_i
   .cw_keydown(cw_keydown_ad9866sync),
   .tx_on(tx_on_ad9866sync),
   .tx_cw_key(tx_cw_waveform),
+  .tx_hang(tx_hang),
 
   // Transmit
   .tx_tdata({dsiq_tdata[7:0],dsiq_tdata[15:8],dsiq_tdata[23:16],dsiq_tdata[31:24]}),
@@ -744,6 +746,12 @@ sync syncio_run (
   .sig_out(run_iosync)
 );
 
+sync syncio_txhang (
+  .clock(clk_ctrl),
+  .sig_in(tx_hang),
+  .sig_out(tx_hang_iosync)
+);
+
 
 control #(.HERMES_SERIALNO(HERMES_SERIALNO)) control_i (
   // Internal
@@ -761,6 +769,7 @@ control #(.HERMES_SERIALNO(HERMES_SERIALNO)) control_i (
   .rxgoodlvl(rxgoodlvl_iosync),
   .rxclrstatus(rxclrstatus),
   .run(run_iosync),
+  .tx_hang(tx_hang_iosync),
 
   .cmd_addr(cmd_addr),
   .cmd_data(cmd_data),

@@ -332,23 +332,23 @@ always @* begin
     end
 
     PUSHI1: begin
-      dsethiq_tvalid = 1'b1;
+      dsethiq_tvalid = cmd_ptt;
       state_next = PUSHI0;
     end
 
     PUSHI0: begin
-      dsethiq_tvalid = 1'b1;
+      dsethiq_tvalid = cmd_ptt;
       state_next = PUSHQ1;
     end
 
     PUSHQ1: begin
-      dsethiq_tvalid = 1'b1;
+      dsethiq_tvalid = cmd_ptt;
       state_next = PUSHQ0;
     end
 
     PUSHQ0: begin
-      dsethiq_tvalid = 1'b1;
-      dsethiq_tlast  = 1'b1;
+      dsethiq_tvalid = cmd_ptt;
+      dsethiq_tlast  = cmd_ptt;
       if (&pushcnt[5:0]) begin
         if (~pushcnt[6]) begin
           //framecnt_next = 1'b1;
