@@ -75,7 +75,7 @@ class Spectrum:
     if self.complexinput:
       return (i - (len(self.sa)/2)) * self.bin2mhz
     else:
-      return i * self.bin2mhx
+      return i * self.bin2mhz
 
   def findPeaks(self,order=2,clipdb=None):
 

@@ -23,10 +23,12 @@ module test_cpl_cordic;
 
     reg clk;
     reg signed [31:0] phase;
+    reg signed [15:0] i_sig;
+    reg signed [15:0] q_sig;
     wire signed [15:0] cos;
 
     initial begin
-        $from_myhdl(clk, phase);
+        $from_myhdl(clk, phase, i_sig, q_sig);
         $to_myhdl(cos);
         $dumpfile("test_cpl_cordic.lxt");
         $dumpvars(0, test_cpl_cordic);
@@ -36,8 +38,8 @@ module test_cpl_cordic;
 cpl_cordic #(.OUT_WIDTH(16)) UUT (
     .clock(clk), 
     .frequency(phase), 
-    .in_data_I(16'h4c9a),           
-    .in_data_Q(16'h0000), 
+    .in_data_I(i_sig),           
+    .in_data_Q(q_sig), 
     .out_data_I(cos), 
     .out_data_Q()
 );
@@ -61,6 +63,10 @@ def bench():
     maxv = 2**15
     cos = Signal(intbv(0,min=-maxv,max=maxv))
 
+    maxv = 2**15
+    i_sig  = Signal(intbv(0,min=-maxv,max=maxv))
+    q_sig  = Signal(intbv(0,min=-maxv,max=maxv))
+ 
     # DUT
     if os.system(build_cmd):
         raise Exception("Error running build command")
@@ -69,7 +75,9 @@ def bench():
         "vvp -m myhdl %s.vvp -lxt2" % testbench,
         clk=clk,
         phase=phase,
-        cos=cos
+        i_sig=i_sig,
+        q_sig=q_sig,
+        cos=cos,
     )
 
     @always(delay(5))
@@ -80,11 +88,25 @@ def bench():
     @instance
     def check():
 
-        phase.next = 0x18a9c71c
+        sampling_freq = 76800000
+        dt = 1.0/sampling_freq
+        sigf  = 12000
+        tx_freq  = 24000000
+        phi = int(0x7fffffff *float(tx_freq)/(sampling_freq/2))
+
+
+        phase.next = phi
         for i in range(32):
             yield negedge(clk)
 
         for i in range(16384):
+            isig = np.sin(2*np.pi*sigf*i*dt)
+            isig = int(round(isig * (2**15-1)))
+            i_sig.next = isig
+            qsig = np.cos(2*np.pi*sigf*i*dt)
+            qsig = int(round(qsig * (2**15-1)))
+            q_sig.next = qsig
+
             cosa[i] = cos ## >> 2
             yield clk.negedge
  

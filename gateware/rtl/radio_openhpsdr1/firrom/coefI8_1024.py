@@ -1033,25 +1033,38 @@ BEGIN
 """
 
 
-f1 = open("coefI8_1024.txt","w")
-f2 = open("coefI8_1024.mif","w")
+def make():
+    f1 = open("coefI8_1024.txt","w")
+    f2 = open("coefI8_1024.mif","w")
+    
+    f2.write(mifpreamble)
+    
+    scale = 0.8535
+    
+    coeffs = scoeffs.split('\n')
+    
+    i = 0
+    for coeff in coeffs:
+      fv = scale * float(coeff)
+      iv = int(round(fv))
+      hv = 0x3ffff & iv
+      f1.write("{0:018b} // {1} {2}\n".format(hv,iv,fv))
+      f2.write("{0:03X} : {1:05X}; --  {2} {3}\n".format(i,hv,iv,fv))
+      i = i + 1
+    
+    f2.write("END;\n")
+    
+    f1.close()
+    f2.close()
 
-f2.write(mifpreamble)
-
-scale = 0.8535
-
-coeffs = scoeffs.split('\n')
-
-i = 0
-for coeff in coeffs:
-  fv = scale * float(coeff)
-  iv = int(round(fv))
-  hv = 0x3ffff & iv
-  f1.write("{0:018b} // {1} {2}\n".format(hv,iv,fv))
-  f2.write("{0:03X} : {1:05X}; --  {2} {3}\n".format(i,hv,iv,fv))
-  i = i + 1
-
-f2.write("END;\n")
-
-f1.close()
-f2.close()
+def gain():
+    coeffs = scoeffs.split('\n')
+    gains = [0,0,0,0,0,0,0,0]
+    phase = 0
+    for coeff in coeffs:
+        gains[phase] = gains[phase] + float(coeff)
+        phase = phase + 1
+        phase = phase % 8
+    print("Gains are",gains) 
+    
+gain()  

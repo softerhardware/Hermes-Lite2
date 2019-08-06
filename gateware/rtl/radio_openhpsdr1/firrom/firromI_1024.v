@@ -68,13 +68,14 @@ module firromI_1024 (
 
   input [9:0]  address;
   input   clock;
-  output  [17:0]  q;
+  output  reg [17:0]  q;
 
   reg [17:0] rom[1023:0];
 
   initial
   begin
     $readmemb(init_file, rom);
+    q = 0;
   end
 
   always @ (posedge clock)
