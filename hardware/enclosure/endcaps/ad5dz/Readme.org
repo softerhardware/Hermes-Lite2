@@ -1,0 +1,79 @@
+* End Panels for the Hermes-Lite 2.0
+  This project is still probationary and under construction.
+
+  This directory contains kicad designs for end panels constructed of printed
+  circuit board and additional materials used to prepare them.
+* Without kicad
+  If you want end panels with horizontal labelling,
+  take [[https://raw.githubusercontent.com/softerhardware/Hermes-Lite2/master/hardware/enclosure/endcaps/ad5dz/hl2-front-horiz/hl2-front-horiz.zip][hl2-front-horiz.zip]]
+  and [[https://raw.githubusercontent.com/softerhardware/Hermes-Lite2/master/hardware/enclosure/endcaps/ad5dz/hl2-back-horiz/hl2-back-horiz.zip][hl2-back-horiz.zip]].
+  Horizontal labels work if your Hermes Lite
+  sits on the wide edge of the enclosure.
+
+  If you want end panels with vertical labelling,
+  take [[https://raw.githubusercontent.com/softerhardware/Hermes-Lite2/master/hardware/enclosure/endcaps/ad5dz/hl2-front-vert/hl2-front-vert.zip][hl2-front-vert.zip]]
+  and [[https://raw.githubusercontent.com/softerhardware/Hermes-Lite2/master/hardware/enclosure/endcaps/ad5dz/hl2-back-vert/hl2-back-vert.zip][hl2-back-vert.zip]]
+  Vertical labels work if your Hermes Lite
+  sits on the narrow edge of the enclosure.
+
+  Each zip file contains the gerbers and drill files
+  for one panel. Submit the zip file to the PCB
+  fabricator of your choice, order how ever many copies of
+  the board you want, specify an 0.8mm board thickness,
+  and complete your order.
+
+  I've used oshpark.com, sparkfun.com, and jlcpcb.com as
+  PCB fabricators, there are lots of others.
+* With kicad
+** Pay attention to the version of kicad
+   These projects were made with 5.0.2-dfsg/1-1 from the Ubuntu/Debian archives.
+   Other versions of kicad may not understand the data in these projects.
+** Use the templates
+   Each of the board designs is formatted as a template, a pre-built scaffolding
+   for your own project.
+** Set KICAD_USER_TEMPLATE_DIR
+   When you click the "Create new project from template" icon on the kicad
+   toolbar, you will be presented with a choice between "System Templates"
+   and "User Templates".
+   To see the "User Templates" for Hermes Lite end panels, your "Template path"
+   needs to point to the ".../ad5dz/template" directory.  Click on the "Browse"
+   button and make it so.
+   There's a way to set the "Template path" in the preferences, but it's tedious
+   to describe.
+* Subdirectories
+** bin
+   Some scripts I used to make these directories.
+** dxf
+   the dxf drawings for the front and back panels, sized for 55*105*150 case,
+   taken from ../f4grx and scaled.
+** hl2-panel
+   kicad project for a blank end panel,
+   panel edge cut and mounting holes only,
+   used as a template for hl2-front and hl2-back
+** hl2-front
+   kicad project for the front panel,
+   the hl2-panel template with front panel mounting holes and cutouts,
+   used as a template for hl2-front-vert and hl2-front-horiz
+** hl2-back
+   kicad project for the back panel,
+   the hl2-panel template with back panel mounting holes and cutouts,
+   used as a template for hl2-back-vert and hl2-back-horiz
+** hl2-front-vert
+   kicad project for complete hl2 front panel with labels for board in vertical orientation
+   the hl2-front template with labelling for case on narrow edge
+** hl2-front-horiz
+   kicad project for complete hl2 front panel with labels for board in horizontal orientation
+   the hl2-front template with labelling for case on wide edge
+** hl2-back-vert
+   kicad project complete hl2 back panel with labels for board in vertical orientation
+   the hl2-back template with labelling for case on narrow edge
+** hl2-back-horiz
+   kicad project complete hl2 back panel with labels for board in horizontal orientation
+   the hl2-back template with labelling for case on wide edge
+** mech-115mm
+   mechanical drawings for the 55*105*150 mm case, note that the widths written on the drawing
+   are all 1mm too large, the heights are exactly right.
+** mech-116mm
+   mechanical drawings for the 55*106*150 mm case
+
+   
