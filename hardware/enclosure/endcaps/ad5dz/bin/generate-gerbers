@@ -1,0 +1,14 @@
+#!/bin/sh
+# tour the kicad projects
+# launch pcbnew on each project
+# generate the gerbers files and excelon drill files
+# using File > Plot... menu entry
+# when the operator quits pcbnew, we zip the generated files
+#
+for f in hl2-*; do
+    cd $f
+    pcbnew `pwd`/$f.kicad_pcb
+    rm -f $f.zip
+    (cd gerbers && zip ../$f.zip *)
+    cd ..
+done

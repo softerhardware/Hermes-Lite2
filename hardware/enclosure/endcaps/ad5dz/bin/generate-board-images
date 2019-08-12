@@ -1,0 +1,24 @@
+#!/bin/sh
+# tour the kicad projects
+# arrange to take a screenshot of the pcb for meta/brd.png
+# that means backgrounding the screen shot with a timeout
+# and launching pcbnew with the board definition
+#
+# because pcbnew does not display the front silk unless it
+# is selected as the top layer, the operator must select it
+# within the timeout period for the labelled boards
+for f in hl2-*; do
+    cd $f/meta
+    (sleep 5 && gnome-screenshot -w -f brd.png) & 
+    pcbnew `pwd`/../$f.kicad_pcb
+    cd ../..
+done
+
+#
+# now run gimp on the generated files:
+# 1) select the board image area
+# 2) crop to selection
+# 3) scale cropped image to 640px width
+# 4) overwrite back to brd.png file
+#
+gimp */meta/brd.png
