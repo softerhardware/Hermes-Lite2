@@ -89,7 +89,9 @@ special = {
     "PCB 5x10":[Quote(Decimal(4.00),'*Elecrow','http://www.elecrow.com','Elecrow','','PCB Main Board')],
     "AK-C-C12":[Quote(Decimal(16.78),'*AliExpress','https://www.aliexpress.com/item/4-pieces-a-lot-top-sales-china-die-casting-aluminum-housing-55-106-150-mm/1243767700.html','Various','','Aluminum 100x100x50')],
     "PROG":[Quote(Decimal(3.00),'*EBay','http://www.ebay.com/itm/altera-Mini-Usb-Blaster-Cable-For-CPLD-FPGA-NIOS-JTAG-Altera-Programmer-/200943750380?hash=item2ec92e4cec:g:YyMAAOSw0fhXieqQ','Various','','USB Blaster')],
-    "30AWG Teflon PFTE":[Quote(Decimal(0.25),'*AliExpress','https://www.aliexpress.com/item/30AWG-Imported-Teflon-Silver-Plated-Copper-Wires-high-temperature-cable-headphone-Line-10-Meters/32530506093.html','Various','','PFTE Tef SilPlated 30AWG')]
+    "30AWG Teflon PFTE":[Quote(Decimal(0.25),'*AliExpress','https://www.aliexpress.com/item/30AWG-Imported-Teflon-Silver-Plated-Copper-Wires-high-temperature-cable-headphone-Line-10-Meters/32530506093.html','Various','','PFTE Tef SilPlated 30AWG')],
+    "rp9x9":[Quote(Decimal(0.25),'*AliExpress','https://www.aliexpress.com/item/32918423613.html','Various','','Raspberry Pi Heat Sink')],
+    "rp14x14":[Quote(Decimal(0.25),'*AliExpress','https://www.aliexpress.com/item/32918423613.html','Various','','Raspberry Pi Heat Sink')],
 }
 
 ## Override for problems with OctoPart or to point to other source
@@ -97,9 +99,10 @@ overrides = {
     ##"OPA2677IDDA":[Quote(Decimal(3.90),'Digi-Key','http://www.digikey.com','','OPA2677IDDA','OPA2677IDDA')],
     ##"INA199A1DC":[Quote(Decimal(0.84),'Mouser','http://www.mouser.com','','INA199A1DC','INA199A1DC')],
     ##"ST1S10PHR":[Quote(Decimal(1.82),'Digi-Key','http://www.digikey.com','','ST1S10PHR','ST1S10PHR')],
-    "AD9866BCPZ":[Quote(Decimal(27.30),'Analog Devices','https://www.analog.com/en/products/ad9866.html#product-samplebuy','','AD9866BCPZ','AD9866BCPZ')],
-    "ASTXR-12-38.400MHZ-514054-T":[Quote(Decimal(2.12),'Digi-Key','http://www.digikey.com','','535-13192-1-ND','ASTXR-12-38.400MHZ-514054-T')],
-    "AP2204MP-ADJTRG1":[Quote(Decimal(0.47),'Digi-Key','http://www.digikey.com','','AP2204MP-ADJTRG1','AP2204MP-ADJTRG1')],
+    #"AD9866BCPZ":[Quote(Decimal(27.30),'Analog Devices','https://www.analog.com/en/products/ad9866.html#product-samplebuy','','AD9866BCPZ','AD9866BCPZ')],
+    #"ASTXR-12-38.400MHZ-514054-T":[Quote(Decimal(2.12),'Digi-Key','http://www.digikey.com','','535-13192-1-ND','ASTXR-12-38.400MHZ-514054-T')],
+    #"AP2204MP-ADJTRG1":[Quote(Decimal(0.47),'Digi-Key','http://www.digikey.com','','AP2204MP-ADJTRG1','AP2204MP-ADJTRG1')],
+    "400R0111-24-9":[Quote(Decimal(0.50),'Mouser','http://www.mouser.com','','400R0111-24-9','400R0111-24-9')]
 }
 
 #overrides = {}

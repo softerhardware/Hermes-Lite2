@@ -7,8 +7,8 @@ optionset = set(["ADNI"])
 
 bom = BOM.BOM("../hermeslite.xml",optionset=optionset)
 
-pre = """\\section*{Hermes-Lite 2.0build8 BOM}
-Standard Build - \\today"""
+pre = """\\section*{Hermes-Lite 2.0build9 BOM}
+DIY Hand Build - \\today"""
 
 bom.LaTeXPrint(pre,['Mouser','Digi-Key'])
 

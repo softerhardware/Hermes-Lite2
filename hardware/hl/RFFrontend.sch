@@ -6,8 +6,8 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 5 7
 Title "RF Frontend"
-Date "2019-02-23"
-Rev "2.0-build8"
+Date "2019-08-15"
+Rev "2.0-build9"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
 Comment2 ""
@@ -2802,4 +2802,19 @@ Wire Wire Line
 	1000 4800 1475 4800
 Wire Wire Line
 	10025 2200 10050 2200
+$Comp
+L hermeslite:JNO HS7
+U 1 1 5D63BC7D
+P 1425 7275
+F 0 "HS7" V 1325 7275 39  0000 C CNN
+F 1 "9X9" V 1425 7275 39  0000 C CNN
+F 2 "" V 1355 7275 50  0000 C CNN
+F 3 "" H 1425 7275 50  0000 C CNN
+	1    1425 7275
+	0    1    1    0   
+$EndComp
+NoConn ~ 1275 7275
+NoConn ~ 1575 7275
+Text Notes 1625 7325 0    60   ~ 0
+9X9mm Raspberry Pi Heatsink for U7
 $EndSCHEMATC

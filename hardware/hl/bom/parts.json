@@ -97,6 +97,14 @@
 	"sub":1
 	},
 
+"C 390pF 0805": {
+	"mpn":["CC0805JRNPO0BN391","CL21C391JBANNNC","CC0805JRNPO9BN391","C0805C391J5GACTU"],
+	"spec":"390pF 0805NP0>=50V<=5%",
+	"assembly":"SMT",
+	"pins":2,
+	"sub":1
+	},	
+
 "C 180pF 0805": {
 	"mpn":["CC0805JRNPO0BN181","GRM2195C2A181JA01D","CL21C181JCANNNC","C0805C181J1GACTU","251R15S181JV4E"],
 	"spec":"180pF 0805NP0>=50V<=5%",
@@ -907,7 +915,27 @@
 	"spec":"21cm PFTE silver plated 24to30AWG wire",
 	"assembly":"TH",
 	"pins":0,
+	"sub":0,
 	"aliexpress":"PFTE Teflon Silver Plated Wire 30AWG"
+	},
+
+"HS 9X9": {
+	"mpn":["rp9x9"],
+	"altmpn":[""],
+	"spec":"9X9mm Raspberry Pi Heatsink",
+	"assembly":"TH",
+	"pins":0,
+	"aliexpress":"raspberry pi heat sink"
+	},
+
+"HS 14X14": {
+	"mpn":["rp14x14"],
+	"altmpn":[""],
+	"spec":"14X14mm Raspberry Pi Heatsink",
+	"assembly":"TH",
+	"pins":0,
+	"aliexpress":"raspberry pi heat sink"
 	}
+
 }
 
