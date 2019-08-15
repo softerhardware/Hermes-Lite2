@@ -6,8 +6,8 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 7 7
 Title "Hermes-Lite V2 5W Power Amplifier"
-Date "2019-02-23"
-Rev "2.0-build8"
+Date "2019-08-15"
+Rev "2.0-build9"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
 Comment2 ""
@@ -709,7 +709,7 @@ L hermeslite:C_Small C84
 U 1 1 5816E929
 P 5625 2825
 F 0 "C84" H 5700 2900 39  0000 L CNN
-F 1 "270pF" H 5650 2750 39  0000 L CNN
+F 1 "390pF" H 5650 2750 39  0000 L CNN
 F 2 "HERMESLITE:SMD-0805" H 5625 2825 50  0001 C CNN
 F 3 "" H 5625 2825 50  0000 C CNN
 	1    5625 2825
