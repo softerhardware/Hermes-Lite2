@@ -6,7 +6,7 @@ August 15, 2019. This directory contains all files necessary to fabricate the He
 
 # Files
 
- * bom.standard.pdf - BOM in standard format for DIY assembly
+ * bom.diy.pdf - BOM in standard format for DIY assembly
  * ibom.html - Interactive BOM to help with DIY assembly, open with firefox ibom.html
  * bom.assembly.pdf - BOM organization as requested by assembly house
  * bom.assembly.xlsx - BOM type and organization as requested by assembly house
@@ -30,5 +30,5 @@ August 15, 2019. This directory contains all files necessary to fabricate the He
  * R13 and R16 now included and 10K. This allows FPGA control of switching frequency.
  * HS2 and HS7 added. These are Raspberry Pi heatsinks used on U2 and U7.
  * C84 increased to 390pF for better high frequency power output.
- * W1 wire type changed to no substitutions allowed. This must be "PFTE Teflon Silver Plated Wire 30AWG" commonly found on AliExpress. Lead length of T3 must be 3mm or less. Distance between top of PCB and bottom of T3 must be 3mm or less.
+ * W1 wire type changed to no substitutions allowed. This must be "PFTE Teflon Silver Plated Wire 30AWG" commonly found on AliExpress. Lead length of T3 must be 3mm or less so that distance between top of PCB and bottom of T3 is 3mm or less.
  
