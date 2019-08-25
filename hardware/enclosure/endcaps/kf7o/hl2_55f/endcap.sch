@@ -1,5 +1,4 @@
 EESchema Schematic File Version 4
-LIBS:endcap-cache
 EELAYER 26 0
 EELAYER END
 $Descr USLetter 11000 8500
@@ -362,4 +361,6 @@ Text Notes 5800 2100 0    50   ~ 0
 SOIC-8\nSOP-8\nMSOP-8\n3.9mm wide
 Text Notes 5050 3475 0    50   ~ 0
 All discretes are 0805
+Text Notes 6825 2900 0    50   ~ 0
+Glue 8Ohm >500mW cellphone speaker\nover one of the ventilations grills.\nPart Number SP-1511L\nAS01508MS-SP11-WP-R
 $EndSCHEMATC
