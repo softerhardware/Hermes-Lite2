@@ -1,0 +1,365 @@
+EESchema Schematic File Version 4
+LIBS:endcap-cache
+EELAYER 26 0
+EELAYER END
+$Descr USLetter 11000 8500
+encoding utf-8
+Sheet 1 1
+Title "HL2 End Cap"
+Date "2019-08-23"
+Rev "1.0"
+Comp "SofterHardware"
+Comment1 "KF7O Steve Haynal"
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Connector:TestPoint MH1
+U 1 1 5D58DD5D
+P 1600 5350
+F 0 "MH1" H 1658 5470 50  0000 L CNN
+F 1 "3mm" H 1658 5379 50  0000 L CNN
+F 2 "endcaplib:mh3mm" H 1800 5350 50  0001 C CNN
+F 3 "~" H 1800 5350 50  0001 C CNN
+	1    1600 5350
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:TestPoint MH2
+U 1 1 5D58DECC
+P 2150 5350
+F 0 "MH2" H 2208 5470 50  0000 L CNN
+F 1 "3mm" H 2208 5379 50  0000 L CNN
+F 2 "endcaplib:mh3mm" H 2350 5350 50  0001 C CNN
+F 3 "~" H 2350 5350 50  0001 C CNN
+	1    2150 5350
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:TestPoint MH3
+U 1 1 5D58DF0A
+P 2700 5350
+F 0 "MH3" H 2758 5470 50  0000 L CNN
+F 1 "3mm" H 2758 5379 50  0000 L CNN
+F 2 "endcaplib:mh3mm" H 2900 5350 50  0001 C CNN
+F 3 "~" H 2900 5350 50  0001 C CNN
+	1    2700 5350
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:TestPoint MH4
+U 1 1 5D58DF75
+P 3250 5350
+F 0 "MH4" H 3308 5470 50  0000 L CNN
+F 1 "3mm" H 3308 5379 50  0000 L CNN
+F 2 "endcaplib:mh3mm" H 3450 5350 50  0001 C CNN
+F 3 "~" H 3450 5350 50  0001 C CNN
+	1    3250 5350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1600 5350 1600 5400
+Wire Wire Line
+	1600 5400 2150 5400
+Wire Wire Line
+	3250 5400 3250 5350
+Wire Wire Line
+	2700 5350 2700 5400
+Connection ~ 2700 5400
+Wire Wire Line
+	2700 5400 3250 5400
+Wire Wire Line
+	2150 5350 2150 5400
+Connection ~ 2150 5400
+Wire Wire Line
+	2150 5400 2425 5400
+Wire Wire Line
+	2425 5450 2425 5400
+Connection ~ 2425 5400
+Wire Wire Line
+	2425 5400 2700 5400
+$Comp
+L Connector:TestPoint TP4
+U 1 1 5D60D307
+P 6275 2525
+F 0 "TP4" V 6229 2713 50  0001 L CNN
+F 1 "A+" V 6275 2713 50  0000 L CNN
+F 2 "TestPoint:TestPoint_Pad_D3.0mm" H 6475 2525 50  0001 C CNN
+F 3 "~" H 6475 2525 50  0001 C CNN
+	1    6275 2525
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector:TestPoint TP5
+U 1 1 5D60D3CC
+P 6275 3025
+F 0 "TP5" V 6229 3213 50  0001 L CNN
+F 1 "A-" V 6275 3213 50  0000 L CNN
+F 2 "TestPoint:TestPoint_Pad_D3.0mm" H 6475 3025 50  0001 C CNN
+F 3 "~" H 6475 3025 50  0001 C CNN
+	1    6275 3025
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:C_Small C2
+U 1 1 5D60D446
+P 4550 2825
+F 0 "C2" V 4600 2725 50  0000 C CNN
+F 1 "0.1uF" V 4675 2850 50  0000 C CNN
+F 2 "endcaplib:SMD-0805" H 4550 2825 50  0001 C CNN
+F 3 "~" H 4550 2825 50  0001 C CNN
+	1    4550 2825
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector:TestPoint TP1
+U 1 1 5D60D4E5
+P 3900 2825
+F 0 "TP1" V 4095 2899 50  0001 C CNN
+F 1 "PWM" V 3900 3100 50  0000 C CNN
+F 2 "TestPoint:TestPoint_Pad_D3.0mm" H 4100 2825 50  0001 C CNN
+F 3 "~" H 4100 2825 50  0001 C CNN
+	1    3900 2825
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Connector:TestPoint TP2
+U 1 1 5D60D5F7
+P 4225 3275
+F 0 "TP2" V 4420 3349 50  0001 C CNN
+F 1 "GND" V 4225 3525 50  0000 C CNN
+F 2 "TestPoint:TestPoint_Pad_D3.0mm" H 4425 3275 50  0001 C CNN
+F 3 "~" H 4425 3275 50  0001 C CNN
+	1    4225 3275
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:C_Small C4
+U 1 1 5D60D685
+P 6075 2850
+F 0 "C4" H 6000 2925 50  0000 C CNN
+F 1 "1uF" H 5975 2775 50  0000 C CNN
+F 2 "endcaplib:SMD-0805" H 6075 2850 50  0001 C CNN
+F 3 "~" H 6075 2850 50  0001 C CNN
+	1    6075 2850
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:C_Small C3
+U 1 1 5D60D727
+P 4925 2625
+F 0 "C3" V 4750 2575 50  0000 C CNN
+F 1 "0.47uF" V 4825 2650 50  0000 C CNN
+F 2 "endcaplib:SMD-0805" H 4925 2625 50  0001 C CNN
+F 3 "~" H 4925 2625 50  0001 C CNN
+	1    4925 2625
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:C_Small C1
+U 1 1 5D60D9D8
+P 4350 2975
+F 0 "C1" H 4525 2975 50  0000 R CNN
+F 1 "1uF" H 4500 2875 50  0000 R CNN
+F 2 "endcaplib:SMD-0805" H 4350 2975 50  0001 C CNN
+F 3 "~" H 4350 2975 50  0001 C CNN
+	1    4350 2975
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Device:R R1
+U 1 1 5D60DD39
+P 4100 2825
+F 0 "R1" V 4000 2800 50  0000 C CNN
+F 1 "220" V 4100 2825 50  0000 C CNN
+F 2 "endcaplib:SMD-0805" V 4030 2825 50  0001 C CNN
+F 3 "~" H 4100 2825 50  0001 C CNN
+	1    4100 2825
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector:TestPoint TP3
+U 1 1 5D60E2FA
+P 6275 2725
+F 0 "TP3" H 6333 2845 50  0001 L CNN
+F 1 "3.3V" V 6275 2925 50  0000 L CNN
+F 2 "TestPoint:TestPoint_Pad_D3.0mm" H 6475 2725 50  0001 C CNN
+F 3 "~" H 6475 2725 50  0001 C CNN
+	1    6275 2725
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR01
+U 1 1 5D60EA7D
+P 4350 3325
+F 0 "#PWR01" H 4350 3075 50  0001 C CNN
+F 1 "GND" H 4355 3152 50  0000 C CNN
+F 2 "" H 4350 3325 50  0001 C CNN
+F 3 "" H 4350 3325 50  0001 C CNN
+	1    4350 3325
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4350 3075 4350 3275
+Wire Wire Line
+	4250 2825 4350 2825
+Wire Wire Line
+	4650 2825 4750 2825
+Wire Wire Line
+	4350 2875 4350 2825
+Connection ~ 4350 2825
+Wire Wire Line
+	4350 2825 4450 2825
+Wire Wire Line
+	4225 3275 4350 3275
+Connection ~ 4350 3275
+Wire Wire Line
+	4350 3275 4350 3325
+Wire Wire Line
+	3900 2825 3950 2825
+$Comp
+L Connector:TestPoint TP6
+U 1 1 5D612CA5
+P 5100 2475
+F 0 "TP6" V 5295 2549 50  0001 C CNN
+F 1 "SD" H 5100 2700 50  0000 C CNN
+F 2 "TestPoint:TestPoint_Pad_D3.0mm" H 5300 2475 50  0001 C CNN
+F 3 "~" H 5300 2475 50  0001 C CNN
+	1    5100 2475
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR02
+U 1 1 5D613D57
+P 2425 5450
+F 0 "#PWR02" H 2425 5200 50  0001 C CNN
+F 1 "GND" H 2430 5277 50  0000 C CNN
+F 2 "" H 2425 5450 50  0001 C CNN
+F 3 "" H 2425 5450 50  0001 C CNN
+	1    2425 5450
+	1    0    0    -1  
+$EndComp
+$Comp
+L endcap:IS31AP4996 U1
+U 1 1 5D61E62F
+P 5250 2875
+F 0 "U1" H 5475 3450 50  0000 C CNN
+F 1 "IS31AP4996" H 5475 3359 50  0000 C CNN
+F 2 "endcaplib:SOIC-8" H 5250 2875 50  0001 C CNN
+F 3 "" H 5250 2875 50  0001 C CNN
+	1    5250 2875
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R2
+U 1 1 5D61F1D0
+P 4900 2825
+F 0 "R2" V 5000 2750 50  0000 C CNN
+F 1 "20K" V 4900 2825 50  0000 C CNN
+F 2 "endcaplib:SMD-0805" V 4830 2825 50  0001 C CNN
+F 3 "~" H 4900 2825 50  0001 C CNN
+	1    4900 2825
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:R R3
+U 1 1 5D61F288
+P 5475 3025
+F 0 "R3" V 5575 2975 50  0000 C CNN
+F 1 "20K" V 5475 3025 50  0000 C CNN
+F 2 "endcaplib:SMD-0805" V 5405 3025 50  0001 C CNN
+F 3 "~" H 5475 3025 50  0001 C CNN
+	1    5475 3025
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5100 2475 5100 2525
+Wire Wire Line
+	5100 2525 5150 2525
+Wire Wire Line
+	5050 2825 5125 2825
+Wire Wire Line
+	5325 3025 5125 3025
+Wire Wire Line
+	5125 3025 5125 2825
+Connection ~ 5125 2825
+Wire Wire Line
+	5125 2825 5150 2825
+Wire Wire Line
+	5800 2825 5850 2825
+Wire Wire Line
+	5850 2825 5850 3025
+Wire Wire Line
+	5850 3025 5625 3025
+Wire Wire Line
+	5850 3025 6275 3025
+Wire Wire Line
+	5800 2525 6275 2525
+Connection ~ 5850 3025
+$Comp
+L power:GND #PWR03
+U 1 1 5D62257A
+P 4775 2625
+F 0 "#PWR03" H 4775 2375 50  0001 C CNN
+F 1 "GND" H 4775 2500 50  0001 C CNN
+F 2 "" H 4775 2625 50  0001 C CNN
+F 3 "" H 4775 2625 50  0001 C CNN
+	1    4775 2625
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5025 2625 5150 2625
+Wire Wire Line
+	4775 2625 4825 2625
+Wire Wire Line
+	5800 2725 6075 2725
+$Comp
+L power:GND #PWR04
+U 1 1 5D623ECE
+P 5850 2625
+F 0 "#PWR04" H 5850 2375 50  0001 C CNN
+F 1 "GND" H 5850 2500 50  0001 C CNN
+F 2 "" H 5850 2625 50  0001 C CNN
+F 3 "" H 5850 2625 50  0001 C CNN
+	1    5850 2625
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:GND #PWR05
+U 1 1 5D623F09
+P 6075 3100
+F 0 "#PWR05" H 6075 2850 50  0001 C CNN
+F 1 "GND" H 6075 2975 50  0001 C CNN
+F 2 "" H 6075 3100 50  0001 C CNN
+F 3 "" H 6075 3100 50  0001 C CNN
+	1    6075 3100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5800 2625 5850 2625
+Wire Wire Line
+	6075 2750 6075 2725
+Connection ~ 6075 2725
+Wire Wire Line
+	6075 2725 6275 2725
+Wire Wire Line
+	6075 2950 6075 3100
+$Comp
+L Connector:TestPoint TP7
+U 1 1 5D6251CC
+P 5000 2725
+F 0 "TP7" V 5195 2799 50  0001 C CNN
+F 1 "IN+" V 5000 2975 50  0000 C CNN
+F 2 "TestPoint:TestPoint_Pad_D2.0mm" H 5200 2725 50  0001 C CNN
+F 3 "~" H 5200 2725 50  0001 C CNN
+	1    5000 2725
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	5000 2725 5150 2725
+Text Notes 5800 2100 0    50   ~ 0
+SOIC-8\nSOP-8\nMSOP-8\n3.9mm wide
+Text Notes 5050 3475 0    50   ~ 0
+All discretes are 0805
+$EndSCHEMATC
