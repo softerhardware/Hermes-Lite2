@@ -2,14 +2,14 @@
 <export version="D">
   <design>
     <source>/home/shaynal/Hermes-Lite2/hardware/hl/hermeslite.sch</source>
-    <date>Thu 15 Aug 2019 11:25:28 AM PDT</date>
+    <date>Sun 25 Aug 2019 08:01:57 PM PDT</date>
     <tool>Eeschema 5.0.2-bee76a0~70~ubuntu16.04.1</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
         <title>Hermes-Lite</title>
         <company>SofterHardware</company>
         <rev>2.0-build9</rev>
-        <date>2019-08-15</date>
+        <date>2019-08-25</date>
         <source>hermeslite.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -22,7 +22,7 @@
         <title>Power</title>
         <company>SofterHardware</company>
         <rev>2.0-build9</rev>
-        <date>2019-08-15</date>
+        <date>2019-08-25</date>
         <source>Power.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -35,7 +35,7 @@
         <title>Ethernet</title>
         <company>SofterHardware</company>
         <rev>2.0-build9</rev>
-        <date>2019-08-15</date>
+        <date>2019-08-25</date>
         <source>Ethernet.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -48,7 +48,7 @@
         <title>Clock</title>
         <company>SofterHardware</company>
         <rev>2.0-build9</rev>
-        <date>2019-08-15</date>
+        <date>2019-08-25</date>
         <source>Clock.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -61,7 +61,7 @@
         <title>RF Frontend</title>
         <company>SofterHardware</company>
         <rev>2.0-build9</rev>
-        <date>2019-08-15</date>
+        <date>2019-08-25</date>
         <source>RFFrontend.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -74,7 +74,7 @@
         <title>Hermes-Lite Input Output</title>
         <company>SofterHardware</company>
         <rev>2.0-build9</rev>
-        <date>2019-08-15</date>
+        <date>2019-08-25</date>
         <source>InputOutput.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -87,7 +87,7 @@
         <title>Hermes-Lite V2 5W Power Amplifier</title>
         <company>SofterHardware</company>
         <rev>2.0-build9</rev>
-        <date>2019-08-15</date>
+        <date>2019-08-25</date>
         <source>PA.sch</source>
         <comment number="1" value="KF7O Steve Haynal"/>
         <comment number="2" value=""/>
@@ -1809,9 +1809,6 @@
     <comp ref="CL1">
       <value>SMA</value>
       <footprint>HERMESLITE:SMAEDGE_TH_L</footprint>
-      <fields>
-        <field name="Option">DNI</field>
-      </fields>
       <libsource lib="hermeslite" part="BNC" description=""/>
       <sheetpath names="/Clock/" tstamps="/56B04D05/"/>
       <tstamp>56BF7799</tstamp>
@@ -1931,9 +1928,6 @@
     <comp ref="CL2">
       <value>SMA</value>
       <footprint>HERMESLITE:SMAEDGE_TH_L</footprint>
-      <fields>
-        <field name="Option">DNI</field>
-      </fields>
       <libsource lib="hermeslite" part="BNC" description=""/>
       <sheetpath names="/Clock/" tstamps="/56B04D05/"/>
       <tstamp>578D434B</tstamp>

@@ -19,7 +19,7 @@ August 15, 2019. This directory contains all files necessary to fabricate the He
 
 ## PCB
 
- * CL1 and CL2 inset to match N2ADR board. Some rework in that area. These components are optional for external clocking.
+ * CL1 and CL2 inset to match N2ADR board. Some rework in that area.
  * Silkscreen updated to build9.
  * Opensource hardware logo added back to silkscreen.
  * Location of R13 and J2 swapped.
@@ -31,4 +31,5 @@ August 15, 2019. This directory contains all files necessary to fabricate the He
  * HS2 and HS7 added. These are Raspberry Pi heatsinks used on U2 and U7.
  * C84 increased to 390pF for better high frequency power output.
  * W1 wire type changed to no substitutions allowed. This must be "PFTE Teflon Silver Plated Wire 30AWG" commonly found on AliExpress. Lead length of T3 must be 3mm or less so that distance between top of PCB and bottom of T3 is 3mm or less.
- 
+ * CL1 and CL2 now included. These are edge-launch SMA connectors mounted at the front of the HL2 in the same fashion as mounted on the N2ADR filter boards.
+

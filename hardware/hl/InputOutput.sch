@@ -6,7 +6,7 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 6 7
 Title "Hermes-Lite Input Output"
-Date "2019-08-15"
+Date "2019-08-25"
 Rev "2.0-build9"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"

@@ -6,7 +6,7 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 4 7
 Title "Clock"
-Date "2019-08-15"
+Date "2019-08-25"
 Rev "2.0-build9"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
@@ -188,7 +188,6 @@ F 0 "CL1" H 2960 4420 39  0000 C CNN
 F 1 "SMA" H 3100 4325 39  0000 C CNN
 F 2 "HERMESLITE:SMAEDGE_TH_L" H 2950 4300 50  0001 C CNN
 F 3 "" H 2950 4300 50  0000 C CNN
-F 4 "DNI" H 3100 4250 39  0000 C CNN "Option"
 	1    2950 4300
 	-1   0    0    -1  
 $EndComp
@@ -540,7 +539,6 @@ F 0 "CL2" H 7375 5625 39  0000 C CNN
 F 1 "SMA" H 7525 5550 39  0000 C CNN
 F 2 "HERMESLITE:SMAEDGE_TH_L" H 7375 5500 50  0001 C CNN
 F 3 "" H 7375 5500 50  0000 C CNN
-F 4 "DNI" H 7525 5475 39  0000 C CNN "Option"
 	1    7375 5500
 	1    0    0    -1  
 $EndComp
@@ -822,9 +820,9 @@ F 3 "" H 4000 3375 50  0000 C CNN
 	1    4000 3375
 	1    0    0    -1  
 $EndComp
-Text Notes 1775 4325 0    60   ~ 0
+Text Notes 1750 4300 0    60   ~ 0
 External Clock Input
-Text Notes 7575 5550 0    60   ~ 0
+Text Notes 7625 5500 0    60   ~ 0
 External Clock Output
 Wire Wire Line
 	4000 3350 4000 3375
