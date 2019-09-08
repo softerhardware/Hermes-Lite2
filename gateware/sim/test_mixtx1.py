@@ -13,8 +13,8 @@ module test_mixtx1;
     reg  [31:0] phi;
     reg  signed [17:0] i_sig;
     reg  signed [17:0] q_sig;
-    wire signed [17:0] i_result;
-    wire signed [17:0] q_result;
+    wire signed [12:0] i_result;
+    wire signed [12:0] q_result;
 
     initial begin
         $from_myhdl(clk, phi, i_sig, q_sig);
@@ -48,7 +48,7 @@ class Test(object):
 
         self.sampling_freq = 76800000
         #self.rx_freq  = 7068001
-        self.rx_freq  = 24000000
+        self.rx_freq  = 17280000
         #self.sig_freq = 7101023
         self.sig_freq = 100000
         self.phi = int(0x7fffffff *float(self.rx_freq)/(self.sampling_freq/2))
@@ -86,7 +86,7 @@ class Test(object):
         maxv = 2**17
         i_sig  = Signal(intbv(0,min=-maxv,max=maxv))
         q_sig  = Signal(intbv(0,min=-maxv,max=maxv))
-        maxv = 2**17
+        maxv = 2**12
         i_result = Signal(intbv(0,min=-maxv,max=maxv))
         q_result = Signal(intbv(0,min=-maxv,max=maxv))
 
@@ -116,13 +116,13 @@ class Test(object):
             phi.next =  self.phi
 
             for i in range(32+16384):
-                ##isig = np.sin(2*np.pi*self.sig_freq*i*self.dt)
-                isig = 1.0
+                isig = np.sin(2*np.pi*self.sig_freq*i*self.dt)
                 isig = int(round(isig * (2**17-1)))
+                ##isig = 2**17-1
                 i_sig.next = isig
-                ##qsig = np.cos(2*np.pi*self.sig_freq*i*self.dt)
-                qsig = 0.0
+                qsig = np.cos(2*np.pi*self.sig_freq*i*self.dt)
                 qsig = int(round(qsig * (2**17-1)))
+                ##qsig = 0
                 q_sig.next = qsig
 
                 if i>=32: 
@@ -140,7 +140,7 @@ class Test(object):
         sim = Simulation(self.bench())
         sim.run()
         s = spectrum.Spectrum(self.res,self.dt,window=signal.flattop)
-        peaks = s.findPeaks(order=4,clipdb=100)
+        peaks = s.findPeaks(order=4,clipdb=95)
         s.printPeaks(peaks)
         s.plot("Mix Spectrum")
 

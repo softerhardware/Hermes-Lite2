@@ -129,10 +129,10 @@ localparam      NT = 1; // Transmitters
 
 // Ethernet Interface
 `ifdef BETA2
-localparam       HERMES_SERIALNO = 8'd46;     // Serial number of this version
+localparam       HERMES_SERIALNO = 8'd47;     // Serial number of this version
 localparam       MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h12,8'hdd};
 `else 
-localparam       HERMES_SERIALNO = 8'd66;     // Serial number of this version
+localparam       HERMES_SERIALNO = 8'd67;     // Serial number of this version
 localparam       MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd};
 `endif
 localparam       IP = {8'd0,8'd0,8'd0,8'd0};

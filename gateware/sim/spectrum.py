@@ -27,8 +27,9 @@ class Spectrum:
 
     fft = pyfftw.FFTW(fftia,fftoa,flags=('FFTW_ESTIMATE',),planning_timelimit=60.0)
 
-    maxv = abs(npa).max()
-    print("Max value is",maxv)
+    maxv = npa.max()
+    minv = npa.min()
+    print("Max/Min is",maxv,minv)
 
     if window: 
       w = window(n)
