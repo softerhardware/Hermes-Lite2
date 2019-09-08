@@ -16,8 +16,8 @@ input                 rst;
 input         [31:0]  phi;
 input  signed [17:0]  i_sig;
 input  signed [17:0]  q_sig;
-output signed [17:0]  i_result;
-output signed [17:0]  q_result;
+output signed [12:0]  i_result;
+output signed [12:0]  q_result;
 
 logic         [18:0]  sin, ssin;
 logic         [18:0]  cos, scos;
@@ -27,7 +27,7 @@ logic  signed [35:0]  qa_data_d, qb_data_d;
 logic  signed [19:0]  q_data_d;
 logic  signed [35:0]  ia_data_d, ib_data_d;
 logic  signed [19:0]  i_data_d;
-logic  signed [17:0]  i_rounded, q_rounded;
+logic  signed [12:0]  i_rounded, q_rounded;
 
 nco1 #(.CALCTYPE(3)) nco1_i (
   .clk(clk),
@@ -55,12 +55,23 @@ always @(posedge clk) begin
   ib_data_d <= $signed(q_sig) * ssin_q;
 end
 
-assign i_data_d = ia_data_d[34:15] - ib_data_d[34:15];
-assign q_data_d = qa_data_d[34:15] + qb_data_d[34:15];
+assign i_data_d = ia_data_d[35:16] - ib_data_d[35:16];
+assign q_data_d = qa_data_d[35:16] + qb_data_d[35:16];
+
+//always @(posedge clk) begin
+//  i_rounded <= i_data_d[19:2] + {17'h00,i_data_d[1]};
+//  q_rounded <= q_data_d[19:2] + {17'h00,q_data_d[1]};
+//end
+
+//assign i_result = i_data_d[19:8];
+//assign q_result = q_data_d[19:8];
+
+//assign i_result = i_rounded[17:6];
+//assign q_result = q_rounded[17:6];
 
 always @(posedge clk) begin
-  i_rounded <= i_data_d[19:2] + {17'h00,i_data_d[1]};
-  q_rounded <= q_data_d[19:2] + {17'h00,q_data_d[1]};
+  i_rounded <= {i_data_d[19],i_data_d[19:8]} + {12'h00,i_data_d[7]};
+  q_rounded <= {q_data_d[19],q_data_d[19:8]} + {12'h00,q_data_d[7]};
 end
 
 assign i_result = i_rounded;

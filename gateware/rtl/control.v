@@ -423,10 +423,10 @@ i2c i2c_i (
 slow_adc slow_adc_i (
   .clk(clk),
   .rst(slow_adc_rst),
-  .ain0(fwd_pwr),
+  .ain0(rev_pwr),
   .ain1(temperature),
   .ain2(bias_current),
-  .ain3(rev_pwr),
+  .ain3(fwd_pwr),
   .scl_i(scl3_i),
   .scl_o(scl3_o),
   .scl_t(scl3_t),
