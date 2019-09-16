@@ -347,7 +347,7 @@ logic [1:0]   resp_state = RESP_START, resp_state_next;
 logic         cw_keydown;
 logic         cw_power_on;
 
-
+logic         ptt_resp = 1'b0;
 
 
 /////////////////////////////////////////////////////
@@ -510,6 +510,15 @@ cw_support cw_support_i(
   .cw_keydown(cw_keydown)
 );
 
+// Include CW and hang times in ptt response
+always @(posedge clk) begin
+  if (cw_keydown | ext_ptt) begin
+    ptt_resp <= 1'b1;
+  end else if (~tx_hang) begin
+    ptt_resp <= 1'b0;
+  end
+end
+
 
 
 logic        tx_power_on;		// Is the power on?
@@ -630,10 +639,10 @@ always @(posedge clk) begin
       iresp <= {1'b1,resp_cmd_addr,tx_on, resp_cmd_data}; // Queue size is 1
     end else begin
       case( resp_addr) 
-        2'b00: iresp <= {3'b000,resp_addr,1'b0, ext_cwkey, ext_ptt, 7'b0001111,(&clip_cnt), 8'h00, 8'h00, HERMES_SERIALNO};
-        2'b01: iresp <= {3'b000,resp_addr,1'b0, ext_cwkey, ext_ptt, 4'h0,temperature, 4'h0,fwd_pwr};
-        2'b10: iresp <= {3'b000,resp_addr,1'b0, ext_cwkey, ext_ptt, 4'h0,rev_pwr, 4'h0,bias_current};
-        2'b11: iresp <= {3'b000,resp_addr,1'b0, ext_cwkey, ext_ptt, 32'h0}; // Unused in HL
+        2'b00: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 7'b0001111,(&clip_cnt), 8'h00, 8'h00, HERMES_SERIALNO};
+        2'b01: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 4'h0,temperature, 4'h0,fwd_pwr};
+        2'b10: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 4'h0,rev_pwr, 4'h0,bias_current};
+        2'b11: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 32'h0}; // Unused in HL
       endcase 
     end
   end else if (~(&clip_cnt)) begin
