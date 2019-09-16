@@ -188,7 +188,7 @@ always @* begin
     DECODE: begin
       if (eth_data == 8'h01) state_next = ENDPOINT;
       else if (eth_data == 8'h04) state_next = RUNSTOP;
-      else if ((eth_data == 8'h02) & eth_broadcast) state_next = DISCOVERY;
+      else if (eth_data == 8'h02) state_next = DISCOVERY;
       else if (eth_data == 8'h03) state_next = ASMI_DECODE;
     end
 
