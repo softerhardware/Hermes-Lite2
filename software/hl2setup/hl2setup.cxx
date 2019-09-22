@@ -199,7 +199,7 @@ public:
 	}
 } ;
 
-MainWindow * main_window = new MainWindow(600,400, "Hermes-Lite 2 Test and Setup Utility, Version 2.0, April 2019");
+MainWindow * main_window = new MainWindow(600,400, "Hermes-Lite 2 Test and Setup Utility, Version 2.1, September 2019");
 
 void WriteStatus(const char * msg)
 {
