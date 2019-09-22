@@ -80,7 +80,7 @@ static void quisk_hermes_tx_send(void);
 static void Bias0code(int);
 static void Bias1code(int);
 static int read_rx_udp10(int);
-static int CheckResult(const char *, double, double, double);
+static int CheckResult(const char *, double, double, double, const char *);
 static void InitParams(void);
 
 #define SHORT_TIME	(63 * 2 * 6 * 2)	// Enough samples for all changed C0 to be sent, plus a delay
@@ -131,32 +131,32 @@ void HL2Run(void)
 		break;
 	case BACKGROUND_NOISE + 1:
 		snprintf(output120, 120, "Noise level on 160m is %.0f", hermes_sample_rms);
-		CheckResult(output120, hermes_sample_rms, -103.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -103.0, 0.10, NULL);
 		hermes_rx_freq = 14000000;
 		DELAY_NEXT
 		break;
 	case BACKGROUND_NOISE + 2:
 		snprintf(output120, 120, "Noise level on 20m is %.0f", hermes_sample_rms);
-		CheckResult(output120, hermes_sample_rms, -104.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -104.0, 0.10, NULL);
 		hermes_rx_freq = 29000000;
 		DELAY_NEXT
 		break;
 	case BACKGROUND_NOISE + 3:
 		snprintf(output120, 120, "Noise level on 10m is %.0f", hermes_sample_rms);
-		CheckResult(output120, hermes_sample_rms, -104.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -104.0, 0.10, NULL);
 		hermes_rx_freq = 14000000;
 		hermes_lna_gain = -12;
 		DELAY_NEXT
 		break;
 	case BACKGROUND_NOISE + 4:
 		snprintf(output120, 120, "Noise level on 20m at -12 dB LNA is %.0f", hermes_sample_rms);
-		CheckResult(output120, hermes_sample_rms, -109.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -109.0, 0.10, NULL);
 		hermes_lna_gain = +48;
 		DELAY_NEXT
 		break;
 	case BACKGROUND_NOISE + 5:
 		snprintf(output120, 120, "Noise level on 20m at +48 dB LNA is %.0f", hermes_sample_rms);
-		CheckResult(output120, hermes_sample_rms, -85.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -85.0, 0.10, NULL);
 		hermes_run_state = SIGNAL_LEVEL;
 		break;
 	case SIGNAL_LEVEL:
@@ -176,14 +176,14 @@ void HL2Run(void)
 		break;
 	case SIGNAL_LEVEL + 1:
 		snprintf(output120, 120, "Signal level on 160m is %.0f", hermes_sample_rms);
-		CheckResult(output120, hermes_sample_rms, -29.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -29.0, 0.10, NULL);
 		hermes_rx_freq = 3500000;
 		hermes_tx_freq = 3501000;
 		DELAY_NEXT
 		break;
 	case SIGNAL_LEVEL + 2:
 		snprintf(output120, 120, "Signal level on 80m is %.0f", hermes_sample_rms);
-		CheckResult(output120, hermes_sample_rms, -29.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -29.0, 0.10, NULL);
 		hermes_rx_freq = 14000000;
 		hermes_tx_freq = 14001000;
 		DELAY_NEXT
@@ -191,14 +191,14 @@ void HL2Run(void)
 	case SIGNAL_LEVEL + 3:
 		rms_ref = hermes_sample_rms;	// save 20m sample RMS for test of LNA and Tx drive
 		snprintf(output120, 120, "Signal level on 20m is %.0f", hermes_sample_rms);
-		CheckResult(output120, hermes_sample_rms, -28.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -28.0, 0.10, NULL);
 		hermes_rx_freq = 29000000;
 		hermes_tx_freq = 29001000;
 		DELAY_NEXT
 		break;
 	case SIGNAL_LEVEL + 4:
 		snprintf(output120, 120, "Signal level on 10m is %.0f", hermes_sample_rms);
-		CheckResult(output120, hermes_sample_rms, -30.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -30.0, 0.10, NULL);
 		hermes_tx_drive_level = 125;
 		hermes_rx_freq = 14000000;
 		hermes_tx_freq = 14001000;
@@ -206,26 +206,26 @@ void HL2Run(void)
 		break;
 	case SIGNAL_LEVEL + 5:
 		snprintf(output120, 120, "Signal level 20m at -3.5 dB tx drive is %.0f", hermes_sample_rms);
-		CheckResult(output120, hermes_sample_rms, rms_ref - 3.5, 0.10);
+		CheckResult(output120, hermes_sample_rms, rms_ref - 3.5, 0.10, "HL2 U7");
 		hermes_tx_drive_level = 0;
 		DELAY_NEXT
 		break;
 	case SIGNAL_LEVEL + 6:
 		snprintf(output120, 120, "Signal level 20m at -7.5 dB tx drive is %.0f", hermes_sample_rms);
-		CheckResult(output120, hermes_sample_rms, rms_ref - 7.5, 0.10);
+		CheckResult(output120, hermes_sample_rms, rms_ref - 7.5, 0.10, "HL2 U7");
 		rms_ref = hermes_sample_rms; // Save at -7.5 dB TX
 		hermes_lna_gain = 10;
 		DELAY_NEXT
 		break;
 	case SIGNAL_LEVEL + 7:
 		snprintf(output120, 120, "Signal level 20m at +10 dB LNA is %.0f", hermes_sample_rms);
-		CheckResult(output120, hermes_sample_rms, rms_ref + 10.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, rms_ref + 10.0, 0.10, "HL2 U7");
 		hermes_lna_gain = 19;
 		DELAY_NEXT
 		break;
 	case SIGNAL_LEVEL + 8:
 		snprintf(output120, 120, "Signal level 20m at +19 dB LNA is %.0f", hermes_sample_rms);
-		CheckResult(output120, hermes_sample_rms, rms_ref + 19.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, rms_ref + 19.0, 0.10, "HL2 U7");
 		hermes_run_state = FILTER_BOARD;
 		break;
 	case FILTER_BOARD:
@@ -245,63 +245,63 @@ void HL2Run(void)
 	case FILTER_BOARD + 1:
 		snprintf(output120, 120, "Signal level when tx=%d is %.0f with filter 0x%02x", 
 			hermes_tx_freq,hermes_sample_rms,hermes_filter_tx);
-		CheckResult(output120, hermes_sample_rms, -27.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -27.0, 0.10, NULL);
 		hermes_filter_tx = FILTER_160;
 		DELAY_NEXT
 		break;
 	case FILTER_BOARD + 2:
 		snprintf(output120, 120, "Signal level when tx=%d is %.0f with filter 0x%02x", 
 			hermes_tx_freq,hermes_sample_rms,hermes_filter_tx);
-		CheckResult(output120, hermes_sample_rms, -27.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -27.0, 0.10, "N2ADR L5 L6 C21 C22 C23 K1");
 		hermes_tx_freq = hermes_rx_freq = 3800000;
 		DELAY_NEXT
 		break;
 	case FILTER_BOARD + 3:
 		snprintf(output120, 120, "Signal level when tx=%d is %.0f with filter 0x%02x", 
 			hermes_tx_freq,hermes_sample_rms,hermes_filter_tx);
-		CheckResult(output120, hermes_sample_rms, -50.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -50.0, 0.10, "N2ADR L5 L6 C21 C22 C23 K1");
 		hermes_filter_tx = FILTER_80;
 		DELAY_NEXT
 		break;
 	case FILTER_BOARD + 4:
 		snprintf(output120, 120, "Signal level when tx=%d is %.0f with filter 0x%02x", 
 			hermes_tx_freq,hermes_sample_rms,hermes_filter_tx);
-		CheckResult(output120, hermes_sample_rms, -27.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -27.0, 0.10, "N2ADR L1 L2 C8 C9 C10 K2");
 		hermes_tx_freq = hermes_rx_freq = 7100000;
 		DELAY_NEXT
 		break;
 	case FILTER_BOARD + 5:
 		snprintf(output120, 120, "Signal level when tx=%d is %.0f with filter 0x%02x", 
 			hermes_tx_freq,hermes_sample_rms,hermes_filter_tx);
-		CheckResult(output120, hermes_sample_rms, -48.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -48.0, 0.10, "N2ADR L1 L2 C8 C9 C10 K2");
 		hermes_filter_tx = FILTER_60_40;
 		DELAY_NEXT
 		break;
 	case FILTER_BOARD + 6:
 		snprintf(output120, 120, "Signal level when tx=%d is %.0f with filter 0x%02x", 
 			hermes_tx_freq,hermes_sample_rms,hermes_filter_tx);
-		CheckResult(output120, hermes_sample_rms, -28.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -28.0, 0.10, "N2ADR L9 L12 C32 C35 C37 C40 C42 K3");
 		hermes_tx_freq = hermes_rx_freq = 14200000;
 		DELAY_NEXT
 		break;
 	case FILTER_BOARD + 7:
 		snprintf(output120, 120, "Signal level when tx=%d is %.0f with filter 0x%02x", 
 			hermes_tx_freq,hermes_sample_rms,hermes_filter_tx);
-		CheckResult(output120, hermes_sample_rms, -61.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -61.0, 0.10, "N2ADR L9 L12 C32 C35 C37 C40 C42 K3");
 		hermes_filter_tx = FILTER_30_20;
 		DELAY_NEXT
 		break;
 	case FILTER_BOARD + 8:
 		snprintf(output120, 120, "Signal level when tx=%d is %.0f with filter 0x%02x", 
 			hermes_tx_freq,hermes_sample_rms,hermes_filter_tx);
-		CheckResult(output120, hermes_sample_rms, -27.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -27.0, 0.10, "N2ADR L10 L13 C33 C36 C38 C41 C43 K4");
 		hermes_tx_freq = hermes_rx_freq = 28400000;
 		DELAY_NEXT
 		break;
 	case FILTER_BOARD + 9:
 		snprintf(output120, 120, "Signal level when tx=%d is %.0f with filter 0x%02x", 
 			hermes_tx_freq,hermes_sample_rms,hermes_filter_tx);
-		CheckResult(output120, hermes_sample_rms, -55.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -55.0, 0.10, "N2ADR L10 L13 C33 C36 C38 C41 C43 K4");
 		hermes_filter_tx = FILTER_17_15;
 		hermes_tx_freq = hermes_rx_freq = 21100000;
 		DELAY_NEXT
@@ -309,14 +309,14 @@ void HL2Run(void)
 	case FILTER_BOARD + 10:
 		snprintf(output120, 120, "Signal level when tx=%d is %.0f with filter 0x%02x", 
 			hermes_tx_freq,hermes_sample_rms,hermes_filter_tx);
-		CheckResult(output120, hermes_sample_rms, -28.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -28.0, 0.10, "N2ADR L11 L14 C34 C39 C44 K5");
 		hermes_tx_freq = hermes_rx_freq = 30000000;
 		DELAY_NEXT
 		break;
 	case FILTER_BOARD + 11:
 		snprintf(output120, 120, "Signal level when tx=%d is %.0f with filter 0x%02x", 
 			hermes_tx_freq,hermes_sample_rms,hermes_filter_tx);
-		CheckResult(output120, hermes_sample_rms, -37.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -37.0, 0.10, "N2ADR L11 L14 C34 C39 C44 K5");
 		hermes_filter_tx = FILTER_12_10;
 		hermes_tx_freq = hermes_rx_freq = 29000000;
 		DELAY_NEXT
@@ -324,14 +324,14 @@ void HL2Run(void)
 	case FILTER_BOARD + 12:
 		snprintf(output120, 120, "Signal level when tx=%d is %.0f with filter 0x%02x", 
 			hermes_tx_freq,hermes_sample_rms,hermes_filter_tx);
-		CheckResult(output120, hermes_sample_rms, -29.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -29.0, 0.10, "N2ADR L7 L8 C24 C25 C26 K6");
 		hermes_tx_freq = hermes_rx_freq = 34000000;
 		DELAY_NEXT
 		break;
 	case FILTER_BOARD + 13:
 		snprintf(output120, 120, "Signal level when tx=%d is %.0f with filter 0x%02x", 
 			hermes_tx_freq,hermes_sample_rms,hermes_filter_tx);
-		CheckResult(output120, hermes_sample_rms, -40.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -40.0, 0.10, "N2ADR L7 L8 C24 C25 C26 K6");
 		hermes_filter_tx = 0;
 		hermes_tx_freq = hermes_rx_freq = 36000000; // Checks HL2 filters
 		DELAY_NEXT
@@ -339,7 +339,7 @@ void HL2Run(void)
 	case FILTER_BOARD + 14:
 		snprintf(output120, 120, "Signal level when tx=%d is %.0f with filter 0x%02x", 
 			hermes_tx_freq,hermes_sample_rms,hermes_filter_tx);
-		CheckResult(output120, hermes_sample_rms, -49.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -49.0, 0.10, "HL2 L10 L11 C53-C57");
 		hermes_filter_tx = FILTER_HPF;
 		hermes_tx_freq = hermes_rx_freq = 1900000;
 		DELAY_NEXT
@@ -347,26 +347,26 @@ void HL2Run(void)
 	case FILTER_BOARD + 15:
 		snprintf(output120, 120, "Signal level when tx=%d is %.0f with filter 0x%02x", 
 			hermes_tx_freq,hermes_sample_rms,hermes_filter_tx);
-		CheckResult(output120, hermes_sample_rms, -41.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -41.0, 0.10, "N2ADR L4 L15 C47 C48 C49 K7");
 		hermes_tx_freq = hermes_rx_freq = 3500000;
 		DELAY_NEXT
 		break;
 	case FILTER_BOARD + 16:
 		snprintf(output120, 120, "Signal level when tx=%d is %.0f with filter 0x%02x", 
 			hermes_tx_freq,hermes_sample_rms,hermes_filter_tx);
-		CheckResult(output120, hermes_sample_rms, -27.0, 0.10);
+		CheckResult(output120, hermes_sample_rms, -27.0, 0.10, "N2ADR L4 L15 C47 C48 C49 K7");
 		hermes_filter_tx = 0;
 		hermes_key_down = 0;
 		DELAY_NEXT
 		break;
 	case FILTER_BOARD + 17:
 		snprintf(output120, 120, "PA current is %.1f", hermes_pa_current * 1000);
-		CheckResult(output120, hermes_pa_current * 1000, 1.0, 1.0);
+		CheckResult(output120, hermes_pa_current * 1000, 1.0, 1.0, NULL);
 
 		if (tests_failed > 0) {
 			// Skip bias and high power tests if any failures
 			snprintf(output120, 120, "Skipped bias and PA tests due to early failures");
-			CheckResult(output120, 1.0, 10.0, 0.10);			
+			CheckResult(output120, 1.0, 10.0, 0.10, NULL);			
 			hermes_run_state = END_OF_TESTS;
 		} else {
 			hermes_run_state = SET_BIAS;
@@ -385,7 +385,7 @@ void HL2Run(void)
 		hermes_enable_power_amp = 1;
 		hermes_spot_level = 0.0;
 		next_state = SET_BIAS + 2;
-		bias0 = bias1 = 0;
+		bias0 = bias1 = 70;
 		Bias0code(0);
 		hermes_run_state = WAIT_STATE;
 		break;
@@ -501,7 +501,7 @@ void HL2Run(void)
 	case ERROR_STATE:	// There was an error; set bias to zero
 		if (do_all_tests)
 			WriteOutput("Set bias on the power output transistors FAILED");
-			CheckResult(output120, 1.0, 10.0, 0.1);
+			CheckResult(output120, 1.0, 10.0, 0.1, NULL);
 			hermes_run_state = END_OF_TESTS;
 		if (hw_command_state <= 0) {
 			Bias0code(0);
@@ -533,7 +533,7 @@ void HL2Run(void)
 		hermes_tx_drive_level = 0;
 
 		snprintf(output120, 120, "Temperature is %.2f", hermes_temperature);
-		CheckResult(output120, hermes_temperature, 25, 0.30);
+		CheckResult(output120, hermes_temperature, 25, 0.30, NULL);
 
 		rms_ref = hermes_temperature;
 		hermes_enable_power_amp = 1;
@@ -543,7 +543,7 @@ void HL2Run(void)
 
 	case PA + 1:
 		snprintf(output120, 120, "PA current is %.2f", hermes_pa_current);
-		CheckResult(output120, hermes_pa_current, 0.20, 0.15);
+		CheckResult(output120, hermes_pa_current, 0.20, 0.15, NULL);
 		hermes_spot_level = 0.520;
 		LONG_DELAY_NEXT
 		break;
@@ -551,9 +551,9 @@ void HL2Run(void)
 
 	case PA + 2:
 		snprintf(output120, 120, "Forward power 30/20m filter, code is %.3f", hermes_fwd_power);
-		CheckResult(output120, hermes_fwd_power, 662, 0.20);
+		CheckResult(output120, hermes_fwd_power, 662, 0.20, NULL);
 		snprintf(output120, 120, "Reverse power 30/20m filter,code is %.3f", hermes_rev_power);
-		CheckResult(output120, hermes_rev_power, 20, 1.00);
+		CheckResult(output120, hermes_rev_power, 20, 1.00, NULL);
 		LONG_DELAY_NEXT
 		break;
 
@@ -569,10 +569,10 @@ void HL2Run(void)
 			rms_ref = 100;
 		}
 		snprintf(output120, 120, "PA current is %.2f", hermes_pa_current);
-		CheckResult(output120, hermes_pa_current, 0.33, 0.15);
+		CheckResult(output120, hermes_pa_current, 0.33, 0.15, NULL);
 		hermes_key_down = 0;
 		snprintf(output120, 120, "Temperature change is %.2f", rms_ref);
-		CheckResult(output120, rms_ref, 1.25, 1.0);
+		CheckResult(output120, rms_ref, 1.25, 1.0, NULL);
 
 		hermes_run_state = END_OF_TESTS;
 		break;
@@ -609,7 +609,7 @@ static void InitParams(void)
 	alex_lpf_tx = 0;
 }
 
-static int CheckResult(const char * msg, double result, double target, double tolerance)
+static int CheckResult(const char * msg, double result, double target, double tolerance, const char * components)
 {
 	char msg2[120];
 	std::string output;
@@ -628,9 +628,15 @@ static int CheckResult(const char * msg, double result, double target, double to
 	output = msg;
 	output += msg2;
 	WriteOutput(output.c_str());
+	if (verbose_output) std::cout << output + "\n";
+	if (components != NULL) {
+		snprintf(msg2, 120, "Check components %s",components);
+		output = msg2;
+		WriteOutput(output.c_str());
+		if (verbose_output) std::cout << output + "\n";
+	}
 	tests_failed++;
-	if (verbose_output)
-		std::cout << output + "\n";
+	
 }
 
 void QuiskSleepMicrosec(int usec)
