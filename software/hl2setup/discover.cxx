@@ -1,5 +1,5 @@
 #ifdef _WIN32
-#include <Winsock2.h>
+#include <winsock2.h>
 #include <iphlpapi.h>
 #include <stdio.h>
 #include <ws2tcpip.h>

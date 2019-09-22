@@ -1,3 +1,7 @@
+#ifndef _WIN32
+#include <sys/time.h>
+#endif
+
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
 #include <FL/Fl_Window.H>
@@ -10,9 +14,7 @@
 
 #include <hl2.h>
 
-#ifndef _WIN32
-#include <sys/time.h>
-#endif
+
 
 void idle(void *);
 void exit_callback(Fl_Widget*, void*);
