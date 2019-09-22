@@ -1,6 +1,7 @@
 #ifdef _WIN32
-#include <Winsock2.h>
-#include <Ws2tcpip.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <inaddr.h>
 #pragma comment(lib, "Ws2_32.lib")
 #else
 #include <stdlib.h>
@@ -737,7 +738,7 @@ int HL2GetBoardId(void)
 			board_id = data[10];
 			//printf("Got board_id %i\n", board_id);
 #ifdef _WIN32
-			InetNtop(AF_INET, &recv_Addr.sin_addr, ip_address, ADR_SIZE);
+			InetNtopA(AF_INET, &recv_Addr.sin_addr, ip_address, ADR_SIZE);
 #else
 			strncpy(ip_address, inet_ntoa(recv_Addr.sin_addr), ADR_SIZE);
 #endif

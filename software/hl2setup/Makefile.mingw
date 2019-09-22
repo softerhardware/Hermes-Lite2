@@ -1,0 +1,18 @@
+CXX = x86_64-w64-mingw32-g++
+CXXFLAGS = $(shell /home/shaynal/fltk/fltk-1.3.5/fltk-config --cxxflags -g ) -D_WIN32_WINNT=0x601 -DWINVER=0x601 -DWINAPI_PARTITION_APP -I.
+LDFLAGS = $(shell /home/shaynal/fltk/fltk-1.3.5/fltk-config --ldflags -g )
+OLDSTATIC = $(shell /home/shaynal/fltk/fltk-1.3.5/fltk-config --ldstaticflags ) -L/usr/lib/x86_64-linux-gnu/wine/fakedlls/ws2_32.dl -lwsock32 -lws2_32 -liphlpapi
+LDSTATIC = $(shell /home/shaynal/fltk/fltk-1.3.5/fltk-config --ldstaticflags ) -lwsock32 -liphlpapi /usr/x86_64-w64-mingw32/lib/libws2_32.a
+
+LINK = $(CXX)
+
+.SUFFIXES: .o .cxx .c
+%.o: %.cxx hl2.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+hl2setup: hl2setup.o hl2.o discover.o
+	$(LINK) hl2setup.o hl2.o discover.o $(LDSTATIC) -o hl2setup.exe
+
+clean:
+	rm -f *.o 2> /dev/null
+	rm -f hl2setup 2> /dev/null
