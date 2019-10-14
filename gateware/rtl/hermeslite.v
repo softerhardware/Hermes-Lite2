@@ -98,7 +98,11 @@ module hermeslite(
   inout           io_scl2,
   inout           io_sda2,
   input           io_db1_2,       // BETA2,BETA3: io_db24
-  input           io_db1_3,       // BETA2,BETA3: io_db22_3
+`ifdef BETA5
+  output          io_db1_3,       // UART TXD // BETA2,BETA3: io_db22_3
+`else
+  input           io_db1_3,
+`endif
   input           io_db1_4,       // BETA2,BETA3: io_db22_2
   output          io_db1_5,       // BETA2,BETA3: io_cn4_6
   input           io_db1_6,       // BETA2,BETA3: io_cn4_7    
@@ -129,10 +133,10 @@ localparam      NT = 1; // Transmitters
 
 // Ethernet Interface
 `ifdef BETA2
-localparam       HERMES_SERIALNO = 8'd47;     // Serial number of this version
+localparam       HERMES_SERIALNO = 8'd48;     // Serial number of this version
 localparam       MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h12,8'hdd};
 `else 
-localparam       HERMES_SERIALNO = 8'd67;     // Serial number of this version
+localparam       HERMES_SERIALNO = 8'd68;     // Serial number of this version
 localparam       MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd};
 `endif
 localparam       IP = {8'd0,8'd0,8'd0,8'd0};
@@ -160,6 +164,9 @@ logic   [7:0]   dseth_tdata;
 logic   [31:0]  dsiq_tdata;
 logic           dsiq_tready;    // controls reading of fifo
 logic           dsiq_tvalid;
+logic           dsiq_sample, dsiq_sample_ad9866sync;
+logic   [7:0]   dsiq_status;
+
 logic           dsethiq_tvalid;
 logic           dsethiq_tlast;
 
@@ -475,8 +482,16 @@ dsiq_fifo #(.depth(8192)) dsiq_fifo_i (
   .rd_clk(clk_ad9866),
   .rd_tdata(dsiq_tdata),
   .rd_tvalid(dsiq_tvalid),
-  .rd_tready(dsiq_tready)
-  );
+  .rd_tready(dsiq_tready),
+  .rd_sample(dsiq_sample_ad9866sync),
+  .rd_status(dsiq_status),
+);
+
+sync_pulse sync_pulse_dsiq_sample (
+  .clock(clk_ad9866),
+  .sig_in(dsiq_sample),
+  .sig_out(dsiq_sample_ad9866sync)
+);
 
 
 generate 
@@ -752,7 +767,6 @@ sync syncio_txhang (
   .sig_out(tx_hang_iosync)
 );
 
-
 control #(.HERMES_SERIALNO(HERMES_SERIALNO)) control_i (
   // Internal
   .clk(clk_ctrl),
@@ -770,6 +784,9 @@ control #(.HERMES_SERIALNO(HERMES_SERIALNO)) control_i (
   .rxclrstatus(rxclrstatus),
   .run(run_iosync),
   .tx_hang(tx_hang_iosync),
+
+  .dsiq_status(dsiq_status),
+  .dsiq_sample(dsiq_sample),
 
   .cmd_addr(cmd_addr),
   .cmd_data(cmd_data),
@@ -848,8 +865,12 @@ control #(.HERMES_SERIALNO(HERMES_SERIALNO)) control_i (
   .io_cn9(io_cn9),
   .io_cn10(io_cn10),
 
-  .io_db1_2(io_db1_2),     
-  .io_db1_3(io_db1_3),     
+  .io_db1_2(io_db1_2),   
+`ifdef BETA5  
+  .io_db1_3(io_db1_3),
+`else 
+  .io_db1_3(),
+`endif     
   .io_db1_4(io_db1_4),     
   .io_db1_5(io_db1_5),     
   .io_db1_6(io_db1_6),       
