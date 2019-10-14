@@ -69,6 +69,9 @@ module control(
   run,
   tx_hang,
 
+  dsiq_status,
+  dsiq_sample,
+ 
   cmd_addr,
   cmd_data,
   cmd_rqst,
@@ -186,6 +189,9 @@ output logic    rxclrstatus = 1'b0;
 input           run;
 input           tx_hang;
 
+input [7:0]     dsiq_status;
+output logic    dsiq_sample = 1'b0;
+
 input  [5:0]    cmd_addr;
 input  [31:0]   cmd_data;
 input           cmd_rqst;
@@ -263,7 +269,7 @@ input           io_cn9;
 input           io_cn10;
 
 input           io_db1_2;       // BETA2;BETA3: io_db24
-input           io_db1_3;       // BETA2;BETA3: io_db22_3
+output          io_db1_3;       // UART TXD // BETA2;BETA3: io_db22_3
 input           io_db1_4;       // BETA2;BETA3: io_db22_2
 output          io_db1_5;       // BETA2;BETA3: io_cn4_6
 input           io_db1_6;       // BETA2;BETA3: io_cn4_7    
@@ -335,7 +341,6 @@ logic         disable_syncfreq = 1'b0;
 
 logic [ 5:0]  pwrcnt = 6'h10;
 //logic [ 2:0]  pwrphase = 3'b100;
-
   
 localparam RESP_START   = 2'b00,
            RESP_ACK     = 2'b01,
@@ -348,6 +353,8 @@ logic         cw_keydown;
 logic         cw_power_on;
 
 logic         ptt_resp = 1'b0;
+
+logic [31:0]  tx_freq = 32'h00000000;
 
 
 /////////////////////////////////////////////////////
@@ -392,8 +399,19 @@ always @(posedge clk) begin
     else if (cmd_addr == 6'h00) begin
       disable_syncfreq <= cmd_data[12];
     end
+    else if (cmd_addr == 6'h01) begin
+      tx_freq <= cmd_data;
+    end
   end
 end
+
+
+extamp extamp_i (
+  .clk(clk),
+  .freq(tx_freq),
+  .ptt(tx_on),
+  .uart_txd(io_db1_3)
+);
 
 
 i2c i2c_i (
@@ -639,7 +657,7 @@ always @(posedge clk) begin
       iresp <= {1'b1,resp_cmd_addr,tx_on, resp_cmd_data}; // Queue size is 1
     end else begin
       case( resp_addr) 
-        2'b00: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 7'b0001111,(&clip_cnt), 8'h00, 8'h00, HERMES_SERIALNO};
+        2'b00: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 7'b0001111,(&clip_cnt), 8'h00, dsiq_status, HERMES_SERIALNO};
         2'b01: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 4'h0,temperature, 4'h0,fwd_pwr};
         2'b10: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 4'h0,rev_pwr, 4'h0,bias_current};
         2'b11: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 32'h0}; // Unused in HL
@@ -651,6 +669,13 @@ always @(posedge clk) begin
 end
 
 assign resp = iresp;
+
+
+always @(posedge clk) begin
+  if (resp_rqst & (resp_addr == 2'b01))
+    dsiq_sample <= ~dsiq_sample;
+end
+
 
 // sync clock
 always @(posedge clk_125) begin

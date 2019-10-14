@@ -9,7 +9,9 @@ module dsiq_fifo (
   rd_clk,
   rd_tdata,
   rd_tvalid,
-  rd_tready
+  rd_tready,
+  rd_sample,
+  rd_status
 );
 
 input         wr_clk;
@@ -22,6 +24,8 @@ input         rd_clk;
 output [31:0] rd_tdata;
 output        rd_tvalid;
 input         rd_tready;
+input         rd_sample;
+output [7:0]  rd_status;
 
 parameter     depth   = 8192;
 
@@ -41,6 +45,10 @@ logic [(wrbits-1):0]  wr_tlength;
 
 logic         allow_pop  = 1'b0;
 logic [(rdbits-1):0]  rd_tlength;
+
+logic   [6:0] rd_count = 7'h00;
+logic         recovery_flag, recovery_flag_d1;
+
 
 // If FIFO fills, drop write data
 // again until only half full
@@ -98,6 +106,21 @@ assign rd_tdata = allow_pop ? ird_tdata : 32'h0;
 
 assign wr_tready = ~wr_treadyn & allow_push;
 assign rd_tvalid = ~rd_tvalidn & allow_pop;
+
+assign rd_underflow = ~allow_pop;
+
+always @ (posedge rd_clk) begin
+  if (rd_sample) begin 
+    rd_count <= rd_tlength[(rdbits-1):(rdbits-7)];
+    recovery_flag <= 1'b0;
+    recovery_flag_d1 <= recovery_flag;
+  end else if (~allow_pop | ~allow_push) begin
+    // Known CDC with allow_push, but okay since just status
+    recovery_flag <= 1'b1;
+  end
+end
+
+assign rd_status = {recovery_flag_d1,rd_count};
 
 endmodule 
 

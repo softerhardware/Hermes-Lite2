@@ -62,3 +62,25 @@ always @(posedge clock)
 assign sig_out = sync_chain[0] ^ sync_chain[1];
 
 endmodule
+
+
+//-----------------------------------------------------------------------------
+// transfer change as pulse to another domain
+//-----------------------------------------------------------------------------
+module sync_one (
+  input clock,
+  input sig_in,
+  output sig_out
+);
+
+parameter DEPTH = 3;
+
+(*preserve*) reg [DEPTH-1:0] sync_chain = {DEPTH{1'b0}};
+
+always @(posedge clock)
+  sync_chain <= {sig_in, sync_chain[DEPTH-1:1]};
+
+assign sig_out = ~sync_chain[0] & sync_chain[1];
+
+endmodule
+
