@@ -1,7 +1,7 @@
 
-set_location_assignment PIN_72 -to clk_recovered
-set_location_assignment PIN_104 -to clk_scl1
-set_location_assignment PIN_103 -to clk_sda1
+set_location_assignment PIN_72 -to io_db1_1
+set_location_assignment PIN_103 -to clk_scl1
+set_location_assignment PIN_104 -to clk_sda1
 set_location_assignment PIN_33 -to io_adc_scl
 set_location_assignment PIN_32 -to io_adc_sda
 set_location_assignment PIN_86 -to io_lvds_txn
@@ -12,12 +12,12 @@ set_location_assignment PIN_25 -to io_cn8
 set_location_assignment PIN_24 -to io_cn9
 set_location_assignment PIN_23 -to io_cn10
 set_location_assignment PIN_76 -to io_db1_2
-set_location_assignment PIN_90 -to io_db1_3
-set_location_assignment PIN_91 -to io_db1_4
+set_location_assignment PIN_77 -to io_db1_3
+set_location_assignment PIN_80 -to io_db1_4
 set_location_assignment PIN_83 -to io_db1_5
 set_location_assignment PIN_85 -to io_db1_6
-set_location_assignment PIN_77 -to io_phone_tip
-set_location_assignment PIN_80 -to io_phone_ring
+set_location_assignment PIN_91 -to io_phone_tip
+set_location_assignment PIN_90 -to io_phone_ring
 set_location_assignment PIN_98 -to io_led_d2
 set_location_assignment PIN_99 -to io_led_d3
 set_location_assignment PIN_100 -to io_led_d4
@@ -75,40 +75,8 @@ set_location_assignment PIN_105 -to rffe_ad9866_pga5
 set_location_assignment PIN_11 -to rffe_rfsw_sel
 set_location_assignment PIN_7 -to pa_inttr
 set_location_assignment PIN_28 -to pa_exttr
-set_instance_assignment -name IO_STANDARD "2.5 V" -to pwr_envpa
-set_instance_assignment -name IO_STANDARD "2.5 V" -to pwr_envop
-set_instance_assignment -name IO_STANDARD "2.5 V" -to pwr_envbias
-set_instance_assignment -name IO_STANDARD "2.5 V" -to pwr_clk3p3
-set_instance_assignment -name IO_STANDARD "2.5 V" -to pwr_clk1p2
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rst_n
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_mdio
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_mdc
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_clk125
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_tx_en
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_tx_clk
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_tx[0]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_tx[1]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_tx[2]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_tx[3]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_tx
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx_clk
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx_dv
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx[0]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx[1]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx[2]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx[3]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to phy_rx
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_tp2
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_db24
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn5_7
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn5_6
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn5_3
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn5_2
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn4_7
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn4_6
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn4_3
-set_instance_assignment -name IO_STANDARD "2.5 V" -to io_cn4_2
-set_instance_assignment -name IO_STANDARD "2.5 V" -to clk_recovered
+
+set_instance_assignment -name IO_MAXIMUM_TOGGLE_RATE "0 MHz" -to rffe_rfsw_sel
 
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_tx[*]
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_txsync
@@ -121,7 +89,6 @@ set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_rst_n
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_txquiet_n
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_rfsw_sel
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to pwr_*
-set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to io_led*
 
 set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to clk_s*
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to clk_s*
@@ -135,14 +102,6 @@ set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to io_s*
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to io_s*
 set_instance_assignment -name FAST_INPUT_REGISTER ON -to io_s*
 
-set_instance_assignment -name FAST_INPUT_REGISTER ON -to io_cn*
-set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to io_db1_5
-set_instance_assignment -name FAST_INPUT_REGISTER ON -to io_phone*
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to pa_*
 
 
-set_location_assignment CLKCTRL_G17 -to clock_ethrxint~clkctrl
-set_location_assignment CLKCTRL_G19 -to ethtxext_clkmux_i|auto_generated|clkctrl1
-set_location_assignment CLKCTRL_G15 -to ethtxint_clkmux_i|auto_generated|clkctrl1
-#set_location_assignment LCCOMB_X1_Y16_N4 -to altclkctrl:ethtxint_clkmux_i|altclkctrl_kct:auto_generated|outclk
-set_location_assignment LCCOMB_X28_Y1_N28 -to clock_ethrxint

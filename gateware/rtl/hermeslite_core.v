@@ -16,23 +16,18 @@
 //  along with this program; if not, write to the Free Software
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-// (C) Steve Haynal KF7O 2014-2018
+// (C) Steve Haynal KF7O 2014-2019
 // This RTL originated from www.openhpsdr.org and has been modified to support
 // the Hermes-Lite hardware described at http://github.com/softerhardware/Hermes-Lite2.
 
-module hermeslite(
+module hermeslite_core(
 
   // Power
   output          pwr_clk3p3,
   output          pwr_clk1p2,
-  output          pwr_envpa, 
-
-`ifdef BETA2
-  output          pwr_clkvpa,
-`else
+  output          pwr_envpa,
   output          pwr_envop,
   output          pwr_envbias,
-`endif
 
   // Ethernet PHY
   input           phy_clk125,
@@ -47,24 +42,16 @@ module hermeslite(
   output          phy_mdc,
 
   // Clock
-  output          clk_recovered,
   inout           clk_sda1,
   inout           clk_scl1,
 
   // RF Frontend
   output          rffe_ad9866_rst_n,
 
-`ifdef HALFDUPLEX
-  inout   [5:0]   rffe_ad9866_tx,
-  inout   [5:0]   rffe_ad9866_rx,
-  output          rffe_ad9866_rxsync,
-  output          rffe_ad9866_rxclk,  
-`else
   output  [5:0]   rffe_ad9866_tx,
   input   [5:0]   rffe_ad9866_rx,
   input           rffe_ad9866_rxsync,
-  input           rffe_ad9866_rxclk,  
-`endif
+  input           rffe_ad9866_rxclk,
 
   output          rffe_ad9866_txquiet_n,
   output          rffe_ad9866_txsync,
@@ -73,87 +60,68 @@ module hermeslite(
   output          rffe_ad9866_sen_n,
   input           rffe_ad9866_clk76p8,
   output          rffe_rfsw_sel,
-
-`ifdef BETA2
-  output  [5:0]   rffe_ad9866_pga,
-`else
   output          rffe_ad9866_mode,
   output          rffe_ad9866_pga5,
-`endif
-
   // IO
-  output          io_led_d2,
-  output          io_led_d3,
-  output          io_led_d4,
-  output          io_led_d5,
-  input           io_lvds_rxn,
-  input           io_lvds_rxp,
-  output          io_lvds_txn, // also TX envelope PWM inverted
-  output          io_lvds_txp, // also TX envelope PWM
-  input           io_cn8,
-  input           io_cn9,
-  input           io_cn10,
+  output          io_led_run,
+  output          io_led_tx,
+  output          io_led_adc75,
+  output          io_led_adc100,
+  //
+  output          io_tx_envelope_pwm_out,
+  output          io_tx_envelope_pwm_out_inv,
+  //
+  input           io_tx_inhibit,
+  input           io_id_hermeslite,
+  input           io_alternate_mac,
+  //
   inout           io_adc_scl,
   inout           io_adc_sda,
   inout           io_scl2,
   inout           io_sda2,
-  input           io_db1_2,       // BETA2,BETA3: io_db24
-`ifdef BETA5
-  output          io_db1_3,       // UART TXD // BETA2,BETA3: io_db22_3
-`else
-  input           io_db1_3,
-`endif
-  input           io_db1_4,       // BETA2,BETA3: io_db22_2
-  output          io_db1_5,       // BETA2,BETA3: io_cn4_6
-  input           io_db1_6,       // BETA2,BETA3: io_cn4_7    
-  input           io_phone_tip,   // BETA2,BETA3: io_cn4_2
-  input           io_phone_ring,  // BETA2,BETA3: io_cn4_3
-  input           io_tp2,
-  
-`ifndef BETA2
-  input           io_tp7,
-  input           io_tp8,  
-  input           io_tp9,
-`endif
 
-  // PA
-`ifdef BETA2
-  output          pa_tr,
-  output          pa_en
-`else
+  output          io_uart_txd,
+  input           io_uart_rxd,
+
+  output          io_cw_keydown,
+
+  input           io_phone_tip,
+  input           io_phone_ring,
+
+  input           io_atu_ack,
+  output          io_atu_req,
+
   output          pa_inttr,
   output          pa_exttr
-`endif
 );
 
 
 // PARAMETERS
+parameter       BOARD = 5;
+parameter       IP = {8'd0,8'd0,8'd0,8'd0};
+parameter       MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd};
 parameter       NR = 4; // Recievers
-localparam      NT = 1; // Transmitters
+parameter       NT = 1; // Transmitters
+parameter       CLK_FREQ = 76800000;
 
-// Ethernet Interface
-`ifdef BETA2
-localparam       HERMES_SERIALNO = 8'd48;     // Serial number of this version
-localparam       MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h12,8'hdd};
-`else 
-localparam       HERMES_SERIALNO = 8'd68;     // Serial number of this version
-localparam       MAC = {8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd};
-`endif
-localparam       IP = {8'd0,8'd0,8'd0,8'd0};
+// UART Type 0 is none is JI1UDD HR50
+parameter       UART = 0;
 
-// ADC Oscillator
-localparam       CLK_FREQ = 76800000;
+// ATU Type 0 is none, 1 is JI1UDD ATU
+parameter       ATU = 0;
 
 // Downstream audio channel usage:
 //   0=not used, 1=predistortion, 2=TX envelope PWM
 //   when using the TX envelope PWM reduce the number of receivers (NR) above by 1
-localparam      LRDATA = 0;
+parameter       LRDATA = 0;
+
+localparam      HERMES_SERIALNO = (BOARD==2) ? 8'd48 : 8'd68;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
 logic           cmd_cnt;
 logic           cmd_ptt;
-logic           cmd_requires_resp;         
+logic           cmd_requires_resp;
 
 logic           tx_on, tx_on_ad9866sync;
 logic           cw_keydown, cw_keydown_ad9866sync;
@@ -314,7 +282,7 @@ altclkctrl #(
     .width_clkselect(1)
     //.lpm_type("altclkctrl"),
     //.lpm_hint("unused")
-    ) ethtxint_clkmux_i 
+    ) ethtxint_clkmux_i
 (
     .clkselect(speed_1gb_clksel),
     .ena(1'b1),
@@ -333,7 +301,7 @@ altclkctrl #(
     .width_clkselect(1)
     //.lpm_type("altclkctrl"),
     //.lpm_hint("unused")
-    ) ethtxext_clkmux_i 
+    ) ethtxext_clkmux_i
 (
     .clkselect(speed_1gb_clksel),
     .ena(1'b1),
@@ -347,7 +315,7 @@ always @(posedge phy_rx_clk) begin
   phy_rx_clk_div2 <= ~phy_rx_clk_div2;
 end
 
-assign clock_ethrxint = speed_1gb_clksel ? phy_rx_clk : phy_rx_clk_div2; 
+assign clock_ethrxint = speed_1gb_clksel ? phy_rx_clk : phy_rx_clk_div2;
 
 // Infer above as altclkctrl does not map correctly in Quartus for this case
 //altclkctrl #(
@@ -360,7 +328,7 @@ assign clock_ethrxint = speed_1gb_clksel ? phy_rx_clk : phy_rx_clk_div2;
 //    .width_clkselect(1)
 //    //.lpm_type("altclkctrl"),
 //    //.lpm_hint("unused")
-//    ) ethrxint_clkmux_i 
+//    ) ethrxint_clkmux_i
 //(
 //    .clkselect(speed_1gb_clksel),
 //    .ena(1'b1),
@@ -391,7 +359,7 @@ ad9866pll ad9866pll_inst (
 /////////////////////////////////////////////////////
 // Network
 
-assign local_mac =  {MAC[47:2],~io_cn10,MAC[0]};
+assign local_mac =  {MAC[47:2],~io_alternate_mac,MAC[0]};
 
 network network_inst(
 
@@ -423,7 +391,7 @@ network network_inst(
   .PHY_TX_EN(phy_tx_en),
   .PHY_RX(phy_rx),
   .PHY_DV(phy_rx_dv),
-    
+
   .PHY_MDIO(phy_mdio),
   .PHY_MDC(phy_mdc)
 );
@@ -494,7 +462,7 @@ sync_pulse sync_pulse_dsiq_sample (
 );
 
 
-generate 
+generate
 
 case (LRDATA)
   0: begin // Left/Right downstream (PC->Card) audio data not used
@@ -517,7 +485,7 @@ case (LRDATA)
   end
   2: begin // TX envelope PWM generation for ET/EER
     // need to use same fifo as the TX I/Q data to keep the envelope in sync
-    dsiq_fifo #(.depth(16384)) dslr_fifo_i (
+    dsiq_fifo #(.depth(8192)) dslr_fifo_i (
       .wr_clk(clock_ethrxint),
       .wr_tdata(dseth_tdata),
       .wr_tvalid(dsethlr_tvalid),
@@ -552,7 +520,7 @@ usopenhpsdr1 #(.NR(NR), .HERMES_SERIALNO(HERMES_SERIALNO)) usopenhpsdr1_i (
   .have_ip(~(network_state_dhcp & network_state_fixedip)), // network_state is on sync 2.5 MHz domain
   .run(run_sync),
   .wide_spectrum(wide_spectrum_sync),
-  .idhermeslite(io_cn9),
+  .idhermeslite(io_id_hermeslite),
   .mac(local_mac),
   .discovery(discovery_reply_sync),
 
@@ -660,25 +628,21 @@ ad9866 ad9866_i (
   .rffe_ad9866_tx(rffe_ad9866_tx),
   .rffe_ad9866_rx(rffe_ad9866_rx),
   .rffe_ad9866_rxsync(rffe_ad9866_rxsync),
-  .rffe_ad9866_rxclk(rffe_ad9866_rxclk),  
+  .rffe_ad9866_rxclk(rffe_ad9866_rxclk),
   .rffe_ad9866_txquiet_n(rffe_ad9866_txquiet_n),
   .rffe_ad9866_txsync(rffe_ad9866_txsync),
 
-`ifdef BETA2
-  .rffe_ad9866_mode()
-`else
   .rffe_ad9866_mode(rffe_ad9866_mode)
-`endif
 );
 
 
 radio #(
-  .NR(NR), 
+  .NR(NR),
   .NT(NT),
   .LRDATA(LRDATA),
   .CLK_FREQ(CLK_FREQ)
-) 
-radio_i 
+)
+radio_i
 (
   .clk(clk_ad9866),
   .clk_2x(clk_ad9866_2x),
@@ -698,8 +662,8 @@ radio_i
   .tx_data_dac(tx_data),
 
   .clk_envelope(clk_envelope),
-  .tx_envelope_pwm_out(io_lvds_txp),
-  .tx_envelope_pwm_out_inv(io_lvds_txn),
+  .tx_envelope_pwm_out(io_tx_envelope_pwm_out),
+  .tx_envelope_pwm_out_inv(io_tx_envelope_pwm_out_inv),
 
   // Optional Audio Stream
   .lr_tdata({dslr_tdata[7:0],dslr_tdata[15:8],dslr_tdata[23:16],dslr_tdata[31:24]}),
@@ -767,7 +731,11 @@ sync syncio_txhang (
   .sig_out(tx_hang_iosync)
 );
 
-control #(.HERMES_SERIALNO(HERMES_SERIALNO)) control_i (
+control #(
+  .HERMES_SERIALNO(HERMES_SERIALNO),
+  .UART(UART),
+  .ATU(ATU)
+) control_i (
   // Internal
   .clk(clk_ctrl),
   .clk_ad9866(clk_ad9866), // Just for measurement
@@ -798,7 +766,7 @@ control #(.HERMES_SERIALNO(HERMES_SERIALNO)) control_i (
   .cw_keydown(cw_keydown),
 
   .resp_rqst(resp_rqst_iosync),
-  .resp(resp),  
+  .resp(resp),
 
   // External
   .rffe_rfsw_sel(rffe_rfsw_sel),
@@ -810,27 +778,15 @@ control #(.HERMES_SERIALNO(HERMES_SERIALNO)) control_i (
   .rffe_ad9866_sclk(rffe_ad9866_sclk),
   .rffe_ad9866_sen_n(rffe_ad9866_sen_n),
 
-`ifdef BETA2
-  .rffe_ad9866_pga(rffe_ad9866_pga),
-`else
   .rffe_ad9866_pga5(rffe_ad9866_pga5),
-`endif
 
   // Power
   .pwr_clk3p3(pwr_clk3p3),
   .pwr_clk1p2(pwr_clk1p2),
-  .pwr_envpa(pwr_envpa), 
-
-`ifdef BETA2
-  .pwr_clkvpa(pwr_clkvpa),
-`else
+  .pwr_envpa(pwr_envpa),
   .pwr_envop(pwr_envop),
   .pwr_envbias(pwr_envbias),
-`endif
 
-  // Clock
-  .clk_recovered(clk_recovered),
- 
   .sda1_i(sda1_i),
   .sda1_o(sda1_o),
   .sda1_t(sda1_t),
@@ -853,45 +809,25 @@ control #(.HERMES_SERIALNO(HERMES_SERIALNO)) control_i (
   .scl3_t(scl3_t),
 
   // IO
-  .io_led_d2(io_led_d2),
-  .io_led_d3(io_led_d3),
-  .io_led_d4(io_led_d4),
-  .io_led_d5(io_led_d5),
-  .io_lvds_rxn(io_lvds_rxn),
-  .io_lvds_rxp(io_lvds_rxp),
-  //.io_lvds_txn(io_lvds_txn),
-  //.io_lvds_txp(io_lvds_txp),
-  .io_cn8(io_cn8),
-  .io_cn9(io_cn9),
-  .io_cn10(io_cn10),
+  .io_led_run(io_led_run),
+  .io_led_tx(io_led_tx),
+  .io_led_adc75(io_led_adc75),
+  .io_led_adc100(io_led_adc100),
 
-  .io_db1_2(io_db1_2),   
-`ifdef BETA5  
-  .io_db1_3(io_db1_3),
-`else 
-  .io_db1_3(),
-`endif     
-  .io_db1_4(io_db1_4),     
-  .io_db1_5(io_db1_5),     
-  .io_db1_6(io_db1_6),       
-  .io_phone_tip(io_phone_tip), 
+  .io_tx_inhibit(io_tx_inhibit),
+
+  .io_uart_txd(io_uart_txd),
+  .io_cw_keydown(io_cw_keydown),
+
+  .io_phone_tip(io_phone_tip),
   .io_phone_ring(io_phone_ring),
-  .io_tp2(io_tp2),
-  
-`ifndef BETA2
-  .io_tp7(io_tp7),
-  .io_tp8(io_tp8),  
-  .io_tp9(io_tp9),
-`endif
+
+  .io_atu_ack(io_atu_ack),
+  .io_atu_req(io_atu_req),
 
   // PA
-`ifdef BETA2
-  .pa_tr(pa_tr),
-  .pa_en(pa_en)
-`else
   .pa_inttr(pa_inttr),
   .pa_exttr(pa_exttr)
-`endif
 );
 
 
@@ -912,11 +848,11 @@ assign io_adc_sda = sda3_t ? 1'bz : sda3_o;
 
 asmi_fifo asmi_fifo_i (
   .wrclk (clock_ethrxint),
-  .wrreq(dsethasmi_tvalid), 
+  .wrreq(dsethasmi_tvalid),
   .data (dseth_tdata),
 
   .rdreq (asmi_rdreq),
-  .rdclk (clk_ctrl),  
+  .rdclk (clk_ctrl),
   .q (asmi_data),
   .rdusedw(asmi_rx_used),
 
@@ -938,7 +874,7 @@ asmi_interface asmi_interface_i (
   .send_more_ACK(usethasmi_ack),
   .num_blocks(asmi_cnt),
   .NCONFIG(asmi_reconfig)
-); 
+);
 
 
 
@@ -947,7 +883,7 @@ asmi_interface asmi_interface_i (
 remote_update_fac remote_update_fac_i (
   .clk(clk_ctrl),
   .rst(~ethpll_locked),
-  .bootapp(io_cn8)
+  .bootapp(io_tx_inhibit)
 );
 
 

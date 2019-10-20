@@ -23,7 +23,7 @@ always @(posedge clk) state <= state_next;
 // LED remains on for 2-3 ticks of cnt
 always @* begin
   state_next = state;
-  
+
   case (state)
     STATE_CLR: begin
       led = 1'b1; // 1 clears LED
@@ -33,7 +33,7 @@ always @* begin
     STATE_SET: begin
       led = 1'b0;
       if (cnt) state_next = STATE_WAIT1;
-    end 
+    end
 
     STATE_WAIT1: begin
       led = 1'b0;
@@ -44,10 +44,10 @@ always @* begin
       led = 1'b0;
       if (cnt) state_next = STATE_CLR;
     end
-  endcase 
-end 
+  endcase
+end
 
-endmodule 
+endmodule
 
 
 
@@ -56,7 +56,7 @@ module control(
   clk,
   clk_ad9866,
   clk_125,
-  
+
   ethup,
   have_dhcp_ip,
   have_fixed_ip,
@@ -71,7 +71,7 @@ module control(
 
   dsiq_status,
   dsiq_sample,
- 
+
   cmd_addr,
   cmd_data,
   cmd_rqst,
@@ -92,26 +92,14 @@ module control(
   rffe_ad9866_sclk,
   rffe_ad9866_sen_n,
 
-`ifdef BETA2
-  rffe_ad9866_pga,
-`else
   rffe_ad9866_pga5,
-`endif
 
   // Power
   pwr_clk3p3,
   pwr_clk1p2,
-  pwr_envpa, 
-
-`ifdef BETA2
-  pwr_clkvpa,
-`else
+  pwr_envpa,
   pwr_envop,
   pwr_envbias,
-`endif
-
-  // Clock
-  clk_recovered,
 
   sda1_i,
   sda1_o,
@@ -135,41 +123,26 @@ module control(
   scl3_t,
 
   // IO
-  io_led_d2,
-  io_led_d3,
-  io_led_d4,
-  io_led_d5,
-  io_lvds_rxn,
-  io_lvds_rxp,
-  //io_lvds_txn,
- // io_lvds_txp,
-  io_cn8,
-  io_cn9,
-  io_cn10,
+  io_led_run,
+  io_led_tx,
+  io_led_adc75,
+  io_led_adc100,
 
-  io_db1_2,       // BETA2,BETA3: io_db24
-  io_db1_3,       // BETA2,BETA3: io_db22_3
-  io_db1_4,       // BETA2,BETA3: io_db22_2
-  io_db1_5,       // BETA2,BETA3: io_cn4_6
-  io_db1_6,       // BETA2,BETA3: io_cn4_7    
+  io_tx_inhibit,
+
+  io_uart_txd,
+
+  io_cw_keydown,
+
   io_phone_tip,   // BETA2,BETA3: io_cn4_2
   io_phone_ring,  // BETA2,BETA3: io_cn4_3
-  io_tp2,
-  
-`ifndef BETA2
-  io_tp7,
-  io_tp8,  
-  io_tp9,
-`endif
+
+  io_atu_ack,
+  io_atu_req,
 
   // PA
-`ifdef BETA2
-  pa_tr,
-  pa_en
-`else
   pa_inttr,
   pa_exttr
-`endif
 );
 
 // Internal
@@ -213,26 +186,14 @@ output          rffe_ad9866_sdio;
 output          rffe_ad9866_sclk;
 output          rffe_ad9866_sen_n;
 
-`ifdef BETA2
-output  [5:0]   rffe_ad9866_pga;
-`else
 output          rffe_ad9866_pga5;
-`endif
 
 // Power
 output logic    pwr_clk3p3 = 1'b0;
 output logic    pwr_clk1p2 = 1'b0;
-output          pwr_envpa; 
-
-`ifdef BETA2
-output          pwr_clkvpa;
-`else
+output          pwr_envpa;
 output          pwr_envop;
 output          pwr_envbias;
-`endif
-
-// Clock
-output          clk_recovered;
 
 input           sda1_i;
 output          sda1_o;
@@ -256,43 +217,28 @@ output          scl3_o;
 output          scl3_t;
 
 // IO
-output          io_led_d2;
-output          io_led_d3;
-output          io_led_d4;
-output          io_led_d5;
-input           io_lvds_rxn;
-input           io_lvds_rxp;
-//input           io_lvds_txn;
-//input           io_lvds_txp;
-input           io_cn8;
-input           io_cn9;
-input           io_cn10;
+output          io_led_run;
+output          io_led_tx;
+output          io_led_adc75;
+output          io_led_adc100;
 
-input           io_db1_2;       // BETA2;BETA3: io_db24
-output          io_db1_3;       // UART TXD // BETA2;BETA3: io_db22_3
-input           io_db1_4;       // BETA2;BETA3: io_db22_2
-output          io_db1_5;       // BETA2;BETA3: io_cn4_6
-input           io_db1_6;       // BETA2;BETA3: io_cn4_7    
-input           io_phone_tip;   // BETA2;BETA3: io_cn4_2
-input           io_phone_ring;  // BETA2;BETA3: io_cn4_3
-input           io_tp2;
-  
-`ifndef BETA2
-input           io_tp7;
-input           io_tp8;  
-input           io_tp9;
-`endif
+input           io_tx_inhibit;
 
-  // PA
-`ifdef BETA2
-output          pa_tr;
-output          pa_en;
-`else
+output          io_uart_txd;
+output          io_cw_keydown;
+input           io_phone_tip;
+input           io_phone_ring;
+
+input           io_atu_ack;
+output          io_atu_req;
+
+// PA
 output          pa_inttr;
 output          pa_exttr;
-`endif
 
 parameter     HERMES_SERIALNO = 8'h0;
+parameter     UART = 0;
+parameter     ATU = 0;
 
 
 logic         vna = 1'b0;                    // Selects vna mode when set.
@@ -303,7 +249,7 @@ logic [9:0]   cw_hang_time;
 logic [11:0]  fwd_pwr;
 logic [11:0]  rev_pwr;
 logic [11:0]  bias_current;
-logic [11:0]  temperature;  
+logic [11:0]  temperature;
 
 logic         cmd_ack_i2c, cmd_ack_ad9866;
 logic         ptt;
@@ -318,6 +264,7 @@ logic [ 5:0]  resp_cmd_addr = 6'h00, resp_cmd_addr_next;
 logic [31:0]  resp_cmd_data = 32'h00, resp_cmd_data_next;
 
 logic         int_ptt = 1'b0;
+logic         int_ptt_gated;
 
 logic [8:0]   led_count;
 logic         led_saturate;
@@ -341,7 +288,7 @@ logic         disable_syncfreq = 1'b0;
 
 logic [ 5:0]  pwrcnt = 6'h10;
 //logic [ 2:0]  pwrphase = 3'b100;
-  
+
 localparam RESP_START   = 2'b00,
            RESP_ACK     = 2'b01,
            RESP_WAIT    = 2'b10;
@@ -353,8 +300,6 @@ logic         cw_keydown;
 logic         cw_power_on;
 
 logic         ptt_resp = 1'b0;
-
-logic [31:0]  tx_freq = 32'h00000000;
 
 
 /////////////////////////////////////////////////////
@@ -399,19 +344,62 @@ always @(posedge clk) begin
     else if (cmd_addr == 6'h00) begin
       disable_syncfreq <= cmd_data[12];
     end
-    else if (cmd_addr == 6'h01) begin
-      tx_freq <= cmd_data;
-    end
   end
 end
 
 
-extamp extamp_i (
-  .clk(clk),
-  .freq(tx_freq),
-  .ptt(tx_on),
-  .uart_txd(io_db1_3)
-);
+generate
+  case (UART)
+    0: begin: NOUART // No UART
+      assign uart_txd = 1'b0;
+    end
+
+    1: begin: JI1UDD_HR50 // JI1UDD HR50
+
+      logic [31:0]  tx_freq = 32'h00000000;
+      always @(posedge clk) begin
+        if (cmd_addr == 6'h01) begin
+          tx_freq <= cmd_data;
+        end
+      end
+
+      extamp extamp_i (
+        .clk(clk),
+        .freq(tx_freq),
+        .ptt(tx_on),
+        .uart_txd(io_uart_txd)
+      );
+    end
+  endcase
+endgenerate
+
+generate
+  case (ATU)
+    0: begin: NOATU // No ATU
+      assign int_ptt_gated = int_ptt;
+      assign io_atu_req = 1'b0;
+    end
+
+    1: begin: JI1UDD_ATU // JI1UDD ATU
+
+      logic auto_tune = 1'b0;
+      always @(posedge clk) begin
+        if (cmd_addr == 6'h09) begin
+          auto_tune <=cmd_data[20];
+        end
+      end
+
+      exttuner exttuner_i (
+        .clk(clk),
+        .auto_tune(auto_tune),
+        .ATU_Status(io_atu_ack),
+        .ATU_Start(io_atu_req),
+        .mox_in(int_ptt),
+        .mox_out(int_ptt_gated)
+      );
+    end
+  endcase
+endgenerate
 
 
 i2c i2c_i (
@@ -455,15 +443,15 @@ slow_adc slow_adc_i (
 
 
 
-// 6.5 ms debounce with 2.5MHz clock 
+// 6.5 ms debounce with 2.5MHz clock
 debounce de_phone_tip(.clean_pb(ext_cwkey), .pb(~io_phone_tip), .clk(clk));
-assign io_db1_5 = cw_keydown;
+assign io_cw_keydown = cw_keydown;
 
 debounce de_phone_ring(.clean_pb(ext_ptt), .pb(~io_phone_ring), .clk(clk));
-debounce de_txinhibit(.clean_pb(ext_txinhibit), .pb(~io_cn8), .clk(clk));
+debounce de_txinhibit(.clean_pb(ext_txinhibit), .pb(~io_tx_inhibit), .clk(clk));
 
 
-assign tx_on = (int_ptt | cw_keydown | ext_ptt | tx_hang) & ~ext_txinhibit & run;
+assign tx_on = (int_ptt_gated | cw_keydown | ext_ptt | tx_hang) & ~ext_txinhibit & run;
 
 // Gererate two slow pulses for timing.  millisec_pulse occurs every one millisecond.
 // led_saturate occurs every 64 milliseconds.
@@ -479,12 +467,11 @@ always @(posedge clk) begin	// clock is 2.5 MHz
 end
 assign led_saturate = &led_count[5:0];
 
-//led_flash led_run(.clk(clk), .cnt(led_saturate), .sig(run), .led(io_led_d2));
-//led_flash led_tx(.clk(clk), .cnt(led_saturate), .sig(tx_on), .led(io_led_d3));
+
 led_flash led_rxgoodlvl(.clk(clk), .cnt(led_saturate), .sig(rxgoodlvl), .led(led_d4));
 led_flash led_rxclip(.clk(clk), .cnt(led_saturate), .sig(rxclip), .led(led_d5));
 
-// For test, measure the ad9866 clock, if it is 
+// For test, measure the ad9866 clock, if it is
 logic [5:0] fast_clk_cnt;
 always @(posedge clk_ad9866) begin
   // Count when 1x, at 76.8 MHz we should see 62 ticks when 1x is true
@@ -501,16 +488,16 @@ end
 
 // Solid when connected to software
 // Blinking to indicate good ethernet clock
-assign io_led_d2 = run ? ~run : ~(ethup & led_count[8]);
+assign io_led_run = run ? ~run : ~(ethup & led_count[8]);
 
 // Blinking indicates fixed ip, solid indicates dhcp
-assign io_led_d3 = run ? ~tx_on : ~((have_fixed_ip & led_count[8]) | have_dhcp_ip); 
+assign io_led_tx = run ? ~tx_on : ~((have_fixed_ip & led_count[8]) | have_dhcp_ip);
 
 // Blinks if 100 Mbps, solid if 1Gbs, off otherwise
-assign io_led_d4 = run ? led_d4 : ~(((network_speed == 2'b01) & led_count[8]) | network_speed == 2'b10);
+assign io_led_adc75 = run ? led_d4 : ~(((network_speed == 2'b01) & led_count[8]) | network_speed == 2'b10);
 
 // Lights if ad9866 is up and the  clock is less than 80 MHz
-assign io_led_d5 = run ? led_d5 : ~(ad9866up & good_fast_clk);
+assign io_led_adc100 = run ? led_d5 : ~(ad9866up & good_fast_clk);
 
 // Clear status
 always @(posedge clk) rxclrstatus <= ~rxclrstatus;
@@ -542,27 +529,13 @@ end
 logic        tx_power_on;		// Is the power on?
 assign tx_power_on = cw_power_on | tx_on;
 
-
-// FIXME: External TR won't work in low power mode
-`ifdef BETA2
-assign pa_tr = tx_power_on & ~vna & (pa_enable | ~tr_disable);
-assign pa_en = tx_power_on & ~vna & pa_enable;
-assign pwr_envpa = tx_power_on;
-`else
 assign pwr_envbias = tx_power_on & ~vna & pa_enable;
 assign pwr_envop = tx_power_on;
 assign pa_exttr = tx_power_on;
 assign pa_inttr = tx_power_on & ~vna & (pa_enable | ~tr_disable);
 assign pwr_envpa = tx_power_on & ~vna & pa_enable;
-`endif
 
 assign rffe_rfsw_sel = ~vna & pa_enable;
-
-`ifdef BETA2
-assign pwr_clkvpa = 1'b0;
-`endif
-
-assign clk_recovered = 1'b0;
 
 
 // AD9866 Ctrl
@@ -574,11 +547,7 @@ ad9866ctrl ad9866ctrl_i (
   .rffe_ad9866_sclk(rffe_ad9866_sclk),
   .rffe_ad9866_sen_n(rffe_ad9866_sen_n),
 
-`ifdef BETA2
-  .rffe_ad9866_pga(rffe_ad9866_pga),
-`else
   .rffe_ad9866_pga5(rffe_ad9866_pga5),
-`endif
 
   .cmd_addr(cmd_addr),
   .cmd_data(cmd_data),
@@ -593,7 +562,7 @@ always @ (posedge clk) begin
   resp_state <= resp_state_next;
   resp_cmd_addr <= resp_cmd_addr_next;
   resp_cmd_data <= resp_cmd_data_next;
-end 
+end
 
 // FSM Combinational
 always @* begin
@@ -612,17 +581,17 @@ always @* begin
         resp_cmd_addr_next = cmd_addr;
         resp_cmd_data_next = cmd_data;
         resp_state_next  = RESP_ACK;
-      end 
-    end 
+      end
+    end
 
-    RESP_ACK: begin 
+    RESP_ACK: begin
       // Will see acknowledge here if all I2C an SPI can start
-      if (cmd_ack_i2c & cmd_ack_ad9866) begin 
+      if (cmd_ack_i2c & cmd_ack_ad9866) begin
         resp_state_next = RESP_WAIT;
       end else begin
         resp_state_next = RESP_START;
-      end 
-    end 
+      end
+    end
 
     RESP_WAIT: begin
       cmd_resp_rqst = 1'b1;
@@ -632,18 +601,18 @@ always @* begin
           resp_cmd_addr_next = cmd_addr;
           resp_cmd_data_next = cmd_data;
           resp_state_next  = RESP_WAIT;
-        end else begin 
+        end else begin
           resp_state_next = RESP_START;
-        end 
-      end 
-    end 
+        end
+      end
+    end
 
     default: begin
       resp_state_next = RESP_START;
-    end 
+    end
 
   endcase
-end 
+end
 
 // Resp request occurs relatively infrequently
 // Output register iresp is updated on resp_rqst
@@ -656,12 +625,12 @@ always @(posedge clk) begin
       // Command response
       iresp <= {1'b1,resp_cmd_addr,tx_on, resp_cmd_data}; // Queue size is 1
     end else begin
-      case( resp_addr) 
+      case( resp_addr)
         2'b00: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 7'b0001111,(&clip_cnt), 8'h00, dsiq_status, HERMES_SERIALNO};
         2'b01: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 4'h0,temperature, 4'h0,fwd_pwr};
         2'b10: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 4'h0,rev_pwr, 4'h0,bias_current};
         2'b11: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 32'h0}; // Unused in HL
-      endcase 
+      endcase
     end
   end else if (~(&clip_cnt)) begin
     clip_cnt <= clip_cnt + {1'b0,rxclip};
@@ -689,7 +658,7 @@ always @(posedge clk_125) begin
     //  3'b101: pwrcnt <= 6'd59;
     //  3'b110: pwrcnt <= 6'd56;
     //  3'b111: pwrcnt <= 6'd59;
-    //endcase 
+    //endcase
     //if (pwrphase == 3'b000) pwrphase <= 3'b110;
     //else pwrphase <= pwrphase - 3'b001;
     pwrcnt <= 6'd58;
