@@ -26,11 +26,7 @@ module ad9866ctrl (
   rffe_ad9866_sclk,
   rffe_ad9866_sen_n,
 
-`ifdef BETA2
-  rffe_ad9866_pga,
-`else
   rffe_ad9866_pga5,
-`endif
 
   // Command slave interface
   cmd_addr,
@@ -46,11 +42,7 @@ output            rffe_ad9866_sdio;
 output            rffe_ad9866_sclk;
 output            rffe_ad9866_sen_n;
 
-`ifdef BETA2
-output  [5:0]     rffe_ad9866_pga;
-`else
 output            rffe_ad9866_pga5;
-`endif
 
 // Command slave interface
 input  [5:0]      cmd_addr;
@@ -115,12 +107,7 @@ initial begin
   initarray[19] = {1'b0,8'h00}; // Address 0x13,
 end
 
-`ifdef BETA2
-assign rffe_ad9866_pga = 6'b000000;
-`else
 assign rffe_ad9866_pga5 = 1'b0;
-`endif
-
 
 // Command Slave State Machine
 always @(posedge clk) begin
