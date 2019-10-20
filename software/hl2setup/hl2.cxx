@@ -43,6 +43,8 @@ double hermes_pa_current;		// average power amp current
 double hermes_fwd_power;		// average forward power from filter board
 double hermes_rev_power;		// average reverse power from filter board
 double hermes_sample_rms;		// sample average voltage dB below clipping
+float pwr1p8;		// measured PA power at 1.8 MHz
+float pwr30;		// measured PA power at 30 MHz
 static char status120[120];		// status message to display
 static char output120[120];		// output window message to display
 static int tests_total;
@@ -574,7 +576,64 @@ void HL2Run(void)
 		snprintf(output120, 120, "Temperature change is %.2f", rms_ref);
 		CheckResult(output120, rms_ref, 1.25, 1.0, NULL);
 
-		hermes_run_state = END_OF_TESTS;
+		hermes_run_state = TEST_TX_FLATNESS;
+		break;
+
+	case STATE_START_TEST_TX_FLATNESS:
+		do_all_tests = 0;
+		InitParams();
+		hermes_run_state = TEST_TX_FLATNESS;
+		break;
+
+	case TEST_TX_FLATNESS:
+		// measure PA output at 1.8 MHz and 30 MHz. Check absolute values and ratio
+		// N2ADR filters bypassed
+		WriteOutput("Test TX power flatness");
+		hermes_spot_level = 1;
+		hermes_tx_drive_level = 255;
+		hermes_enable_power_amp = 1;
+		hermes_tx_freq = hermes_rx_freq = 1800000;
+		hermes_key_down = 1;
+		LONG_DELAY_NEXT
+		break;
+
+	// case TEST_TX_FLATNESS + 1:
+	// 	// measure PA output power over frequency - must use heatsink!
+	// 	snprintf(output120, 120, "%i\t%.3f\t%.3f\n", hermes_tx_freq, hermes_fwd_power, hermes_rev_power)
+	// 	WriteOutput(output120);
+	// 	//printf(output120)
+	// 	hermes_tx_freq += 1000000;
+	// 	hermes_rx_freq = hermes_tx_freq;
+	// 	if (hermes_tx_freq > 30000000)
+	// 		hermes_run_state = END_OF_TESTS;
+
+	// 	hermes_run_state -= 1; // need to go back to this state
+	// 	LONG_DELAY_NEXT
+	// 	break;
+
+	case TEST_TX_FLATNESS + 1:
+		// get power detector reading for full PA output at 1.8 MHz
+		pwr1p8 = hermes_fwd_power;
+		snprintf(output120, 120, "PA power code at 1.8 MHz is %.1f", pwr1p8);
+		CheckResult(output120, pwr1p8, 4000.0, 0.10, NULL);
+		// prepare for next measurement at 30 MHz
+		hermes_tx_freq = hermes_rx_freq = 30000000;
+		LONG_DELAY_NEXT
+		break;
+
+	case TEST_TX_FLATNESS + 2:
+		// get power detector reading for full PA output at 30 MHz
+		pwr30 = hermes_fwd_power;
+		hermes_key_down = 0;
+		snprintf(output120, 120, "PA power code at 30 MHz is %.1f", pwr30);
+		CheckResult(output120, pwr30, 3600.0, 0.10, NULL);
+		snprintf(output120, 120, "PA power code ratio 1.8 MHz vs 30 MHz is %.2f", pwr1p8 / pwr30);
+		CheckResult(output120, pwr1p8 / pwr30, 1.1, 0.10, "HL2 T3");
+		if (pwr1p8 / pwr30 > 1.2) {
+			hermes_run_state = ERROR_STATE;
+		} else {
+			hermes_run_state = END_OF_TESTS;
+		}
 		break;
 
 	case END_OF_TESTS:
