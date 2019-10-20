@@ -1241,22 +1241,22 @@ static int read_rx_udp10(int want_samples)	// Read samples from UDP using the He
 
 static void Bias0code(int code)
 {
-	hw_command[0] = 0x3D;
-	hw_command[1] = 0x06;
-	hw_command[2] = 0xAC;
-	hw_command[3] = 0x00;
-	hw_command[4] = (unsigned char)code;
+	hw_command[0] = 0x3D; // ADDR
+	hw_command[1] = 0x06; // I2C2 cookie, must be 0x06 to write
+	hw_command[2] = 0xAC; // I2C2 stop at end + target chip address
+	hw_command[3] = 0x00; // I2C2 control: MCP4662 Command Byte: Address 0, write data
+	hw_command[4] = (unsigned char)code; // I2C2 data: MCP4662 Data Byte
 	hw_command_state = 1;
 	hw_command_start = QuiskTimeSec();
 }
 
 static void Bias1code(int code)
 {
-	hw_command[0] = 0x3D;
-	hw_command[1] = 0x06;
-	hw_command[2] = 0xAC;
-	hw_command[3] = 0x10;
-	hw_command[4] = (unsigned char)code;
+	hw_command[0] = 0x3D; // ADDR
+	hw_command[1] = 0x06; // I2C2 cookie, must be 0x06 to write
+	hw_command[2] = 0xAC; // I2C2 stop at end + target chip address
+	hw_command[3] = 0x10; // I2C2 control: MCP4662 Command Byte: Address 1, write data
+	hw_command[4] = (unsigned char)code; // I2C2 data: MCP4662 Data Byte
 	hw_command_state = 1;
 	hw_command_start = QuiskTimeSec();
 }
