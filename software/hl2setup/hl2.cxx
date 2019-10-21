@@ -158,7 +158,7 @@ void HL2Run(void)
 		break;
 	case BACKGROUND_NOISE + 5:
 		snprintf(output120, 120, "Noise level on 20m at +48 dB LNA is %.0f", hermes_sample_rms);
-		CheckResult(output120, hermes_sample_rms, -85.0, 0.10, NULL);
+		CheckResult(output120, hermes_sample_rms, -85.0, 0.20, NULL);
 		hermes_run_state = SIGNAL_LEVEL;
 		break;
 	case SIGNAL_LEVEL:
