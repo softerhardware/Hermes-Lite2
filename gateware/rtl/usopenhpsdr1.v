@@ -9,7 +9,7 @@ module usopenhpsdr1 (
   idhermeslite,
   mac,
   discovery,
-  
+
   udp_tx_enable,
   udp_tx_request,
   udp_tx_data,
@@ -83,6 +83,7 @@ output              usethasmi_ack;
 
 parameter           NR = 8'h0;
 parameter           HERMES_SERIALNO = 8'h0;
+parameter           HARD_STATUS1 = 8'b01000000; // See wiki protocol page
 
 
 localparam START        = 4'h0,
@@ -106,7 +107,7 @@ logic   [ 3:0]  state = START;
 logic   [ 3:0]  state_next;
 
 logic   [10:0]  byte_no = 11'h00;
-logic   [10:0]  byte_no_next; 
+logic   [10:0]  byte_no_next;
 
 logic   [10:0]  udp_tx_length_next;
 
@@ -138,7 +139,7 @@ logic           vna_mic_bit = 1'b0, vna_mic_bit_next;
 always @(posedge clk) begin
   if (cmd_rqst) begin
     case (cmd_addr)
-      6'h00: begin  
+      6'h00: begin
         // Shift no of receivers by speed
         set_bs_cnt <= ((cmd_data[7:3] + 1'b1) << cmd_data[25:24]);
       end
@@ -146,7 +147,7 @@ always @(posedge clk) begin
       6'h09: begin
         vna <= cmd_data[23];
       end
-    endcase 
+    endcase
   end
 end
 
@@ -161,7 +162,7 @@ always @ (posedge clk) begin
   udp_data <= udp_data_next;
 
   udp_tx_length <= udp_tx_length_next;
-  
+
   bs_cnt <= bs_cnt_next;
 
   round_bytes <= round_bytes_next;
@@ -179,8 +180,8 @@ always @ (posedge clk) begin
     ep6_seq_no <= ep6_seq_no_next;
     // Synchronize sequence number lower 2 bits as some software may require this
     ep4_seq_no <= (bs_tvalid) ? ep4_seq_no_next : {ep4_seq_no_next[31:2],2'b00};
-  end 
-end 
+  end
+end
 
 
 // FSM Combinational
@@ -219,18 +220,18 @@ always @* begin
 
   case (state)
     START: begin
- 
-      if (discovery | usethasmi_erase_done | usethasmi_send_more) begin 
+
+      if (discovery | usethasmi_erase_done | usethasmi_send_more) begin
         udp_tx_length_next = 'h3c;
         state_next = DISCOVER1;
 
       end else if ((us_tlength > 11'd333) & us_tvalid & have_ip & run) begin // wait until there is enough data in fifo
         udp_tx_length_next = 'd1032;
         state_next = UDP1;
-      
-      end else if (bs_tvalid & ~(|bs_cnt)) begin 
+
+      end else if (bs_tvalid & ~(|bs_cnt)) begin
         bs_cnt_next = set_bs_cnt; // Set count until next wide data
-        watchdog_up_next = ~watchdog_up; 
+        watchdog_up_next = ~watchdog_up;
         udp_tx_length_next = 'd1032;
         if (wide_spectrum) state_next = WIDE1;
       end
@@ -246,7 +247,7 @@ always @* begin
 
     DISCOVER2: begin
       byte_no_next = byte_no - 11'd1;
-      udp_tx_data = discover_data;      
+      udp_tx_data = discover_data;
       case (byte_no[5:0])
         6'h3a: discover_data_next = 8'hfe;
         6'h39: discover_data_next = usethasmi_erase_done ? 8'h03 : (usethasmi_send_more ? 8'h04 : (run ? 8'h03 : 8'h02));
@@ -268,6 +269,7 @@ always @* begin
         6'h2a: discover_data_next = "L";
         6'h29: discover_data_next = "T";
         6'h28: discover_data_next = NR[7:0];
+        6'h25: discover_data_next = HARD_STATUS1;
         6'h00: begin
           discover_data_next = idhermeslite ? 8'h06 : 8'h01;
           if (usethasmi_erase_done | usethasmi_send_more) byte_no_next = 6'h00;
@@ -289,7 +291,7 @@ always @* begin
       udp_tx_request = 1'b1;
       wide_data_next = 8'hef;
       if (udp_tx_enable) state_next = WIDE2;
-    end 
+    end
 
     WIDE2: begin
       byte_no_next = byte_no - 11'd1;
@@ -313,18 +315,16 @@ always @* begin
     WIDE3: begin
       byte_no_next = byte_no - 11'd1;
       udp_tx_data = wide_data;
-      //wide_data_next = {{4{bs_tdata[11]}}, bs_tdata};
-      wide_data_next = bs_tdata[7:0];
+      wide_data_next = { bs_tdata[3:0],4'b0000 };
 
       // Allow for one extra to keep udp_tx_data mux stable
       state_next = (&byte_no) ? START : WIDE4;
-    end 
+    end
 
     WIDE4: begin
       byte_no_next = byte_no - 11'd1;
       udp_tx_data = wide_data;
-      //wide_data_next = bs_tdata[7:0];
-      wide_data_next = {{4{bs_tdata[11]}}, bs_tdata[11:8]};
+      wide_data_next = bs_tdata[11:4];
       bs_tready = 1'b1; // Pop data
 
       // Escape if something goes wrong
@@ -337,7 +337,7 @@ always @* begin
       udp_data_next = 8'hef;
       if (udp_tx_enable) state_next = UDP2;
     end
-    
+
     UDP2: begin
       byte_no_next = byte_no - 11'd1;
       case (byte_no[2:0])
@@ -346,7 +346,7 @@ always @* begin
         3'h4: udp_data_next = 8'h06;
         3'h3: udp_data_next = ep6_seq_no[31:24];
         3'h2: udp_data_next = ep6_seq_no[23:16];
-        3'h1: udp_data_next = ep6_seq_no[15:8]; 
+        3'h1: udp_data_next = ep6_seq_no[15:8];
         3'h0: begin
           udp_data_next = ep6_seq_no[7:0];
           ep6_seq_no_next = ep6_seq_no + 'h1;
@@ -368,12 +368,12 @@ always @* begin
         9'h1fb: udp_data_next = resp[31:24];
         9'h1fa: udp_data_next = resp[23:16];
         9'h1f9: udp_data_next = resp[15:8];
-        9'h1f8: begin 
+        9'h1f8: begin
           udp_data_next = resp[7:0];
-          resp_rqst_next = ~resp_rqst; 
-          state_next = RXDATA2; 
-        end 
-        default: udp_data_next = 8'hxx; 
+          resp_rqst_next = ~resp_rqst;
+          state_next = RXDATA2;
+        end
+        default: udp_data_next = 8'hxx;
       endcase
     end
 
@@ -385,10 +385,10 @@ always @* begin
 
       if (|byte_no[8:0]) begin
         state_next = RXDATA1;
-      end else begin 
+      end else begin
         state_next = byte_no[9] ? SYNC_RESP : START;
       end
-    end      
+    end
 
     RXDATA1: begin
       byte_no_next = byte_no - 11'd1;
@@ -396,11 +396,11 @@ always @* begin
       udp_data_next = us_tdata[15:8];
 
       if (|byte_no[8:0]) begin
-        state_next = RXDATA0;        
+        state_next = RXDATA0;
       end else begin
-        state_next = byte_no[9] ? SYNC_RESP : START; 
+        state_next = byte_no[9] ? SYNC_RESP : START;
       end
-    end   
+    end
 
     RXDATA0: begin
       byte_no_next = byte_no - 11'd1;
@@ -409,27 +409,27 @@ always @* begin
       us_tready = 1'b1; // Pop next word
 
       if (|byte_no[8:0]) begin
-        if (us_tlast) begin 
+        if (us_tlast) begin
           state_next = MIC1;
         end else begin
           state_next = RXDATA2;
         end
-      end else begin 
+      end else begin
         state_next = byte_no[9] ? SYNC_RESP : START;
       end
-    end 
+    end
 
     MIC1: begin
       byte_no_next = byte_no - 11'd1;
       round_bytes_next = round_bytes + 7'd1;
       udp_data_next = 'd0;
-      
+
       if (|byte_no[8:0]) begin
         state_next = MIC0;
-      end else begin 
+      end else begin
         state_next = byte_no[9] ? SYNC_RESP : START;
-      end   
-    end 
+      end
+    end
 
     MIC0: begin
       byte_no_next = byte_no - 11'd1;
@@ -450,8 +450,8 @@ always @* begin
 
       if (~(|byte_no[8:0])) begin
         state_next = byte_no[9] ? SYNC_RESP : START;
-      end 
-    end 
+      end
+    end
 
     default: state_next = START;
 
