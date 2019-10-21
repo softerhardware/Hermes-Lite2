@@ -44,3 +44,5 @@ extern int verbose_output;
 #define SIGNAL_LEVEL		110
 #define FILTER_BOARD		160
 #define PA  190
+#define STATE_START_TEST_TX_FLATNESS 200
+#define TEST_TX_FLATNESS 205

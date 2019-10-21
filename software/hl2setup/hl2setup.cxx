@@ -14,13 +14,15 @@
 
 #include <hl2.h>
 
-
+//#define CFG_BIAS_BUTTONS
+//#define CFG_FLATNESS_BUTTON
 
 void idle(void *);
 void exit_callback(Fl_Widget*, void*);
 void btn_setup_callback(Fl_Widget *, void *);
 void btn_test_bias_callback(Fl_Widget *, void *);
 void btn_set_bias_callback(Fl_Widget *, void *);
+void btn_test_pwr_flatness_button_callback(Fl_Widget *, void *);
 void btn_power_callback(Fl_Widget *, void *);
 
 int verbose_output;
@@ -29,8 +31,13 @@ class MainWindow : public Fl_Window
 {
 private:
 	Fl_Button * setup_button;
-	//Fl_Button * set_bias_button;
-	//Fl_Button * test_bias_button;
+#ifdef CFG_BIAS_BUTTONS
+	Fl_Button * set_bias_button;
+	Fl_Button * test_bias_button;
+#endif // CFG_BIAS_BUTTONS
+#ifdef CFG_FLATNESS_BUTTON
+	Fl_Button * test_pwr_flatness_button;
+#endif // CFG_FLATNESS_BUTTON
 	const char * help_text;
 public:
 	Fl_Light_Button * power_button;
@@ -134,18 +141,25 @@ public:
 		ww = width1 * 70 / 100;
 		hh = height * 2;
 		x0 = tab1 * 2;
-		dx = (info_width - tab1 * 2 - ww * 3) / 2;
+		dx = (info_width - tab1 * 2 - ww * 4) / 2;
 		dx = ww + dx;
 		setup_button = new Fl_Button(x0, y, ww, hh, "Test");
 		setup_button->callback(btn_setup_callback);
 		setup_button->deactivate();
-		//test_bias_button = new Fl_Button(x0 + dx, y, ww, hh, "Test PA Bias");
-		//test_bias_button->callback(btn_test_bias_callback);
-		//test_bias_button->when(FL_WHEN_CHANGED);
-		//test_bias_button->deactivate();
-		//set_bias_button = new Fl_Button(x0 + dx * 2, y, ww, hh, "Set PA Bias");
-		//set_bias_button->callback(btn_set_bias_callback);
-		//set_bias_button->deactivate();
+#ifdef CFG_BIAS_BUTTONS
+		test_bias_button = new Fl_Button(x0 + dx, y, ww, hh, "Test PA Bias");
+		test_bias_button->callback(btn_test_bias_callback);
+		test_bias_button->when(FL_WHEN_CHANGED);
+		test_bias_button->deactivate();
+		set_bias_button = new Fl_Button(x0 + dx * 2, y, ww, hh, "Set PA Bias");
+		set_bias_button->callback(btn_set_bias_callback);
+		set_bias_button->deactivate();
+#endif // CFG_BIAS_BUTTONS
+#ifdef CFG_FLATNESS_BUTTON
+		test_pwr_flatness_button = new Fl_Button(x0 + dx * 3, y, ww, hh, "Test flatness");
+		test_pwr_flatness_button->callback(btn_test_pwr_flatness_button_callback);
+		test_pwr_flatness_button->deactivate();
+#endif // CFG_FLATNESS_BUTTON
 		y += hh + height;
 	
 		hh = height * 24;
@@ -175,11 +189,21 @@ public:
 		//	set_bias_button->deactivate();
 		if (hermes_run_state == STATE_IDLE && code_version >= 60) {
 			setup_button->activate();
-			//test_bias_button->activate();
+#ifdef CFG_BIAS_BUTTONS
+			test_bias_button->activate();
+#endif // CFG_BIAS_BUTTONS
+#ifdef CFG_FLATNESS_BUTTON
+			test_pwr_flatness_button->activate();
+#endif // CFG_FLATNESS_BUTTON
 		}
 		else {
 			setup_button->deactivate();
-			//test_bias_button->deactivate();
+#ifdef CFG_BIAS_BUTTONS
+			test_bias_button->deactivate();
+#endif // CFG_BIAS_BUTTONS
+#ifdef CFG_FLATNESS_BUTTON
+			test_pwr_flatness_button->deactivate();
+#endif // CFG_FLATNESS_BUTTON
 		}
 	}
 
@@ -188,8 +212,13 @@ public:
 		hermes_key_down = 0;
 		hermes_run_state = STATE_IDLE;
 		this->setup_button->deactivate();
-		//this->set_bias_button->deactivate();
-		//this->test_bias_button->deactivate();
+#ifdef CFG_BIAS_BUTTONS
+		this->set_bias_button->deactivate();
+		this->test_bias_button->deactivate();
+#endif // CFG_BIAS_BUTTONS
+#ifdef CFG_FLATNESS_BUTTON
+		this->test_pwr_flatness_button->deactivate();
+#endif // CFG_FLATNESS_BUTTON
 		this->value_mac->copy_label("Unknown");
 		this->value_id->copy_label("Unknown");
 		this->value_ip->copy_label("Unknown");
@@ -277,6 +306,10 @@ void btn_test_bias_callback(Fl_Widget * w, void * d) {
 
 void btn_set_bias_callback(Fl_Widget * w, void * d) {
 	hermes_run_state = STATE_START_SET_BIAS;
+}
+
+void btn_test_pwr_flatness_button_callback(Fl_Widget * w, void * d) {
+	hermes_run_state = STATE_START_TEST_TX_FLATNESS;
 }
 
 void btn_power_callback(Fl_Widget * w, void * d) {
