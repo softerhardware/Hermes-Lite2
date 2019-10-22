@@ -628,12 +628,7 @@ void HL2Run(void)
 		snprintf(output120, 120, "PA power code at 30 MHz is %.1f", pwr30);
 		CheckResult(output120, pwr30, 3600.0, 0.10, NULL);
 		snprintf(output120, 120, "PA power code ratio 1.8 MHz vs 30 MHz is %.2f", pwr1p8 / pwr30);
-		CheckResult(output120, pwr1p8 / pwr30, 1.1, 0.10, "HL2 T3");
-		if (pwr1p8 / pwr30 > 1.2) {
-			hermes_run_state = ERROR_STATE;
-		} else {
-			hermes_run_state = END_OF_TESTS;
-		}
+		hermes_run_state = END_OF_TESTS;
 		break;
 
 	case END_OF_TESTS:
