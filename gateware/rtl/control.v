@@ -252,6 +252,7 @@ logic [11:0]  bias_current;
 logic [11:0]  temperature;
 
 logic         cmd_ack_i2c, cmd_ack_ad9866;
+logic [31:0]  cmd_resp_data_i2c;
 logic         ptt;
 
 logic [39:0]  iresp = {8'h00, 8'b00011110, 8'h00, 8'h00, HERMES_SERIALNO};
@@ -291,6 +292,7 @@ logic [ 5:0]  pwrcnt = 6'h10;
 
 localparam RESP_START   = 2'b00,
            RESP_ACK     = 2'b01,
+           RESP_READ    = 2'b11,
            RESP_WAIT    = 2'b10;
 
 logic [1:0]   resp_state = RESP_START, resp_state_next;
@@ -411,6 +413,7 @@ i2c i2c_i (
   .cmd_data(cmd_data),
   .cmd_rqst(cmd_rqst),
   .cmd_ack(cmd_ack_i2c),
+  .cmd_resp_data(cmd_resp_data_i2c),
 
   .scl1_i(scl1_i),
   .scl1_o(scl1_o),
@@ -585,11 +588,25 @@ always @* begin
     end
 
     RESP_ACK: begin
-      // Will see acknowledge here if all I2C an SPI can start
-      if (cmd_ack_i2c & cmd_ack_ad9866) begin
-        resp_state_next = RESP_WAIT;
+      // Always send a response, may be error
+      resp_state_next = RESP_READ;
+      if (~(cmd_ack_i2c & cmd_ack_ad9866)) begin
+        // Error response if subsystem was not ready
+        resp_cmd_addr_next = 6'h3f;
+        //resp_state_next = RESP_WAIT;
+      end
+    end
+
+    RESP_READ: begin
+      // If there is a read, the ack will be low here until the read is ready
+      if (~(cmd_ack_i2c & cmd_ack_ad9866)) begin
+        if (~cmd_ack_i2c) begin
+          resp_cmd_data_next = cmd_resp_data_i2c;
+        end else if (~cmd_ack_ad9866) begin
+          resp_cmd_data_next = cmd_resp_data_i2c; // FIXME: suppor read cmd_resp_data_ad9866
+        end
       end else begin
-        resp_state_next = RESP_START;
+        resp_state_next = RESP_WAIT;
       end
     end
 
@@ -600,7 +617,7 @@ always @* begin
           // Save data for response
           resp_cmd_addr_next = cmd_addr;
           resp_cmd_data_next = cmd_data;
-          resp_state_next  = RESP_WAIT;
+          resp_state_next  = RESP_ACK;
         end else begin
           resp_state_next = RESP_START;
         end
