@@ -1,6 +1,6 @@
 //
 //  Hermes Lite
-// 
+//
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ output            rffe_ad9866_pga5;
 input  [5:0]      cmd_addr;
 input  [31:0]     cmd_data;
 input             cmd_rqst;
-output logic      cmd_ack = 1'b0;   
+output logic      cmd_ack = 1'b0;
 
 
 // SPI
@@ -67,7 +67,7 @@ logic   [8:0]     initarrayv;
 // Tool problems if below is logic
 reg     [8:0]     initarray [19:0];
 
-localparam 
+localparam
   CMD_IDLE    = 2'b00,
   CMD_TXGAIN  = 2'b01,
   CMD_RXGAIN  = 2'b11,
@@ -170,8 +170,8 @@ always @* begin
 
           default: cmd_state_next = cmd_state;
 
-        endcase 
-      end        
+        endcase
+      end
     end
 
     CMD_TXGAIN: begin
@@ -179,7 +179,7 @@ always @* begin
       icmd_data  = {5'h0a,4'b0100,tx_gain};
       cmd_state_next = CMD_IDLE;
     end
-    
+
     CMD_RXGAIN: begin
       istart          = 1'b1;
       icmd_data[12:6] = {5'h09,2'b01};
@@ -217,12 +217,12 @@ end
 
 always @* begin
     initarrayv = initarray[dut1_pc[5:1]];
-    datain = {3'b000,icmd_data};   
+    datain = {3'b000,icmd_data};
     start = 1'b0;
     if (rffe_ad9866_sen_n) begin
         if (dut1_pc[5:1] <= 6'h13) begin
             if (dut1_pc[0] == 1'b0) begin
-                
+
                 datain = {3'h0,dut1_pc[5:1],initarrayv[7:0]};
                 start = initarrayv[8];
             end

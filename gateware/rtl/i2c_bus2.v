@@ -9,6 +9,7 @@ module i2c_bus2
   cmd_data,
   cmd_rqst,
   cmd_ack,
+  cmd_resp_data,
 
   en_i2c2,
   ready,
@@ -29,10 +30,11 @@ input  [5:0]  cmd_addr;
 input  [31:0] cmd_data;
 input         cmd_rqst;
 output        cmd_ack;
+output [31:0] cmd_resp_data;
 
 output  logic en_i2c2;
-output        ready;    
- 
+output        ready;
+
 input         scl_i;
 output        scl_o;
 output        scl_t;
@@ -59,7 +61,7 @@ logic         data_out_valid;
 logic         data_out_ready;
 logic         data_out_last;
 
-logic [2:0]   state, state_next;
+logic [3:0]   state, state_next;
 logic         busy, missed_ack;
 
 logic [6:0]   cmd_reg, cmd_next;
@@ -71,21 +73,27 @@ logic [6:0]   filter_select_reg, filter_select_next;
 
 logic         en_i2c2_next;
 
+logic [31:0]  resp_data_next, resp_data=32'h00000000;
+
 
 
 
 // Control
-localparam [2:0]
-  STATE_IDLE          = 3'h0,
-  STATE_CMDADDR       = 3'h1,
-  STATE_WRITE_DATA0   = 3'h2,
-  STATE_WRITE_DATA1   = 3'h3,
-  STATE_FCMDADDR      = 3'h5,
-  STATE_WRITE_FDATA0  = 3'h6,
-  STATE_WRITE_FDATA1  = 3'h7,
-  STATE_WRITE_FDATA2  = 3'h4;
-
-
+localparam [3:0]
+  STATE_IDLE          = 4'h0,
+  STATE_CMDADDR       = 4'h1,
+  STATE_WRITE_DATA0   = 4'h2,
+  STATE_WRITE_DATA1   = 4'h3,
+  STATE_FCMDADDR      = 4'h5,
+  STATE_WRITE_FDATA0  = 4'h6,
+  STATE_WRITE_FDATA1  = 4'h7,
+  STATE_WRITE_FDATA2  = 4'h4,
+  STATE_READ_CMDADDR  = 4'h8,
+  STATE_READ_DATA0    = 4'h9,
+  STATE_READ_DATA1    = 4'ha,
+  STATE_READ_DATA2    = 4'hb,
+  STATE_READ_DATA3    = 4'hc,
+  STATE_READ_DATA4    = 4'hd;
 
 always @(posedge clk) begin
   if (rst) begin
@@ -104,13 +112,12 @@ always @(posedge clk) begin
     filter_select_reg <= filter_select_next;
     en_i2c2 <= en_i2c2_next;
   end
+  resp_data <= resp_data_next;
 end
 
 assign cmd_address = cmd_reg;
 assign cmd_start = 1'b0;
-assign cmd_read = 1'b0;
 assign cmd_write_multiple = 1'b0;
-assign cmd_stop = 1'b0;
 
 assign data_in_last = 1'b1;
 
@@ -118,41 +125,45 @@ assign data_out_ready = 1'b1;
 
 assign cmd_ack = cmd_ack_reg;
 
+assign cmd_resp_data = resp_data;
+
 
 always @* begin
   state_next = state;
-
-  cmd_valid = 1'b0; 
-  cmd_write = 1'b0;
-  //cmd_stop = 1'b0;
+  resp_data_next = resp_data;
   cmd_ack_next = cmd_ack;
+  filter_select_next = filter_select_reg;
+  cmd_next = cmd_reg;
+  data0_next = data0_reg;
+  data1_next = data1_reg;
+  en_i2c2_next = en_i2c2;
+
+
+  cmd_valid = 1'b1;
+  cmd_write = 1'b0;
+  cmd_read  = 1'b0;
+  cmd_stop = 1'b0;
 
   data_in = data0_reg;
   data_in_valid = 1'b0;
 
-  filter_select_next = filter_select_reg;
-
-  cmd_next = cmd_reg;
-  data0_next = data0_reg;
-  data1_next = data1_reg; 
-  en_i2c2_next = en_i2c2;
-
   ready = 1'b0;
-  
+
   case(state)
 
     STATE_IDLE: begin
+      cmd_valid = 1'b0;
+      cmd_ack_next = 1'b1;
       ready = ~busy;
       if (cmd_rqst) begin
-        cmd_ack_next = 1'b1;
-        if (((cmd_addr == 6'h3d) | (cmd_addr == 6'h3c)) & (cmd_data[31:24] == 8'h06)) begin
+        if (((cmd_addr == 6'h3d) | (cmd_addr == 6'h3c)) & (cmd_data[31:25] == 7'h03)) begin
           // Must send
           if (~busy) begin
             cmd_next = cmd_data[22:16];
             data0_next  = cmd_data[15:8];
             data1_next = cmd_data[7:0];
             en_i2c2_next = (cmd_addr == 6'h3d);
-            state_next = STATE_CMDADDR;
+            state_next = cmd_data[24] ? STATE_READ_CMDADDR : STATE_CMDADDR;
           end else begin
             cmd_ack_next = 1'b0; // Missed
           end
@@ -178,13 +189,11 @@ always @* begin
     end
 
     STATE_CMDADDR: begin
-      cmd_valid = 1'b1;
       cmd_write = 1'b1;
       if (cmd_ready) state_next = STATE_WRITE_DATA0;
     end
 
     STATE_WRITE_DATA0: begin
-      cmd_valid = 1'b1;
       cmd_write = 1'b1;
       data_in_valid = 1'b1;
       data_in = data0_reg;
@@ -192,21 +201,57 @@ always @* begin
     end
 
     STATE_WRITE_DATA1: begin
-      cmd_valid = 1'b1;
       cmd_write = 1'b1;
       data_in_valid = 1'b1;
       data_in = data1_reg;
       if (data_in_ready) state_next = STATE_IDLE;
     end
 
+    STATE_READ_CMDADDR: begin
+      cmd_ack_next = 1'b0; // Hold ack low until read data is ready
+      cmd_write = 1'b1;
+      cmd_stop = 1'b1;
+      if (cmd_ready) state_next = STATE_READ_DATA0;
+    end
+
+    STATE_READ_DATA0: begin
+      cmd_read = 1'b1;
+      data_in_valid = 1'b1;
+      data_in = data0_reg;
+      if (data_in_ready) state_next = STATE_READ_DATA1;
+    end
+
+    STATE_READ_DATA1: begin
+      cmd_read = 1'b1;
+      resp_data_next = {resp_data[31:8],data_out};
+      if (data_out_valid) state_next = STATE_READ_DATA2;
+    end
+
+    STATE_READ_DATA2: begin
+      cmd_read = 1'b1;
+      resp_data_next = {resp_data[31:16],data_out,resp_data[7:0]};
+      if (data_out_valid) state_next = STATE_READ_DATA3;
+    end
+
+    STATE_READ_DATA3: begin
+      cmd_read = 1'b1;
+      resp_data_next = {resp_data[31:24],data_out,resp_data[15:0]};
+      if (data_out_valid) state_next = STATE_READ_DATA4;
+    end
+
+    STATE_READ_DATA4: begin
+      cmd_stop = 1'b1;
+      cmd_read = 1'b1;
+      resp_data_next = {data_out,resp_data[23:0]};
+      if (data_out_valid) state_next = STATE_IDLE;
+    end
+
     STATE_FCMDADDR: begin
-      cmd_valid = 1'b1;
       cmd_write = 1'b1;
       if (cmd_ready) state_next = STATE_WRITE_FDATA0;
     end
 
     STATE_WRITE_FDATA0: begin
-      cmd_valid = 1'b1;
       cmd_write = 1'b1;
       data_in_valid = 1'b1;
       data_in = data0_reg;
@@ -214,7 +259,6 @@ always @* begin
     end
 
     STATE_WRITE_FDATA1: begin
-      cmd_valid = 1'b1;
       cmd_write = 1'b1;
       data_in_valid = 1'b1;
       data_in = data1_reg;
@@ -222,7 +266,6 @@ always @* begin
     end
 
     STATE_WRITE_FDATA2: begin
-      cmd_valid = 1'b1;
       cmd_write = 1'b1;
       data_in_valid = 1'b1;
       data_in = 'h00;

@@ -9,7 +9,8 @@ module i2c (
     input  logic [5:0]   cmd_addr,
     input  logic [31:0]  cmd_data,
     input  logic         cmd_rqst,
-    output logic         cmd_ack,   
+    output logic         cmd_ack,
+    output [31:0]        cmd_resp_data,
 
     /*
      * I2C interface
@@ -19,7 +20,7 @@ module i2c (
     output logic         scl1_t,
     input  logic         sda1_i,
     output logic         sda1_o,
-    output logic         sda1_t,    
+    output logic         sda1_t,
 
     input  logic         scl2_i,
     output logic         scl2_o,
@@ -51,7 +52,7 @@ logic         icmd_rqst;
 
 always @(posedge clk) begin
   state <= state_next;
-end 
+end
 
 always @* begin
   state_next = state;
@@ -69,7 +70,7 @@ always @* begin
           icmd_rqst = 1'b1;
           state_next = STATE_W1;
       end
-    end 
+    end
 
     STATE_W1: begin
       icmd_addr = 6'h3c;
@@ -79,7 +80,7 @@ always @* begin
           icmd_rqst = 1'b1;
           state_next = STATE_W2;
       end
-    end 
+    end
 
     STATE_W2: begin
       icmd_addr = 6'h3c;
@@ -89,7 +90,7 @@ always @* begin
           icmd_rqst = 1'b1;
           state_next = STATE_W3;
       end
-    end 
+    end
 
     STATE_W3: begin
       icmd_addr = 6'h3c;
@@ -99,7 +100,7 @@ always @* begin
           icmd_rqst = 1'b1;
           state_next = STATE_W4;
       end
-    end     
+    end
 
     STATE_W4: begin
       icmd_addr = 6'h3c;
@@ -109,7 +110,7 @@ always @* begin
           icmd_rqst = 1'b1;
           state_next = STATE_W5;
       end
-    end 
+    end
 
     STATE_W5: begin
       icmd_addr = 6'h3c;
@@ -119,7 +120,7 @@ always @* begin
           icmd_rqst = 1'b1;
           state_next = STATE_W6;
       end
-    end 
+    end
 
     STATE_W6: begin
       icmd_addr = 6'h3c;
@@ -129,11 +130,11 @@ always @* begin
           icmd_rqst = 1'b1;
           state_next = STATE_PASS;
       end
-    end 
+    end
 
     STATE_PASS: begin
       if (~init_start) state_next = STATE_W0;
-    end 
+    end
 
   endcase
 end
@@ -145,7 +146,8 @@ i2c_bus2 i2c_bus2_i (
   .cmd_addr(icmd_addr),
   .cmd_data(icmd_data),
   .cmd_rqst(icmd_rqst),
-  .cmd_ack(cmd_ack),  
+  .cmd_ack(cmd_ack),
+  .cmd_resp_data(cmd_resp_data),
 
   .en_i2c2(en_i2c2),
   .ready(ready),
