@@ -256,6 +256,11 @@ logic [ 9:0]    asmi_rx_used;
 logic           asmi_rdreq;
 logic           asmi_reconfig;
 
+logic  [31:0]   static_ip;
+logic  [15:0]   alt_mac;
+logic  [ 7:0]   eeprom_config;
+
+
 /////////////////////////////////////////////////////
 // Clocks
 
@@ -359,7 +364,9 @@ ad9866pll ad9866pll_inst (
 /////////////////////////////////////////////////////
 // Network
 
-assign local_mac =  {MAC[47:2],~io_alternate_mac,MAC[0]};
+//assign local_mac =  {MAC[47:2],~io_alternate_mac,MAC[0]};
+assign local_mac = eeprom_config[6] ? {MAC[47:16],alt_mac} : MAC[47:0];
+
 
 network network_inst(
 
@@ -380,7 +387,8 @@ network network_inst(
   .broadcast(broadcast),
   .dst_unreachable(dst_unreachable),
 
-  .static_ip(IP),
+  .eeprom_config(eeprom_config),
+  .static_ip(static_ip),
   .local_mac(local_mac),
   .speed_1gb(speed_1gb),
   .network_state_dhcp(network_state_dhcp),
@@ -546,6 +554,10 @@ usopenhpsdr1 #(.NR(NR), .HERMES_SERIALNO(HERMES_SERIALNO)) usopenhpsdr1_i (
 
   .resp(resp),
   .resp_rqst(resp_rqst),
+
+  .static_ip(static_ip),
+  .alt_mac(alt_mac),
+  .eeprom_config(eeprom_config),
 
   .watchdog_up(watchdog_up),
 
@@ -767,6 +779,10 @@ control #(
 
   .resp_rqst(resp_rqst_iosync),
   .resp(resp),
+
+  .static_ip(static_ip),
+  .alt_mac(alt_mac),
+  .eeprom_config(eeprom_config),
 
   // External
   .rffe_rfsw_sel(rffe_rfsw_sel),

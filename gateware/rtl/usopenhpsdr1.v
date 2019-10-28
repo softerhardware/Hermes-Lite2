@@ -34,6 +34,10 @@ module usopenhpsdr1 (
   resp,
   resp_rqst,
 
+  static_ip,
+  alt_mac,
+  eeprom_config,
+
   watchdog_up,
 
   usethasmi_send_more,
@@ -72,6 +76,10 @@ input               cmd_rqst;
 
 input  [39:0]       resp;
 output logic        resp_rqst = 1'b0;
+
+input  [31:0]       static_ip;
+input  [15:0]       alt_mac;
+input  [ 7:0]       eeprom_config;
 
 output logic        watchdog_up = 1'b0;
 
@@ -260,16 +268,16 @@ always @* begin
         6'h32: discover_data_next = HERMES_SERIALNO;
         //6'h31: discover_data_next = IDHermesLite ? 8'h06 : 8'h01;
         // FIXME: Really needed for CW skimmer? Why so much?
-        6'h30: discover_data_next = "H";
-        6'h2f: discover_data_next = "E";
-        6'h2e: discover_data_next = "R";
-        6'h2d: discover_data_next = "M";
-        6'h2c: discover_data_next = "E";
-        6'h2b: discover_data_next = "S";
-        6'h2a: discover_data_next = "L";
-        6'h29: discover_data_next = "T";
+        6'h30: discover_data_next = {eeprom_config[7:5],5'b0000};
+        6'h2f: discover_data_next = 8'h00;
+        6'h2e: discover_data_next = static_ip[31:24];
+        6'h2d: discover_data_next = static_ip[23:16];
+        6'h2c: discover_data_next = static_ip[15:8];
+        6'h2b: discover_data_next = static_ip[7:0];
+        6'h2a: discover_data_next = alt_mac[15:8];
+        6'h29: discover_data_next = alt_mac[7:0];
         6'h28: discover_data_next = NR[7:0];
-        6'h25: discover_data_next = HARD_STATUS1;
+        6'h27: discover_data_next = HARD_STATUS1;
         6'h00: begin
           discover_data_next = idhermeslite ? 8'h06 : 8'h01;
           if (usethasmi_erase_done | usethasmi_send_more) byte_no_next = 6'h00;

@@ -12,6 +12,10 @@ module i2c (
     output logic         cmd_ack,
     output [31:0]        cmd_resp_data,
 
+    output logic [31:0]  static_ip,
+    output logic [15:0]  alt_mac,
+    output logic [ 7:0]  eeprom_config,
+
     /*
      * I2C interface
      */
@@ -33,29 +37,48 @@ module i2c (
 logic         scl_i, scl_o, scl_t, sda_i, sda_o, sda_t;
 logic         en_i2c2, ready;
 
-localparam [2:0]
-  STATE_W0    = 3'h0,
-  STATE_W1    = 3'h1,
-  STATE_W2    = 3'h2,
-  STATE_W3    = 3'h3,
-  STATE_W4    = 3'h4,
-  STATE_W5    = 3'h5,
-  STATE_W6    = 3'h6,
-  STATE_PASS  = 3'h7;
+localparam [3:0]
+  STATE_W0    = 4'h0,
+  STATE_W1    = 4'h1,
+  STATE_W2    = 4'h2,
+  STATE_W3    = 4'h3,
+  STATE_W4    = 4'h4,
+  STATE_W5    = 4'h5,
+  STATE_W6    = 4'h6,
+  STATE_WWAIT = 4'h7,
+  STATE_R0    = 4'h8,
+  STATE_R1    = 4'h9,
+  STATE_R2    = 4'ha,
+  STATE_R3    = 4'hb,
+  STATE_R4    = 4'hc,
+  STATE_R5    = 4'hd,
+  STATE_R6    = 4'he,
+  STATE_PASS  = 4'hf;
 
 
-logic [ 2:0]  state = STATE_W0, state_next;
+logic [ 3:0]  state = STATE_W0, state_next;
 
 logic [ 5:0]  icmd_addr;
 logic [31:0]  icmd_data;
 logic         icmd_rqst;
+logic         read_done;
+
+logic [31:0]  static_ip_next;
+logic [15:0]  alt_mac_next;
+logic [7:0]   eeprom_config_next;
 
 always @(posedge clk) begin
   state <= state_next;
+  static_ip <= static_ip_next;
+  alt_mac <= alt_mac_next;
+  eeprom_config <= eeprom_config_next;
 end
 
 always @* begin
   state_next = state;
+  static_ip_next = static_ip;
+  alt_mac_next = alt_mac;
+  eeprom_config_next = eeprom_config;
 
   icmd_addr = cmd_addr;
   icmd_data = cmd_data;
@@ -128,7 +151,87 @@ always @* begin
       icmd_rqst = 1'b0;
       if (init_start & ready) begin
           icmd_rqst = 1'b1;
-          state_next = STATE_PASS;
+          state_next = STATE_WWAIT;
+      end
+    end
+
+    // Wait state is need to switch between i2c controllers
+    STATE_WWAIT: begin
+      icmd_addr = 6'h3c;
+      icmd_data = {8'h06, 1'b1, 7'h6a, 8'h60, 8'h3b};
+      icmd_rqst = 1'b0;
+      if (init_start & ready) begin
+          state_next = STATE_R0;
+      end
+    end
+
+    STATE_R0: begin
+      icmd_addr = 6'h3d;
+      icmd_data = {8'h07, 8'hac, 8'h8c, 8'hxx};
+      icmd_rqst = init_start & ready;
+      if (read_done) begin
+        static_ip_next = {cmd_resp_data[15:8],static_ip[23:0]};
+        state_next = STATE_R1;
+      end
+    end
+
+    STATE_R1: begin
+      icmd_addr = 6'h3d;
+      icmd_data = {8'h07, 8'hac, 8'h9c, 8'hxx};
+      icmd_rqst = init_start & ready;
+      if (read_done) begin
+        static_ip_next = {static_ip[31:24],cmd_resp_data[15:8],static_ip[15:0]};
+        state_next = STATE_R2;
+      end
+    end
+
+    STATE_R2: begin
+      icmd_addr = 6'h3d;
+      icmd_data = {8'h07, 8'hac, 8'hac, 8'hxx};
+      icmd_rqst = init_start & ready;
+      if (read_done) begin
+        static_ip_next = {static_ip[31:16],cmd_resp_data[15:8],static_ip[7:0]};
+        state_next = STATE_R3;
+      end
+    end
+
+    STATE_R3: begin
+      icmd_addr = 6'h3d;
+      icmd_data = {8'h07, 8'hac, 8'hbc, 8'hxx};
+      icmd_rqst = init_start & ready;
+      if (read_done) begin
+        static_ip_next = {static_ip[31:8],cmd_resp_data[15:8]};
+        state_next = STATE_R4;
+      end
+    end
+
+    STATE_R4: begin
+      icmd_addr = 6'h3d;
+      icmd_data = {8'h07, 8'hac, 8'hcc, 8'hxx};
+      icmd_rqst = init_start & ready;
+      if (read_done) begin
+        alt_mac_next = {cmd_resp_data[15:8],alt_mac[7:0]};
+        state_next = STATE_R5;
+      end
+    end
+
+    STATE_R5: begin
+      icmd_addr = 6'h3d;
+      icmd_data = {8'h07, 8'hac, 8'hdc, 8'hxx};
+      icmd_rqst = init_start & ready;
+      if (read_done) begin
+        alt_mac_next = {alt_mac[7:0],cmd_resp_data[15:8]};
+        state_next = STATE_R6;
+      end
+    end
+
+    STATE_R6: begin
+      icmd_addr = 6'h3d;
+      icmd_data = {8'h07, 8'hac, 8'h6c, 8'hxx};
+      icmd_rqst = init_start & ready;
+      if (read_done) begin
+        eeprom_config_next = cmd_resp_data[15:8];
+        state_next = STATE_PASS;
       end
     end
 
@@ -149,6 +252,7 @@ i2c_bus2 i2c_bus2_i (
   .cmd_ack(cmd_ack),
   .cmd_resp_data(cmd_resp_data),
 
+  .read_done(read_done),
   .en_i2c2(en_i2c2),
   .ready(ready),
 

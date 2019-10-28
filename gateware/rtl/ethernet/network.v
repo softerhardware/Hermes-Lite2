@@ -48,6 +48,7 @@ module network (
   output        dst_unreachable,
 
   // status and control
+  input  [ 7:0] eeprom_config,
   input  [31:0] static_ip,
   input  [47:0] local_mac,
   output        speed_1gb,
@@ -169,7 +170,7 @@ always @(negedge clock_2_5MHz)
     ST_PHY_SETTLE: begin
       //when network has settled, get ip address, if static IP assigned then use it else try DHCP
       if (dhcp_timer == 0) begin
-        if (static_ip_assigned)
+        if (eeprom_config[7] & ~eeprom_config[5])
           state <= ST_RUNNING;
         else begin
           local_ip <= 32'h00_00_00_00;                // needs to be 0.0.0.0 for DHCP
@@ -212,8 +213,12 @@ always @(negedge clock_2_5MHz)
         if (dhcp_seconds_timer == 0 || dhcp_seconds_timer == 2 || dhcp_seconds_timer == 6) begin
           state <= ST_DHCP_RETRY;     // retransmit the Discover request
         end
-        else if (dhcp_seconds_timer == 14) begin    // no DHCP Offer received in 15 seconds; use apipa
-          local_ip <= apipa_ip;
+        else if (dhcp_seconds_timer == 14) begin    // no DHCP Offer received in 15 seconds; use fixed ip or apipa
+          if (eeprom_config[7] & eeprom_config[5]) begin
+            local_ip <= static_ip;
+          end else begin
+            local_ip <= apipa_ip;
+          end
           state <= ST_RUNNING;
         end
       end
