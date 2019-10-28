@@ -11,6 +11,7 @@ module i2c_bus2
   cmd_ack,
   cmd_resp_data,
 
+  read_done,
   en_i2c2,
   ready,
 
@@ -32,6 +33,7 @@ input         cmd_rqst;
 output        cmd_ack;
 output [31:0] cmd_resp_data;
 
+output  logic read_done;
 output  logic en_i2c2;
 output        ready;
 
@@ -143,6 +145,7 @@ always @* begin
   cmd_write = 1'b0;
   cmd_read  = 1'b0;
   cmd_stop = 1'b0;
+  read_done = 1'b0;
 
   data_in = data0_reg;
   data_in_valid = 1'b0;
@@ -243,7 +246,10 @@ always @* begin
       cmd_stop = 1'b1;
       cmd_read = 1'b1;
       resp_data_next = {data_out,resp_data[23:0]};
-      if (data_out_valid) state_next = STATE_IDLE;
+      if (data_out_valid) begin
+        read_done = 1'b1;
+        state_next = STATE_IDLE;
+      end
     end
 
     STATE_FCMDADDR: begin

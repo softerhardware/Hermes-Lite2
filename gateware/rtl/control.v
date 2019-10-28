@@ -84,6 +84,10 @@ module control(
   resp_rqst,
   resp,
 
+  static_ip,
+  alt_mac,
+  eeprom_config,
+
   // External
   rffe_rfsw_sel,
 
@@ -176,6 +180,10 @@ output          cw_keydown;
 
 input           resp_rqst;
 output [39:0]   resp;
+
+output [31:0]   static_ip;
+output [15:0]   alt_mac;
+output [ 7:0]   eeprom_config;
 
 // External
 output          rffe_rfsw_sel;
@@ -415,6 +423,10 @@ i2c i2c_i (
   .cmd_ack(cmd_ack_i2c),
   .cmd_resp_data(cmd_resp_data_i2c),
 
+  .static_ip(static_ip),
+  .alt_mac(alt_mac),
+  .eeprom_config(eeprom_config),
+
   .scl1_i(scl1_i),
   .scl1_o(scl1_o),
   .scl1_t(scl1_t),
@@ -593,7 +605,7 @@ always @* begin
       if (~(cmd_ack_i2c & cmd_ack_ad9866)) begin
         // Error response if subsystem was not ready
         resp_cmd_addr_next = 6'h3f;
-        //resp_state_next = RESP_WAIT;
+        resp_state_next = RESP_WAIT;
       end
     end
 
