@@ -220,7 +220,7 @@ always @* begin
       icmd_data = {8'h07, 8'hac, 8'hdc, 8'hxx};
       icmd_rqst = init_start & ready;
       if (read_done) begin
-        alt_mac_next = {alt_mac[7:0],cmd_resp_data[15:8]};
+        alt_mac_next = {alt_mac[15:8],cmd_resp_data[15:8]};
         state_next = STATE_R6;
       end
     end

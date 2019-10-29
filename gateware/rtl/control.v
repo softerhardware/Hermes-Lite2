@@ -311,6 +311,10 @@ logic         cw_power_on;
 
 logic         ptt_resp = 1'b0;
 
+logic [ 7:0]  ieeprom_config;
+
+logic         use_eeprom_config = 1'b0;
+
 
 /////////////////////////////////////////////////////
 // Reset
@@ -412,6 +416,12 @@ generate
 endgenerate
 
 
+always @(posedge clk)
+  if (slow_adc_rst) use_eeprom_config <= ~(ext_ptt & ext_cwkey);
+
+assign eeprom_config[7:5] = use_eeprom_config ? ieeprom_config[7:5] : 3'b000;
+assign eeprom_config[4:0] = ieeprom_config[4:0];
+
 i2c i2c_i (
   .clk(clk),
   .rst(clk_i2c_rst),
@@ -425,7 +435,7 @@ i2c i2c_i (
 
   .static_ip(static_ip),
   .alt_mac(alt_mac),
-  .eeprom_config(eeprom_config),
+  .eeprom_config(ieeprom_config),
 
   .scl1_i(scl1_i),
   .scl1_o(scl1_o),
