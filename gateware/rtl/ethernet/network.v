@@ -72,7 +72,6 @@ wire [1:0] phy_speed;
 wire phy_duplex;
 wire dhcp_success;
 wire icmp_rx_enable;
-wire static_ip_assigned;
 wire phy_connected = phy_duplex && (phy_speed[1] != phy_speed[0]);
 
 reg speed_1gb_i = 1'b0;
@@ -87,13 +86,9 @@ reg  [31:0] local_ip;
 //wire [31:0] apipa_ip = {8'd192, 8'd168, 8'd22, 8'd248};
 wire [31:0] apipa_ip = {8'd169, 8'd254, local_mac[15:0]};
 //wire [31:0] ip_to_write;
-assign static_ip_assigned = (static_ip != 32'hFFFFFFFF) && (static_ip != 32'd0);
-
 
 localparam
   ST_START         = 4'd0,
-  ST_EEPROM_START  = 4'd1,
-  ST_EEPROM_READ   = 4'd2,
   ST_PHY_INIT      = 4'd3,
   ST_PHY_CONNECT   = 4'd4,
   ST_PHY_SETTLE    = 4'd5,
@@ -139,17 +134,6 @@ always @(negedge clock_2_5MHz)
     //set eeprom read request
     ST_START: begin
       speed_1gb_i <= 0;
-      state <= ST_EEPROM_START;
-    end
-    //clear eeprom read request
-    ST_EEPROM_START:
-      state <= ST_EEPROM_READ;
-
-    //wait for eeprom
-    ST_EEPROM_READ: begin
-      local_ip <= static_ip;
-      //dhcp_timer <= 22'd2_500_000;    // set dhcp timer to one second
-      //dhcp_seconds_timer <= 4'd0; // zero seconds have elapsed
       state <= ST_PHY_INIT;
     end
 
@@ -170,9 +154,10 @@ always @(negedge clock_2_5MHz)
     ST_PHY_SETTLE: begin
       //when network has settled, get ip address, if static IP assigned then use it else try DHCP
       if (dhcp_timer == 0) begin
-        if (eeprom_config[7] & ~eeprom_config[5])
+        if (eeprom_config[7] & ~eeprom_config[5]) begin
+          local_ip <= static_ip;
           state <= ST_RUNNING;
-        else begin
+        end else begin
           local_ip <= 32'h00_00_00_00;                // needs to be 0.0.0.0 for DHCP
           dhcp_timer <= 22'd2_500_000;    // set dhcp timer to one second
           dhcp_seconds_timer <= 4'd0; // zero seconds have elapsed
