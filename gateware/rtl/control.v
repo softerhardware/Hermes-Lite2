@@ -298,6 +298,8 @@ logic         disable_syncfreq = 1'b0;
 logic [ 5:0]  pwrcnt = 6'h10;
 //logic [ 2:0]  pwrphase = 3'b100;
 
+logic         resp_cnt = 1'b0;
+
 localparam RESP_START   = 2'b00,
            RESP_ACK     = 2'b01,
            RESP_READ    = 2'b11,
@@ -454,6 +456,7 @@ i2c i2c_i (
 slow_adc slow_adc_i (
   .clk(clk),
   .rst(slow_adc_rst),
+  .sample(resp_rqst & resp_cnt),
   .ain0(rev_pwr),
   .ain1(temperature),
   .ain2(bias_current),
@@ -551,7 +554,7 @@ end
 
 
 
-logic        tx_power_on;		// Is the power on?
+logic tx_power_on; // Is the power on?
 assign tx_power_on = cw_power_on | tx_on;
 
 assign pwr_envbias = tx_power_on & ~vna & pa_enable;
@@ -634,7 +637,7 @@ always @* begin
 
     RESP_WAIT: begin
       cmd_resp_rqst = 1'b1;
-      if (resp_rqst) begin
+      if (resp_rqst & ~resp_cnt) begin // Only every other resp_rqst
         if (cmd_rqst & cmd_requires_resp) begin
           // Save data for response
           resp_cmd_addr_next = cmd_addr;
@@ -658,9 +661,10 @@ end
 // Output register iresp will be stable before required in any other clock domain
 always @(posedge clk) begin
   if (resp_rqst) begin
+    resp_cnt <= ~resp_cnt; // Count every other response
     clip_cnt  <= 2'b00;
     resp_addr <= resp_addr + 2'b01; // Slot will be skipped if command response
-    if (cmd_resp_rqst) begin
+    if (cmd_resp_rqst & ~resp_cnt) begin // Only every other resp_rqst
       // Command response
       iresp <= {1'b1,resp_cmd_addr,tx_on, resp_cmd_data}; // Queue size is 1
     end else begin
