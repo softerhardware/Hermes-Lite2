@@ -3,6 +3,8 @@ module slow_adc(
   input  logic         clk,
   input  logic         rst,
 
+  input  logic         sample,
+
   output logic [11:0]  ain0,
   output logic [11:0]  ain1,
   output logic [11:0]  ain2,
@@ -101,7 +103,8 @@ localparam [3:0]
   READ6  = 4'h6,
   READ7  = 4'h7,
   WRITE0 = 4'h8,
-  WRITE1 = 4'h9;
+  WRITE1 = 4'h9,
+  WAIT   = 4'ha;
 
 always @(posedge clk) begin
   if (rst) begin
@@ -121,7 +124,7 @@ assign data_in_last = 1'b1;
 always @* begin
   next_state = state;
 
-  cmd_valid = 1'b1; 
+  cmd_valid = 1'b1;
   cmd_read = 1'b1;
   cmd_write = 1'b0;
   cmd_stop = 1'b0;
@@ -152,8 +155,15 @@ always @* begin
 
     READ7: begin
       cmd_stop = 1'b1;
-      if (data_out_valid) next_state = WRITE0;
+      if (data_out_valid) next_state = WAIT;
     end
+
+    WAIT: begin
+      cmd_valid = 1'b0;
+      cmd_read = 1'b0;
+      if (sample) next_state = WRITE0;
+    end
+
   endcase
 end
 
@@ -161,7 +171,7 @@ end
 always @(posedge clk) begin
   if (data_out_valid) begin
     if (~state[0]) msbnibble <= data_out[3:0];
-      
+
     case(state)
       READ1: ain0 <= {msbnibble,data_out};
       READ3: ain1 <= {msbnibble,data_out};
