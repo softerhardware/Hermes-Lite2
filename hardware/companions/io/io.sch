@@ -1,0 +1,2118 @@
+EESchema Schematic File Version 4
+LIBS:io-cache
+EELAYER 26 0
+EELAYER END
+$Descr USLetter 11000 8500
+encoding utf-8
+Sheet 1 1
+Title "Hermes-Lite IO Companion Board"
+Date "2019-11-10"
+Rev "0.1"
+Comp "SofterHardware"
+Comment1 "KF7O Steve Haynal"
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L hermeslite:IO20 DB1
+U 1 1 5DC3A9D6
+P 1225 4750
+F 0 "DB1" H 1175 6175 50  0000 C CNN
+F 1 "IO20" H 1150 6150 39  0001 C CNN
+F 2 "" H 1225 4400 60  0000 C CNN
+F 3 "" H 1225 4400 60  0000 C CNN
+	1    1225 4750
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:IO6b DB12
+U 1 1 5DC3AAAA
+P 1225 2525
+F 0 "DB12" H 1300 1700 50  0000 R CNN
+F 1 "IO6b" H 1150 2925 39  0001 C CNN
+F 2 "" H 1225 2175 60  0000 C CNN
+F 3 "" H 1225 2175 60  0000 C CNN
+	1    1225 2525
+	1    0    0    1   
+$EndComp
+$Comp
+L hermeslite:GND #PWR02
+U 1 1 5DC3ABBC
+P 1375 6100
+F 0 "#PWR02" H 1375 5850 50  0001 C CNN
+F 1 "GND" H 1380 5927 50  0001 C CNN
+F 2 "" H 1375 6100 50  0001 C CNN
+F 3 "" H 1375 6100 50  0001 C CNN
+	1    1375 6100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1325 5850 1375 5850
+Wire Wire Line
+	1375 5850 1375 6050
+Wire Wire Line
+	1325 6050 1375 6050
+Connection ~ 1375 6050
+Wire Wire Line
+	1375 6050 1375 6100
+$Comp
+L hermeslite:+3V3 #PWR06
+U 1 1 5DC3ADA0
+P 2175 7250
+F 0 "#PWR06" H 2175 7100 50  0001 C CNN
+F 1 "+3V3" V 2175 7350 50  0000 L CNN
+F 2 "" H 2175 7250 50  0001 C CNN
+F 3 "" H 2175 7250 50  0001 C CNN
+	1    2175 7250
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	1325 7050 1375 7050
+Wire Wire Line
+	1375 7050 1375 7250
+Wire Wire Line
+	1325 7250 1375 7250
+Connection ~ 1375 7250
+Text GLabel 2175 4650 2    50   Output ~ 0
+Vlvds
+Wire Wire Line
+	1325 4650 1375 4650
+Wire Wire Line
+	1325 4850 1375 4850
+Wire Wire Line
+	1375 4850 1375 4650
+Connection ~ 1375 4650
+$Comp
+L hermeslite:GND #PWR01
+U 1 1 5DC3B04B
+P 1375 2475
+F 0 "#PWR01" H 1375 2225 50  0001 C CNN
+F 1 "GND" H 1380 2302 50  0001 C CNN
+F 2 "" H 1375 2475 50  0001 C CNN
+F 3 "" H 1375 2475 50  0001 C CNN
+	1    1375 2475
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1375 2475 1375 2425
+Wire Wire Line
+	1375 2225 1325 2225
+Wire Wire Line
+	1325 2425 1375 2425
+Connection ~ 1375 2425
+Wire Wire Line
+	1375 2425 1375 2225
+$Comp
+L hermeslite:GND #PWR05
+U 1 1 5DC3D922
+P 1500 1350
+F 0 "#PWR05" H 1500 1100 50  0001 C CNN
+F 1 "GND" H 1505 1177 50  0001 C CNN
+F 2 "" H 1500 1350 50  0001 C CNN
+F 3 "" H 1500 1350 50  0001 C CNN
+	1    1500 1350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1500 1350 1500 1300
+Text GLabel 1500 1050 1    50   Output ~ 0
+VSUP
+Wire Wire Line
+	1500 1100 1500 1050
+$Comp
+L hermeslite:LP2985 U1
+U 1 1 5DC3DE8C
+P 2200 1100
+F 0 "U1" H 2400 1350 50  0000 C CNN
+F 1 "LP2985" H 2400 850 50  0000 C CNN
+F 2 "" H 2200 1100 60  0000 C CNN
+F 3 "" H 2200 1100 60  0000 C CNN
+F 4 "DNI" H 2325 775 50  0000 C CNN "Option"
+	1    2200 1100
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:C_Small C1
+U 1 1 5DC3DF96
+P 1700 1200
+F 0 "C1" H 1792 1246 50  0000 L CNN
+F 1 "1uF" H 1792 1155 50  0000 L CNN
+F 2 "" H 1700 1200 50  0001 C CNN
+F 3 "" H 1700 1200 50  0001 C CNN
+	1    1700 1200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1500 1100 1700 1100
+Connection ~ 1500 1100
+Wire Wire Line
+	1700 1100 2000 1100
+Connection ~ 1700 1100
+Wire Wire Line
+	1500 1300 1700 1300
+Connection ~ 1500 1300
+Wire Wire Line
+	1700 1300 2000 1300
+Wire Wire Line
+	2000 1300 2000 1200
+Connection ~ 1700 1300
+$Comp
+L hermeslite:C_Small C3
+U 1 1 5DC3EA55
+P 2850 1350
+F 0 "C3" H 2875 1425 50  0000 L CNN
+F 1 "0.1uF" H 2625 1275 50  0000 L CNN
+F 2 "" H 2850 1350 50  0001 C CNN
+F 3 "" H 2850 1350 50  0001 C CNN
+F 4 "DNI" H 2950 1275 50  0000 C CNN "Option"
+	1    2850 1350
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:C_Small C5
+U 1 1 5DC3EAC9
+P 3125 1150
+F 0 "C5" H 3217 1196 50  0000 L CNN
+F 1 "10uF" H 3217 1105 50  0000 L CNN
+F 2 "" H 3125 1150 50  0001 C CNN
+F 3 "" H 3125 1150 50  0001 C CNN
+F 4 "DNI" H 3300 1025 50  0000 C CNN "Option"
+	1    3125 1150
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:GND #PWR08
+U 1 1 5DC3EB3E
+P 2975 1550
+F 0 "#PWR08" H 2975 1300 50  0001 C CNN
+F 1 "GND" H 2980 1377 50  0001 C CNN
+F 2 "" H 2975 1550 50  0001 C CNN
+F 3 "" H 2975 1550 50  0001 C CNN
+	1    2975 1550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3125 1250 3125 1500
+Wire Wire Line
+	3125 1500 2975 1500
+Wire Wire Line
+	2850 1500 2850 1450
+Wire Wire Line
+	2975 1550 2975 1500
+Connection ~ 2975 1500
+Wire Wire Line
+	2975 1500 2850 1500
+Wire Wire Line
+	2800 1200 2850 1200
+Wire Wire Line
+	2850 1200 2850 1250
+Wire Wire Line
+	2800 1000 3125 1000
+Wire Wire Line
+	3125 1000 3125 1050
+Wire Wire Line
+	2000 1000 1700 1000
+Wire Wire Line
+	1700 1000 1700 1100
+$Comp
+L hermeslite:CONN_01X02 CN1
+U 1 1 5DC3FF93
+P 1175 1200
+F 0 "CN1" H 1175 1375 50  0000 C CNN
+F 1 "CONN_01X02" H 1094 1374 50  0001 C CNN
+F 2 "" H 1175 1200 50  0001 C CNN
+F 3 "" H 1175 1200 50  0001 C CNN
+	1    1175 1200
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	1375 1100 1375 1150
+Wire Wire Line
+	1375 1100 1500 1100
+Wire Wire Line
+	1375 1300 1375 1250
+Wire Wire Line
+	1375 1300 1500 1300
+$Comp
+L Connector_Generic:Conn_01x08 J8
+U 1 1 5DC418FC
+P 3950 1250
+F 0 "J8" V 4075 1196 50  0000 C CNN
+F 1 "Conn_01x08" V 4165 1196 50  0001 C CNN
+F 2 "" H 3950 1250 50  0001 C CNN
+F 3 "~" H 3950 1250 50  0001 C CNN
+	1    3950 1250
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3125 1000 3550 1000
+Connection ~ 3125 1000
+Wire Wire Line
+	4250 1050 4250 1000
+Wire Wire Line
+	4150 1050 4150 1000
+Connection ~ 4150 1000
+Wire Wire Line
+	4150 1000 4250 1000
+Wire Wire Line
+	4050 1050 4050 1000
+Connection ~ 4050 1000
+Wire Wire Line
+	4050 1000 4150 1000
+Wire Wire Line
+	3950 1050 3950 1000
+Connection ~ 3950 1000
+Wire Wire Line
+	3950 1000 4050 1000
+Wire Wire Line
+	3850 1050 3850 1000
+Connection ~ 3850 1000
+Wire Wire Line
+	3850 1000 3950 1000
+Wire Wire Line
+	3750 1050 3750 1000
+Connection ~ 3750 1000
+Wire Wire Line
+	3750 1000 3850 1000
+Wire Wire Line
+	3650 1050 3650 1000
+Connection ~ 3650 1000
+Wire Wire Line
+	3650 1000 3750 1000
+Wire Wire Line
+	3550 1050 3550 1000
+Connection ~ 3550 1000
+Wire Wire Line
+	3550 1000 3650 1000
+$Comp
+L Connector_Generic:Conn_01x08 J2
+U 1 1 5DC4747F
+P 1850 7500
+F 0 "J2" V 1850 7925 50  0000 C CNN
+F 1 "Conn_01x08" V 2065 7446 50  0001 C CNN
+F 2 "" H 1850 7500 50  0001 C CNN
+F 3 "~" H 1850 7500 50  0001 C CNN
+	1    1850 7500
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x08 J1
+U 1 1 5DC474F5
+P 1850 4900
+F 0 "J1" V 1850 5325 50  0000 C CNN
+F 1 "Conn_01x08" V 2065 4846 50  0001 C CNN
+F 2 "" H 1850 4900 50  0001 C CNN
+F 3 "~" H 1850 4900 50  0001 C CNN
+	1    1850 4900
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x08 J14
+U 1 1 5DC47577
+P 5950 1250
+F 0 "J14" V 6075 1196 50  0000 C CNN
+F 1 "Conn_01x08" V 6165 1196 50  0001 C CNN
+F 2 "" H 5950 1250 50  0001 C CNN
+F 3 "~" H 5950 1250 50  0001 C CNN
+	1    5950 1250
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	1450 7300 1450 7250
+Wire Wire Line
+	1450 7250 1550 7250
+Wire Wire Line
+	2150 7250 2150 7300
+Wire Wire Line
+	1450 4700 1450 4650
+Wire Wire Line
+	1450 4650 1550 4650
+Wire Wire Line
+	2150 4650 2150 4700
+Wire Wire Line
+	5550 1050 5550 1000
+Wire Wire Line
+	5550 1000 5650 1000
+Wire Wire Line
+	6250 1000 6250 1050
+Wire Wire Line
+	1550 7300 1550 7250
+Connection ~ 1550 7250
+Wire Wire Line
+	1550 7250 1650 7250
+Wire Wire Line
+	1650 7300 1650 7250
+Connection ~ 1650 7250
+Wire Wire Line
+	1650 7250 1750 7250
+Wire Wire Line
+	1750 7300 1750 7250
+Connection ~ 1750 7250
+Wire Wire Line
+	1750 7250 1850 7250
+Wire Wire Line
+	1850 7300 1850 7250
+Connection ~ 1850 7250
+Wire Wire Line
+	1850 7250 1950 7250
+Wire Wire Line
+	1950 7300 1950 7250
+Connection ~ 1950 7250
+Wire Wire Line
+	1950 7250 2050 7250
+Wire Wire Line
+	2050 7300 2050 7250
+Connection ~ 2050 7250
+Wire Wire Line
+	2050 7250 2150 7250
+Wire Wire Line
+	1550 4700 1550 4650
+Connection ~ 1550 4650
+Wire Wire Line
+	1550 4650 1650 4650
+Wire Wire Line
+	1650 4700 1650 4650
+Connection ~ 1650 4650
+Wire Wire Line
+	1650 4650 1750 4650
+Wire Wire Line
+	1750 4700 1750 4650
+Connection ~ 1750 4650
+Wire Wire Line
+	1750 4650 1850 4650
+Wire Wire Line
+	1850 4700 1850 4650
+Connection ~ 1850 4650
+Wire Wire Line
+	1850 4650 1950 4650
+Wire Wire Line
+	1950 4700 1950 4650
+Connection ~ 1950 4650
+Wire Wire Line
+	1950 4650 2050 4650
+Wire Wire Line
+	2050 4700 2050 4650
+Connection ~ 2050 4650
+Wire Wire Line
+	2050 4650 2150 4650
+Wire Wire Line
+	5650 1050 5650 1000
+Connection ~ 5650 1000
+Wire Wire Line
+	5650 1000 5750 1000
+Wire Wire Line
+	5750 1050 5750 1000
+Connection ~ 5750 1000
+Wire Wire Line
+	5750 1000 5850 1000
+Wire Wire Line
+	5850 1050 5850 1000
+Connection ~ 5850 1000
+Wire Wire Line
+	5850 1000 5950 1000
+Wire Wire Line
+	5950 1050 5950 1000
+Connection ~ 5950 1000
+Wire Wire Line
+	5950 1000 6050 1000
+Wire Wire Line
+	6050 1050 6050 1000
+Connection ~ 6050 1000
+Wire Wire Line
+	6050 1000 6150 1000
+Wire Wire Line
+	6150 1050 6150 1000
+Connection ~ 6150 1000
+Wire Wire Line
+	6150 1000 6250 1000
+$Comp
+L hermeslite:GND #PWR016
+U 1 1 5DC618D1
+P 5650 950
+F 0 "#PWR016" H 5650 700 50  0001 C CNN
+F 1 "GND" H 5655 777 50  0001 C CNN
+F 2 "" H 5650 950 50  0001 C CNN
+F 3 "" H 5650 950 50  0001 C CNN
+	1    5650 950 
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	5650 950  5650 1000
+$Comp
+L Connector_Generic:Conn_01x08 J10
+U 1 1 5DC69FC8
+P 4950 1250
+F 0 "J10" V 5075 1196 50  0000 C CNN
+F 1 "Conn_01x08" V 5165 1196 50  0001 C CNN
+F 2 "" H 4950 1250 50  0001 C CNN
+F 3 "~" H 4950 1250 50  0001 C CNN
+	1    4950 1250
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	4550 1050 4550 1000
+Wire Wire Line
+	4550 1000 4650 1000
+Wire Wire Line
+	5250 1000 5250 1050
+Wire Wire Line
+	4650 1050 4650 1000
+Connection ~ 4650 1000
+Wire Wire Line
+	4650 1000 4750 1000
+Wire Wire Line
+	4750 1050 4750 1000
+Connection ~ 4750 1000
+Wire Wire Line
+	4750 1000 4850 1000
+Wire Wire Line
+	4850 1050 4850 1000
+Connection ~ 4850 1000
+Wire Wire Line
+	4850 1000 4950 1000
+Wire Wire Line
+	4950 1050 4950 1000
+Connection ~ 4950 1000
+Wire Wire Line
+	4950 1000 5050 1000
+Wire Wire Line
+	5050 1050 5050 1000
+Connection ~ 5050 1000
+Wire Wire Line
+	5050 1000 5150 1000
+Wire Wire Line
+	5150 1050 5150 1000
+Connection ~ 5150 1000
+Wire Wire Line
+	5150 1000 5250 1000
+Wire Wire Line
+	4650 950  4650 1000
+Text GLabel 4650 950  1    50   Input ~ 0
+VSUP
+$Comp
+L hermeslite:R R10
+U 1 1 5DD9E439
+P 7750 975
+F 0 "R10" H 7900 1050 50  0000 C CNN
+F 1 "10K" V 7750 975 50  0000 C CNN
+F 2 "" V 7680 975 50  0001 C CNN
+F 3 "" H 7750 975 50  0001 C CNN
+	1    7750 975 
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x01 J21
+U 1 1 5DD9E482
+P 8600 550
+F 0 "J21" V 8625 475 50  0000 R CNN
+F 1 "Conn_01x01" V 8475 462 50  0001 R CNN
+F 2 "" H 8600 550 50  0001 C CNN
+F 3 "~" H 8600 550 50  0001 C CNN
+	1    8600 550 
+	0    -1   -1   0   
+$EndComp
+Text GLabel 7500 800  0    50   Input ~ 0
+O1
+Text GLabel 7575 3650 0    50   Input ~ 0
+Vlvds
+$Comp
+L hermeslite:R R14
+U 1 1 5DE28638
+P 8000 3825
+F 0 "R14" H 8150 3900 50  0000 C CNN
+F 1 "10K" V 8000 3825 50  0000 C CNN
+F 2 "" V 7930 3825 50  0001 C CNN
+F 3 "" H 8000 3825 50  0001 C CNN
+	1    8000 3825
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q7
+U 1 1 5DE2863E
+P 8325 3900
+F 0 "Q7" V 8225 3825 50  0000 C CNN
+F 1 "BSS138" V 8550 3900 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 8525 3825 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 8325 3900 50  0001 L CNN
+	1    8325 3900
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	8325 3650 8325 3700
+$Comp
+L Device:D_Small_ALT D3
+U 1 1 5DE2866C
+P 8575 4100
+F 0 "D3" V 8550 4175 50  0000 L CNN
+F 1 "1N4148" V 8625 4175 50  0000 L CNN
+F 2 "" V 8575 4100 50  0001 C CNN
+F 3 "~" V 8575 4100 50  0001 C CNN
+F 4 "DNI" V 8700 4175 50  0000 L CNN "Option"
+	1    8575 4100
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x01 J17
+U 1 1 5DE28672
+P 8575 3700
+F 0 "J17" V 8600 3625 50  0000 R CNN
+F 1 "Conn_01x01" V 8450 3612 50  0001 R CNN
+F 2 "" H 8575 3700 50  0001 C CNN
+F 3 "~" H 8575 3700 50  0001 C CNN
+	1    8575 3700
+	0    -1   -1   0   
+$EndComp
+$Comp
+L hermeslite:GND #PWR021
+U 1 1 5DE28678
+P 8575 4225
+F 0 "#PWR021" H 8575 3975 50  0001 C CNN
+F 1 "GND" H 8580 4052 50  0001 C CNN
+F 2 "" H 8575 4225 50  0001 C CNN
+F 3 "" H 8575 4225 50  0001 C CNN
+	1    8575 4225
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8575 3900 8575 4000
+Wire Wire Line
+	8525 4000 8575 4000
+Connection ~ 8575 4000
+Wire Wire Line
+	8575 4225 8575 4200
+Text GLabel 7525 4000 0    50   BiDi ~ 0
+IO1
+$Comp
+L hermeslite:GND #PWR017
+U 1 1 5DCC2917
+P 7750 1150
+F 0 "#PWR017" H 7750 900 50  0001 C CNN
+F 1 "GND" H 7755 977 50  0001 C CNN
+F 2 "" H 7750 1150 50  0001 C CNN
+F 3 "" H 7750 1150 50  0001 C CNN
+	1    7750 1150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7750 1125 8100 1125
+Wire Wire Line
+	8100 1125 8100 1000
+Wire Wire Line
+	7750 1150 7750 1125
+Connection ~ 7750 1125
+Wire Wire Line
+	7750 825  7750 800 
+Wire Wire Line
+	7750 800  7800 800 
+Wire Wire Line
+	8600 750  8600 800 
+Wire Wire Line
+	8600 800  8275 800 
+Wire Wire Line
+	8275 800  8275 575 
+Wire Wire Line
+	8275 575  8100 575 
+$Comp
+L Transistor_FET:BSS138 Q3
+U 1 1 5DD9E43F
+P 8000 800
+F 0 "Q3" H 7925 925 50  0000 C CNN
+F 1 "NUD3124" H 8300 575 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 8200 725 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 8000 800 50  0001 L CNN
+	1    8000 800 
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8100 575  8100 600 
+Connection ~ 7750 800 
+$Comp
+L hermeslite:R R11
+U 1 1 5DD6D5C6
+P 7750 1750
+F 0 "R11" H 7900 1825 50  0000 C CNN
+F 1 "10K" V 7750 1750 50  0000 C CNN
+F 2 "" V 7680 1750 50  0001 C CNN
+F 3 "" H 7750 1750 50  0001 C CNN
+	1    7750 1750
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x01 J22
+U 1 1 5DD6D5CC
+P 8600 1325
+F 0 "J22" V 8625 1250 50  0000 R CNN
+F 1 "Conn_01x01" V 8475 1237 50  0001 R CNN
+F 2 "" H 8600 1325 50  0001 C CNN
+F 3 "~" H 8600 1325 50  0001 C CNN
+	1    8600 1325
+	0    -1   -1   0   
+$EndComp
+Text GLabel 7500 1575 0    50   Input ~ 0
+O1
+$Comp
+L hermeslite:GND #PWR018
+U 1 1 5DD6D5D3
+P 7750 1925
+F 0 "#PWR018" H 7750 1675 50  0001 C CNN
+F 1 "GND" H 7755 1752 50  0001 C CNN
+F 2 "" H 7750 1925 50  0001 C CNN
+F 3 "" H 7750 1925 50  0001 C CNN
+	1    7750 1925
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7750 1900 8100 1900
+Wire Wire Line
+	8100 1900 8100 1775
+Wire Wire Line
+	7750 1925 7750 1900
+Connection ~ 7750 1900
+Wire Wire Line
+	7750 1600 7750 1575
+Wire Wire Line
+	7750 1575 7800 1575
+Wire Wire Line
+	8600 1525 8600 1575
+Wire Wire Line
+	8600 1575 8275 1575
+Wire Wire Line
+	8275 1575 8275 1350
+Wire Wire Line
+	8275 1350 8100 1350
+$Comp
+L Transistor_FET:BSS138 Q4
+U 1 1 5DD6D5E3
+P 8000 1575
+F 0 "Q4" H 7925 1700 50  0000 C CNN
+F 1 "NUD3124" H 8300 1350 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 8200 1500 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 8000 1575 50  0001 L CNN
+	1    8000 1575
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8100 1350 8100 1375
+Connection ~ 7750 1575
+Wire Wire Line
+	7500 800  7750 800 
+Wire Wire Line
+	7500 1575 7750 1575
+Wire Wire Line
+	7575 3650 8000 3650
+Wire Wire Line
+	8000 3675 8000 3650
+Connection ~ 8000 3650
+Wire Wire Line
+	8000 3650 8325 3650
+Wire Wire Line
+	7525 4000 8000 4000
+Wire Wire Line
+	8000 3975 8000 4000
+Connection ~ 8000 4000
+Wire Wire Line
+	8000 4000 8125 4000
+Text GLabel 7575 2875 0    50   Input ~ 0
+Vlvds
+$Comp
+L hermeslite:R R13
+U 1 1 5DDFAAC0
+P 8000 3050
+F 0 "R13" H 8150 3125 50  0000 C CNN
+F 1 "10K" V 8000 3050 50  0000 C CNN
+F 2 "" V 7930 3050 50  0001 C CNN
+F 3 "" H 8000 3050 50  0001 C CNN
+	1    8000 3050
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q6
+U 1 1 5DDFAAC6
+P 8325 3125
+F 0 "Q6" V 8225 3050 50  0000 C CNN
+F 1 "BSS138" V 8550 3125 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 8525 3050 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 8325 3125 50  0001 L CNN
+	1    8325 3125
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	8325 2875 8325 2925
+$Comp
+L Device:D_Small_ALT D2
+U 1 1 5DDFAACE
+P 8575 3325
+F 0 "D2" V 8550 3400 50  0000 L CNN
+F 1 "1N4148" V 8625 3400 50  0000 L CNN
+F 2 "" V 8575 3325 50  0001 C CNN
+F 3 "~" V 8575 3325 50  0001 C CNN
+F 4 "DNI" V 8700 3400 50  0000 L CNN "Option"
+	1    8575 3325
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x01 J16
+U 1 1 5DDFAAD4
+P 8575 2925
+F 0 "J16" V 8600 2850 50  0000 R CNN
+F 1 "Conn_01x01" V 8450 2837 50  0001 R CNN
+F 2 "" H 8575 2925 50  0001 C CNN
+F 3 "~" H 8575 2925 50  0001 C CNN
+	1    8575 2925
+	0    -1   -1   0   
+$EndComp
+$Comp
+L hermeslite:GND #PWR020
+U 1 1 5DDFAADA
+P 8575 3450
+F 0 "#PWR020" H 8575 3200 50  0001 C CNN
+F 1 "GND" H 8580 3277 50  0001 C CNN
+F 2 "" H 8575 3450 50  0001 C CNN
+F 3 "" H 8575 3450 50  0001 C CNN
+	1    8575 3450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8575 3125 8575 3225
+Wire Wire Line
+	8525 3225 8575 3225
+Connection ~ 8575 3225
+Wire Wire Line
+	8575 3450 8575 3425
+Text GLabel 7450 3225 0    50   Output ~ 0
+I2
+Wire Wire Line
+	7575 2875 8000 2875
+Wire Wire Line
+	8000 2900 8000 2875
+Connection ~ 8000 2875
+Wire Wire Line
+	8000 2875 8325 2875
+Wire Wire Line
+	8000 3200 8000 3225
+Connection ~ 8000 3225
+Wire Wire Line
+	8000 3225 8125 3225
+Text GLabel 7575 2100 0    50   Input ~ 0
+Vlvds
+$Comp
+L hermeslite:R R12
+U 1 1 5DE006B8
+P 8000 2275
+F 0 "R12" H 8150 2350 50  0000 C CNN
+F 1 "10K" V 8000 2275 50  0000 C CNN
+F 2 "" V 7930 2275 50  0001 C CNN
+F 3 "" H 8000 2275 50  0001 C CNN
+	1    8000 2275
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q5
+U 1 1 5DE006BE
+P 8325 2350
+F 0 "Q5" V 8225 2275 50  0000 C CNN
+F 1 "BSS138" V 8550 2350 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 8525 2275 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 8325 2350 50  0001 L CNN
+	1    8325 2350
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	8325 2100 8325 2150
+$Comp
+L Device:D_Small_ALT D1
+U 1 1 5DE006C6
+P 8575 2550
+F 0 "D1" V 8550 2625 50  0000 L CNN
+F 1 "1N4148" V 8625 2625 50  0000 L CNN
+F 2 "" V 8575 2550 50  0001 C CNN
+F 3 "~" V 8575 2550 50  0001 C CNN
+F 4 "DNI" V 8700 2625 50  0000 L CNN "Option"
+	1    8575 2550
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x01 J15
+U 1 1 5DE006CC
+P 8575 2150
+F 0 "J15" V 8600 2075 50  0000 R CNN
+F 1 "Conn_01x01" V 8450 2062 50  0001 R CNN
+F 2 "" H 8575 2150 50  0001 C CNN
+F 3 "~" H 8575 2150 50  0001 C CNN
+	1    8575 2150
+	0    -1   -1   0   
+$EndComp
+$Comp
+L hermeslite:GND #PWR019
+U 1 1 5DE006D2
+P 8575 2675
+F 0 "#PWR019" H 8575 2425 50  0001 C CNN
+F 1 "GND" H 8580 2502 50  0001 C CNN
+F 2 "" H 8575 2675 50  0001 C CNN
+F 3 "" H 8575 2675 50  0001 C CNN
+	1    8575 2675
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8575 2350 8575 2450
+Wire Wire Line
+	8525 2450 8575 2450
+Connection ~ 8575 2450
+Wire Wire Line
+	8575 2675 8575 2650
+Text GLabel 7450 2450 0    50   Output ~ 0
+I1
+Wire Wire Line
+	7575 2100 8000 2100
+Wire Wire Line
+	8000 2125 8000 2100
+Connection ~ 8000 2100
+Wire Wire Line
+	8000 2100 8325 2100
+Wire Wire Line
+	8000 2425 8000 2450
+Connection ~ 8000 2450
+Wire Wire Line
+	8000 2450 8125 2450
+Wire Wire Line
+	7450 2450 8000 2450
+Wire Wire Line
+	7450 3225 8000 3225
+Text GLabel 7575 4425 0    50   Input ~ 0
+Vlvds
+$Comp
+L hermeslite:R R15
+U 1 1 5DE14784
+P 8000 4600
+F 0 "R15" H 8150 4675 50  0000 C CNN
+F 1 "10K" V 8000 4600 50  0000 C CNN
+F 2 "" V 7930 4600 50  0001 C CNN
+F 3 "" H 8000 4600 50  0001 C CNN
+	1    8000 4600
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q8
+U 1 1 5DE1478A
+P 8325 4675
+F 0 "Q8" V 8225 4600 50  0000 C CNN
+F 1 "BSS138" V 8550 4675 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 8525 4600 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 8325 4675 50  0001 L CNN
+	1    8325 4675
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	8325 4425 8325 4475
+$Comp
+L Device:D_Small_ALT D4
+U 1 1 5DE14792
+P 8575 4875
+F 0 "D4" V 8550 4950 50  0000 L CNN
+F 1 "1N4148" V 8625 4950 50  0000 L CNN
+F 2 "" V 8575 4875 50  0001 C CNN
+F 3 "~" V 8575 4875 50  0001 C CNN
+F 4 "DNI" V 8700 4950 50  0000 L CNN "Option"
+	1    8575 4875
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x01 J18
+U 1 1 5DE14798
+P 8575 4475
+F 0 "J18" V 8600 4400 50  0000 R CNN
+F 1 "Conn_01x01" V 8450 4387 50  0001 R CNN
+F 2 "" H 8575 4475 50  0001 C CNN
+F 3 "~" H 8575 4475 50  0001 C CNN
+	1    8575 4475
+	0    -1   -1   0   
+$EndComp
+$Comp
+L hermeslite:GND #PWR022
+U 1 1 5DE1479E
+P 8575 5000
+F 0 "#PWR022" H 8575 4750 50  0001 C CNN
+F 1 "GND" H 8580 4827 50  0001 C CNN
+F 2 "" H 8575 5000 50  0001 C CNN
+F 3 "" H 8575 5000 50  0001 C CNN
+	1    8575 5000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8575 4675 8575 4775
+Wire Wire Line
+	8525 4775 8575 4775
+Connection ~ 8575 4775
+Wire Wire Line
+	8575 5000 8575 4975
+Text GLabel 7525 4775 0    50   BiDi ~ 0
+IO2
+Wire Wire Line
+	7575 4425 8000 4425
+Wire Wire Line
+	8000 4450 8000 4425
+Connection ~ 8000 4425
+Wire Wire Line
+	8000 4425 8325 4425
+Wire Wire Line
+	7525 4775 8000 4775
+Wire Wire Line
+	8000 4750 8000 4775
+Connection ~ 8000 4775
+Wire Wire Line
+	8000 4775 8125 4775
+Text GLabel 7575 5200 0    50   Input ~ 0
+Vlvds
+$Comp
+L hermeslite:R R16
+U 1 1 5DE1B990
+P 8000 5375
+F 0 "R16" H 8150 5450 50  0000 C CNN
+F 1 "10K" V 8000 5375 50  0000 C CNN
+F 2 "" V 7930 5375 50  0001 C CNN
+F 3 "" H 8000 5375 50  0001 C CNN
+	1    8000 5375
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q9
+U 1 1 5DE1B996
+P 8325 5450
+F 0 "Q9" V 8225 5375 50  0000 C CNN
+F 1 "BSS138" V 8550 5450 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 8525 5375 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 8325 5450 50  0001 L CNN
+	1    8325 5450
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	8325 5200 8325 5250
+$Comp
+L Device:D_Small_ALT D5
+U 1 1 5DE1B99E
+P 8575 5650
+F 0 "D5" V 8550 5725 50  0000 L CNN
+F 1 "1N4148" V 8625 5725 50  0000 L CNN
+F 2 "" V 8575 5650 50  0001 C CNN
+F 3 "~" V 8575 5650 50  0001 C CNN
+F 4 "DNI" V 8700 5725 50  0000 L CNN "Option"
+	1    8575 5650
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x01 J19
+U 1 1 5DE1B9A4
+P 8575 5250
+F 0 "J19" V 8600 5175 50  0000 R CNN
+F 1 "Conn_01x01" V 8450 5162 50  0001 R CNN
+F 2 "" H 8575 5250 50  0001 C CNN
+F 3 "~" H 8575 5250 50  0001 C CNN
+	1    8575 5250
+	0    -1   -1   0   
+$EndComp
+$Comp
+L hermeslite:GND #PWR023
+U 1 1 5DE1B9AA
+P 8575 5775
+F 0 "#PWR023" H 8575 5525 50  0001 C CNN
+F 1 "GND" H 8580 5602 50  0001 C CNN
+F 2 "" H 8575 5775 50  0001 C CNN
+F 3 "" H 8575 5775 50  0001 C CNN
+	1    8575 5775
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8575 5450 8575 5550
+Wire Wire Line
+	8525 5550 8575 5550
+Connection ~ 8575 5550
+Wire Wire Line
+	8575 5775 8575 5750
+Text GLabel 7525 5550 0    50   BiDi ~ 0
+IO3
+Wire Wire Line
+	7575 5200 8000 5200
+Wire Wire Line
+	8000 5225 8000 5200
+Connection ~ 8000 5200
+Wire Wire Line
+	8000 5200 8325 5200
+Wire Wire Line
+	7525 5550 8000 5550
+Wire Wire Line
+	8000 5525 8000 5550
+Connection ~ 8000 5550
+Wire Wire Line
+	8000 5550 8125 5550
+Text GLabel 7575 5975 0    50   Input ~ 0
+Vlvds
+$Comp
+L hermeslite:R R17
+U 1 1 5DE242D2
+P 8000 6150
+F 0 "R17" H 8150 6225 50  0000 C CNN
+F 1 "10K" V 8000 6150 50  0000 C CNN
+F 2 "" V 7930 6150 50  0001 C CNN
+F 3 "" H 8000 6150 50  0001 C CNN
+	1    8000 6150
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q10
+U 1 1 5DE242D8
+P 8325 6225
+F 0 "Q10" V 8225 6150 50  0000 C CNN
+F 1 "BSS138" V 8550 6225 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 8525 6150 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 8325 6225 50  0001 L CNN
+	1    8325 6225
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	8325 5975 8325 6025
+$Comp
+L Device:D_Small_ALT D6
+U 1 1 5DE242E0
+P 8575 6425
+F 0 "D6" V 8550 6500 50  0000 L CNN
+F 1 "1N4148" V 8625 6500 50  0000 L CNN
+F 2 "" V 8575 6425 50  0001 C CNN
+F 3 "~" V 8575 6425 50  0001 C CNN
+F 4 "DNI" V 8700 6500 50  0000 L CNN "Option"
+	1    8575 6425
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x01 J20
+U 1 1 5DE242E6
+P 8575 6025
+F 0 "J20" V 8600 5950 50  0000 R CNN
+F 1 "Conn_01x01" V 8450 5937 50  0001 R CNN
+F 2 "" H 8575 6025 50  0001 C CNN
+F 3 "~" H 8575 6025 50  0001 C CNN
+	1    8575 6025
+	0    -1   -1   0   
+$EndComp
+$Comp
+L hermeslite:GND #PWR024
+U 1 1 5DE242EC
+P 8575 6550
+F 0 "#PWR024" H 8575 6300 50  0001 C CNN
+F 1 "GND" H 8580 6377 50  0001 C CNN
+F 2 "" H 8575 6550 50  0001 C CNN
+F 3 "" H 8575 6550 50  0001 C CNN
+	1    8575 6550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8575 6225 8575 6325
+Wire Wire Line
+	8525 6325 8575 6325
+Connection ~ 8575 6325
+Wire Wire Line
+	8575 6550 8575 6525
+Text GLabel 7525 6325 0    50   BiDi ~ 0
+IO4
+Wire Wire Line
+	7575 5975 8000 5975
+Wire Wire Line
+	8000 6000 8000 5975
+Connection ~ 8000 5975
+Wire Wire Line
+	8000 5975 8325 5975
+Wire Wire Line
+	7525 6325 8000 6325
+Wire Wire Line
+	8000 6300 8000 6325
+Connection ~ 8000 6325
+Wire Wire Line
+	8000 6325 8125 6325
+$Comp
+L hermeslite:IO20 CN8
+U 1 1 5DE34C75
+P 9725 3050
+F 0 "CN8" H 9625 4450 50  0000 C CNN
+F 1 "IO20" H 9650 4450 39  0001 C CNN
+F 2 "" H 9725 2700 60  0000 C CNN
+F 3 "" H 9725 2700 60  0000 C CNN
+	1    9725 3050
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x01 J24
+U 1 1 5DE401DB
+P 9600 1550
+F 0 "J24" V 9700 1600 50  0000 R CNN
+F 1 "Conn_01x01" V 9475 1462 50  0001 R CNN
+F 2 "" H 9600 1550 50  0001 C CNN
+F 3 "~" H 9600 1550 50  0001 C CNN
+	1    9600 1550
+	0    -1   -1   0   
+$EndComp
+$Comp
+L hermeslite:GND #PWR025
+U 1 1 5DE41105
+P 9600 1950
+F 0 "#PWR025" H 9600 1700 50  0001 C CNN
+F 1 "GND" H 9605 1777 50  0001 C CNN
+F 2 "" H 9600 1950 50  0001 C CNN
+F 3 "" H 9600 1950 50  0001 C CNN
+	1    9600 1950
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:GND #PWR026
+U 1 1 5DE43456
+P 9600 2350
+F 0 "#PWR026" H 9600 2100 50  0001 C CNN
+F 1 "GND" H 9605 2177 50  0001 C CNN
+F 2 "" H 9600 2350 50  0001 C CNN
+F 3 "" H 9600 2350 50  0001 C CNN
+	1    9600 2350
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:GND #PWR027
+U 1 1 5DE434E5
+P 9600 2750
+F 0 "#PWR027" H 9600 2500 50  0001 C CNN
+F 1 "GND" H 9605 2577 50  0001 C CNN
+F 2 "" H 9600 2750 50  0001 C CNN
+F 3 "" H 9600 2750 50  0001 C CNN
+	1    9600 2750
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:GND #PWR028
+U 1 1 5DE43574
+P 9600 3150
+F 0 "#PWR028" H 9600 2900 50  0001 C CNN
+F 1 "GND" H 9605 2977 50  0001 C CNN
+F 2 "" H 9600 3150 50  0001 C CNN
+F 3 "" H 9600 3150 50  0001 C CNN
+	1    9600 3150
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:GND #PWR029
+U 1 1 5DE43603
+P 9600 3550
+F 0 "#PWR029" H 9600 3300 50  0001 C CNN
+F 1 "GND" H 9605 3377 50  0001 C CNN
+F 2 "" H 9600 3550 50  0001 C CNN
+F 3 "" H 9600 3550 50  0001 C CNN
+	1    9600 3550
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:GND #PWR030
+U 1 1 5DE43692
+P 9600 3950
+F 0 "#PWR030" H 9600 3700 50  0001 C CNN
+F 1 "GND" H 9605 3777 50  0001 C CNN
+F 2 "" H 9600 3950 50  0001 C CNN
+F 3 "" H 9600 3950 50  0001 C CNN
+	1    9600 3950
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:GND #PWR031
+U 1 1 5DE44DFD
+P 9600 4350
+F 0 "#PWR031" H 9600 4100 50  0001 C CNN
+F 1 "GND" H 9605 4177 50  0001 C CNN
+F 2 "" H 9600 4350 50  0001 C CNN
+F 3 "" H 9600 4350 50  0001 C CNN
+	1    9600 4350
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:GND #PWR032
+U 1 1 5DE44E60
+P 9600 4750
+F 0 "#PWR032" H 9600 4500 50  0001 C CNN
+F 1 "GND" H 9605 4577 50  0001 C CNN
+F 2 "" H 9600 4750 50  0001 C CNN
+F 3 "" H 9600 4750 50  0001 C CNN
+	1    9600 4750
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:GND #PWR033
+U 1 1 5DE44EC3
+P 9600 5150
+F 0 "#PWR033" H 9600 4900 50  0001 C CNN
+F 1 "GND" H 9605 4977 50  0001 C CNN
+F 2 "" H 9600 5150 50  0001 C CNN
+F 3 "" H 9600 5150 50  0001 C CNN
+	1    9600 5150
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:GND #PWR034
+U 1 1 5DE44F26
+P 9600 5550
+F 0 "#PWR034" H 9600 5300 50  0001 C CNN
+F 1 "GND" H 9605 5377 50  0001 C CNN
+F 2 "" H 9600 5550 50  0001 C CNN
+F 3 "" H 9600 5550 50  0001 C CNN
+	1    9600 5550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9600 5550 9625 5550
+Wire Wire Line
+	9600 5150 9625 5150
+Wire Wire Line
+	9600 4750 9625 4750
+Wire Wire Line
+	9600 4350 9625 4350
+Wire Wire Line
+	9600 3950 9625 3950
+Wire Wire Line
+	9600 3550 9625 3550
+Wire Wire Line
+	9600 3150 9625 3150
+Wire Wire Line
+	9600 2750 9625 2750
+Wire Wire Line
+	9600 2350 9625 2350
+Wire Wire Line
+	9600 1950 9625 1950
+Wire Wire Line
+	9600 1750 9625 1750
+$Comp
+L Connector_Generic:Conn_01x01 J23
+U 1 1 5DEAA17E
+P 9475 5550
+F 0 "J23" V 9575 5600 50  0000 R CNN
+F 1 "Conn_01x01" V 9350 5462 50  0001 R CNN
+F 2 "" H 9475 5550 50  0001 C CNN
+F 3 "~" H 9475 5550 50  0001 C CNN
+	1    9475 5550
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	9475 5350 9625 5350
+Wire Wire Line
+	9625 2150 9500 2150
+Wire Wire Line
+	9500 2150 9500 800 
+Wire Wire Line
+	8600 800  9500 800 
+Connection ~ 8600 800 
+Wire Wire Line
+	9625 2550 9400 2550
+Wire Wire Line
+	9400 2550 9400 1575
+Wire Wire Line
+	9400 1575 8600 1575
+Connection ~ 8600 1575
+Wire Wire Line
+	9625 2950 9300 2950
+Wire Wire Line
+	9300 2950 9300 2450
+Wire Wire Line
+	9300 2450 8575 2450
+Wire Wire Line
+	9625 3350 9300 3350
+Wire Wire Line
+	9300 3350 9300 3225
+Wire Wire Line
+	9300 3225 8575 3225
+Wire Wire Line
+	8575 4000 9300 4000
+Wire Wire Line
+	9300 4000 9300 3750
+Wire Wire Line
+	9300 3750 9625 3750
+Wire Wire Line
+	8600 6325 9325 6325
+Wire Wire Line
+	9325 6325 9325 4950
+Wire Wire Line
+	9325 4950 9625 4950
+Wire Wire Line
+	8575 5550 9225 5550
+Wire Wire Line
+	9225 5550 9225 4550
+Wire Wire Line
+	9225 4550 9625 4550
+Wire Wire Line
+	8575 4775 9125 4775
+Wire Wire Line
+	9125 4775 9125 4150
+Wire Wire Line
+	9125 4150 9625 4150
+Text GLabel 2100 1825 2    50   Output ~ 0
+O1
+$Comp
+L hermeslite:BNC CN2
+U 1 1 5DF355AF
+P 1625 1650
+F 0 "CN2" V 1650 1825 50  0000 C CNN
+F 1 "uFL" V 1575 1825 50  0000 C CNN
+F 2 "" H 1625 1650 50  0000 C CNN
+F 3 "" H 1625 1650 50  0000 C CNN
+F 4 "DNI" V 1725 1650 50  0000 C CNN "Option"
+	1    1625 1650
+	0    1    -1   0   
+$EndComp
+$Comp
+L hermeslite:BNC CN3
+U 1 1 5DF35A7C
+P 1625 2225
+F 0 "CN3" V 1600 2400 50  0000 C CNN
+F 1 "uFL" V 1675 2400 50  0000 C CNN
+F 2 "" H 1625 2225 50  0000 C CNN
+F 3 "" H 1625 2225 50  0000 C CNN
+F 4 "DNI" V 1675 2100 50  0000 C CNN "Option"
+	1    1625 2225
+	0    1    1    0   
+$EndComp
+$Comp
+L hermeslite:BNC CN5
+U 1 1 5DF4198D
+P 1625 3000
+F 0 "CN5" V 1600 3175 50  0000 C CNN
+F 1 "uFL" V 1675 3175 50  0000 C CNN
+F 2 "" H 1625 3000 50  0000 C CNN
+F 3 "" H 1625 3000 50  0000 C CNN
+F 4 "DNI" V 1725 3000 50  0000 C CNN "Option"
+	1    1625 3000
+	0    1    1    0   
+$EndComp
+$Comp
+L hermeslite:BNC CN4
+U 1 1 5DF41A39
+P 1625 2425
+F 0 "CN4" V 1650 2600 50  0000 C CNN
+F 1 "uFL" V 1575 2600 50  0000 C CNN
+F 2 "" H 1625 2425 50  0000 C CNN
+F 3 "" H 1625 2425 50  0000 C CNN
+F 4 "DNI" V 1575 2300 50  0000 C CNN "Option"
+	1    1625 2425
+	0    1    -1   0   
+$EndComp
+Wire Wire Line
+	1325 2625 1625 2625
+Wire Wire Line
+	1325 2025 1625 2025
+Wire Wire Line
+	1325 1825 1625 1825
+Wire Wire Line
+	1625 1825 1625 1800
+Wire Wire Line
+	1325 2825 1625 2825
+Wire Wire Line
+	1625 2825 1625 2850
+$Comp
+L hermeslite:GND #PWR03
+U 1 1 5DF74B97
+P 1400 1675
+F 0 "#PWR03" H 1400 1425 50  0001 C CNN
+F 1 "GND" H 1405 1502 50  0001 C CNN
+F 2 "" H 1400 1675 50  0001 C CNN
+F 3 "" H 1400 1675 50  0001 C CNN
+	1    1400 1675
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:GND #PWR04
+U 1 1 5DF82439
+P 1400 3025
+F 0 "#PWR04" H 1400 2775 50  0001 C CNN
+F 1 "GND" H 1405 2852 50  0001 C CNN
+F 2 "" H 1400 3025 50  0001 C CNN
+F 3 "" H 1400 3025 50  0001 C CNN
+	1    1400 3025
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:R R1
+U 1 1 5DFAE101
+P 1800 1825
+F 0 "R1" V 1850 1975 50  0000 C CNN
+F 1 "0" V 1800 1825 50  0000 C CNN
+F 2 "" V 1730 1825 50  0001 C CNN
+F 3 "" H 1800 1825 50  0001 C CNN
+	1    1800 1825
+	0    1    -1   0   
+$EndComp
+Wire Wire Line
+	1425 2425 1375 2425
+Wire Wire Line
+	1425 2225 1375 2225
+Connection ~ 1375 2225
+Wire Wire Line
+	1625 2575 1625 2625
+Wire Wire Line
+	1625 2025 1625 2075
+$Comp
+L hermeslite:R R2
+U 1 1 5E02F27C
+P 1800 2025
+F 0 "R2" V 1750 2175 50  0000 C CNN
+F 1 "0" V 1800 2025 50  0000 C CNN
+F 2 "" V 1730 2025 50  0001 C CNN
+F 3 "" H 1800 2025 50  0001 C CNN
+	1    1800 2025
+	0    1    -1   0   
+$EndComp
+$Comp
+L hermeslite:R R3
+U 1 1 5E02F302
+P 1800 2625
+F 0 "R3" V 1850 2775 50  0000 C CNN
+F 1 "0" V 1800 2625 50  0000 C CNN
+F 2 "" V 1730 2625 50  0001 C CNN
+F 3 "" H 1800 2625 50  0001 C CNN
+	1    1800 2625
+	0    1    -1   0   
+$EndComp
+$Comp
+L hermeslite:R R4
+U 1 1 5E02F3A6
+P 1800 2825
+F 0 "R4" V 1750 2975 50  0000 C CNN
+F 1 "0" V 1800 2825 50  0000 C CNN
+F 2 "" V 1730 2825 50  0001 C CNN
+F 3 "" H 1800 2825 50  0001 C CNN
+	1    1800 2825
+	0    1    -1   0   
+$EndComp
+Wire Wire Line
+	1425 1650 1400 1650
+Wire Wire Line
+	1400 1650 1400 1675
+Wire Wire Line
+	1425 3000 1400 3000
+Wire Wire Line
+	1400 3000 1400 3025
+Wire Wire Line
+	1650 2825 1625 2825
+Connection ~ 1625 2825
+Wire Wire Line
+	1650 2625 1625 2625
+Connection ~ 1625 2625
+Wire Wire Line
+	1650 2025 1625 2025
+Connection ~ 1625 2025
+Wire Wire Line
+	1650 1825 1625 1825
+Connection ~ 1625 1825
+Text GLabel 2100 2025 2    50   Output ~ 0
+O2
+Text GLabel 2100 2825 2    50   Input ~ 0
+I2
+Text GLabel 2100 2625 2    50   Input ~ 0
+I1
+Wire Wire Line
+	1950 1825 2100 1825
+Wire Wire Line
+	1950 2025 2100 2025
+Wire Wire Line
+	1950 2625 2100 2625
+Wire Wire Line
+	1950 2825 2100 2825
+Wire Wire Line
+	1375 7250 1450 7250
+Connection ~ 1450 7250
+Wire Wire Line
+	2150 7250 2175 7250
+Connection ~ 2150 7250
+Wire Wire Line
+	1375 4650 1450 4650
+Connection ~ 1450 4650
+Wire Wire Line
+	2150 4650 2175 4650
+Connection ~ 2150 4650
+Text GLabel 1375 3650 2    50   BiDi ~ 0
+IO1
+Text GLabel 1375 3850 2    50   BiDi ~ 0
+IO2
+Text GLabel 1375 4050 2    50   BiDi ~ 0
+IO3
+Text GLabel 1375 4250 2    50   BiDi ~ 0
+IO4
+Wire Wire Line
+	1325 3650 1375 3650
+Wire Wire Line
+	1325 3850 1375 3850
+Wire Wire Line
+	1325 4050 1375 4050
+Wire Wire Line
+	1325 4250 1375 4250
+Text Notes 1600 3675 0    50   ~ 0
+RXD
+Text Notes 1600 3875 0    50   ~ 0
+TXD
+Text Notes 1600 4075 0    50   ~ 0
+ATU Req
+Text Notes 1600 4275 0    50   ~ 0
+ATU Ack
+$Comp
+L Connector_Generic:Conn_01x08 J3
+U 1 1 5E1D5A60
+P 2150 5900
+F 0 "J3" H 2150 6300 50  0000 C CNN
+F 1 "Conn_01x08" V 2365 5846 50  0001 C CNN
+F 2 "" H 2150 5900 50  0001 C CNN
+F 3 "~" H 2150 5900 50  0001 C CNN
+	1    2150 5900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1325 5050 1925 5050
+Wire Wire Line
+	1925 5050 1925 5600
+Wire Wire Line
+	1925 5600 1950 5600
+Wire Wire Line
+	1950 5700 1825 5700
+Wire Wire Line
+	1825 5700 1825 5250
+Wire Wire Line
+	1825 5250 1325 5250
+Wire Wire Line
+	1950 5800 1725 5800
+Wire Wire Line
+	1725 5800 1725 5450
+Wire Wire Line
+	1725 5450 1325 5450
+Wire Wire Line
+	1950 5900 1625 5900
+Wire Wire Line
+	1625 5900 1625 5650
+Wire Wire Line
+	1625 5650 1325 5650
+Wire Wire Line
+	1325 6850 1925 6850
+Wire Wire Line
+	1925 6850 1925 6300
+Wire Wire Line
+	1925 6300 1950 6300
+Wire Wire Line
+	1325 6650 1825 6650
+Wire Wire Line
+	1825 6650 1825 6200
+Wire Wire Line
+	1825 6200 1950 6200
+Wire Wire Line
+	1325 6450 1725 6450
+Wire Wire Line
+	1725 6450 1725 6100
+Wire Wire Line
+	1725 6100 1950 6100
+Wire Wire Line
+	1325 6250 1625 6250
+Wire Wire Line
+	1625 6250 1625 6000
+Wire Wire Line
+	1625 6000 1950 6000
+$Comp
+L Transistor_FET:IRLML6402 Q2
+U 1 1 5DCA4750
+P 4350 5725
+F 0 "Q2" V 4693 5725 50  0000 C CNN
+F 1 "IRLML6402" V 4602 5725 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 4550 5650 50  0001 L CIN
+F 3 "https://www.infineon.com/dgdl/irlml6402pbf.pdf?fileId=5546d462533600a401535668d5c2263c" H 4350 5725 50  0001 L CNN
+	1    4350 5725
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Transistor_BJT:DTC144E Q1
+U 1 1 5DCA49F1
+P 4250 6225
+F 0 "Q1" H 4437 6271 50  0000 L CNN
+F 1 "DTC144E" H 4437 6180 50  0000 L CNN
+F 2 "" H 4250 6225 50  0001 L CNN
+F 3 "" H 4250 6225 50  0001 L CNN
+	1    4250 6225
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:R R8
+U 1 1 5DCA4B07
+P 4050 5800
+F 0 "R8" H 4200 5875 50  0000 C CNN
+F 1 "10K" V 4050 5800 50  0000 C CNN
+F 2 "" V 3980 5800 50  0001 C CNN
+F 3 "" H 4050 5800 50  0001 C CNN
+	1    4050 5800
+	-1   0    0    -1  
+$EndComp
+Text GLabel 4050 5600 1    50   Input ~ 0
+VSUP
+$Comp
+L hermeslite:GND #PWR011
+U 1 1 5DCA8599
+P 4350 6450
+F 0 "#PWR011" H 4350 6200 50  0001 C CNN
+F 1 "GND" H 4355 6277 50  0001 C CNN
+F 2 "" H 4350 6450 50  0001 C CNN
+F 3 "" H 4350 6450 50  0001 C CNN
+	1    4350 6450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4350 5925 4350 5975
+Connection ~ 4350 5975
+Wire Wire Line
+	4350 5975 4350 6025
+Wire Wire Line
+	4050 5950 4050 5975
+Wire Wire Line
+	4050 5975 4350 5975
+Wire Wire Line
+	4050 5600 4050 5625
+Wire Wire Line
+	4150 5625 4050 5625
+Connection ~ 4050 5625
+Wire Wire Line
+	4050 5625 4050 5650
+Wire Wire Line
+	4350 6425 4350 6450
+Wire Wire Line
+	1325 4450 3200 4450
+Wire Wire Line
+	3200 4450 3200 6225
+Wire Wire Line
+	3200 6225 4000 6225
+$Comp
+L hermeslite:C_Small C8
+U 1 1 5DD46277
+P 4700 5750
+F 0 "C8" H 4792 5796 50  0000 L CNN
+F 1 "10uF" H 4792 5705 50  0000 L CNN
+F 2 "" H 4700 5750 50  0001 C CNN
+F 3 "" H 4700 5750 50  0001 C CNN
+F 4 "DNI" H 4850 5625 50  0000 C CNN "Option"
+	1    4700 5750
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:GND #PWR014
+U 1 1 5DD4A209
+P 4700 5875
+F 0 "#PWR014" H 4700 5625 50  0001 C CNN
+F 1 "GND" H 4705 5702 50  0001 C CNN
+F 2 "" H 4700 5875 50  0001 C CNN
+F 3 "" H 4700 5875 50  0001 C CNN
+	1    4700 5875
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4550 5625 4700 5625
+Wire Wire Line
+	4700 5625 4700 5650
+Wire Wire Line
+	4700 5850 4700 5875
+$Comp
+L hermeslite:CONN_01X02 CN6
+U 1 1 5DD7CFEB
+P 5300 5675
+F 0 "CN6" H 5300 5850 50  0000 C CNN
+F 1 "CONN_01X02" H 5219 5849 50  0001 C CNN
+F 2 "" H 5300 5675 50  0001 C CNN
+F 3 "" H 5300 5675 50  0001 C CNN
+	1    5300 5675
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:GND #PWR015
+U 1 1 5DD81F37
+P 5075 5875
+F 0 "#PWR015" H 5075 5625 50  0001 C CNN
+F 1 "GND" H 5080 5702 50  0001 C CNN
+F 2 "" H 5075 5875 50  0001 C CNN
+F 3 "" H 5075 5875 50  0001 C CNN
+	1    5075 5875
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4700 5625 5100 5625
+Connection ~ 4700 5625
+Wire Wire Line
+	5075 5875 5075 5725
+Wire Wire Line
+	5075 5725 5100 5725
+$Comp
+L hermeslite:IS31AP4996 U2
+U 1 1 5DDB56F1
+P 3700 3500
+F 0 "U2" H 3925 4075 50  0000 C CNN
+F 1 "IS31AP4996" H 3925 3984 50  0000 C CNN
+F 2 "" H 3700 3500 50  0001 C CNN
+F 3 "" H 3700 3500 50  0001 C CNN
+	1    3700 3500
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:R R5
+U 1 1 5DDB9219
+P 2550 3450
+F 0 "R5" V 2625 3400 50  0000 C CNN
+F 1 "220" V 2550 3450 50  0000 C CNN
+F 2 "" V 2480 3450 50  0001 C CNN
+F 3 "" H 2550 3450 50  0001 C CNN
+	1    2550 3450
+	0    1    -1   0   
+$EndComp
+$Comp
+L hermeslite:C_Small C2
+U 1 1 5DDBC566
+P 2800 3600
+F 0 "C2" H 2600 3575 50  0000 L CNN
+F 1 "1uF" H 2575 3500 50  0000 L CNN
+F 2 "" H 2800 3600 50  0001 C CNN
+F 3 "" H 2800 3600 50  0001 C CNN
+	1    2800 3600
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:C_Small C4
+U 1 1 5DDBC684
+P 3000 3450
+F 0 "C4" V 3125 3425 50  0000 L CNN
+F 1 "0.1uF" V 3200 3425 50  0000 L CNN
+F 2 "" H 3000 3450 50  0001 C CNN
+F 3 "" H 3000 3450 50  0001 C CNN
+	1    3000 3450
+	0    1    1    0   
+$EndComp
+$Comp
+L hermeslite:R R6
+U 1 1 5DDBCDAF
+P 3350 3450
+F 0 "R6" V 3250 3400 50  0000 C CNN
+F 1 "220" V 3350 3450 50  0000 C CNN
+F 2 "" V 3280 3450 50  0001 C CNN
+F 3 "" H 3350 3450 50  0001 C CNN
+	1    3350 3450
+	0    1    -1   0   
+$EndComp
+$Comp
+L hermeslite:R R7
+U 1 1 5DDBCFCB
+P 3925 3600
+F 0 "R7" V 3825 3550 50  0000 C CNN
+F 1 "220" V 3925 3600 50  0000 C CNN
+F 2 "" V 3855 3600 50  0001 C CNN
+F 3 "" H 3925 3600 50  0001 C CNN
+	1    3925 3600
+	0    1    -1   0   
+$EndComp
+$Comp
+L hermeslite:C_Small C7
+U 1 1 5DDBD304
+P 4500 3475
+F 0 "C7" H 4625 3500 50  0000 L CNN
+F 1 "1uF" H 4625 3400 50  0000 L CNN
+F 2 "" H 4500 3475 50  0001 C CNN
+F 3 "" H 4500 3475 50  0001 C CNN
+	1    4500 3475
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:GND #PWR010
+U 1 1 5DDBEA54
+P 4300 3250
+F 0 "#PWR010" H 4300 3000 50  0001 C CNN
+F 1 "GND" H 4305 3077 50  0001 C CNN
+F 2 "" H 4300 3250 50  0001 C CNN
+F 3 "" H 4300 3250 50  0001 C CNN
+	1    4300 3250
+	0    -1   -1   0   
+$EndComp
+$Comp
+L hermeslite:+3V3 #PWR012
+U 1 1 5DDC0D7B
+P 4500 3325
+F 0 "#PWR012" H 4500 3175 50  0001 C CNN
+F 1 "+3V3" H 4575 3400 50  0000 L CNN
+F 2 "" H 4500 3325 50  0001 C CNN
+F 3 "" H 4500 3325 50  0001 C CNN
+	1    4500 3325
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:GND #PWR013
+U 1 1 5DDC34D6
+P 4500 3600
+F 0 "#PWR013" H 4500 3350 50  0001 C CNN
+F 1 "GND" H 4505 3427 50  0001 C CNN
+F 2 "" H 4500 3600 50  0001 C CNN
+F 3 "" H 4500 3600 50  0001 C CNN
+	1    4500 3600
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4500 3325 4500 3350
+Wire Wire Line
+	4250 3350 4500 3350
+Connection ~ 4500 3350
+Wire Wire Line
+	4500 3350 4500 3375
+Wire Wire Line
+	4250 3250 4300 3250
+Wire Wire Line
+	2700 3450 2800 3450
+Wire Wire Line
+	3100 3450 3200 3450
+Wire Wire Line
+	3500 3450 3550 3450
+Wire Wire Line
+	2800 3500 2800 3450
+Connection ~ 2800 3450
+Wire Wire Line
+	2800 3450 2900 3450
+Wire Wire Line
+	3550 3450 3550 3600
+Wire Wire Line
+	3550 3600 3775 3600
+Connection ~ 3550 3450
+Wire Wire Line
+	3550 3450 3600 3450
+Wire Wire Line
+	4250 3450 4250 3600
+Wire Wire Line
+	4250 3600 4075 3600
+Wire Wire Line
+	4500 3575 4500 3600
+$Comp
+L hermeslite:GND #PWR07
+U 1 1 5DEBF47A
+P 2800 3725
+F 0 "#PWR07" H 2800 3475 50  0001 C CNN
+F 1 "GND" H 2805 3552 50  0001 C CNN
+F 2 "" H 2800 3725 50  0001 C CNN
+F 3 "" H 2800 3725 50  0001 C CNN
+	1    2800 3725
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2800 3700 2800 3725
+Wire Wire Line
+	1325 3450 2250 3450
+$Comp
+L hermeslite:C_Small C6
+U 1 1 5DEF7A72
+P 3450 3250
+F 0 "C6" V 3250 3025 50  0000 L CNN
+F 1 "0.47uF" V 3325 3025 50  0000 L CNN
+F 2 "" H 3450 3250 50  0001 C CNN
+F 3 "" H 3450 3250 50  0001 C CNN
+	1    3450 3250
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x01 J7
+U 1 1 5DEFD5C9
+P 3525 2875
+F 0 "J7" V 3625 2925 50  0000 R CNN
+F 1 "Conn_01x01" V 3400 2787 50  0001 R CNN
+F 2 "" H 3525 2875 50  0001 C CNN
+F 3 "~" H 3525 2875 50  0001 C CNN
+	1    3525 2875
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x01 J5
+U 1 1 5DEFD7A9
+P 3150 2875
+F 0 "J5" V 3250 2925 50  0000 R CNN
+F 1 "Conn_01x01" V 3025 2787 50  0001 R CNN
+F 2 "" H 3150 2875 50  0001 C CNN
+F 3 "~" H 3150 2875 50  0001 C CNN
+	1    3150 2875
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	3525 3075 3525 3150
+Wire Wire Line
+	3525 3150 3600 3150
+$Comp
+L hermeslite:GND #PWR09
+U 1 1 5DF3AE42
+P 3325 3250
+F 0 "#PWR09" H 3325 3000 50  0001 C CNN
+F 1 "GND" H 3330 3077 50  0001 C CNN
+F 2 "" H 3325 3250 50  0001 C CNN
+F 3 "" H 3325 3250 50  0001 C CNN
+	1    3325 3250
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3325 3250 3350 3250
+Wire Wire Line
+	3550 3250 3600 3250
+Wire Wire Line
+	3150 3075 3150 3350
+Wire Wire Line
+	3150 3350 3600 3350
+$Comp
+L hermeslite:STEREO CN7
+U 1 1 5DFFFA9E
+P 5575 3050
+F 0 "CN7" H 5248 3277 50  0000 R CNN
+F 1 "AUX" H 5248 3383 50  0000 R CNN
+F 2 "" H 5575 3050 60  0001 C CNN
+F 3 "" H 5575 3050 60  0001 C CNN
+	1    5575 3050
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	5375 3550 5375 3800
+Wire Wire Line
+	5375 3800 5175 3800
+Wire Wire Line
+	4250 3800 4250 3600
+Connection ~ 4250 3600
+$Comp
+L Device:Speaker LS1
+U 1 1 5E0575EB
+P 5725 2775
+F 0 "LS1" H 5689 2358 50  0000 C CNN
+F 1 "Speaker" H 5689 2449 50  0000 C CNN
+F 2 "" H 5725 2575 50  0001 C CNN
+F 3 "~" H 5715 2725 50  0001 C CNN
+	1    5725 2775
+	1    0    0    1   
+$EndComp
+Wire Wire Line
+	5375 3250 5275 3250
+Connection ~ 5175 3800
+Wire Wire Line
+	5275 3250 5275 2775
+Wire Wire Line
+	5275 2775 5525 2775
+Wire Wire Line
+	5175 2675 5525 2675
+Wire Wire Line
+	5175 2675 5175 3800
+$Comp
+L hermeslite:R R9
+U 1 1 5E10D0F7
+P 4975 3300
+F 0 "R9" H 5100 3225 50  0000 C CNN
+F 1 "0" V 4975 3300 50  0000 C CNN
+F 2 "" V 4905 3300 50  0001 C CNN
+F 3 "" H 4975 3300 50  0001 C CNN
+	1    4975 3300
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	4250 3150 4975 3150
+Connection ~ 4975 3150
+Wire Wire Line
+	4975 3150 5375 3150
+Wire Wire Line
+	4975 3450 5375 3450
+NoConn ~ 5375 3350
+$Comp
+L Connector_Generic:Conn_01x01 J11
+U 1 1 5E168DEA
+P 4975 2875
+F 0 "J11" V 5075 2925 50  0000 R CNN
+F 1 "Conn_01x01" V 4850 2787 50  0001 R CNN
+F 2 "" H 4975 2875 50  0001 C CNN
+F 3 "~" H 4975 2875 50  0001 C CNN
+	1    4975 2875
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x01 J12
+U 1 1 5E168EFC
+P 4975 3700
+F 0 "J12" V 4975 3600 50  0000 R CNN
+F 1 "Conn_01x01" V 4850 3612 50  0001 R CNN
+F 2 "" H 4975 3700 50  0001 C CNN
+F 3 "~" H 4975 3700 50  0001 C CNN
+	1    4975 3700
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	4975 3075 4975 3150
+Wire Wire Line
+	4250 3800 5175 3800
+Wire Wire Line
+	4975 3500 4975 3450
+Connection ~ 4975 3450
+$Comp
+L Connector_Generic:Conn_01x01 J13
+U 1 1 5E1C65E4
+P 5175 4025
+F 0 "J13" V 5175 3925 50  0000 R CNN
+F 1 "Conn_01x01" V 5050 3937 50  0001 R CNN
+F 2 "" H 5175 4025 50  0001 C CNN
+F 3 "~" H 5175 4025 50  0001 C CNN
+	1    5175 4025
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5175 3825 5175 3800
+$Comp
+L Connector_Generic:Conn_01x01 J6
+U 1 1 5E1E5618
+P 3200 6475
+F 0 "J6" V 3300 6500 50  0000 R CNN
+F 1 "Conn_01x01" V 3075 6387 50  0001 R CNN
+F 2 "" H 3200 6475 50  0001 C CNN
+F 3 "~" H 3200 6475 50  0001 C CNN
+	1    3200 6475
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x01 J4
+U 1 1 5E1E573C
+P 2250 3700
+F 0 "J4" V 2350 3725 50  0000 R CNN
+F 1 "Conn_01x01" V 2125 3612 50  0001 R CNN
+F 2 "" H 2250 3700 50  0001 C CNN
+F 3 "~" H 2250 3700 50  0001 C CNN
+	1    2250 3700
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	2250 3500 2250 3450
+Connection ~ 2250 3450
+Wire Wire Line
+	2250 3450 2400 3450
+Wire Wire Line
+	3200 6275 3200 6225
+Connection ~ 3200 6225
+$Comp
+L Connector_Generic:Conn_01x01 J9
+U 1 1 5E27DD56
+P 4700 5375
+F 0 "J9" V 4800 5400 50  0000 R CNN
+F 1 "Conn_01x01" V 4575 5287 50  0001 R CNN
+F 2 "" H 4700 5375 50  0001 C CNN
+F 3 "~" H 4700 5375 50  0001 C CNN
+	1    4700 5375
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	4700 5575 4700 5625
+Text Notes 1850 750  0    50   ~ 0
+Optional Regulator for 5-11V
+Text Notes 6275 6700 0    50   ~ 0
+Level shifters are based on Adafruit opensource desgin\nhttps://cdn-shop.adafruit.com/datasheets/AN10441.pdf
+Text Notes 6325 650  0    50   ~ 0
+O1 and O2 can drive external relays
+Text Notes 3075 2600 0    50   ~ 0
+AUX may be used for other purposes than audio\nDNI audio circuitry and connect via J11, J12 and J13
+Text Notes 1350 7775 0    50   ~ 0
+J2 and similar are 8 position 2.54mm spaced row of PCB holes\nJ6 and similar are 1 position PCB hole
+Text Notes 2350 1925 0    50   ~ 0
+DB12 may be used for LVDS board to board\nor general purpose IO
+Text Notes 8225 2050 0    50   ~ 0
+J15 and similar for optional\npullup if required
+Text Notes 9100 6525 0    50   ~ 0
+D6 and similar to protect against\nvoltage undershooting if required
+Text Notes 9550 1325 0    50   ~ 0
+Wire required voltage\nto J23 and J24
+$EndSCHEMATC
