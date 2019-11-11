@@ -146,7 +146,9 @@ module control(
 
   // PA
   pa_inttr,
-  pa_exttr
+  pa_exttr,
+
+  hl2_reset
 );
 
 // Internal
@@ -244,7 +246,9 @@ output          io_atu_req;
 output          pa_inttr;
 output          pa_exttr;
 
-parameter     HERMES_SERIALNO = 8'h0;
+output          hl2_reset;
+
+parameter     VERSION_MAJOR = 8'h0;
 parameter     UART = 0;
 parameter     ATU = 0;
 
@@ -263,7 +267,7 @@ logic         cmd_ack_i2c, cmd_ack_ad9866;
 logic [31:0]  cmd_resp_data_i2c;
 logic         ptt;
 
-logic [39:0]  iresp = {8'h00, 8'b00011110, 8'h00, 8'h00, HERMES_SERIALNO};
+logic [39:0]  iresp = {8'h00, 8'b00011110, 8'h00, 8'h00, VERSION_MAJOR};
 logic [ 1:0]  resp_addr = 2'b00;
 
 logic         cmd_resp_rqst;
@@ -317,6 +321,8 @@ logic [ 7:0]  ieeprom_config;
 
 logic         use_eeprom_config = 1'b0;
 
+logic         hl2_reset_state = 1'b0;
+
 
 /////////////////////////////////////////////////////
 // Reset
@@ -360,8 +366,14 @@ always @(posedge clk) begin
     else if (cmd_addr == 6'h00) begin
       disable_syncfreq <= cmd_data[12];
     end
+    else if (cmd_addr == 6'h3a) begin
+      hl2_reset_state <= cmd_data[0];
+    end
   end
 end
+
+// Reset FPGA from configuration flash if not running
+assign hl2_reset = hl2_reset_state & ~run;
 
 
 generate
@@ -547,7 +559,7 @@ cw_support cw_support_i(
 always @(posedge clk) begin
   if (cw_keydown | ext_ptt) begin
     ptt_resp <= 1'b1;
-  end else if (~tx_hang) begin
+  end else begin // PTT back to pc should not depend on hang  if (~tx_hang) begin
     ptt_resp <= 1'b0;
   end
 end
@@ -669,7 +681,7 @@ always @(posedge clk) begin
       iresp <= {1'b1,resp_cmd_addr,tx_on, resp_cmd_data}; // Queue size is 1
     end else begin
       case( resp_addr)
-        2'b00: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 7'b0001111,(&clip_cnt), 8'h00, dsiq_status, HERMES_SERIALNO};
+        2'b00: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 7'b0001111,(&clip_cnt), 8'h00, dsiq_status, VERSION_MAJOR};
         2'b01: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 4'h0,temperature, 4'h0,fwd_pwr};
         2'b10: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 4'h0,rev_pwr, 4'h0,bias_current};
         2'b11: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 32'h0}; // Unused in HL
