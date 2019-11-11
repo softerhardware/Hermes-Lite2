@@ -115,7 +115,8 @@ parameter       ATU = 0;
 //   when using the TX envelope PWM reduce the number of receivers (NR) above by 1
 parameter       LRDATA = 0;
 
-localparam      HERMES_SERIALNO = (BOARD==2) ? 8'd48 : 8'd68;
+localparam      VERSION_MAJOR = (BOARD==2) ? 8'd48 : 8'd68;
+localparam      VERSION_MINOR = 8'd4;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
@@ -260,6 +261,8 @@ logic  [31:0]   static_ip;
 logic  [15:0]   alt_mac;
 logic  [ 7:0]   eeprom_config;
 
+logic           hl2_reset;
+
 
 /////////////////////////////////////////////////////
 // Clocks
@@ -364,9 +367,7 @@ ad9866pll ad9866pll_inst (
 /////////////////////////////////////////////////////
 // Network
 
-//assign local_mac =  {MAC[47:2],~io_alternate_mac,MAC[0]};
-assign local_mac = eeprom_config[6] ? {MAC[47:16],alt_mac} : MAC[47:0];
-
+assign local_mac = eeprom_config[6] ? {MAC[47:16],alt_mac} : {MAC[47:2],~io_alternate_mac,MAC[0]};
 
 network network_inst(
 
@@ -523,7 +524,7 @@ sync_pulse sync_pulse_usopenhpsdr1 (
   .sig_out(cmd_rqst_usopenhpsdr1)
 );
 
-usopenhpsdr1 #(.NR(NR), .HERMES_SERIALNO(HERMES_SERIALNO)) usopenhpsdr1_i (
+usopenhpsdr1 #(.NR(NR), .VERSION_MAJOR(VERSION_MAJOR), .VERSION_MINOR(VERSION_MINOR)) usopenhpsdr1_i (
   .clk(clock_ethtxint),
   .have_ip(~(network_state_dhcp & network_state_fixedip)), // network_state is on sync 2.5 MHz domain
   .run(run_sync),
@@ -744,7 +745,7 @@ sync syncio_txhang (
 );
 
 control #(
-  .HERMES_SERIALNO(HERMES_SERIALNO),
+  .VERSION_MAJOR(VERSION_MAJOR),
   .UART(UART),
   .ATU(ATU)
 ) control_i (
@@ -843,7 +844,9 @@ control #(
 
   // PA
   .pa_inttr(pa_inttr),
-  .pa_exttr(pa_exttr)
+  .pa_exttr(pa_exttr),
+
+  .hl2_reset(hl2_reset)
 );
 
 
@@ -908,7 +911,7 @@ remote_update_fac remote_update_fac_i (
 remote_update_app remote_update_app_i (
   .clk(clk_ctrl),
   .rst(~ethpll_locked),
-  .reconfig(asmi_reconfig)
+  .reconfig(asmi_reconfig | hl2_reset)
 );
 
 `endif

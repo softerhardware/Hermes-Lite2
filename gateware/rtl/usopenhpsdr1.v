@@ -90,7 +90,8 @@ output              usethasmi_ack;
 
 
 parameter           NR = 8'h0;
-parameter           HERMES_SERIALNO = 8'h0;
+parameter           VERSION_MAJOR = 8'h0;
+parameter           VERSION_MINOR = 8'h0;
 parameter           HARD_STATUS1 = 8'b01000000; // See wiki protocol page
 
 
@@ -265,7 +266,7 @@ always @* begin
         6'h35: discover_data_next = mac[23:16];
         6'h34: discover_data_next = mac[15:8];
         6'h33: discover_data_next = mac[7:0];
-        6'h32: discover_data_next = HERMES_SERIALNO;
+        6'h32: discover_data_next = VERSION_MAJOR;
         //6'h31: discover_data_next = IDHermesLite ? 8'h06 : 8'h01;
         // FIXME: Really needed for CW skimmer? Why so much?
         6'h30: discover_data_next = {eeprom_config[7:5],5'b0000};
@@ -278,6 +279,7 @@ always @* begin
         6'h29: discover_data_next = alt_mac[7:0];
         6'h28: discover_data_next = NR[7:0];
         6'h27: discover_data_next = HARD_STATUS1;
+        6'h26: discover_data_next = VERSION_MINOR;
         6'h00: begin
           discover_data_next = idhermeslite ? 8'h06 : 8'h01;
           if (usethasmi_erase_done | usethasmi_send_more) byte_no_next = 6'h00;
