@@ -6,7 +6,7 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 1 1
 Title "HL2 End Plate"
-Date "2019-11-18"
+Date "2019-11-20"
 Rev "2.0"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
@@ -627,31 +627,20 @@ U 1 1 5DD1F9CE
 P 1075 6725
 F 0 "ACC2" V 1250 6700 50  0000 L CNN
 F 1 "DB9" V 1150 6725 50  0000 L CNN
-F 2 "endcaplib:DSUB-9_Cutout" H 1275 6725 50  0001 C CNN
+F 2 "endcaplib:db9inside" H 1275 6725 50  0001 C CNN
 F 3 "~" H 1275 6725 50  0001 C CNN
 	1    1075 6725
 	0    -1   -1   0   
 $EndComp
 $Comp
-L Connector:TestPoint AUXRF1
+L Connector:TestPoint RF3
 U 1 1 5DD23D23
 P 1075 7100
-F 0 "AUXRF1" V 1250 7000 50  0000 L CNN
+F 0 "RF3" V 1250 7100 50  0000 L CNN
 F 1 "SMA" V 1150 7100 50  0000 L CNN
 F 2 "endcaplib:sma_panel" H 1275 7100 50  0001 C CNN
 F 3 "~" H 1275 7100 50  0001 C CNN
 	1    1075 7100
-	0    -1   -1   0   
-$EndComp
-$Comp
-L Connector:TestPoint AUXRF2
-U 1 1 5DD23D9F
-P 1075 7450
-F 0 "AUXRF2" V 1250 7350 50  0000 L CNN
-F 1 "SMA" V 1150 7450 50  0000 L CNN
-F 2 "endcaplib:sma_panel" H 1275 7450 50  0001 C CNN
-F 3 "~" H 1275 7450 50  0001 C CNN
-	1    1075 7450
 	0    -1   -1   0   
 $EndComp
 $Comp
@@ -772,7 +761,7 @@ Wire Wire Line
 Wire Wire Line
 	5375 4700 5375 3800
 Wire Wire Line
-	5375 3800 5175 3800
+	5375 3800 5225 3800
 Text GLabel 4575 3200 0    50   Output ~ 0
 Vlvds
 Wire Wire Line
@@ -849,147 +838,72 @@ Connection ~ 3925 2800
 $Comp
 L Driver_FET:ACPL-P343 U1
 U 1 1 5DDF44A9
-P 2925 4950
-F 0 "U1" H 2925 5467 50  0000 C CNN
-F 1 "ACPL-M61M-500E" H 2925 5376 50  0000 C CNN
-F 2 "Package_SO:SO-5_4.4x3.6mm_P1.27mm" H 2925 4550 50  0001 C CIN
-F 3 "https://docs.broadcom.com/docs/AV02-2928EN" H 2835 4955 50  0001 L CNN
-	1    2925 4950
+P 2300 4950
+F 0 "U1" H 2300 5467 50  0000 C CNN
+F 1 "ACPL-M21L-000E" H 2300 5376 50  0000 C CNN
+F 2 "Package_SO:SO-5_4.4x3.6mm_P1.27mm" H 2300 4550 50  0001 C CIN
+F 3 "https://docs.broadcom.com/docs/AV02-2928EN" H 2210 4955 50  0001 L CNN
+	1    2300 4950
 	1    0    0    -1  
 $EndComp
 $Comp
 L Device:R R12
 U 1 1 5DDF583C
-P 2325 4650
-F 0 "R12" V 2225 4550 50  0000 L CNN
-F 1 "1K" V 2325 4575 50  0000 L CNN
-F 2 "endcaplib:SMD-0805" V 2255 4650 50  0001 C CNN
-F 3 "~" H 2325 4650 50  0001 C CNN
-	1    2325 4650
+P 1700 4650
+F 0 "R12" V 1600 4550 50  0000 L CNN
+F 1 "1K" V 1700 4575 50  0000 L CNN
+F 2 "endcaplib:SMD-0805" V 1630 4650 50  0001 C CNN
+F 3 "~" H 1700 4650 50  0001 C CNN
+	1    1700 4650
 	0    1    1    0   
 $EndComp
 $Comp
 L Device:R R13
 U 1 1 5DDF5A56
-P 2325 5250
-F 0 "R13" V 2225 5150 50  0000 L CNN
-F 1 "680" V 2325 5175 50  0000 L CNN
-F 2 "endcaplib:SMD-0805" V 2255 5250 50  0001 C CNN
-F 3 "~" H 2325 5250 50  0001 C CNN
-	1    2325 5250
+P 1700 5250
+F 0 "R13" V 1600 5150 50  0000 L CNN
+F 1 "680" V 1700 5175 50  0000 L CNN
+F 2 "endcaplib:SMD-0805" V 1630 5250 50  0001 C CNN
+F 3 "~" H 1700 5250 50  0001 C CNN
+	1    1700 5250
 	0    1    1    0   
 $EndComp
 $Comp
 L power:GNDS #PWR0110
 U 1 1 5DDF5E92
-P 2125 5300
-F 0 "#PWR0110" H 2125 5050 50  0001 C CNN
-F 1 "GNDS" H 2130 5127 50  0001 C CNN
-F 2 "" H 2125 5300 50  0001 C CNN
-F 3 "" H 2125 5300 50  0001 C CNN
-	1    2125 5300
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:GNDS #PWR0111
-U 1 1 5DDF5F36
-P 3375 5300
-F 0 "#PWR0111" H 3375 5050 50  0001 C CNN
-F 1 "GNDS" H 3380 5127 50  0001 C CNN
-F 2 "" H 3375 5300 50  0001 C CNN
-F 3 "" H 3375 5300 50  0001 C CNN
-	1    3375 5300
+P 1500 5300
+F 0 "#PWR0110" H 1500 5050 50  0001 C CNN
+F 1 "GNDS" H 1505 5127 50  0001 C CNN
+F 2 "" H 1500 5300 50  0001 C CNN
+F 3 "" H 1500 5300 50  0001 C CNN
+	1    1500 5300
 	1    0    0    -1  
 $EndComp
 $Comp
 L Device:C_Small C1
 U 1 1 5DDF61C4
-P 3725 4650
-F 0 "C1" V 3600 4600 50  0000 L CNN
-F 1 "0.1uF" V 3825 4525 50  0000 L CNN
-F 2 "endcaplib:SMD-0805" H 3725 4650 50  0001 C CNN
-F 3 "~" H 3725 4650 50  0001 C CNN
-	1    3725 4650
-	0    1    1    0   
-$EndComp
-Text GLabel 3525 4600 1    50   Input ~ 0
-Vlvds
-Wire Wire Line
-	3325 4650 3525 4650
-Wire Wire Line
-	3525 4600 3525 4650
-$Comp
-L power:GNDS #PWR0112
-U 1 1 5DE043A8
-P 3875 4700
-F 0 "#PWR0112" H 3875 4450 50  0001 C CNN
-F 1 "GNDS" H 3880 4527 50  0001 C CNN
-F 2 "" H 3875 4700 50  0001 C CNN
-F 3 "" H 3875 4700 50  0001 C CNN
-	1    3875 4700
+P 3000 4750
+F 0 "C1" H 2800 4750 50  0000 L CNN
+F 1 "0.1uF" H 3100 4750 50  0000 L CNN
+F 2 "endcaplib:SMD-0805" H 3000 4750 50  0001 C CNN
+F 3 "~" H 3000 4750 50  0001 C CNN
+	1    3000 4750
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2475 4650 2525 4650
+	1850 4650 1900 4650
 Wire Wire Line
-	2475 5250 2525 5250
+	1850 5250 1900 5250
 Wire Wire Line
-	3325 5250 3375 5250
+	1550 5250 1500 5250
 Wire Wire Line
-	3375 5250 3375 5300
-Wire Wire Line
-	2175 5250 2125 5250
-Wire Wire Line
-	2125 5250 2125 5300
+	1500 5250 1500 5300
 Text GLabel 5225 3600 2    50   Output ~ 0
 ISOIN
-Text GLabel 2125 4650 0    50   Input ~ 0
+Text GLabel 1500 4650 0    50   Input ~ 0
 ISOIN
 Wire Wire Line
-	2125 4650 2175 4650
-$Comp
-L Device:R R15
-U 1 1 5DE31EF8
-P 4800 4950
-F 0 "R15" V 4700 4850 50  0000 L CNN
-F 1 "0" V 4800 4875 50  0000 L CNN
-F 2 "endcaplib:SMD-0805" V 4730 4950 50  0001 C CNN
-F 3 "~" H 4800 4950 50  0001 C CNN
-	1    4800 4950
-	0    1    1    0   
-$EndComp
-$Comp
-L Device:R R14
-U 1 1 5DE325BA
-P 4800 4450
-F 0 "R14" V 4700 4350 50  0000 L CNN
-F 1 "0" V 4800 4375 50  0000 L CNN
-F 2 "endcaplib:SMD-0805" V 4730 4450 50  0001 C CNN
-F 3 "~" H 4800 4450 50  0001 C CNN
-	1    4800 4450
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	3825 4650 3875 4650
-Wire Wire Line
-	3875 4650 3875 4700
-Wire Wire Line
-	5275 3900 5275 4950
-Wire Wire Line
-	3325 4950 4575 4950
-Connection ~ 4575 4950
-Wire Wire Line
-	4575 4950 4650 4950
-Wire Wire Line
-	4575 4450 4650 4450
-Wire Wire Line
-	4950 4950 5275 4950
-Connection ~ 5275 4950
-Wire Wire Line
-	5275 4950 5275 5900
-Wire Wire Line
-	3525 4650 3625 4650
-Connection ~ 3525 4650
+	1500 4650 1550 4650
 $Comp
 L Device:C_Small C3
 U 1 1 5DEA9FF4
@@ -1065,25 +979,84 @@ Connection ~ 4625 3800
 Wire Wire Line
 	4625 3800 4625 3900
 Wire Wire Line
-	4575 4450 4575 4950
-Wire Wire Line
-	5175 3700 5475 3700
-Wire Wire Line
-	5475 3700 5475 4450
-Wire Wire Line
-	4950 4450 5475 4450
-Wire Wire Line
 	5175 3600 5225 3600
 Wire Wire Line
 	7975 3900 8150 3900
 Connection ~ 7975 3900
 Connection ~ 8150 3900
 Text Notes 6875 975  0    50   ~ 0
-Q*B and Q*A share overlapping footprint\nPopulate Q*A NUD3124 and associated resistor (R3 here) for output/relay driver\nPopulate Q*B BSD138 and associated resitor (R2 here) for bidirectional level shifter
+Q*B and Q*A share overlapping footprint\nPopulate Q*A NUD3124 and associated resistor (R3 here) for output/relay driver\nPopulate Q*B BSS138 and associated resitor (R2 here) for bidirectional level shifter
 Text Notes 8475 3800 0    50   ~ 0
 Supports 9 pin terminal block 0.1 inch spacing\nor 5 pin terminal block 0.2 inch spacing
 Text Notes 1275 6725 0    50   ~ 0
 Point to point wiring to use DB-9 accessory port
-Text Notes 1275 7275 0    50   ~ 0
-Auxilary RF ports\nFeedback input for PureSignal\nPWM output for EER/ET
+Text Notes 1275 7125 0    50   ~ 0
+Auxilary RF port for PureSignal feedback to HL2 RF3
+Wire Wire Line
+	5275 3900 5275 5900
+$Comp
+L Connector_Generic:Conn_01x05 ISO
+U 1 1 5DDEE64E
+P 3950 4950
+F 0 "ISO" H 3900 5275 50  0000 L CNN
+F 1 "Terminal Block" H 3775 4600 50  0000 L CNN
+F 2 "endcaplib:terminal_block5" H 3950 4950 50  0001 C CNN
+F 3 "~" H 3950 4950 50  0001 C CNN
+	1    3950 4950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2700 4650 3000 4650
+Wire Wire Line
+	3750 4750 3700 4750
+Wire Wire Line
+	3700 4750 3700 4650
+Wire Wire Line
+	2700 5250 3000 5250
+Wire Wire Line
+	3000 4850 3000 4950
+NoConn ~ 3750 4850
+NoConn ~ 3750 5050
+Text Notes 4075 4775 0    50   ~ 0
+Isolated Power 2.7-5.5V
+Text Notes 4075 5175 0    50   ~ 0
+Isolated Signal
+Text Notes 4075 4975 0    50   ~ 0
+Isolated Ground
+$Comp
+L Device:Ferrite_Bead_Small FB1
+U 1 1 5DE27A23
+P 3500 4650
+F 0 "FB1" V 3375 4675 50  0000 C CNN
+F 1 "Ferrite_Bead_Small" V 3354 4650 50  0001 C CNN
+F 2 "endcaplib:SMD-0805" V 3430 4650 50  0001 C CNN
+F 3 "~" H 3500 4650 50  0001 C CNN
+	1    3500 4650
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3000 4650 3400 4650
+Connection ~ 3000 4650
+Wire Wire Line
+	3600 4650 3700 4650
+Text Notes 2025 5425 0    50   ~ 0
+SO-5 Package
+Wire Wire Line
+	5175 3700 5225 3700
+Wire Wire Line
+	5225 3700 5225 3800
+Connection ~ 5225 3800
+Wire Wire Line
+	5225 3800 5175 3800
+Wire Wire Line
+	2700 4950 2925 4950
+Wire Wire Line
+	2925 4950 2925 5150
+Wire Wire Line
+	2925 5150 3750 5150
+Wire Wire Line
+	3750 4950 3000 4950
+Connection ~ 3000 4950
+Wire Wire Line
+	3000 4950 3000 5250
 $EndSCHEMATC
