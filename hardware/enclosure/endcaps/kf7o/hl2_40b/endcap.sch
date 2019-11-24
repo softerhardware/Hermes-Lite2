@@ -6,7 +6,7 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 1 1
 Title "HL2 End Plate"
-Date "2019-11-20"
+Date "2019-11-23"
 Rev "2.0"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
@@ -805,31 +805,29 @@ Wire Wire Line
 $Comp
 L Connector_Generic:Conn_01x02 J4
 U 1 1 5DDDD7DD
-P 3025 2800
-F 0 "J4" H 3225 2800 50  0000 C CNN
-F 1 "Fan" H 3200 2700 50  0000 C CNN
-F 2 "endcaplib:male_header_2" H 3025 2800 50  0001 C CNN
-F 3 "~" H 3025 2800 50  0001 C CNN
-	1    3025 2800
+P 2525 2800
+F 0 "J4" H 2725 2800 50  0000 C CNN
+F 1 "Fan" H 2700 2700 50  0000 C CNN
+F 2 "endcaplib:male_header_2" H 2525 2800 50  0001 C CNN
+F 3 "~" H 2525 2800 50  0001 C CNN
+	1    2525 2800
 	-1   0    0    -1  
 $EndComp
-Wire Wire Line
-	3225 2800 3425 2800
 $Comp
 L power:GNDS #PWR0109
 U 1 1 5DDE59D6
-P 3275 2950
-F 0 "#PWR0109" H 3275 2700 50  0001 C CNN
-F 1 "GNDS" H 3280 2777 50  0001 C CNN
-F 2 "" H 3275 2950 50  0001 C CNN
-F 3 "" H 3275 2950 50  0001 C CNN
-	1    3275 2950
+P 2775 2950
+F 0 "#PWR0109" H 2775 2700 50  0001 C CNN
+F 1 "GNDS" H 2780 2777 50  0001 C CNN
+F 2 "" H 2775 2950 50  0001 C CNN
+F 3 "" H 2775 2950 50  0001 C CNN
+	1    2775 2950
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	3225 2900 3275 2900
+	2725 2900 2775 2900
 Wire Wire Line
-	3275 2900 3275 2950
+	2775 2900 2775 2950
 Text GLabel 3975 2800 2    50   Input ~ 0
 VSUP
 Wire Wire Line
@@ -995,10 +993,10 @@ Auxilary RF port for PureSignal feedback to HL2 RF3
 Wire Wire Line
 	5275 3900 5275 5900
 $Comp
-L Connector_Generic:Conn_01x05 ISO
+L Connector_Generic:Conn_01x05 ISO1
 U 1 1 5DDEE64E
 P 3950 4950
-F 0 "ISO" H 3900 5275 50  0000 L CNN
+F 0 "ISO1" H 3900 5275 50  0000 L CNN
 F 1 "Terminal Block" H 3775 4600 50  0000 L CNN
 F 2 "endcaplib:terminal_block5" H 3950 4950 50  0001 C CNN
 F 3 "~" H 3950 4950 50  0001 C CNN
@@ -1059,4 +1057,35 @@ Wire Wire Line
 Connection ~ 3000 4950
 Wire Wire Line
 	3000 4950 3000 5250
+$Comp
+L Device:C_Small C4
+U 1 1 5DDBE483
+P 3300 2950
+F 0 "C4" H 3475 2950 50  0000 L CNN
+F 1 "0.1uF" H 3375 3025 50  0000 L CNN
+F 2 "endcaplib:SMD-0805" H 3300 2950 50  0001 C CNN
+F 3 "~" H 3300 2950 50  0001 C CNN
+	1    3300 2950
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GNDS #PWR0111
+U 1 1 5DDC9BD0
+P 3300 3100
+F 0 "#PWR0111" H 3300 2850 50  0001 C CNN
+F 1 "GNDS" H 3305 2927 50  0001 C CNN
+F 2 "" H 3300 3100 50  0001 C CNN
+F 3 "" H 3300 3100 50  0001 C CNN
+	1    3300 3100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2725 2800 3300 2800
+Wire Wire Line
+	3300 2850 3300 2800
+Connection ~ 3300 2800
+Wire Wire Line
+	3300 2800 3425 2800
+Wire Wire Line
+	3300 3100 3300 3050
 $EndSCHEMATC
