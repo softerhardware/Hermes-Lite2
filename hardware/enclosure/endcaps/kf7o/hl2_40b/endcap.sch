@@ -6,7 +6,7 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 1 1
 Title "HL2 End Plate"
-Date "2019-11-23"
+Date "2019-11-24"
 Rev "2.0"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
@@ -228,12 +228,12 @@ Wire Wire Line
 $Comp
 L Connector_Generic:Conn_01x09 ACC1
 U 1 1 5DD5D92C
-P 8375 3500
-F 0 "ACC1" H 8455 3542 50  0000 L CNN
-F 1 "Terminal Block" H 8455 3451 50  0000 L CNN
-F 2 "endcaplib:terminal_block" H 8375 3500 50  0001 C CNN
-F 3 "~" H 8375 3500 50  0001 C CNN
-	1    8375 3500
+P 8700 3500
+F 0 "ACC1" H 8780 3542 50  0000 L CNN
+F 1 "Terminal Block" H 8780 3451 50  0000 L CNN
+F 2 "endcaplib:terminal_block" H 8700 3500 50  0001 C CNN
+F 3 "~" H 8700 3500 50  0001 C CNN
+	1    8700 3500
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -603,24 +603,22 @@ Wire Wire Line
 $Comp
 L power:GNDS #PWR0108
 U 1 1 5DD67B18
-P 8150 3925
-F 0 "#PWR0108" H 8150 3675 50  0001 C CNN
-F 1 "GNDS" H 8155 3752 50  0001 C CNN
-F 2 "" H 8150 3925 50  0001 C CNN
-F 3 "" H 8150 3925 50  0001 C CNN
-	1    8150 3925
+P 8475 3925
+F 0 "#PWR0108" H 8475 3675 50  0001 C CNN
+F 1 "GNDS" H 8480 3752 50  0001 C CNN
+F 2 "" H 8475 3925 50  0001 C CNN
+F 3 "" H 8475 3925 50  0001 C CNN
+	1    8475 3925
 	1    0    0    -1  
 $EndComp
-Text GLabel 8150 3075 1    50   Input ~ 0
+Text GLabel 8475 2575 1    50   Input ~ 0
 VSUP
 Wire Wire Line
-	8150 3075 8150 3100
+	8475 3100 8500 3100
 Wire Wire Line
-	8150 3100 8175 3100
+	8500 3900 8475 3900
 Wire Wire Line
-	8175 3900 8150 3900
-Wire Wire Line
-	8150 3900 8150 3925
+	8475 3900 8475 3925
 $Comp
 L Connector:TestPoint ACC2
 U 1 1 5DD1F9CE
@@ -655,40 +653,17 @@ F 3 "~" H 7675 3500 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	7975 3200 8175 3200
-Wire Wire Line
-	7975 3300 8175 3300
-Wire Wire Line
-	7975 3400 8175 3400
-Wire Wire Line
-	7975 3500 8175 3500
-Wire Wire Line
-	7975 3600 8175 3600
-Wire Wire Line
-	7975 3700 8175 3700
-Wire Wire Line
-	7975 3800 8175 3800
-Wire Wire Line
 	7475 3300 7975 3300
-Connection ~ 7975 3300
 Wire Wire Line
 	7475 3200 7975 3200
-Connection ~ 7975 3200
 Wire Wire Line
 	7475 3400 7975 3400
-Connection ~ 7975 3400
-Connection ~ 7975 3500
 Wire Wire Line
 	7475 3600 7975 3600
-Connection ~ 7975 3600
 Wire Wire Line
 	7475 3700 7975 3700
-Connection ~ 7975 3700
 Wire Wire Line
 	7475 3800 7975 3800
-Connection ~ 7975 3800
-Wire Wire Line
-	7475 3900 7975 3900
 Wire Wire Line
 	7475 3500 7975 3500
 Wire Wire Line
@@ -978,13 +953,10 @@ Wire Wire Line
 	4625 3800 4625 3900
 Wire Wire Line
 	5175 3600 5225 3600
-Wire Wire Line
-	7975 3900 8150 3900
-Connection ~ 7975 3900
-Connection ~ 8150 3900
+Connection ~ 8475 3900
 Text Notes 6875 975  0    50   ~ 0
 Q*B and Q*A share overlapping footprint\nPopulate Q*A NUD3124 and associated resistor (R3 here) for output/relay driver\nPopulate Q*B BSS138 and associated resitor (R2 here) for bidirectional level shifter
-Text Notes 8475 3800 0    50   ~ 0
+Text Notes 8625 4125 0    50   ~ 0
 Supports 9 pin terminal block 0.1 inch spacing\nor 5 pin terminal block 0.2 inch spacing
 Text Notes 1275 6725 0    50   ~ 0
 Point to point wiring to use DB-9 accessory port
@@ -1088,4 +1060,174 @@ Wire Wire Line
 	3300 2800 3425 2800
 Wire Wire Line
 	3300 3100 3300 3050
+$Comp
+L Device:R R14
+U 1 1 5DDE0DC1
+P 7775 4100
+F 0 "R14" V 7675 4050 50  0000 L CNN
+F 1 "10K" V 7775 4025 50  0000 L CNN
+F 2 "endcaplib:SMD-0805" V 7705 4100 50  0001 C CNN
+F 3 "~" H 7775 4100 50  0001 C CNN
+	1    7775 4100
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:R R15
+U 1 1 5DDE130F
+P 7775 4300
+F 0 "R15" V 7675 4250 50  0000 L CNN
+F 1 "10K" V 7775 4225 50  0000 L CNN
+F 2 "endcaplib:SMD-0805" V 7705 4300 50  0001 C CNN
+F 3 "~" H 7775 4300 50  0001 C CNN
+	1    7775 4300
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:D_Small_ALT D1
+U 1 1 5DDE14E6
+P 7975 4450
+F 0 "D1" V 7929 4518 50  0000 L CNN
+F 1 "1N4148" V 8020 4518 50  0000 L CNN
+F 2 "endcaplib:SMD-0805" V 7975 4450 50  0001 C CNN
+F 3 "~" V 7975 4450 50  0001 C CNN
+	1    7975 4450
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GNDS #PWR0112
+U 1 1 5DDE174F
+P 7975 4600
+F 0 "#PWR0112" H 7975 4350 50  0001 C CNN
+F 1 "GNDS" H 7980 4427 50  0001 C CNN
+F 2 "" H 7975 4600 50  0001 C CNN
+F 3 "" H 7975 4600 50  0001 C CNN
+	1    7975 4600
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7475 3900 7425 3900
+Wire Wire Line
+	7425 3900 7425 4100
+Wire Wire Line
+	7425 4300 7625 4300
+Wire Wire Line
+	7625 4100 7425 4100
+Connection ~ 7425 4100
+Wire Wire Line
+	7425 4100 7425 4300
+Wire Wire Line
+	7925 4300 7975 4300
+Wire Wire Line
+	7975 4300 7975 4350
+Wire Wire Line
+	7975 4550 7975 4600
+Wire Wire Line
+	7975 3900 8475 3900
+Wire Wire Line
+	7975 3800 8075 3800
+Connection ~ 7975 3800
+Wire Wire Line
+	7975 3700 8175 3700
+Connection ~ 7975 3700
+Wire Wire Line
+	7975 3600 8500 3600
+Connection ~ 7975 3600
+Wire Wire Line
+	7975 3500 8500 3500
+Connection ~ 7975 3500
+Wire Wire Line
+	7975 3400 8500 3400
+Connection ~ 7975 3400
+Wire Wire Line
+	7975 3300 8075 3300
+Connection ~ 7975 3300
+Wire Wire Line
+	7975 3200 8175 3200
+Connection ~ 7975 3200
+Wire Wire Line
+	7925 4100 8075 4100
+Wire Wire Line
+	8075 4100 8075 3800
+Connection ~ 8075 3800
+Wire Wire Line
+	8075 3800 8500 3800
+Wire Wire Line
+	7975 4300 8175 4300
+Wire Wire Line
+	8175 4300 8175 3700
+Connection ~ 7975 4300
+Connection ~ 8175 3700
+Wire Wire Line
+	8175 3700 8500 3700
+$Comp
+L Device:R R16
+U 1 1 5DE7B97A
+P 8325 2725
+F 0 "R16" V 8225 2675 50  0000 L CNN
+F 1 "10K" V 8325 2650 50  0000 L CNN
+F 2 "endcaplib:SMD-0805" V 8255 2725 50  0001 C CNN
+F 3 "~" H 8325 2725 50  0001 C CNN
+	1    8325 2725
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:R R17
+U 1 1 5DE7BA5C
+P 8325 2925
+F 0 "R17" V 8225 2875 50  0000 L CNN
+F 1 "10K" V 8325 2850 50  0000 L CNN
+F 2 "endcaplib:SMD-0805" V 8255 2925 50  0001 C CNN
+F 3 "~" H 8325 2925 50  0001 C CNN
+	1    8325 2925
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:D_Small_ALT D2
+U 1 1 5DE7BB12
+P 7925 2725
+F 0 "D2" H 7925 2550 50  0000 C CNN
+F 1 "1N4148" H 7925 2625 50  0000 C CNN
+F 2 "endcaplib:SMD-0805" V 7925 2725 50  0001 C CNN
+F 3 "~" V 7925 2725 50  0001 C CNN
+	1    7925 2725
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GNDS #PWR0115
+U 1 1 5DE7BC39
+P 7775 2775
+F 0 "#PWR0115" H 7775 2525 50  0001 C CNN
+F 1 "GNDS" H 7780 2602 50  0001 C CNN
+F 2 "" H 7775 2775 50  0001 C CNN
+F 3 "" H 7775 2775 50  0001 C CNN
+	1    7775 2775
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8475 2575 8475 2725
+Connection ~ 8475 2725
+Wire Wire Line
+	8475 2725 8475 2925
+Connection ~ 8475 2925
+Wire Wire Line
+	8475 2925 8475 3100
+Wire Wire Line
+	8025 2725 8075 2725
+Wire Wire Line
+	8075 3300 8075 2725
+Connection ~ 8075 3300
+Wire Wire Line
+	8075 3300 8500 3300
+Connection ~ 8075 2725
+Wire Wire Line
+	8075 2725 8175 2725
+Wire Wire Line
+	8175 2925 8175 3200
+Connection ~ 8175 3200
+Wire Wire Line
+	8175 3200 8500 3200
+Wire Wire Line
+	7825 2725 7775 2725
+Wire Wire Line
+	7775 2725 7775 2775
 $EndSCHEMATC
