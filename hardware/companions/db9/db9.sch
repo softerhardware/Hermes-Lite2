@@ -1,0 +1,269 @@
+EESchema Schematic File Version 4
+LIBS:db9-cache
+EELAYER 26 0
+EELAYER END
+$Descr USLetter 11000 8500
+encoding utf-8
+Sheet 1 1
+Title "Hermes-Lite DB9 Adapter"
+Date "2019-11-25"
+Rev "0.1"
+Comp "SofterHardware"
+Comment1 "KF7O Steve Haynal"
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L hermeslite:R R2
+U 1 1 5DE28638
+P 3975 4850
+F 0 "R2" H 3975 4625 50  0000 C CNN
+F 1 "10K" V 3975 4850 50  0000 C CNN
+F 2 "HERMESLITE:SMD-0805" V 3905 4850 50  0001 C CNN
+F 3 "" H 3975 4850 50  0001 C CNN
+	1    3975 4850
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q2
+U 1 1 5DE2863E
+P 4225 4900
+F 0 "Q2" V 4125 4825 50  0000 C CNN
+F 1 "BSS138" V 4450 4900 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 4425 4825 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 4225 4900 50  0001 L CNN
+	1    4225 4900
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector:DB9_Male J3
+U 1 1 5DDFB93C
+P 6850 4000
+F 0 "J3" H 7030 4046 50  0000 L CNN
+F 1 "DB9_Male" H 7030 3955 50  0000 L CNN
+F 2 "HERMESLITE:db9edge" H 6850 4000 50  0001 C CNN
+F 3 " ~" H 6850 4000 50  0001 C CNN
+	1    6850 4000
+	1    0    0    -1  
+$EndComp
+$Comp
+L hermeslite:edge10 J2
+U 1 1 5DE09D42
+P 5700 6000
+F 0 "J2" H 5475 5875 50  0000 L CNN
+F 1 "edge10" H 5700 5875 50  0000 L CNN
+F 2 "HERMESLITE:edge10" H 5700 6000 50  0001 C CNN
+F 3 "" H 5700 6000 50  0001 C CNN
+	1    5700 6000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3975 4700 4225 4700
+Wire Wire Line
+	3975 5000 4025 5000
+Wire Wire Line
+	6550 4400 6550 6000
+Wire Wire Line
+	6550 6000 5700 6000
+Wire Wire Line
+	5700 5500 6450 5500
+Wire Wire Line
+	6450 5500 6450 4300
+Wire Wire Line
+	6450 4300 6550 4300
+Wire Wire Line
+	6550 4200 6350 4200
+Wire Wire Line
+	6350 4200 6350 5000
+Wire Wire Line
+	6350 5000 5700 5000
+Wire Wire Line
+	5700 4500 6250 4500
+Wire Wire Line
+	6250 4500 6250 4100
+Wire Wire Line
+	6250 4100 6550 4100
+Wire Wire Line
+	5700 4000 6550 4000
+Wire Wire Line
+	6550 3600 6550 2000
+Wire Wire Line
+	6550 2000 5700 2000
+Wire Wire Line
+	6550 3700 6450 3700
+Wire Wire Line
+	6450 3700 6450 2500
+Wire Wire Line
+	6450 2500 5700 2500
+Wire Wire Line
+	6550 3800 6350 3800
+Wire Wire Line
+	6350 3800 6350 3000
+Wire Wire Line
+	6350 3000 5700 3000
+Wire Wire Line
+	6550 3900 6250 3900
+Wire Wire Line
+	6250 3900 6250 3500
+Wire Wire Line
+	6250 3500 5700 3500
+$Comp
+L hermeslite:R R1
+U 1 1 5DE0E5C4
+P 3975 3850
+F 0 "R1" H 3975 3625 50  0000 C CNN
+F 1 "10K" V 3975 3850 50  0000 C CNN
+F 2 "HERMESLITE:SMD-0805" V 3905 3850 50  0001 C CNN
+F 3 "" H 3975 3850 50  0001 C CNN
+	1    3975 3850
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q1
+U 1 1 5DE0E5CA
+P 4225 3900
+F 0 "Q1" V 4125 3825 50  0000 C CNN
+F 1 "BSS138" V 4450 3900 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 4425 3825 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 4225 3900 50  0001 L CNN
+	1    4225 3900
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3975 3700 4225 3700
+Wire Wire Line
+	3975 4000 4025 4000
+Wire Wire Line
+	4425 5000 4750 5000
+Wire Wire Line
+	4425 4000 4750 4000
+$Comp
+L hermeslite:edge10 J1
+U 1 1 5DE0F30F
+P 3525 6000
+F 0 "J1" H 3300 5875 50  0000 L CNN
+F 1 "edge10" H 3525 5875 50  0000 L CNN
+F 2 "HERMESLITE:edge10" H 3525 6000 50  0001 C CNN
+F 3 "" H 3525 6000 50  0001 C CNN
+	1    3525 6000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3525 1500 3975 1500
+Wire Wire Line
+	3525 2000 4750 2000
+Wire Wire Line
+	3525 2500 4750 2500
+Wire Wire Line
+	3525 3000 4750 3000
+Wire Wire Line
+	3525 3500 4750 3500
+Wire Wire Line
+	3525 4000 3975 4000
+Connection ~ 3975 4000
+Wire Wire Line
+	3525 4500 4750 4500
+Wire Wire Line
+	3525 5000 3975 5000
+Connection ~ 3975 5000
+Wire Wire Line
+	3525 5500 4750 5500
+Wire Wire Line
+	3525 6000 4750 6000
+$Comp
+L power:GNDS #PWR02
+U 1 1 5DE14FCA
+P 3350 2050
+F 0 "#PWR02" H 3350 1800 50  0001 C CNN
+F 1 "GNDS" H 3355 1877 50  0001 C CNN
+F 2 "" H 3350 2050 50  0001 C CNN
+F 3 "" H 3350 2050 50  0001 C CNN
+	1    3350 2050
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:VCC #PWR01
+U 1 1 5DE15072
+P 3350 1450
+F 0 "#PWR01" H 3350 1300 50  0001 C CNN
+F 1 "VCC" H 3367 1623 50  0000 C CNN
+F 2 "" H 3350 1450 50  0001 C CNN
+F 3 "" H 3350 1450 50  0001 C CNN
+	1    3350 1450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3350 1450 3350 1500
+Wire Wire Line
+	3350 1500 3525 1500
+Connection ~ 3525 1500
+Wire Wire Line
+	3350 2050 3350 2000
+Wire Wire Line
+	3350 2000 3525 2000
+Connection ~ 3525 2000
+Wire Wire Line
+	3975 3700 3975 1500
+Connection ~ 3975 3700
+Connection ~ 3975 1500
+Wire Wire Line
+	3975 1500 4750 1500
+Wire Wire Line
+	3975 4700 3850 4700
+Wire Wire Line
+	3850 4700 3850 3700
+Wire Wire Line
+	3850 3700 3975 3700
+Connection ~ 3975 4700
+$Comp
+L hermeslite:edge10 J4
+U 1 1 5DDE161C
+P 4750 6000
+F 0 "J4" H 4525 5875 50  0000 L CNN
+F 1 "edge10" H 4750 5875 50  0000 L CNN
+F 2 "HERMESLITE:edge10" H 4750 6000 50  0001 C CNN
+F 3 "" H 4750 6000 50  0001 C CNN
+	1    4750 6000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4750 6000 5700 6000
+Connection ~ 4750 6000
+Connection ~ 5700 6000
+Wire Wire Line
+	4750 5500 5700 5500
+Connection ~ 4750 5500
+Connection ~ 5700 5500
+Wire Wire Line
+	4750 5000 5700 5000
+Connection ~ 4750 5000
+Connection ~ 5700 5000
+Wire Wire Line
+	4750 4500 5700 4500
+Connection ~ 4750 4500
+Connection ~ 5700 4500
+Wire Wire Line
+	4750 4000 5700 4000
+Connection ~ 4750 4000
+Connection ~ 5700 4000
+Wire Wire Line
+	4750 3500 5700 3500
+Connection ~ 4750 3500
+Connection ~ 5700 3500
+Wire Wire Line
+	4750 3000 5700 3000
+Connection ~ 4750 3000
+Connection ~ 5700 3000
+Wire Wire Line
+	4750 2500 5700 2500
+Connection ~ 4750 2500
+Connection ~ 5700 2500
+Wire Wire Line
+	4750 2000 5700 2000
+Connection ~ 4750 2000
+Connection ~ 5700 2000
+Wire Wire Line
+	4750 1500 5700 1500
+Connection ~ 4750 1500
+$EndSCHEMATC
