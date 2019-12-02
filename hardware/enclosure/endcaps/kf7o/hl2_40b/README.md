@@ -2,7 +2,7 @@
 
 # BOM
 
-The BOM below lists possible options for IO end plate. The builder should choose what components they need to buy and install.
+The BOM below lists possible options for the IO end plate. The builder should choose what components they need to buy and install.
 
 
 
@@ -12,7 +12,7 @@ The BOM below lists possible options for IO end plate. The builder should choose
 | | | [9-pin 2.54mm spacing](https://www.digikey.com/product-detail/en/adafruit-industries-llc/2134/1528-1973-ND/6827099) |
 | | | [5-pin 5.08mm spacing](https://www.digikey.com/product-detail/en/adam-tech/EB21A-05-D/2057-EB21A-05-D-ND/9830743) |
 | ACC2 | 1 | [DB-9 male](https://www.digikey.com/product-detail/en/edac-inc/627-009-220-047/151-1197-ND/1298747) |
-| RF1 | 1| [SMA panel mount](https://www.digikey.com/products/en?keywords=CONREVSMA004-G-ND |)
+| RF1 | 1| [SMA panel mount](https://www.digikey.com/products/en?keywords=CONREVSMA004-G-ND) |
 | ISO1 | 1 | [5-pin 2.54mm spacing](https://www.adafruit.com/product/2139) |
 | | | [5-pin 2.54mm spacing](https://www.digikey.com/product-detail/en/adafruit-industries-llc/2139/1528-1975-ND/6827102) |
 | | | [3-pin 5.08mm spacing](https://www.digikey.com/product-detail/en/adam-tech/EB147A-03-D/2057-EB147A-03-D-ND/9830884) |
