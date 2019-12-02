@@ -2,7 +2,7 @@
 
   (general
     (thickness 1.6)
-    (drawings 5)
+    (drawings 4)
     (tracks 134)
     (zones 0)
     (modules 9)
@@ -12,7 +12,7 @@
   (page USLetter)
   (title_block
     (title "Hermes-Lite DB9 Adapter")
-    (date 2019-11-25)
+    (date 2019-12-01)
     (rev 1.0)
     (company SofterHardware)
     (comment 1 "Steve Haynal KF7O")
@@ -42,7 +42,7 @@
   )
 
   (setup
-    (last_trace_width 0.7)
+    (last_trace_width 0.25)
     (user_trace_width 0.4)
     (user_trace_width 0.7)
     (trace_clearance 0.2)
@@ -82,7 +82,7 @@
       (plotframeref false)
       (viasonmask false)
       (mode 1)
-      (useauxorigin false)
+      (useauxorigin true)
       (hpglpennumber 1)
       (hpglpenspeed 20)
       (hpglpendiameter 15.000000)
@@ -95,9 +95,9 @@
       (subtractmaskfromsilk false)
       (outputformat 1)
       (mirror false)
-      (drillshape 1)
+      (drillshape 0)
       (scaleselection 1)
-      (outputdirectory ""))
+      (outputdirectory "gerber"))
   )
 
   (net 0 "")
@@ -408,7 +408,6 @@
     (pad "" np_thru_hole circle (at 0 0) (size 1.7 1.7) (drill 1.7) (layers *.Cu *.Mask))
   )
 
-  (target plus (at 142.9 61) (size 5) (width 0.1) (layer Edge.Cuts))
   (gr_line (start 142.9 75) (end 171 75) (layer Edge.Cuts) (width 0.1))
   (gr_line (start 142.9 61) (end 142.9 75) (layer Edge.Cuts) (width 0.1))
   (gr_line (start 171 61) (end 142.9 61) (layer Edge.Cuts) (width 0.1))
