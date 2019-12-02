@@ -1,3 +1,4 @@
 (fp_lib_table
   (lib (name endcaplib)(type KiCad)(uri ${KIPRJMOD}/../endcaplib)(options "")(descr ""))
+  (lib (name HERMESLITE)(type KiCad)(uri ${HLPATH}/libs/hermeslite.pretty)(options "")(descr ""))
 )
