@@ -1,0 +1,204 @@
+# -------------------------------------------------------------------------- #
+#
+# Copyright (C) 2016  Intel Corporation. All rights reserved.
+# Your use of Intel Corporation's design tools, logic functions
+# and other software and tools, and its AMPP partner logic
+# functions, and any output files from any of the foregoing
+# (including device programming or simulation files), and any
+# associated documentation or information are expressly subject
+# to the terms and conditions of the Intel Program License
+# Subscription Agreement, the Intel Quartus Prime License Agreement,
+# the Intel MegaCore Function License Agreement, or other
+# applicable license agreement, including, without limitation,
+# that your use is for the sole purpose of programming logic
+# devices manufactured by Intel and sold by Intel or its
+# authorized distributors.  Please refer to the applicable
+# agreement for further details.
+#
+# -------------------------------------------------------------------------- #
+#
+# Quartus Prime
+# Version 16.1.0 Build 196 10/24/2016 SJ Lite Edition
+# Date created = 21:27:00  December 21, 2016
+#
+# -------------------------------------------------------------------------- #
+#
+# Notes:
+#
+# 1) The default values for assignments are stored in the file:
+#		top_assignment_defaults.qdf
+#    If this file doesn't exist, see file:
+#		assignment_defaults.qdf
+#
+# 2) Altera recommends that you do not modify this file. This
+#    file is updated automatically by the Quartus Prime software
+#    and any changes you make may be lost or overwritten.
+#
+# -------------------------------------------------------------------------- #
+
+set_global_assignment -name VERILOG_MACRO "USE_ALTSYNCRAM=1"
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY build
+source ../../boards/radioberry/general.tcl
+set_global_assignment -name FAMILY "Cyclone 10 LP"
+set_global_assignment -name DEVICE 10CL025YE144C8G
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name DEVICE_FILTER_PACKAGE "ANY QFP"
+set_global_assignment -name DEVICE_FILTER_PIN_COUNT 144
+set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 8
+set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name ENABLE_OCT_DONE OFF
+set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF
+set_global_assignment -name ENABLE_BOOT_SEL_PIN OFF
+set_global_assignment -name CYCLONEIII_CONFIGURATION_SCHEME "PASSIVE SERIAL"
+set_global_assignment -name STRATIXV_CONFIGURATION_SCHEME "PASSIVE SERIAL"
+set_global_assignment -name USE_CONFIGURATION_DEVICE OFF
+set_global_assignment -name GENERATE_RBF_FILE ON
+set_global_assignment -name CRC_ERROR_OPEN_DRAIN OFF
+set_global_assignment -name FORCE_CONFIGURATION_VCCIO ON
+set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_DATA0_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_DATA1_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVCMOS"
+set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
+set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
+set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
+set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
+set_global_assignment -name VERILOG_INPUT_VERSION SYSTEMVERILOG_2005
+set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
+set_global_assignment -name ALLOW_REGISTER_RETIMING OFF
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING OFF
+set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
+source ../../boards/radioberry/pins.tcl
+set_location_assignment PIN_53 -to rffe_ad9866_clk76p8
+set_location_assignment PIN_50 -to pi_spi_ce[1]
+set_location_assignment PIN_51 -to pi_spi_ce[0]
+set_location_assignment PIN_59 -to pi_spi_miso
+set_location_assignment PIN_60 -to pi_spi_mosi
+set_location_assignment PIN_58 -to pi_spi_sck
+set_location_assignment PIN_31 -to pi_rx_samples
+set_location_assignment PIN_54 -to pi_rx_clk
+set_location_assignment PIN_46 -to pi_rx_data[3]
+set_location_assignment PIN_44 -to pi_rx_data[2]
+set_location_assignment PIN_43 -to pi_rx_data[1]
+set_location_assignment PIN_42 -to pi_rx_data[0]
+set_location_assignment PIN_39 -to pi_rx_last
+set_location_assignment PIN_55 -to pi_tx_clk
+set_location_assignment PIN_113 -to pi_tx_data[3]
+set_location_assignment PIN_32 -to pi_tx_data[2]
+set_location_assignment PIN_33 -to pi_tx_data[1]
+set_location_assignment PIN_49 -to pi_tx_data[0]
+set_location_assignment PIN_111 -to rffe_ad9866_mode
+set_location_assignment PIN_114 -to rffe_ad9866_rst_n
+set_location_assignment PIN_65 -to rffe_ad9866_sen_n
+set_location_assignment PIN_66 -to rffe_ad9866_sclk
+set_location_assignment PIN_68 -to rffe_ad9866_sdio
+set_location_assignment PIN_71 -to rffe_ad9866_rxclk
+set_location_assignment PIN_80 -to rffe_ad9866_rx[0]
+set_location_assignment PIN_83 -to rffe_ad9866_rx[1]
+set_location_assignment PIN_85 -to rffe_ad9866_rx[2]
+set_location_assignment PIN_86 -to rffe_ad9866_rx[3]
+set_location_assignment PIN_87 -to rffe_ad9866_rx[4]
+set_location_assignment PIN_98 -to rffe_ad9866_rx[5]
+set_location_assignment PIN_77 -to rffe_ad9866_rxsync
+set_location_assignment PIN_99 -to rffe_ad9866_tx[0]
+set_location_assignment PIN_100 -to rffe_ad9866_tx[1]
+set_location_assignment PIN_101 -to rffe_ad9866_tx[2]
+set_location_assignment PIN_103 -to rffe_ad9866_tx[3]
+set_location_assignment PIN_105 -to rffe_ad9866_tx[4]
+set_location_assignment PIN_106 -to rffe_ad9866_tx[5]
+set_location_assignment PIN_72 -to rffe_ad9866_txquiet_n
+set_location_assignment PIN_76 -to rffe_ad9866_txsync
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_tx[*]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_txsync
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to rffe_ad9866_rx[*]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to rffe_ad9866_rxsync
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_sdio
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_sen_n
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_sclk
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_rst_n
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_txquiet_n
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to *
+source ../../boards/radioberry/files.tcl
+set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/radioberry_core.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/ad9866ctrl.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/ddr_mux.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/spi_slave.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/reset_handler.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/ad9866pll.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/commandFIFO.v
+set_global_assignment -name VERILOG_FILE ../../rtl/fifos.v
+set_global_assignment -name VERILOG_FILE ../../rtl/ad9866.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/radio.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/varcic.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/cic.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/cic_comb.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/cic_integrator.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/cordic.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/cpl_cordic.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/FirInterp5_1025_EER.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/counter.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/firrom/firrom1_1025.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/firram36I_205.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/square.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/sqroot.v
+set_global_assignment -name VERILOG_FILE ../../rtl/nco/coarserom.v
+set_global_assignment -name VERILOG_FILE ../../rtl/nco/finerom.v
+set_global_assignment -name VERILOG_FILE ../../rtl/nco/sincos.v
+set_global_assignment -name VERILOG_FILE ../../rtl/nco/nco2.v
+set_global_assignment -name VERILOG_FILE ../../rtl/nco/mix2.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver_nco.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver2/recv2_cic.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver2/recv2_cordic.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver2/receiver2.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver2/recv2_firromH.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver2/recv2_firram48.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver2/recv2_firx2r2.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/firfilt.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/CicInterpM5.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/firram36I_1024.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/FirInterp8_1024.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/firram36.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/vna_scanner.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/firrom/firromH.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/firrom/firromI_1024.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/qs1r/qs1r_cic_comb.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/qs1r/qs1r_cic_integrator.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/qs1r/qs1r_cordic.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/qs1r/qs1r_fir.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/qs1r/qs1r_fir_coeffs.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/qs1r/qs1r_fir_coeffs_rom.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/qs1r/qs1r_fir_mac.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/qs1r/qs1r_fir_shiftreg.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/qs1r/qs1r_memcic.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/qs1r/qs1r_memcic_ram.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/qs1r/qs1r_receiver.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/qs1r/qs1r_varcic.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/qs1r/qs1r_mult_24Sx24S.v
+set_global_assignment -name VERILOG_FILE ../../rtl/cdc_sync.v
+set_global_assignment -name VERILOG_FILE ../../rtl/sync.v
+set_global_assignment -name VERILOG_FILE ../../rtl/cw_support.v
+set_global_assignment -name VERILOG_FILE ../../rtl/debounce.v
+set_global_assignment -name VERILOG_FILE ../../rtl/i2c_master.v
+set_global_assignment -name VERILOG_FILE ../../rtl/i2c_bus2.v
+set_global_assignment -name VERILOG_FILE ../../rtl/i2c.v
+set_global_assignment -name VERILOG_FILE ../../rtl/slow_adc.v
+set_global_assignment -name VERILOG_FILE ../../rtl/extamp.v
+set_global_assignment -name VERILOG_FILE ../../rtl/exttuner.v
+
+
+set_global_assignment -name VERILOG_FILE ./radioberry.v
+set_global_assignment -name TOP_LEVEL_ENTITY radioberry
+set_global_assignment -name SDC_FILE ../../boards/radioberry/timing.sdc
+
+
+set_global_assignment -name LAST_QUARTUS_VERSION "18.1.0 Lite Edition"
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

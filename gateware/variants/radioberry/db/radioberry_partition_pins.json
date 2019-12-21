@@ -1,0 +1,149 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "rffe_ad9866_rst_n",
+					"strict" : false
+				},
+				{
+					"name" : "rffe_ad9866_tx[0]",
+					"strict" : false
+				},
+				{
+					"name" : "rffe_ad9866_tx[1]",
+					"strict" : false
+				},
+				{
+					"name" : "rffe_ad9866_tx[2]",
+					"strict" : false
+				},
+				{
+					"name" : "rffe_ad9866_tx[3]",
+					"strict" : false
+				},
+				{
+					"name" : "rffe_ad9866_tx[4]",
+					"strict" : false
+				},
+				{
+					"name" : "rffe_ad9866_tx[5]",
+					"strict" : false
+				},
+				{
+					"name" : "rffe_ad9866_txquiet_n",
+					"strict" : false
+				},
+				{
+					"name" : "rffe_ad9866_txsync",
+					"strict" : false
+				},
+				{
+					"name" : "rffe_ad9866_sdio",
+					"strict" : false
+				},
+				{
+					"name" : "rffe_ad9866_sclk",
+					"strict" : false
+				},
+				{
+					"name" : "rffe_ad9866_sen_n",
+					"strict" : false
+				},
+				{
+					"name" : "pi_spi_miso",
+					"strict" : false
+				},
+				{
+					"name" : "pi_rx_samples",
+					"strict" : false
+				},
+				{
+					"name" : "pi_rx_data[0]",
+					"strict" : false
+				},
+				{
+					"name" : "pi_rx_data[1]",
+					"strict" : false
+				},
+				{
+					"name" : "pi_rx_data[2]",
+					"strict" : false
+				},
+				{
+					"name" : "pi_rx_data[3]",
+					"strict" : false
+				},
+				{
+					"name" : "pi_rx_last",
+					"strict" : false
+				},
+				{
+					"name" : "pi_rx_clk",
+					"strict" : false
+				},
+				{
+					"name" : "pi_spi_ce[0]",
+					"strict" : false
+				},
+				{
+					"name" : "pi_spi_sck",
+					"strict" : false
+				},
+				{
+					"name" : "pi_spi_mosi",
+					"strict" : false
+				},
+				{
+					"name" : "pi_tx_clk",
+					"strict" : false
+				},
+				{
+					"name" : "pi_tx_data[0]",
+					"strict" : false
+				},
+				{
+					"name" : "pi_tx_data[1]",
+					"strict" : false
+				},
+				{
+					"name" : "pi_tx_data[2]",
+					"strict" : false
+				},
+				{
+					"name" : "pi_tx_data[3]",
+					"strict" : false
+				},
+				{
+					"name" : "rffe_ad9866_rxsync",
+					"strict" : false
+				},
+				{
+					"name" : "rffe_ad9866_rx[5]",
+					"strict" : false
+				},
+				{
+					"name" : "rffe_ad9866_rx[4]",
+					"strict" : false
+				},
+				{
+					"name" : "rffe_ad9866_rx[3]",
+					"strict" : false
+				},
+				{
+					"name" : "rffe_ad9866_rx[2]",
+					"strict" : false
+				},
+				{
+					"name" : "rffe_ad9866_rx[1]",
+					"strict" : false
+				},
+				{
+					"name" : "rffe_ad9866_rx[0]",
+					"strict" : false
+				}
+			]
+		}
+	]
+}
