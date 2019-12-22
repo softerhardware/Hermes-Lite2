@@ -39,7 +39,7 @@
 *
 */
 #include "radioberry.h"
-#include "rpi-gpio.h"
+#include "radioberry-rpi.h"
 
 int main(int argc, char **argv)
 {

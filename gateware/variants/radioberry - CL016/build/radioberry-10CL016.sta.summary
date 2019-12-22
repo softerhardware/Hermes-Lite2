@@ -1,0 +1,317 @@
+------------------------------------------------------------
+Timing Analyzer Summary
+------------------------------------------------------------
+
+Type  : Slow 1200mV 85C Model Setup 'clock_10_mhz'
+Slack : -3.444
+TNS   : -75.108
+
+Type  : Slow 1200mV 85C Model Setup 'virt_ad9866_rxclk_tx'
+Slack : -3.231
+TNS   : -7.615
+
+Type  : Slow 1200mV 85C Model Setup 'clock_76p8MHz'
+Slack : -2.247
+TNS   : -180.707
+
+Type  : Slow 1200mV 85C Model Setup 'clock_153p6_mhz'
+Slack : 0.014
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Setup 'pi_spi_sck'
+Slack : 27.444
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Setup 'pi_rx_clk'
+Slack : 98.115
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Setup 'pi_tx_clk'
+Slack : 102.791
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Hold 'clock_76p8MHz'
+Slack : 0.417
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Hold 'clock_153p6_mhz'
+Slack : 0.433
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Hold 'clock_10_mhz'
+Slack : 0.434
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Hold 'pi_rx_clk'
+Slack : 0.437
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Hold 'pi_tx_clk'
+Slack : 0.451
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Hold 'pi_spi_sck'
+Slack : 0.526
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Hold 'virt_ad9866_rxclk_tx'
+Slack : 3.415
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Recovery 'clock_76p8MHz'
+Slack : -4.358
+TNS   : -303.340
+
+Type  : Slow 1200mV 85C Model Recovery 'clock_10_mhz'
+Slack : 95.968
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Removal 'clock_76p8MHz'
+Slack : 3.215
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Removal 'clock_10_mhz'
+Slack : 3.380
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'clock_153p6_mhz'
+Slack : 1.510
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'clock_76p8MHz'
+Slack : 5.986
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'rffe_ad9866_clk76p8'
+Slack : 6.366
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'pi_spi_sck'
+Slack : 31.606
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'clock_10_mhz'
+Slack : 49.631
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'pi_rx_clk'
+Slack : 103.717
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'pi_tx_clk'
+Slack : 103.737
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'radioberry_core:radioberry_core_i|spi_slave:spi_slave_inst|done'
+Slack : 1249.643
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Setup 'clock_10_mhz'
+Slack : -3.187
+TNS   : -69.126
+
+Type  : Slow 1200mV 0C Model Setup 'virt_ad9866_rxclk_tx'
+Slack : -2.345
+TNS   : -4.681
+
+Type  : Slow 1200mV 0C Model Setup 'clock_76p8MHz'
+Slack : -2.070
+TNS   : -166.258
+
+Type  : Slow 1200mV 0C Model Setup 'clock_153p6_mhz'
+Slack : 0.225
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Setup 'pi_spi_sck'
+Slack : 27.618
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Setup 'pi_rx_clk'
+Slack : 98.582
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Setup 'pi_tx_clk'
+Slack : 102.879
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Hold 'clock_76p8MHz'
+Slack : 0.384
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Hold 'clock_10_mhz'
+Slack : 0.385
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Hold 'pi_rx_clk'
+Slack : 0.387
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Hold 'clock_153p6_mhz'
+Slack : 0.403
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Hold 'pi_tx_clk'
+Slack : 0.403
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Hold 'pi_spi_sck'
+Slack : 0.494
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Hold 'virt_ad9866_rxclk_tx'
+Slack : 3.120
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Recovery 'clock_76p8MHz'
+Slack : -3.944
+TNS   : -274.320
+
+Type  : Slow 1200mV 0C Model Recovery 'clock_10_mhz'
+Slack : 96.313
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Removal 'clock_76p8MHz'
+Slack : 2.853
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Removal 'clock_10_mhz'
+Slack : 2.997
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'clock_153p6_mhz'
+Slack : 1.510
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'clock_76p8MHz'
+Slack : 6.008
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'rffe_ad9866_clk76p8'
+Slack : 6.364
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'pi_spi_sck'
+Slack : 31.464
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'clock_10_mhz'
+Slack : 49.610
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'pi_tx_clk'
+Slack : 103.745
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'pi_rx_clk'
+Slack : 103.768
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'radioberry_core:radioberry_core_i|spi_slave:spi_slave_inst|done'
+Slack : 1249.560
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Setup 'clock_10_mhz'
+Slack : -1.164
+TNS   : -24.662
+
+Type  : Fast 1200mV 0C Model Setup 'clock_76p8MHz'
+Slack : -0.766
+TNS   : -53.957
+
+Type  : Fast 1200mV 0C Model Setup 'virt_ad9866_rxclk_tx'
+Slack : -0.233
+TNS   : -0.462
+
+Type  : Fast 1200mV 0C Model Setup 'clock_153p6_mhz'
+Slack : 0.222
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Setup 'pi_spi_sck'
+Slack : 30.693
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Setup 'pi_rx_clk'
+Slack : 102.178
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Setup 'pi_tx_clk'
+Slack : 103.016
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Hold 'clock_76p8MHz'
+Slack : 0.145
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Hold 'clock_153p6_mhz'
+Slack : 0.151
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Hold 'pi_rx_clk'
+Slack : 0.157
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Hold 'pi_tx_clk'
+Slack : 0.172
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Hold 'clock_10_mhz'
+Slack : 0.180
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Hold 'pi_spi_sck'
+Slack : 0.202
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Hold 'virt_ad9866_rxclk_tx'
+Slack : 1.605
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Recovery 'clock_76p8MHz'
+Slack : -1.741
+TNS   : -122.289
+
+Type  : Fast 1200mV 0C Model Recovery 'clock_10_mhz'
+Slack : 98.043
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Removal 'clock_76p8MHz'
+Slack : 1.450
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Removal 'clock_10_mhz'
+Slack : 1.546
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'clock_153p6_mhz'
+Slack : 2.975
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'rffe_ad9866_clk76p8'
+Slack : 5.928
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'clock_76p8MHz'
+Slack : 6.231
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'pi_spi_sck'
+Slack : 31.088
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'clock_10_mhz'
+Slack : 49.718
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'pi_rx_clk'
+Slack : 103.208
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'pi_tx_clk'
+Slack : 103.350
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'radioberry_core:radioberry_core_i|spi_slave:spi_slave_inst|done'
+Slack : 1249.688
+TNS   : 0.000
+
+------------------------------------------------------------
