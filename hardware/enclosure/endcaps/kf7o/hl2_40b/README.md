@@ -32,3 +32,10 @@ The BOM below lists possible options for the IO end plate. The builder should ch
 | D1, D2 | 2 | [1N4148](https://www.digikey.com/product-detail/en/micro-commercial-co/1N4148W-TP/1N4148WTPMSCT-ND/717311) |
 | FB1 | 1 | [0805 Power Line](https://www.digikey.com/product-detail/en/laird-signal-integrity-products/HI0805R800R-10/240-2395-1-ND/806755) |
 
+
+# Assembly
+
+Please refer to the [schematic](https://github.com/softerhardware/Hermes-Lite2/raw/master/hardware/enclosure/endcaps/kf7o/hl2_40b/endcap.pdf) during assembly. There are 5 general purpose IO channels that may be populated on the end plate. Each channel can be configured as a voltage level shifter or generic output. Below is a picture with three channels populated for the inner 3 pins of a 5 pin terminal block. Note the orientation of the transistors. Two channels (Q4,Q5) are configured with BSS138 MOSFETs for bidirectional level shifting. One channel (Q6) is configured with a NUD3124 as an output for an inductive load such as a relay.
+
+![](../pictures/endplates1.jpg)
+
