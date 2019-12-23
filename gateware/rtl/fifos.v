@@ -245,14 +245,14 @@ dcfifo #(
   .wrreq (wr_tvalid),
   .wrfull (wr_treadyn),
   .wrempty (),
-  .wrusedw (),
+  .wrusedw (rd_tlength),
   .data ({wr_tuser,wr_tlast,wr_tdata}),
 
   .rdclk (rd_clk),
   .rdreq (rd_tready),
   .rdfull (),
   .rdempty (rd_tvalidn),
-  .rdusedw (rd_tlength),
+  .rdusedw (),
   .q (rd_data),
 
   .aclr (1'b0),
