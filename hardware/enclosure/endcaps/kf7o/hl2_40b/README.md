@@ -32,3 +32,43 @@ The BOM below lists possible options for the IO end plate. The builder should ch
 | D1, D2 | 2 | [1N4148](https://www.digikey.com/product-detail/en/micro-commercial-co/1N4148W-TP/1N4148WTPMSCT-ND/717311) |
 | FB1 | 1 | [0805 Power Line](https://www.digikey.com/product-detail/en/laird-signal-integrity-products/HI0805R800R-10/240-2395-1-ND/806755) |
 
+
+# Assembly
+
+Please refer to the [schematic](endcap.pdf) during assembly. 
+
+## IO Channels 
+
+There are 5 general purpose IO channels that may be populated on the end plate. Each channel can be configured as a voltage level shifter or generic output. Below is a picture with three channels populated for the inner 3 pins of a 5 pin terminal block. Note the orientation of the transistors. Two channels (Q4,Q5) are configured with BSS138 MOSFETs for bidirectional level shifting. One channel (Q6) is configured with a NUD3124 as an output for an inductive load such as a relay.
+
+![](../pictures/endplates1.jpg)
+
+In the picture below, the remaining 2 channels are populated. These are only available if a 9-pin terminal block or 9-pin header is used. Q3 is configured as another bidirectional level shifting channel. Q7 uses the RQ5E030AJ device for small signal output. 
+
+![](../pictures/endplates2.jpg)
+
+The two outermost channels have footprints for optional pullup resistors. In the picture below, these are populated for Q7 and Q3 channels for testing. Optional pullup resistors and protection diodes are also available for channels Q4 and Q6. Channel Q5 has no options. 
+
+Note in the schematic that channels Q3 and Q4 pullup resistors are hardwired to Vsup which is usually +12V. This is to interface with the Icom AH-4 ATU which uses +12V IO. Channels Q6 and Q7 pullup resistors are not hardwired to any voltage. Instead, the desired voltage must be connected to pin 15 on header J3. 
+
+![](../pictures/endplates3.jpg)
+
+For Icom AH-4 ATU use, it is recommended that two bidirectional IO channels are populated for Q4 and Q6 that connect to the 5-pin terminal block. No pullup resistors should be used. The outermost pins of the 5-pin terminal block are Vsup (usually +12V) and Ground. The middle pin is an unused option for ATU use.
+
+## Fan Active Components
+
+Below is a picture of assembled fan control components. Note that a 2 pin header is installed for J4. That pads of J4 are large enough that the fan wires can be soldered directly to the PCB. Also, it may be found necessary to solder a larger capacitor to J4 to smooth out the PWM-generated voltage. The J4 pin/pad farthest from Q1 is ground.
+
+![](../pictures/endplates4.jpg)
+
+## Surface Mount Headers
+
+Below is a picture with the surface mount headers installed. J2 provides connection for power and signals from the HL2. J3 provides extra connectivity for output signals in case they must be used elsewhere.
+
+![](../pictures/endplates5.jpg)
+
+## Completed 
+
+Below is an inside view of the completed end plate. The fan, DB9, and PureSignal feedback are installed.
+
+![](../pictures/endplates6.jpg)
