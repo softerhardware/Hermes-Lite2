@@ -72,3 +72,11 @@ Below is a picture with the surface mount headers installed. J2 provides connect
 Below is an inside view of the completed end plate. The fan, DB9, and PureSignal feedback are installed.
 
 ![](../pictures/endplates6.jpg)
+
+## J2 Connection Diagram
+
+![](../pictures/io_j2.jpg)
+
+## J3 Connection Diagram
+
+![](../pictures/io_j3.jpg)
