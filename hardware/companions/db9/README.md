@@ -22,3 +22,9 @@ This assembly assumes a crossover cable. Install TX on the channel to the DB-9 p
 The level shifter portion of the PCB can be broken off and jumpers to extra IO channels on the end plate can be used used instead. It is recommended to use the level shifters on the small DB-9 IO board, and the option to break the board may be removed in the future.
 
 ![](../pictures/db9assembly.jpg)
+
+## Connection Diagram
+
+![db9_wiring](../pictures/db9_wiring.jpg)
+
+

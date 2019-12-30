@@ -2,7 +2,7 @@
 
   (general
     (thickness 1.6)
-    (drawings 4)
+    (drawings 9)
     (tracks 134)
     (zones 0)
     (modules 9)
@@ -69,7 +69,7 @@
     (pad_drill 0.6)
     (pad_to_mask_clearance 0)
     (solder_mask_min_width 0.25)
-    (aux_axis_origin 142.9 61)
+    (aux_axis_origin 142.9 60.5)
     (visible_elements FFFFFF7F)
     (pcbplotparams
       (layerselection 0x010fc_ffffffff)
@@ -408,9 +408,14 @@
     (pad "" np_thru_hole circle (at 0 0) (size 1.7 1.7) (drill 1.7) (layers *.Cu *.Mask))
   )
 
-  (gr_line (start 142.9 75) (end 171 75) (layer Edge.Cuts) (width 0.1))
+  (gr_line (start 142.9 60.5) (end 142.9 61) (layer Edge.Cuts) (width 0.1))
+  (gr_line (start 171 60.5) (end 142.9 60.5) (layer Edge.Cuts) (width 0.1))
+  (gr_line (start 171 61) (end 171 60.5) (layer Edge.Cuts) (width 0.1))
+  (gr_line (start 171 75.5) (end 148.7 75.5) (layer Edge.Cuts) (width 0.1))
+  (gr_line (start 171 75) (end 171 75.5) (layer Edge.Cuts) (width 0.1))
+  (gr_line (start 142.9 75.5) (end 148.7 75.5) (layer Edge.Cuts) (width 0.1))
+  (gr_line (start 142.9 75) (end 142.9 75.5) (layer Edge.Cuts) (width 0.1))
   (gr_line (start 142.9 61) (end 142.9 75) (layer Edge.Cuts) (width 0.1))
-  (gr_line (start 171 61) (end 142.9 61) (layer Edge.Cuts) (width 0.1))
   (gr_line (start 171 75) (end 171 61) (layer Edge.Cuts) (width 0.1))
 
   (segment (start 162.450002 63.04) (end 161.110002 61.7) (width 0.4) (layer B.Cu) (net 1))
