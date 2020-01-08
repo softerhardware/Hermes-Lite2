@@ -12,16 +12,20 @@ module ddr_mux(
 	 clk, 
 	 reset,
 	 rd_req,
+	 in_last,
+	 out_last,
 	 in_data,
 	 out_data);
 
 	input clk;
 	input reset;
 	output rd_req;
+	input in_last;
+	output out_last;
 	input [23:0] in_data;
 	output [3:0] out_data;
 	
-	
+	reg llast;
 	reg[23:0] data;
 	reg[7:0] mux8;	
 	reg[1:0] mux_sel;
@@ -33,13 +37,15 @@ module ddr_mux(
 	  if (reset) begin
 		mux_sel <= 0;
 		rd_req <= 0;
+		llast <= 0;
 	  end else begin
 		rd_req <= 0;
 		mux_sel <= mux_sel +1;
 		if (mux_sel == 2) begin
 		  mux_sel <= 0;
 		  rd_req <= 1;
-		  data <= in_data; 
+		  data <= in_data;
+		  llast <= in_last;
 		end;
 	  end
 	end
@@ -59,8 +65,10 @@ module ddr_mux(
 	begin
 	  if (reset) begin
 		data_p <= 0;
+		out_last <=0;
 	  end else begin
 		data_p <= mux8[7:4];
+		out_last <= llast;
 	  end
 	end
 
