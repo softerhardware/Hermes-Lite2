@@ -224,6 +224,7 @@ output [1:0]  rd_tuser;
 output [10:0] rd_tlength;
 
 logic         wr_treadyn;
+logic [10:0]  wr_tlength;
 logic         rd_tvalidn;
 logic  [26:0] rd_data;
 
@@ -245,21 +246,22 @@ dcfifo #(
   .wrreq (wr_tvalid),
   .wrfull (wr_treadyn),
   .wrempty (),
-  .wrusedw (rd_tlength),
+  .wrusedw (wr_tlength),
   .data ({wr_tuser,wr_tlast,wr_tdata}),
 
   .rdclk (rd_clk),
   .rdreq (rd_tready),
   .rdfull (),
   .rdempty (rd_tvalidn),
-  .rdusedw (),
+  .rdusedw (rd_tlength),
   .q (rd_data),
 
   .aclr (1'b0),
   .eccstatus ()  
 );
 
-assign wr_tready = (rd_tlength > 11'd1012) ? 1'b0: 1'b1; //~wr_treadyn;
+//assign wr_tready = (wr_tlength > 11'd1012) ? 1'b0: 1'b1;
+assign wr_tready = ~wr_treadyn;
 assign rd_tvalid = ~rd_tvalidn;
 assign rd_tlast  = rd_data[24];
 assign rd_tdata  = rd_data[23:0];

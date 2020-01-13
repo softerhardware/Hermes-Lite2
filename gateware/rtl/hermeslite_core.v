@@ -92,7 +92,9 @@ module hermeslite_core(
   output          io_atu_req,
 
   output          pa_inttr,
-  output          pa_exttr
+  output          pa_exttr,
+
+  output          fan_pwm
 );
 
 
@@ -110,13 +112,16 @@ parameter       UART = 0;
 // ATU Type 0 is none, 1 is JI1UDD ATU
 parameter       ATU = 0;
 
+parameter       FAN = 0;    // Generate fan support
+parameter       PSSYNC = 0; // Generate power supply sync frequency
+
 // Downstream audio channel usage:
 //   0=not used, 1=predistortion, 2=TX envelope PWM
 //   when using the TX envelope PWM reduce the number of receivers (NR) above by 1
 parameter       LRDATA = 0;
 
-localparam      VERSION_MAJOR = (BOARD==2) ? 8'd48 : 8'd68;
-localparam      VERSION_MINOR = 8'd4;
+localparam      VERSION_MAJOR = (BOARD==2) ? 8'd49 : 8'd69;
+localparam      VERSION_MINOR = 8'd0;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
@@ -524,7 +529,7 @@ sync_pulse sync_pulse_usopenhpsdr1 (
   .sig_out(cmd_rqst_usopenhpsdr1)
 );
 
-usopenhpsdr1 #(.NR(NR), .VERSION_MAJOR(VERSION_MAJOR), .VERSION_MINOR(VERSION_MINOR)) usopenhpsdr1_i (
+usopenhpsdr1 #(.NR(NR), .VERSION_MAJOR(VERSION_MAJOR), .VERSION_MINOR(VERSION_MINOR), .BOARD(BOARD)) usopenhpsdr1_i (
   .clk(clock_ethtxint),
   .have_ip(~(network_state_dhcp & network_state_fixedip)), // network_state is on sync 2.5 MHz domain
   .run(run_sync),
@@ -747,7 +752,9 @@ sync syncio_txhang (
 control #(
   .VERSION_MAJOR(VERSION_MAJOR),
   .UART(UART),
-  .ATU(ATU)
+  .ATU(ATU),
+  .FAN(FAN),
+  .PSSYNC(PSSYNC)
 ) control_i (
   // Internal
   .clk(clk_ctrl),
@@ -846,7 +853,9 @@ control #(
   .pa_inttr(pa_inttr),
   .pa_exttr(pa_exttr),
 
-  .hl2_reset(hl2_reset)
+  .hl2_reset(hl2_reset),
+  
+  .fan_pwm(fan_pwm)
 );
 
 

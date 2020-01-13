@@ -79,7 +79,7 @@ module hermeslite (
   //
   output       io_db1_2             ,
   output       io_db1_3             ,
-  input        io_db1_4             ,
+  output       io_db1_4             ,
   output       io_db1_5             ,
   output       io_db1_6             ,
   input        io_phone_tip         ,
@@ -95,13 +95,15 @@ module hermeslite (
 
 
   hermeslite_core #(
-    .BOARD(5                                    ),
-    .IP   ({8'd0,8'd0,8'd0,8'd0}                ),
-    .MAC  ({8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd}),
-    .NR   (4                                    ),
-    .NT   (1                                    ),
-    .UART (1                                    ),
-    .ATU  (1                                    )
+    .BOARD (5                                    ),
+    .IP    ({8'd0,8'd0,8'd0,8'd0}                ),
+    .MAC   ({8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd}),
+    .NR    (4                                    ),
+    .NT    (1                                    ),
+    .UART  (1                                    ),
+    .ATU   (1                                    ),
+    .FAN   (1                                    ),
+    .PSSYNC(1                                    )
   ) hermeslite_core_i (
     .pwr_clk3p3                (pwr_clk3p3           ),
     .pwr_clk1p2                (pwr_clk1p2           ),
@@ -155,7 +157,8 @@ module hermeslite (
     .io_atu_ack                (io_cn9               ),
     .io_atu_req                (io_db1_2             ),
     .pa_inttr                  (pa_inttr             ),
-    .pa_exttr                  (pa_exttr             )
+    .pa_exttr                  (pa_exttr             ),
+    .fan_pwm                   (io_db1_4             )
   );
 
 endmodule
