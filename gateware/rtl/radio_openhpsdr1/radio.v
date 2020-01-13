@@ -347,7 +347,7 @@ end
 
 logic [31:0]  tx0_phase;    // For VNAscan, starts at tx_phase0 and increments for vna_count points; else tx_phase0.
 
-generate if (VNA == 1) begin: VNA1
+//generate if (VNA == 1) begin: VNA1
 
 // VNA scanning code added by Jim Ahlstrom, N2ADR, May 2018.
 // The firmware can scan frequencies for the VNA if vna_count > 0. The vna then controls the Rx and Tx frequencies.
@@ -397,12 +397,12 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
     .clk_2x(clk_2x),
     .rst(1'b0),
     .phi0(rx0_phase),
-    .phi1(rx_phase[1]),
+    .phi1(rx_phase[2]),
     .adc(adcpipe[0]), 
     .mixdata0_i(mixdata_i[0]),
     .mixdata0_q(mixdata_q[0]),
-    .mixdata1_i(mixdata_i[1]),
-    .mixdata1_q(mixdata_q[1])
+    .mixdata1_i(mixdata_i[2]),
+    .mixdata1_q(mixdata_q[2])
   );
 
   receiver_nco #(.CICRATE(CICRATE)) receiver_0 (
@@ -416,8 +416,58 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
     .out_data_Q(rx0_out_Q)
   );
 
+
+  receiver_nco #(.CICRATE(CICRATE)) receiver_2 (
+    .clock(clk),
+    .clock_2x(clk_2x),
+    .rate(rate),
+    .mixdata_I(mixdata_i[2]),
+    .mixdata_Q(mixdata_q[2]),
+    .out_strobe(rx_data_rdy[2]),
+    .out_data_I(rx_data_i[2]),
+    .out_data_Q(rx_data_q[2])
+  );
+
   assign cordic_data_I = mixdata_i[0];
   assign cordic_data_Q = mixdata_q[0];
+
+
+  // Build double mixer
+  mix2 #(.CALCTYPE(3)) mix2_2 (
+    .clk(clk),
+    .clk_2x(clk_2x),
+    .rst(1'b0),
+    .phi0(rx_phase[1]),
+    .phi1(rx_phase[3]),
+    .adc((tx_on & pure_signal) ? tx_data_dac : adcpipe[1]),
+    .mixdata0_i(mixdata_i[1]),
+    .mixdata0_q(mixdata_q[1]),
+    .mixdata1_i(mixdata_i[3]),
+    .mixdata1_q(mixdata_q[3])
+  );
+
+  receiver_nco #(.CICRATE(CICRATE)) receiver_1 (
+    .clock(clk),
+    .clock_2x(clk_2x),
+    .rate(rate),
+    .mixdata_I(mixdata_i[1]),
+    .mixdata_Q(mixdata_q[1]),
+    .out_strobe(rx_data_rdy[1]),
+    .out_data_I(rx_data_i[1]),
+    .out_data_Q(rx_data_q[1])
+  );
+
+  receiver_nco #(.CICRATE(CICRATE)) receiver_3 (
+    .clock(clk),
+    .clock_2x(clk_2x),
+    .rate(rate),
+    .mixdata_I(mixdata_i[3]),
+    .mixdata_Q(mixdata_q[3]),
+    .out_strobe(rx_data_rdy[3]),
+    .out_data_I(rx_data_i[3]),
+    .out_data_Q(rx_data_q[3])
+  );
+
 
 //  receiver #(.CICRATE(CICRATE)) receiver_0_inst (
 //    .clock(clk),
@@ -458,144 +508,144 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
   //  end
   //end
 
-  for (c = 1; c < NR; c = c + 1) begin: MDC
-
-    if (c == 2) begin
-      // Build double mixer
-      mix2 #(.CALCTYPE(3)) mix2_i (
-        .clk(clk),
-        .clk_2x(clk_2x),
-        .rst(1'b0),
-        .phi0(rx_phase[c]),
-        .phi1(rx_phase[c+1]),
-        .adc(adcpipe[c/8]), 
-        .mixdata0_i(mixdata_i[c]),
-        .mixdata0_q(mixdata_q[c]),
-        .mixdata1_i(mixdata_i[c+1]),
-        .mixdata1_q(mixdata_q[c+1])
-      );
-    end
-
-    if (c == 4) begin
-      // Build double mixer
-      // Receiver 3 (zero indexed so fourth RX) is feedback for puresignal
-      // Will need to split this later if more than 4 receivers
-      mix2 #(.CALCTYPE(4)) mix2_i (
-        .clk(clk),
-        .clk_2x(clk_2x),
-        .rst(1'b0),
-        .phi0(rx_phase[c]),
-        .phi1(rx_phase[c+1]),
-        .adc( (tx_on & pure_signal) ? tx_data_dac : adcpipe[c/8]),
-        .mixdata0_i(mixdata_i[c]),
-        .mixdata0_q(mixdata_q[c]),
-        .mixdata1_i(mixdata_i[c+1]),
-        .mixdata1_q(mixdata_q[c+1])
-      );
-    end
-
-    receiver_nco #(.CICRATE(CICRATE)) receiver_inst (
-      .clock(clk),
-      .clock_2x(clk_2x),
-      .rate(rate),
-      .mixdata_I(mixdata_i[c]),
-      .mixdata_Q(mixdata_q[c]),
-      .out_strobe(rx_data_rdy[c]),
-      .out_data_I(rx_data_i[c]),
-      .out_data_Q(rx_data_q[c])
-    );
-
-  end
-
-end else if (RECEIVER2==1) begin
-
-  assign tx0_phase = tx_phase0;
-
-  for (c = 0; c < NR; c = c + 1) begin: RECV2
-    if((c==3 && NR>3) || (c==1 && NR<=3)) begin
-        receiver2 receiver_inst (
-          .clock(clk),
-          .reset(1'b0),
-          .sample_rate(rate),
-          .frequency(rx_phase[c]),
-          .out_strobe(rx_data_rdy[c]),
-          .in_data((tx_on & pure_signal) ? { {4{tx_data_dac[11]}},tx_data_dac} : { {4{adcpipe[c/8][11]}},adcpipe[c/8]}), //tx_data was pipelined here once
-          .out_data_I(rx_data_i[c]),
-          .out_data_Q(rx_data_q[c])
-        );
-    end else begin
-        receiver2 receiver_inst (
-          .clock(clk),
-          .reset(1'b0),
-          .sample_rate(rate),
-          .frequency(rx_phase[c]),
-          .out_strobe(rx_data_rdy[c]),
-          .in_data({ {4{adcpipe[c/8][11]}},adcpipe[c/8]}),
-          .out_data_I(rx_data_i[c]),
-          .out_data_Q(rx_data_q[c])
-        );
-    end
-  end
-
-end else if (QS1R==1) begin
-
-  assign tx0_phase = tx_phase0;
-
-  for (c = 0; c < NR; c = c + 1) begin: RECV2
-    if((c==3 && NR>3) || (c==1 && NR<=3)) begin
-        qs1r_receiver receiver_inst (
-          .clock(clk),
-          .rate(rx_rate),
-          .frequency(rx_phase[c]),
-          .out_strobe(rx_data_rdy[c]),
-          .in_data((tx_on & pure_signal) ? { {4{tx_data_dac[11]}},tx_data_dac} : { {4{adcpipe[c/8][11]}},adcpipe[c/8]}), //tx_data was pipelined here once
-          .out_data_I(rx_data_i[c]),
-          .out_data_Q(rx_data_q[c])
-        );
-    end else begin
-        qs1r_receiver receiver_inst (
-          .clock(clk),
-          .rate(rx_rate),
-          .frequency(rx_phase[c]),
-          .out_strobe(rx_data_rdy[c]),
-          .in_data({ {4{adcpipe[c/8][11]}},adcpipe[c/8]}),
-          .out_data_I(rx_data_i[c]),
-          .out_data_Q(rx_data_q[c])
-        );
-    end
-  end
-
-end else begin
-
-  assign tx0_phase = tx_phase0;
-
-  // Default to receiver type 1
-  for (c = 0; c < NR; c = c + 1) begin: MDC
-    if((c==3 && NR>3) || (c==1 && NR<=3)) begin
-        receiver #(.CICRATE(CICRATE)) receiver_inst (
-          .clock(clk),
-          .clock_2x(clk_2x),
-          .rate(rate),
-          .frequency(rx_phase[c]),
-          .out_strobe(rx_data_rdy[c]),
-          .in_data((tx_on & pure_signal) ? tx_data_dac : adcpipe[c/8]), //tx_data was pipelined here once
-          .out_data_I(rx_data_i[c]),
-          .out_data_Q(rx_data_q[c])
-        );
-    end else begin
-        receiver #(.CICRATE(CICRATE)) receiver_inst (
-          .clock(clk),
-          .clock_2x(clk_2x),
-          .rate(rate),
-          .frequency(rx_phase[c]),
-          .out_strobe(rx_data_rdy[c]),
-          .in_data(adcpipe[c/8]),
-          .out_data_I(rx_data_i[c]),
-          .out_data_Q(rx_data_q[c])
-        );
-    end
-  end
-end endgenerate
+//  for (c = 1; c < NR; c = c + 1) begin: MDC
+//
+//    if (c == 2) begin
+//      // Build double mixer
+//      mix2 #(.CALCTYPE(3)) mix2_i (
+//        .clk(clk),
+//        .clk_2x(clk_2x),
+//        .rst(1'b0),
+//        .phi0(rx_phase[c]),
+//        .phi1(rx_phase[c+1]),
+//        .adc((tx_on & pure_signal) ? tx_data_dac : adcpipe[c/8]),
+//        .mixdata0_i(mixdata_i[c]),
+//        .mixdata0_q(mixdata_q[c]),
+//        .mixdata1_i(mixdata_i[c+1]),
+//        .mixdata1_q(mixdata_q[c+1])
+//      );
+//    end
+//
+//    if (c == 4) begin
+//      // Build double mixer
+//      // Receiver 3 (zero indexed so fourth RX) is feedback for puresignal
+//      // Will need to split this later if more than 4 receivers
+//      mix2 #(.CALCTYPE(4)) mix2_i (
+//        .clk(clk),
+//        .clk_2x(clk_2x),
+//        .rst(1'b0),
+//        .phi0(rx_phase[c]),
+//        .phi1(rx_phase[c+1]),
+//        .adc( (tx_on & pure_signal) ? tx_data_dac : adcpipe[c/8]),
+//        .mixdata0_i(mixdata_i[c]),
+//        .mixdata0_q(mixdata_q[c]),
+//        .mixdata1_i(mixdata_i[c+1]),
+//        .mixdata1_q(mixdata_q[c+1])
+//      );
+//    end
+//
+//    receiver_nco #(.CICRATE(CICRATE)) receiver_inst (
+//      .clock(clk),
+//      .clock_2x(clk_2x),
+//      .rate(rate),
+//      .mixdata_I(mixdata_i[c]),
+//      .mixdata_Q(mixdata_q[c]),
+//      .out_strobe(rx_data_rdy[c]),
+//      .out_data_I(rx_data_i[c]),
+//      .out_data_Q(rx_data_q[c])
+//    );
+//
+//  end
+//
+//end else if (RECEIVER2==1) begin
+//
+//  assign tx0_phase = tx_phase0;
+//
+//  for (c = 0; c < NR; c = c + 1) begin: RECV2
+//    if((c==3 && NR>3) || (c==1 && NR<=3)) begin
+//        receiver2 receiver_inst (
+//          .clock(clk),
+//          .reset(1'b0),
+//          .sample_rate(rate),
+//          .frequency(rx_phase[c]),
+//          .out_strobe(rx_data_rdy[c]),
+//          .in_data((tx_on & pure_signal) ? { {4{tx_data_dac[11]}},tx_data_dac} : { {4{adcpipe[c/8][11]}},adcpipe[c/8]}), //tx_data was pipelined here once
+//          .out_data_I(rx_data_i[c]),
+//          .out_data_Q(rx_data_q[c])
+//        );
+//    end else begin
+//        receiver2 receiver_inst (
+//          .clock(clk),
+//          .reset(1'b0),
+//          .sample_rate(rate),
+//          .frequency(rx_phase[c]),
+//          .out_strobe(rx_data_rdy[c]),
+//          .in_data({ {4{adcpipe[c/8][11]}},adcpipe[c/8]}),
+//          .out_data_I(rx_data_i[c]),
+//          .out_data_Q(rx_data_q[c])
+//        );
+//    end
+//  end
+//
+//end else if (QS1R==1) begin
+//
+//  assign tx0_phase = tx_phase0;
+//
+//  for (c = 0; c < NR; c = c + 1) begin: RECV2
+//    if((c==3 && NR>3) || (c==1 && NR<=3)) begin
+//        qs1r_receiver receiver_inst (
+//          .clock(clk),
+//          .rate(rx_rate),
+//          .frequency(rx_phase[c]),
+//          .out_strobe(rx_data_rdy[c]),
+//          .in_data((tx_on & pure_signal) ? { {4{tx_data_dac[11]}},tx_data_dac} : { {4{adcpipe[c/8][11]}},adcpipe[c/8]}), //tx_data was pipelined here once
+//          .out_data_I(rx_data_i[c]),
+//          .out_data_Q(rx_data_q[c])
+//        );
+//    end else begin
+//        qs1r_receiver receiver_inst (
+//          .clock(clk),
+//          .rate(rx_rate),
+//          .frequency(rx_phase[c]),
+//          .out_strobe(rx_data_rdy[c]),
+//          .in_data({ {4{adcpipe[c/8][11]}},adcpipe[c/8]}),
+//          .out_data_I(rx_data_i[c]),
+//          .out_data_Q(rx_data_q[c])
+//        );
+//    end
+//  end
+//
+//end else begin
+//
+//  assign tx0_phase = tx_phase0;
+//
+//  // Default to receiver type 1
+//  for (c = 0; c < NR; c = c + 1) begin: MDC
+//    if((c==3 && NR>3) || (c==1 && NR<=3)) begin
+//        receiver #(.CICRATE(CICRATE)) receiver_inst (
+//          .clock(clk),
+//          .clock_2x(clk_2x),
+//          .rate(rate),
+//          .frequency(rx_phase[c]),
+//          .out_strobe(rx_data_rdy[c]),
+//          .in_data((tx_on & pure_signal) ? tx_data_dac : adcpipe[c/8]), //tx_data was pipelined here once
+//          .out_data_I(rx_data_i[c]),
+//          .out_data_Q(rx_data_q[c])
+//        );
+//    end else begin
+//        receiver #(.CICRATE(CICRATE)) receiver_inst (
+//          .clock(clk),
+//          .clock_2x(clk_2x),
+//          .rate(rate),
+//          .frequency(rx_phase[c]),
+//          .out_strobe(rx_data_rdy[c]),
+//          .in_data(adcpipe[c/8]),
+//          .out_data_I(rx_data_i[c]),
+//          .out_data_Q(rx_data_q[c])
+//        );
+//    end
+//  end
+//end endgenerate
 
 
 // Send RX data upstream

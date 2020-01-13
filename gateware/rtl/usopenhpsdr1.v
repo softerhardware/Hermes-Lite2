@@ -92,7 +92,8 @@ output              usethasmi_ack;
 parameter           NR = 8'h0;
 parameter           VERSION_MAJOR = 8'h0;
 parameter           VERSION_MINOR = 8'h0;
-parameter           HARD_STATUS1 = 8'b01000000; // See wiki protocol page
+parameter           BOARD = 5;
+parameter           BANDSCOPE_BITS = 2'b01; // See wiki protocol page
 
 
 localparam START        = 4'h0,
@@ -278,7 +279,7 @@ always @* begin
         6'h2a: discover_data_next = alt_mac[15:8];
         6'h29: discover_data_next = alt_mac[7:0];
         6'h28: discover_data_next = NR[7:0];
-        6'h27: discover_data_next = HARD_STATUS1;
+        6'h27: discover_data_next = {BANDSCOPE_BITS, BOARD[5:0]};
         6'h26: discover_data_next = VERSION_MINOR;
         6'h00: begin
           discover_data_next = idhermeslite ? 8'h06 : 8'h01;

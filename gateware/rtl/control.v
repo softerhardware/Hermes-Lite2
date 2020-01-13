@@ -148,7 +148,9 @@ module control(
   pa_inttr,
   pa_exttr,
 
-  hl2_reset
+  hl2_reset,
+
+  fan_pwm
 );
 
 // Internal
@@ -248,9 +250,14 @@ output          pa_exttr;
 
 output          hl2_reset;
 
+output          fan_pwm;
+
+
 parameter     VERSION_MAJOR = 8'h0;
 parameter     UART = 0;
 parameter     ATU = 0;
+parameter     FAN = 0;
+parameter     PSSYNC = 0;
 
 
 logic         vna = 1'b0;                    // Selects vna mode when set.
@@ -297,10 +304,6 @@ logic [ 1:0]  clip_cnt = 2'b00;
 
 logic         led_d2, led_d3, led_d4, led_d5;
 
-logic         disable_syncfreq = 1'b0;
-
-logic [ 5:0]  pwrcnt = 6'h10;
-//logic [ 2:0]  pwrphase = 3'b100;
 
 logic         resp_cnt = 1'b0;
 
@@ -322,6 +325,10 @@ logic [ 7:0]  ieeprom_config;
 logic         use_eeprom_config = 1'b0;
 
 logic         hl2_reset_state = 1'b0;
+
+logic         temp_enabletx = 1'b1;
+
+
 
 
 /////////////////////////////////////////////////////
@@ -363,9 +370,6 @@ always @(posedge clk) begin
     else if (cmd_addr == 6'h10) begin
       cw_hang_time <= {cmd_data[31:24], cmd_data[17:16]};
     end
-    else if (cmd_addr == 6'h00) begin
-      disable_syncfreq <= cmd_data[12];
-    end
     else if (cmd_addr == 6'h3a) begin
       hl2_reset_state <= cmd_data[0];
     end
@@ -386,7 +390,7 @@ generate
 
       logic [31:0]  tx_freq = 32'h00000000;
       always @(posedge clk) begin
-        if (cmd_addr == 6'h01) begin
+        if (cmd_rqst & (cmd_addr == 6'h01)) begin
           tx_freq <= cmd_data;
         end
       end
@@ -412,7 +416,7 @@ generate
 
       logic auto_tune = 1'b0;
       always @(posedge clk) begin
-        if (cmd_addr == 6'h09) begin
+        if (cmd_rqst & (cmd_addr == 6'h09)) begin
           auto_tune <=cmd_data[20];
         end
       end
@@ -491,7 +495,7 @@ debounce de_phone_ring(.clean_pb(ext_ptt), .pb(~io_phone_ring), .clk(clk));
 debounce de_txinhibit(.clean_pb(ext_txinhibit), .pb(~io_tx_inhibit), .clk(clk));
 
 
-assign tx_on = (int_ptt_gated | cw_keydown | ext_ptt | tx_hang) & ~ext_txinhibit & run;
+assign tx_on = (int_ptt_gated | cw_keydown | ext_ptt | tx_hang) & ~ext_txinhibit & run & temp_enabletx;
 
 // Gererate two slow pulses for timing.  millisec_pulse occurs every one millisecond.
 // led_saturate occurs every 64 milliseconds.
@@ -701,33 +705,135 @@ always @(posedge clk) begin
 end
 
 
-// sync clock
-always @(posedge clk_125) begin
-  if (pwrcnt == 6'h00) begin
-    //case(pwrphase)
-    //  3'b000: pwrcnt <= 6'd59;
-    //  3'b001: pwrcnt <= 6'd57;
-    //  3'b010: pwrcnt <= 6'd58;
-    //  3'b011: pwrcnt <= 6'd55;
-    //  3'b100: pwrcnt <= 6'd58;
-    //  3'b101: pwrcnt <= 6'd59;
-    //  3'b110: pwrcnt <= 6'd56;
-    //  3'b111: pwrcnt <= 6'd59;
-    //endcase
-    //if (pwrphase == 3'b000) pwrphase <= 3'b110;
-    //else pwrphase <= pwrphase - 3'b001;
-    pwrcnt <= 6'd58;
-  end else begin
-    pwrcnt <= pwrcnt - 6'h01;
+
+generate case (PSSYNC)
+
+  0: begin: NOPSSYNC
+    assign pwr_clk3p3 = 1'b0;
+    assign pwr_clk1p2 = 1'b0;
   end
 
-  if (disable_syncfreq) begin
-    pwr_clk3p3 <= 1'b0;
-    pwr_clk1p2 <= 1'b0;
-  end else begin
-    if (pwrcnt == 6'h00) pwr_clk3p3 <= ~pwr_clk3p3;
-    if (pwrcnt == 6'h11) pwr_clk1p2 <= ~pwr_clk1p2;
+  1: begin: PSSYNC
+
+    logic         disable_syncfreq = 1'b0;
+    logic [ 5:0]  pwrcnt = 6'h10;
+    //logic [ 2:0]  pwrphase = 3'b100;
+
+    always @(posedge clk)
+      if (cmd_rqst & (cmd_addr == 6'h00))
+        disable_syncfreq <= cmd_data[12];
+
+    // sync clock
+    always @(posedge clk_125) begin
+      if (pwrcnt == 6'h00) begin
+        //case(pwrphase)
+        //  3'b000: pwrcnt <= 6'd59;
+        //  3'b001: pwrcnt <= 6'd57;
+        //  3'b010: pwrcnt <= 6'd58;
+        //  3'b011: pwrcnt <= 6'd55;
+        //  3'b100: pwrcnt <= 6'd58;
+        //  3'b101: pwrcnt <= 6'd59;
+        //  3'b110: pwrcnt <= 6'd56;
+        //  3'b111: pwrcnt <= 6'd59;
+        //endcase
+        //if (pwrphase == 3'b000) pwrphase <= 3'b110;
+        //else pwrphase <= pwrphase - 3'b001;
+        pwrcnt <= 6'd58;
+      end else begin
+        pwrcnt <= pwrcnt - 6'h01;
+      end
+
+      if (disable_syncfreq) begin
+        pwr_clk3p3 <= 1'b0;
+        pwr_clk1p2 <= 1'b0;
+      end else begin
+        if (pwrcnt == 6'h00) pwr_clk3p3 <= ~pwr_clk3p3;
+        if (pwrcnt == 6'h11) pwr_clk1p2 <= ~pwr_clk1p2;
+      end
+    end
   end
-end
+endcase
+endgenerate
+
+
+generate case (FAN)
+  0: begin: NOFAN // No FAN
+
+    assign fan_pwm = 1'b0;
+    assign temp_enabletx = 1'b1;
+
+  end
+
+  1: begin: FAN
+
+    // temperature == (((T*.01)+.5)/3.26)*4096
+    localparam TEMP_20C = 12'b001101101111;
+    localparam TEMP_25C = 12'b001110101110;
+    localparam TEMP_30C = 12'b001111101101;
+    localparam TEMP_35C = 12'b010000101011;
+    localparam TEMP_40C = 12'b010001101011;
+    localparam TEMP_45C = 12'b010010101010;
+    localparam TEMP_50C = 12'b010011101000;
+    localparam TEMP_55C = 12'b010100100111;
+    localparam TEMP_60C = 12'b010101100110;
+
+    localparam FAN_OFF          = 3'b000,
+               FAN_LOWSPEED     = 3'b001,
+               FAN_MEDSPEED     = 3'b011,
+               FAN_FULLSPEED    = 3'b010,
+               FAN_OVERHEAT     = 3'b110;
+
+    logic [15:0] fan_cnt;
+    logic [2:0] fan_state_next, fan_state = FAN_OFF;
+
+    // Fan state machine
+    always @ (posedge clk) begin
+      fan_cnt <= fan_cnt + 1;
+      fan_state <= fan_state_next;
+    end
+
+    // FSM Combinational
+    always @* begin
+      // Next State
+      fan_state_next = fan_state;
+
+      // Combo
+      fan_pwm = 1'b0;
+      temp_enabletx = 1'b1;
+
+      case (fan_state)
+        FAN_OFF: begin
+          if (temperature > TEMP_25C) fan_state_next = FAN_LOWSPEED;
+          fan_pwm = 1'b0;
+        end
+
+        FAN_LOWSPEED: begin
+          if (temperature > TEMP_30C) fan_state_next = FAN_MEDSPEED;
+          else if (temperature < TEMP_20C) fan_state_next = FAN_OFF;
+          fan_pwm = fan_cnt[15]; // on 50% of time
+        end
+
+        FAN_MEDSPEED: begin
+          if (temperature > TEMP_35C) fan_state_next = FAN_FULLSPEED;
+          else if (temperature < TEMP_25C) fan_state_next = FAN_LOWSPEED;
+          fan_pwm = fan_cnt[15] | fan_cnt[14]; // on 75% of time
+        end
+
+        FAN_FULLSPEED: begin
+          if (temperature > TEMP_40C) fan_state_next = FAN_OVERHEAT;
+          else if (temperature < TEMP_30C) fan_state_next = FAN_MEDSPEED;
+          fan_pwm = 1'b1; // on 100% of time
+        end
+
+        FAN_OVERHEAT: begin
+          if (temperature < TEMP_35C) fan_state_next = FAN_FULLSPEED;
+          fan_pwm = 1'b1;
+          temp_enabletx = 1'b0;
+        end
+      endcase
+    end
+  end
+endcase
+endgenerate
 
 endmodule // ioblock
