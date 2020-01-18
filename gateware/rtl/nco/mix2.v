@@ -41,6 +41,7 @@ logic                 state = 1'b0;
 
 nco2 #(.CALCTYPE(CALCTYPE)) nco2_i (
   .state(state),
+  .clk(clk),
   .clk_2x(clk_2x),
   .rst(rst),
   .phi0(phi0),
@@ -61,7 +62,7 @@ always @(posedge clk_2x) begin
   scos_q <= cos[18] ? scos[18:1] : cos[18:1];
 end
 
-always @(posedge clk_2x) begin
+always @(posedge clk) begin
   adci <= adc;
   adcq <= adc;
 end
