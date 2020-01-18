@@ -4,6 +4,7 @@
 module nco2 (
   state,
   clk_2x,
+  clk,
   rst,
   phi0,
   phi1,
@@ -13,6 +14,7 @@ module nco2 (
 
 input             state;
 input             clk_2x;
+input             clk;
 input             rst;
 input     [31:0]  phi0;
 input     [31:0]  phi1;
@@ -22,23 +24,23 @@ output    [18:0]  cos;
 logic [31:0]      angle0 = 32'h00;
 logic [31:0]      angle1 = 32'h00;
 
-logic phi0iszero = 1'b0;
-logic phi1iszero = 1'b0;
+//logic phi0iszero = 1'b0;
+//logic phi1iszero = 1'b0;
 
 parameter         CALCTYPE = 0;
 
-always @(posedge clk_2x) begin
-  phi0iszero <= ~(|phi0);
-  phi1iszero <= ~(|phi1);
-end
+//always @(posedge clk) begin
+//  phi0iszero <= ~(|phi0);
+//  phi1iszero <= ~(|phi1);
+//end
 
 always @(posedge clk_2x) begin
   if (state) begin
     angle1 <= angle0 + phi1;
-    angle0 <= (phi0iszero) ? 32'h00 : angle1;
+    angle0 <= rst ? 32'h00 : angle1;
   end else begin
     angle1 <= angle0 + phi0;
-    angle0 <= (phi1iszero) ? 32'h00 : angle1;
+    angle0 <= rst ? 32'h00 : angle1;
   end
 end
 

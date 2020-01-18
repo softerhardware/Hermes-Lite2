@@ -346,6 +346,7 @@ always @ (rx_rate) begin
 end
 
 logic [31:0]  tx0_phase;    // For VNAscan, starts at tx_phase0 and increments for vna_count points; else tx_phase0.
+logic [ 1:0]  tx0_phase_zero; // True when tx0_phase should be reset to zero
 
 //generate if (VNA == 1) begin: VNA1
 
@@ -371,7 +372,7 @@ assign rx_data_q[0] = VNA_SCAN_FPGA ? vna_out_Q : rx0_out_Q;
 // This module is a replacement for receiver zero when the FPGA scans in VNA mode.
 vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output for VNA_SCAN_FPGA
     //control
-    .clock(clk),
+    .clk(clk),
     .freq_delta(rx_phase[0]),
     .output_strobe(vna_strobe),
     //input
@@ -382,8 +383,9 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
     .out_data_Q(vna_out_Q),
     // VNA mode data
     .vna(vna),
-    .Tx_frequency_in(tx_phase0),
-    .Tx_frequency_out(tx0_phase),
+    .tx_freq_in(tx_phase0),
+    .tx_freq(tx0_phase),
+    .tx_zero(tx0_phase_zero),
     .vna_count(vna_count)
     );
 
@@ -395,7 +397,7 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
   mix2 #(.CALCTYPE(3)) mix2_0 (
     .clk(clk),
     .clk_2x(clk_2x),
-    .rst(1'b0),
+    .rst(&tx0_phase_zero),
     .phi0(rx0_phase),
     .phi1(rx_phase[2]),
     .adc(adcpipe[0]), 
