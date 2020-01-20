@@ -95,13 +95,15 @@ module hermeslite (
 
 
   hermeslite_core #(
-    .BOARD(5                                    ),
-    .IP   ({8'd0,8'd0,8'd0,8'd0}                ),
-    .MAC  ({8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd}),
-    .NR   (6                                    ),
-    .NT   (0                                    ),
-    .UART (0                                    ),
-    .ATU  (0                                    )
+    .BOARD (5                                    ),
+    .IP    ({8'd0,8'd0,8'd0,8'd0}                ),
+    .MAC   ({8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd}),
+    .NR    (6                                    ),
+    .NT    (0                                    ),
+    .UART  (0                                    ),
+    .ATU   (0                                    ),
+    .FAN   (1                                    ),
+    .PSSYNC(1                                    )
   ) hermeslite_core_i (
     .pwr_clk3p3                (pwr_clk3p3           ),
     .pwr_clk1p2                (pwr_clk1p2           ),
@@ -155,7 +157,8 @@ module hermeslite (
     .io_atu_ack                (io_cn9               ),
     .io_atu_req                (io_db1_2             ),
     .pa_inttr                  (pa_inttr             ),
-    .pa_exttr                  (pa_exttr             )
+    .pa_exttr                  (pa_exttr             ),
+    .fan_pwm                   (io_db1_4             )
   );
 
 endmodule

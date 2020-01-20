@@ -386,13 +386,14 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
     .tx_freq_in(tx_phase0),
     .tx_freq(tx0_phase),
     .tx_zero(tx0_phase_zero),
+    .rx0_phase(rx0_phase),
     .vna_count(vna_count)
     );
 
 
   // First receiver
   // If in VNA mode use the Tx[0] phase word for the first receiver phase
-  assign rx0_phase = vna ? tx0_phase : rx_phase[0];
+  //assign rx0_phase = vna ? tx0_phase : rx_phase[0];
 
   mix2 #(.CALCTYPE(3)) mix2_0 (
     .clk(clk),

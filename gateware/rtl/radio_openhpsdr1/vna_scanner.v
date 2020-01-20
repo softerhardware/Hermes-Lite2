@@ -42,6 +42,7 @@ module vna_scanner (
   input               [31:0] tx_freq_in   ,
   output logic        [31:0] tx_freq      ,
   output logic        [ 1:0] tx_zero      ,
+  output logic        [31:0] rx0_phase    ,
   input               [15:0] vna_count
 );
 
@@ -73,11 +74,13 @@ logic        [31:0] tx_freq_next       ;
 always @(posedge clk) begin
   if (!vna) begin // Not in VNA mode; operate as a regular receiver
     tx_freq   <= tx_freq_in;
+    rx0_phase <= freq_delta;
     vna_state <= VNA_STARTUP;
     tx_zero   <= 2'b00;
   end else begin
     vna_state      <= vna_state_next;
     tx_freq        <= tx_freq_next;
+    rx0_phase      <= tx_freq_next;
     tx_zero        <= {(tx_freq_next[31:16] == 16'h0), (tx_freq_next[15:0] == 16'h0)};
     vna_counter    <= vna_counter_next;
     vna_decimation <= vna_decimation_next;

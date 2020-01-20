@@ -61,6 +61,13 @@ Below is a picture of assembled fan control components. Note that a 2 pin header
 
 ![](../pictures/endplates4.jpg)
 
+The fan algorithm in the HL2 behaves as follows. When the HL2 is first powered on, the fan will briefly turn on. This helps verify that the fan is working.
+
+ * Low speed turns on at 35C, off at 30C
+ * Medium speed turns on at 40C, back to low speed at 35C
+ * Full speed turns on at 45C, back to medium speed at 40C
+ * TX disabled at 55C, enabled at 50C or by power cycling the unit
+
 ## Surface Mount Headers
 
 Below is a picture with the surface mount headers installed. J2 provides connection for power and signals from the HL2. J3 provides extra connectivity for output signals in case they must be used elsewhere.
