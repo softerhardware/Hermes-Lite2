@@ -803,30 +803,30 @@ generate case (FAN)
 
       case (fan_state)
         FAN_OFF: begin
-          if (temperature > TEMP_25C) fan_state_next = FAN_LOWSPEED;
+          if (temperature > TEMP_35C) fan_state_next = FAN_LOWSPEED;
           fan_pwm = 1'b0;
         end
 
         FAN_LOWSPEED: begin
-          if (temperature > TEMP_30C) fan_state_next = FAN_MEDSPEED;
-          else if (temperature < TEMP_20C) fan_state_next = FAN_OFF;
+          if (temperature > TEMP_40C) fan_state_next = FAN_MEDSPEED;
+          else if (temperature < TEMP_30C) fan_state_next = FAN_OFF;
           fan_pwm = fan_cnt[15]; // on 50% of time
         end
 
         FAN_MEDSPEED: begin
-          if (temperature > TEMP_35C) fan_state_next = FAN_FULLSPEED;
-          else if (temperature < TEMP_25C) fan_state_next = FAN_LOWSPEED;
+          if (temperature > TEMP_45C) fan_state_next = FAN_FULLSPEED;
+          else if (temperature < TEMP_35C) fan_state_next = FAN_LOWSPEED;
           fan_pwm = fan_cnt[15] | fan_cnt[14]; // on 75% of time
         end
 
         FAN_FULLSPEED: begin
-          if (temperature > TEMP_40C) fan_state_next = FAN_OVERHEAT;
-          else if (temperature < TEMP_30C) fan_state_next = FAN_MEDSPEED;
+          if (temperature > TEMP_55C) fan_state_next = FAN_OVERHEAT;
+          else if (temperature < TEMP_40C) fan_state_next = FAN_MEDSPEED;
           fan_pwm = 1'b1; // on 100% of time
         end
 
         FAN_OVERHEAT: begin
-          if (temperature < TEMP_35C) fan_state_next = FAN_FULLSPEED;
+          if (temperature < TEMP_50C) fan_state_next = FAN_FULLSPEED;
           fan_pwm = 1'b1;
           temp_enabletx = 1'b0;
         end

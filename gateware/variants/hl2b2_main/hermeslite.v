@@ -92,13 +92,15 @@ module hermeslite (
   assign rffe_ad9866_pga5 = 6'h00;
 
   hermeslite_core #(
-    .BOARD(2                                    ),
-    .IP   ({8'd0,8'd0,8'd0,8'd0}                ),
-    .MAC  ({8'h00,8'h1c,8'hc0,8'ha2,8'h12,8'hdd}),
-    .NR   (4                                    ),
-    .NT   (1                                    ),
-    .UART (0                                    ),
-    .ATU  (0                                    )
+    .BOARD (2                                    ),
+    .IP    ({8'd0,8'd0,8'd0,8'd0}                ),
+    .MAC   ({8'h00,8'h1c,8'hc0,8'ha2,8'h12,8'hdd}),
+    .NR    (4                                    ),
+    .NT    (1                                    ),
+    .UART  (1                                    ),
+    .ATU   (0                                    ),
+    .FAN   (1                                    ),
+    .PSSYNC(1                                    )
   ) hermeslite_core_i (
     .pwr_clk3p3                (pwr_clk3p3           ),
     .pwr_clk1p2                (pwr_clk1p2           ),
@@ -135,8 +137,8 @@ module hermeslite (
     .io_led_tx                 (io_led_d3            ),
     .io_led_adc75              (io_led_d4            ),
     .io_led_adc100             (io_led_d5            ),
-    .io_tx_envelope_pwm_out    (io_cn4_7             ),
-    .io_tx_envelope_pwm_out_inv(io_cn4_6             ),
+    .io_tx_envelope_pwm_out    (io_cl1               ),
+    .io_tx_envelope_pwm_out_inv(                     ),
     .io_tx_inhibit             (io_cn8               ),
     .io_id_hermeslite          (io_cn9               ),
     .io_alternate_mac          (io_cn10              ),
@@ -146,13 +148,14 @@ module hermeslite (
     .io_sda2                   (io_sda2              ),
     .io_uart_txd               (io_db24_1            ),
     .io_uart_rxd               (io_tp2               ),
-    .io_cw_keydown             (io_cl1               ),
+    .io_cw_keydown             (                     ),
     .io_phone_tip              (io_phone_tip         ),
     .io_phone_ring             (io_phone_ring        ),
     .io_atu_ack                (1'b0                 ),
     .io_atu_req                (                     ),
     .pa_inttr                  (pa_tr                ),
-    .pa_exttr                  (                     )
+    .pa_exttr                  (                     ),
+    .fan_pwm                   (io_cn4_6             )
   );
 
 endmodule
