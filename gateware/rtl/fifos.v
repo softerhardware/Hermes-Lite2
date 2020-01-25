@@ -260,8 +260,8 @@ dcfifo #(
   .eccstatus ()  
 );
 
-//assign wr_tready = (wr_tlength > 11'd1012) ? 1'b0: 1'b1;
-assign wr_tready = ~wr_treadyn;
+assign wr_tready = (wr_tlength > 11'd1012) ? 1'b0: 1'b1;
+//assign wr_tready = ~wr_treadyn;
 assign rd_tvalid = ~rd_tvalidn;
 assign rd_tlast  = rd_data[24];
 assign rd_tdata  = rd_data[23:0];

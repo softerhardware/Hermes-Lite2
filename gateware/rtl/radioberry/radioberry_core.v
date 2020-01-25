@@ -134,12 +134,14 @@ end
 //------------------------------------------------------------------------------
 //                           Radioberry RX Stream Handler
 //------------------------------------------------------------------------------
-assign pi_rx_samples = (usiq_tlength > 11'd333) ? 1'b1: 1'b0;
+assign pi_rx_samples = (usiq_tlength > 11'd256) ? 1'b1: 1'b0;
 
 logic last;
-reg rx_rd_req;
+logic rx_rd_req;
+logic rd_req;
 ddr_mux ddr_mux_rx_inst(.clk(pi_rx_clk), .reset(reset), .rd_req(rx_rd_req), .in_data(usiq_tdata), .in_last(last), .out_last(pi_rx_last),  .out_data(pi_rx_data));
 
+sync_one sync_one_inst(.clock(clk_internal), .sig_in(rx_rd_req), .sig_out(rd_req));
 
 usiq_fifo usiq_fifo_i (
   .wr_clk(clk_ad9866),
@@ -149,13 +151,13 @@ usiq_fifo usiq_fifo_i (
   .wr_tlast(rx_tlast),
   .wr_tuser(rx_tuser),
 
-  .rd_clk(pi_rx_clk), 
+  .rd_clk(clk_internal), 
   .rd_tdata(usiq_tdata), 
   .rd_tvalid(usiq_tvalid),
-  .rd_tready(rx_rd_req),  
+  .rd_tready(rd_req),  
   .rd_tlast(last),  
   .rd_tuser(usiq_tuser),
-  .rd_tlength(usiq_tlength) //using wr length modified fifo
+  .rd_tlength(usiq_tlength)
 );
 
 //------------------------------------------------------------------------------
