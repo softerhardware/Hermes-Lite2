@@ -33,10 +33,10 @@ module radioberry_core(
 	
 	//TX IQ data
 	input wire 		pi_tx_clk,
-	input [3:0] 	pi_tx_data 
+	input [3:0] 	pi_tx_data,
  
 	// Radioberry IO
-	// TODO...
+	output 			ptt_out
 	
 );
 
@@ -54,6 +54,7 @@ localparam      VERSION_MAJOR = 8'd68;
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
 logic           cmd_cnt;
+logic           cmd_cnt_next;
 logic           cmd_ptt;
 logic           cmd_requires_resp;         
 
@@ -106,30 +107,15 @@ wire [47:0] spi0_recv;
 
 spi_slave spi_slave_inst(.rstb(!reset),.ten(1'b1),.tdata({40'h0, VERSION_MAJOR}),.mlb(1'b1),.ss(pi_spi_ce[0]),.sck(pi_spi_sck),.sdin(pi_spi_mosi), .sdout(pi_spi_miso),.done(pi_spi_done),.rdata(spi0_recv));
 
-reg run;
-reg [47:0] cmnd;
-always @ (posedge pi_spi_done) cmnd <= spi0_recv;
-	
-wire cmd_empty;
-//using (small) fifo to bring commands through SPI bus to fast clock domain.
-commandFIFO commandFIFO_inst (	.aclr(reset), 
-								.wrclk(clk_internal), .wrreq(1'b1), .data(cmnd),	
-								.rdclk(clk_ad9866), .rdreq(~cmd_empty),	.q(spi_data), .rdempty(cmd_empty));
-
-reg [47:0] spi_data;
-always @ (posedge clk_ad9866)
-begin 
-	if (reset) run <= 0;
-	if (!reset) begin
-		run <= spi_data[40];
-		cmd_cnt <= ~cmd_cnt; 
-		cmd_requires_resp <= spi_data[39];
-		cmd_ptt <= spi_data[32];
-		cmd_addr <= spi_data[38:33];
-		cmd_data <= spi_data[31: 0];
-	end
+always @ (posedge pi_spi_done) 	cmd_cnt <= ~cmd_cnt_next; 
+		
+always @* begin
+	cmd_cnt_next = cmd_cnt;
+	cmd_requires_resp = spi0_recv[39];
+	cmd_ptt = spi0_recv[32];
+	cmd_addr = spi0_recv[38:33];
+	cmd_data = spi0_recv[31: 0];
 end
-
 
 //------------------------------------------------------------------------------
 //                           Radioberry RX Stream Handler
@@ -167,10 +153,12 @@ logic [7:0] tx_data_assembled;
 logic [3:0] tx_data_n;
 logic tx_data_valid = 1'b0;
 
+assign tx_on = cmd_ptt;
+assign ptt_out = cmd_ptt;
 
 always @ (posedge pi_tx_clk)
 begin
-	if (cmd_ptt) tx_data_valid <= 1'b1; else tx_data_valid <= 1'b0;
+	if (tx_on_ad9866sync) tx_data_valid <= 1'b1; else tx_data_valid <= 1'b0;
 	tx_data_assembled <= {pi_tx_data, tx_data_n};
 end
 
@@ -269,7 +257,7 @@ radio_i
   .tx_hang(tx_hang),
 
   // Transmit
-  .tx_tdata({dsiq_tdata[7:0],dsiq_tdata[15:8],dsiq_tdata[23:16],dsiq_tdata[31:24]}),
+  .tx_tdata({dsiq_tdata[23:16],dsiq_tdata[31:24], dsiq_tdata[7:0],dsiq_tdata[15:8]}),
   .tx_tid(3'h0),
   .tx_tlast(1'b1),
   .tx_tready(dsiq_tready),

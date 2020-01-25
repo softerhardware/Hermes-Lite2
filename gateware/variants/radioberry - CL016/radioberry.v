@@ -38,6 +38,7 @@ module radioberry (
 	input [3:0]  	pi_tx_data  
  
 	// Radioberry IO
+	output 			ptt_out
 );
 
 
@@ -70,7 +71,8 @@ module radioberry (
 	.pi_rx_data					(pi_rx_data),
 	.pi_rx_last					(pi_rx_last),
 	.pi_tx_clk					(pi_tx_clk),
-	.pi_tx_data					(pi_tx_data)
+	.pi_tx_data					(pi_tx_data),
+	.ptt_out					(ptt_out)
   );
 
 endmodule

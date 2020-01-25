@@ -1,5 +1,5 @@
 Analysis & Synthesis report for radioberry-10CL016
-Fri Jan 24 15:50:10 2020
+Sat Jan 25 10:04:26 2020
 Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 
 
@@ -37,7 +37,7 @@ refer to the applicable agreement for further details.
 +----------------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                     ;
 +------------------------------------+---------------------------------------------+
-; Analysis & Synthesis Status        ; Failed - Fri Jan 24 15:50:10 2020           ;
+; Analysis & Synthesis Status        ; Failed - Sat Jan 25 10:04:26 2020           ;
 ; Quartus Prime Version              ; 18.1.0 Build 625 09/12/2018 SJ Lite Edition ;
 ; Revision Name                      ; radioberry-10CL016                          ;
 ; Top-level Entity Name              ; radioberry                                  ;
@@ -163,7 +163,7 @@ refer to the applicable agreement for further details.
 Info: *******************************************************************
 Info: Running Quartus Prime Analysis & Synthesis
     Info: Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
-    Info: Processing started: Fri Jan 24 15:49:48 2020
+    Info: Processing started: Sat Jan 25 10:04:04 2020
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off radioberry-10CL016 -c radioberry-10CL016
 Info (16303): High Performance Effort optimization mode selected -- timing performance will be prioritized at the potential cost of increased compilation time
     Info (16304): Mode behavior is affected by advanced setting Perform Register Retiming for Performance (default for this mode is On)
@@ -564,16 +564,16 @@ Info (12128): Elaborating entity "sync" for hierarchy "radioberry_core:radioberr
 Info (12128): Elaborating entity "ad9866" for hierarchy "radioberry_core:radioberry_core_i|ad9866:ad9866_i" File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/radioberry_core.v Line: 250
 Info (12128): Elaborating entity "radio" for hierarchy "radioberry_core:radioberry_core_i|radio:radio_i" File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/radioberry_core.v Line: 298
 Warning (10036): Verilog HDL or VHDL warning at radio.v(783): object "txsumq" assigned a value but never read File: C:/dev/git/Hermes-Lite2/gateware/rtl/radio_openhpsdr1/radio.v Line: 783
-Error (10251): Verilog HDL error at radio.v(469): index 3 cannot fall outside the declared range [0:2] for dimension 0 of array "rx_data_rdy" File: C:/dev/git/Hermes-Lite2/gateware/rtl/radio_openhpsdr1/radio.v Line: 469
-Error (10251): Verilog HDL error at radio.v(470): index 3 cannot fall outside the declared range [0:2] for dimension 0 of array "rx_data_i" File: C:/dev/git/Hermes-Lite2/gateware/rtl/radio_openhpsdr1/radio.v Line: 470
-Error (10251): Verilog HDL error at radio.v(471): index 3 cannot fall outside the declared range [0:2] for dimension 0 of array "rx_data_q" File: C:/dev/git/Hermes-Lite2/gateware/rtl/radio_openhpsdr1/radio.v Line: 471
+Error (10251): Verilog HDL error at radio.v(403): index 2 cannot fall outside the declared range [0:1] for dimension 0 of array "rx_phase" File: C:/dev/git/Hermes-Lite2/gateware/rtl/radio_openhpsdr1/radio.v Line: 403
+Error (10251): Verilog HDL error at radio.v(407): index 2 cannot fall outside the declared range [0:1] for dimension 0 of array "mixdata_i" File: C:/dev/git/Hermes-Lite2/gateware/rtl/radio_openhpsdr1/radio.v Line: 407
+Error (10251): Verilog HDL error at radio.v(408): index 2 cannot fall outside the declared range [0:1] for dimension 0 of array "mixdata_q" File: C:/dev/git/Hermes-Lite2/gateware/rtl/radio_openhpsdr1/radio.v Line: 408
 Error (12152): Can't elaborate user hierarchy "radioberry_core:radioberry_core_i|radio:radio_i" File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/radioberry_core.v Line: 298
 Info (144001): Generated suppressed messages file C:/dev/git/Hermes-Lite2/gateware/variants/radioberry - CL016/build/radioberry-10CL016.map.smsg
 Error: Quartus Prime Analysis & Synthesis was unsuccessful. 4 errors, 17 warnings
-    Error: Peak virtual memory: 4782 megabytes
-    Error: Processing ended: Fri Jan 24 15:50:10 2020
+    Error: Peak virtual memory: 4770 megabytes
+    Error: Processing ended: Sat Jan 25 10:04:26 2020
     Error: Elapsed time: 00:00:22
-    Error: Total CPU time (on all processors): 00:00:41
+    Error: Total CPU time (on all processors): 00:00:43
 
 
 +------------------------------------------+
