@@ -35,7 +35,7 @@ module radioberry (
 	
 	//TX IQ data
 	input wire 		pi_tx_clk,
-	input [3:0]  	pi_tx_data  
+	input [3:0]  	pi_tx_data,  
  
 	// Radioberry IO
 	output 			ptt_out
@@ -43,7 +43,7 @@ module radioberry (
 
 
   radioberry_core #(
-    .NR   (3                                    ),
+    .NR   (4                                    ),
     .NT   (1                                    ),
     .UART (0                                    ),
     .ATU  (0                                    ),

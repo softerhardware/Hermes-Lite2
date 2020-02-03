@@ -1,14 +1,14 @@
-Analysis & Synthesis Status : Failed - Sat Jan 25 10:04:26 2020
+Analysis & Synthesis Status : Successful - Mon Feb 03 19:51:30 2020
 Quartus Prime Version : 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 Revision Name : radioberry-10CL016
 Top-level Entity Name : radioberry
 Family : Cyclone 10 LP
-Total logic elements : N/A until Partition Merge
-    Total combinational functions : N/A until Partition Merge
-    Dedicated logic registers : N/A until Partition Merge
-Total registers : N/A until Partition Merge
-Total pins : N/A until Partition Merge
-Total virtual pins : N/A until Partition Merge
-Total memory bits : N/A until Partition Merge
-Embedded Multiplier 9-bit elements : N/A until Partition Merge
-Total PLLs : N/A until Partition Merge
+Total logic elements : 13,662
+    Total combinational functions : 9,531
+    Dedicated logic registers : 11,287
+Total registers : 11287
+Total pins : 40
+Total virtual pins : 0
+Total memory bits : 261,632
+Embedded Multiplier 9-bit elements : 76
+Total PLLs : 1
