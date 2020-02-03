@@ -151,21 +151,21 @@ logic   [5:0]       rate;
 logic   [11:0]      adcpipe [0:3];
 
 
-logic [23:0]  rx_data_i [0:NR-1];
-logic [23:0]  rx_data_q [0:NR-1];
-logic         rx_data_rdy [0:NR-1];
+logic [23:0]  rx_data_i [0:5];
+logic [23:0]  rx_data_q [0:5];
+logic         rx_data_rdy [0:5];
 
 logic [63:0]  freqcomp;
 logic [31:0]  freqcompp [0:3];
 logic [5:0]   chanp [0:3];
 
 
-logic [31:0]  rx_phase [0:NR];    // The Rx phase calculated from the frequency sent by the PC.
+logic [31:0]  rx_phase [0:5];    // The Rx phase calculated from the frequency sent by the PC.
 logic [31:0]  tx_phase0;
 
 // Always one more so that dangling assignment can be made
-logic signed [17:0]   mixdata_i [0:NR];
-logic signed [17:0]   mixdata_q [0:NR]; 
+logic signed [17:0]   mixdata_i [0:5];
+logic signed [17:0]   mixdata_q [0:5];
 
 
 genvar c;
@@ -419,22 +419,24 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
     .out_data_Q(rx0_out_Q)
   );
 
+assign cordic_data_I = mixdata_i[0];
+assign cordic_data_Q = mixdata_q[0];
 
+generate
+if (NR >= 3) begin: RECEIVER2
   receiver_nco #(.CICRATE(CICRATE)) receiver_2 (
     .clock(clk),
     .clock_2x(clk_2x),
     .rate(rate),
-    .mixdata_I(mixdata_i[2]),
-    .mixdata_Q(mixdata_q[2]),
+    .mixdata_I(mixdata_i[1]),
+    .mixdata_Q(mixdata_q[1]),
     .out_strobe(rx_data_rdy[2]),
     .out_data_I(rx_data_i[2]),
     .out_data_Q(rx_data_q[2])
   );
+end
 
-  assign cordic_data_I = mixdata_i[0];
-  assign cordic_data_Q = mixdata_q[0];
-
-
+if (NR >= 2) begin: MIX1_3
   // Build double mixer
   mix2 #(.CALCTYPE(3)) mix2_2 (
     .clk(clk),
@@ -448,7 +450,9 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
     .mixdata1_i(mixdata_i[3]),
     .mixdata1_q(mixdata_q[3])
   );
+end
 
+if (NR >= 2) begin: RECEIVER1
   receiver_nco #(.CICRATE(CICRATE)) receiver_1 (
     .clock(clk),
     .clock_2x(clk_2x),
@@ -459,7 +463,9 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
     .out_data_I(rx_data_i[1]),
     .out_data_Q(rx_data_q[1])
   );
+end
 
+if (NR >= 4) begin: RECEIVER3
   receiver_nco #(.CICRATE(CICRATE)) receiver_3 (
     .clock(clk),
     .clock_2x(clk_2x),
@@ -470,6 +476,51 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
     .out_data_I(rx_data_i[3]),
     .out_data_Q(rx_data_q[3])
   );
+end
+
+if (NR >= 5) begin: MIX4_5
+  // Build double mixer
+  mix2 #(.CALCTYPE(3)) mix2_4 (
+    .clk(clk),
+    .clk_2x(clk_2x),
+    .rst(1'b0),
+    .phi0(rx_phase[4]),
+    .phi1(rx_phase[5]),
+    .adc(adcpipe[2]),
+    .mixdata0_i(mixdata_i[4]),
+    .mixdata0_q(mixdata_q[4]),
+    .mixdata1_i(mixdata_i[5]),
+    .mixdata1_q(mixdata_q[5])
+  );
+end
+
+if (NR >= 5) begin: RECEIVER4
+  receiver_nco #(.CICRATE(CICRATE)) receiver_4 (
+    .clock(clk),
+    .clock_2x(clk_2x),
+    .rate(rate),
+    .mixdata_I(mixdata_i[4]),
+    .mixdata_Q(mixdata_q[4]),
+    .out_strobe(rx_data_rdy[4]),
+    .out_data_I(rx_data_i[4]),
+    .out_data_Q(rx_data_q[4])
+  );
+end
+
+if (NR >= 6) begin: RECEIVER5
+  receiver_nco #(.CICRATE(CICRATE)) receiver_5 (
+    .clock(clk),
+    .clock_2x(clk_2x),
+    .rate(rate),
+    .mixdata_I(mixdata_i[5]),
+    .mixdata_Q(mixdata_q[5]),
+    .out_strobe(rx_data_rdy[5]),
+    .out_data_I(rx_data_i[5]),
+    .out_data_Q(rx_data_q[5])
+  );
+end
+
+endgenerate
 
 
 //  receiver #(.CICRATE(CICRATE)) receiver_0_inst (
