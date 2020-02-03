@@ -17,7 +17,7 @@ The BOM below lists possible options for PureSignal feedback board. The builder 
 
 # Assembly
 
-Please refer to the [schematic](db9.pdf) during assembly. 
+Please refer to the [schematic](psfeedback.pdf) during assembly. 
 
 Below is a picture of an assembled PureSignal feedback board soldered on to the HL2/N2ADR jumper board. The components installed are as per the schematic, but experimentation may be necessary to determine the best values. The PCB supports pi and t attenuator configurations. 
 [Pi Calculator](https://chemandy.com/calculators/matching-pi-attenuator-calculator.htm)
