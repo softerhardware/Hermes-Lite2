@@ -151,26 +151,26 @@ usiq_fifo usiq_fifo_i (
 //------------------------------------------------------------------------------
 logic [7:0] tx_data_assembled;
 logic [3:0] tx_data_n;
-logic tx_data_valid = 1'b0;
 
 assign tx_on = cmd_ptt;
 assign ptt_out = cmd_ptt;
 
-always @ (posedge pi_tx_clk)
-begin
-	if (tx_on_ad9866sync) tx_data_valid <= 1'b1; else tx_data_valid <= 1'b0;
-	tx_data_assembled <= {pi_tx_data, tx_data_n};
-end
-
+always @ (posedge pi_tx_clk) tx_data_assembled <= {pi_tx_data, tx_data_n};
 always @ (negedge pi_tx_clk) tx_data_n <= pi_tx_data;
+logic [1:0] tx_last;
+always @ (posedge pi_tx_clk)  tx_last <= tx_last + 1'b1;
+logic txlast;
+assign txlast = (tx_last == 0) ? 1'b1: 1'b0;
 
+logic wr_req;
+sync_one sync_tx_one_inst(.clock(clk_ad9866), .sig_in(pi_tx_clk), .sig_out(wr_req));
 
 dsiq_fifo #(.depth(8192)) dsiq_fifo_i (
-  .wr_clk(pi_tx_clk),
+  .wr_clk(clk_ad9866),
   .wr_tdata(tx_data_assembled),
-  .wr_tvalid(tx_data_valid),
+  .wr_tvalid(wr_req),
   .wr_tready(),
-  .wr_tlast(1'b1),
+  .wr_tlast(txlast),
 
   .rd_clk(clk_ad9866),
   .rd_tdata(dsiq_tdata),
@@ -257,7 +257,7 @@ radio_i
   .tx_hang(tx_hang),
 
   // Transmit
-  .tx_tdata({dsiq_tdata[23:16],dsiq_tdata[31:24], dsiq_tdata[7:0],dsiq_tdata[15:8]}),
+  .tx_tdata({dsiq_tdata[7:0],dsiq_tdata[15:8], dsiq_tdata[23:16],dsiq_tdata[31:24]}),
   .tx_tid(3'h0),
   .tx_tlast(1'b1),
   .tx_tready(dsiq_tready),
