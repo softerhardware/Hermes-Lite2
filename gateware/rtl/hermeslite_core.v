@@ -115,13 +115,15 @@ parameter       ATU = 0;
 parameter       FAN = 0;    // Generate fan support
 parameter       PSSYNC = 0; // Generate power supply sync frequency
 
+parameter       CW = 0; // CW Support
+
 // Downstream audio channel usage:
 //   0=not used, 1=predistortion, 2=TX envelope PWM
 //   when using the TX envelope PWM reduce the number of receivers (NR) above by 1
 parameter       LRDATA = 0;
 
 localparam      VERSION_MAJOR = (BOARD==2) ? 8'd49 : 8'd69;
-localparam      VERSION_MINOR = 8'd0;
+localparam      VERSION_MINOR = 8'd1;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
@@ -135,7 +137,7 @@ logic           tx_cw_waveform;     // CW waveform is active. Keep transmit enab
 
 logic   [7:0]   dseth_tdata;
 
-logic   [31:0]  dsiq_tdata;
+logic   [35:0]  dsiq_tdata;
 logic           dsiq_tready;    // controls reading of fifo
 logic           dsiq_tvalid;
 logic           dsiq_sample, dsiq_sample_ad9866sync;
@@ -143,8 +145,9 @@ logic   [7:0]   dsiq_status;
 
 logic           dsethiq_tvalid;
 logic           dsethiq_tlast;
+logic           dsethiq_tctrlbit;
 
-logic   [31:0]  dslr_tdata;
+logic   [35:0]  dslr_tdata;
 logic           dslr_tready;    // controls reading of fifo
 logic           dslr_tvalid;
 logic           dsethlr_tvalid;
@@ -191,6 +194,7 @@ logic           ethup;
 logic           clk_ad9866;
 logic           clk_ad9866_2x;
 logic           clk_envelope;
+logic           clk_ad9866_slow;
 logic           ad9866up;
 
 logic           run, run_sync, run_iosync;
@@ -267,6 +271,10 @@ logic  [15:0]   alt_mac;
 logic  [ 7:0]   eeprom_config;
 
 logic           hl2_reset;
+
+logic           cwx_int, cwx_int_iosync;
+
+logic           msec_pulse, msec_pulse_ad9866sync, msec_pulse_ethsync;
 
 
 /////////////////////////////////////////////////////
@@ -364,6 +372,7 @@ ad9866pll ad9866pll_inst (
   .c0 (clk_ad9866), // outclk0.clk
   .c1 (clk_ad9866_2x), // outclk1.clk
   .c2 (clk_envelope),
+  .c3 (clk_ad9866_slow),
   .locked (ad9866up)
 );
 
@@ -421,6 +430,12 @@ sync_pulse sync_pulse_watchdog (
   .sig_out(watchdog_up_sync)
 );
 
+sync_one sync_msec_pulse_eth (
+  .clock(clock_ethrxint),
+  .sig_in(msec_pulse),
+  .sig_out(msec_pulse_ethsync)
+);
+
 dsopenhpsdr1 dsopenhpsdr1_i (
   .clk(clock_ethrxint),
   .eth_port(to_port),
@@ -435,6 +450,8 @@ dsopenhpsdr1 dsopenhpsdr1_i (
 
   .watchdog_up(watchdog_up_sync),
 
+  .msec_pulse(msec_pulse_ethsync),
+
   .cmd_addr(cmd_addr),
   .cmd_data(cmd_data),
   .cmd_cnt(cmd_cnt),
@@ -444,6 +461,7 @@ dsopenhpsdr1 dsopenhpsdr1_i (
   .dseth_tdata(dseth_tdata),
   .dsethiq_tvalid(dsethiq_tvalid),
   .dsethiq_tlast(dsethiq_tlast),
+  .dsethiq_tctrlbit(dsethiq_tctrlbit),
   .dsethlr_tvalid(dsethlr_tvalid),
   .dsethlr_tlast(dsethlr_tlast),
 
@@ -454,9 +472,16 @@ dsopenhpsdr1 dsopenhpsdr1_i (
   .dsethasmi_erase_ack(dsethasmi_erase_ack)
 );
 
+
+sync_one sync_ad9866_msec_pulse (
+  .clock(clk_ad9866),
+  .sig_in(msec_pulse),
+  .sig_out(msec_pulse_ad9866sync)
+);
+
 dsiq_fifo #(.depth(8192)) dsiq_fifo_i (
   .wr_clk(clock_ethrxint),
-  .wr_tdata(dseth_tdata),
+  .wr_tdata({dsethiq_tctrlbit,dseth_tdata}),
   .wr_tvalid(dsethiq_tvalid),
   .wr_tready(),
   .wr_tlast(dsethiq_tlast),
@@ -467,6 +492,7 @@ dsiq_fifo #(.depth(8192)) dsiq_fifo_i (
   .rd_tready(dsiq_tready),
   .rd_sample(dsiq_sample_ad9866sync),
   .rd_status(dsiq_status),
+  .rd_msec_pulse(msec_pulse_ad9866sync)
 );
 
 sync_pulse sync_pulse_dsiq_sample (
@@ -481,13 +507,13 @@ generate
 case (LRDATA)
   0: begin // Left/Right downstream (PC->Card) audio data not used
     assign dslr_tvalid = 1'b0;
-    assign dslr_tdata = 32'h0;
+    assign dslr_tdata = 36'h0;
   end
   1: begin: PD2 // TX predistortion
     // simple fifo to get predistortion tables
     dslr_fifo dslr_fifo_i (
       .wr_clk(clock_ethrxint),
-      .wr_tdata(dseth_tdata),
+      .wr_tdata({1'b0,dseth_tdata}),
       .wr_tvalid(dsethlr_tvalid),
       .wr_tready(),
 
@@ -501,7 +527,7 @@ case (LRDATA)
     // need to use same fifo as the TX I/Q data to keep the envelope in sync
     dsiq_fifo #(.depth(8192)) dslr_fifo_i (
       .wr_clk(clock_ethrxint),
-      .wr_tdata(dseth_tdata),
+      .wr_tdata({1'b0,dseth_tdata}),
       .wr_tvalid(dsethlr_tvalid),
       .wr_tready(),
       .wr_tlast(dsethlr_tlast),
@@ -630,7 +656,6 @@ sync sync_ad9866_cw_keydown (
   .sig_out(cw_keydown_ad9866sync)
 );
 
-
 ad9866 ad9866_i (
   .clk(clk_ad9866),
   .clk_2x(clk_ad9866_2x),
@@ -670,12 +695,15 @@ radio_i
   .tx_cw_key(tx_cw_waveform),
   .tx_hang(tx_hang),
 
+  .cwx_int(cwx_int),
+
   // Transmit
-  .tx_tdata({dsiq_tdata[7:0],dsiq_tdata[15:8],dsiq_tdata[23:16],dsiq_tdata[31:24]}),
+  .tx_tdata({dsiq_tdata[7:0],dsiq_tdata[16:9],dsiq_tdata[25:18],dsiq_tdata[34:27]}),
   .tx_tid(3'h0),
   .tx_tlast(1'b1),
   .tx_tready(dsiq_tready),
   .tx_tvalid(dsiq_tvalid),
+  .tx_ctrlbit(dsiq_tdata[35]),
 
   .tx_data_dac(tx_data),
 
@@ -684,7 +712,7 @@ radio_i
   .tx_envelope_pwm_out_inv(io_tx_envelope_pwm_out_inv),
 
   // Optional Audio Stream
-  .lr_tdata({dslr_tdata[7:0],dslr_tdata[15:8],dslr_tdata[23:16],dslr_tdata[31:24]}),
+  .lr_tdata({dslr_tdata[7:0],dslr_tdata[16:9],dslr_tdata[25:18],dslr_tdata[34:27]}),
   .lr_tid(3'h0),
   .lr_tlast(1'b1),
   .lr_tready(dslr_tready),
@@ -749,113 +777,125 @@ sync syncio_txhang (
   .sig_out(tx_hang_iosync)
 );
 
+sync syncio_cwx_int (
+  .clock(clk_ctrl),
+  .sig_in(cwx_int),
+  .sig_out(cwx_int_iosync)
+);
+
 control #(
   .VERSION_MAJOR(VERSION_MAJOR),
-  .UART(UART),
-  .ATU(ATU),
-  .FAN(FAN),
-  .PSSYNC(PSSYNC)
+  .UART         (UART         ),
+  .ATU          (ATU          ),
+  .FAN          (FAN          ),
+  .PSSYNC       (PSSYNC       ),
+  .CW           (CW           )
 ) control_i (
   // Internal
-  .clk(clk_ctrl),
-  .clk_ad9866(clk_ad9866), // Just for measurement
-  .clk_125(clock_125_mhz_0_deg),
+  .clk              (clk_ctrl              ),
+  .clk_ad9866       (clk_ad9866            ), // Just for measurement
+  .clk_125          (clock_125_mhz_0_deg   ),
+  .clk_slow         (clk_ad9866_slow       ),
 
-  .ethup(ethup),
-  .have_dhcp_ip(~network_state_dhcp),
-  .have_fixed_ip(~network_state_fixedip),
-  .network_speed(network_speed),
-  .ad9866up(ad9866up),
+  .ethup            (ethup                 ),
+  .have_dhcp_ip     (~network_state_dhcp   ),
+  .have_fixed_ip    (~network_state_fixedip),
+  .network_speed    (network_speed         ),
+  .ad9866up         (ad9866up              ),
 
-  .rxclip(rxclip_iosync),
-  .rxgoodlvl(rxgoodlvl_iosync),
-  .rxclrstatus(rxclrstatus),
-  .run(run_iosync),
-  .tx_hang(tx_hang_iosync),
+  .rxclip           (rxclip_iosync         ),
+  .rxgoodlvl        (rxgoodlvl_iosync      ),
+  .rxclrstatus      (rxclrstatus           ),
+  .run              (run_iosync            ),
+  .tx_hang          (tx_hang_iosync        ),
 
-  .dsiq_status(dsiq_status),
-  .dsiq_sample(dsiq_sample),
+  .dsiq_status      (dsiq_status           ),
+  .dsiq_sample      (dsiq_sample           ),
 
-  .cmd_addr(cmd_addr),
-  .cmd_data(cmd_data),
-  .cmd_rqst(cmd_rqst_io),
-  .cmd_ptt(cmd_ptt),
-  .cmd_requires_resp(cmd_requires_resp),
+  .cmd_addr         (cmd_addr              ),
+  .cmd_data         (cmd_data              ),
+  .cmd_rqst         (cmd_rqst_io           ),
+  .cmd_ptt          (cmd_ptt               ),
+  .cmd_requires_resp(cmd_requires_resp     ),
 
-  .tx_on(tx_on),
-  .cw_keydown(cw_keydown),
+  .tx_on            (tx_on                 ),
+  .cw_keydown       (cw_keydown            ),
 
-  .resp_rqst(resp_rqst_iosync),
-  .resp(resp),
+  .cwx_int          (cwx_int_iosync        ),
 
-  .static_ip(static_ip),
-  .alt_mac(alt_mac),
-  .eeprom_config(eeprom_config),
+  .msec_pulse       (msec_pulse            ),
+
+  .resp_rqst        (resp_rqst_iosync      ),
+  .resp             (resp                  ),
+
+  .static_ip        (static_ip             ),
+  .alt_mac          (alt_mac               ),
+  .eeprom_config    (eeprom_config         ),
 
   // External
-  .rffe_rfsw_sel(rffe_rfsw_sel),
+  .rffe_rfsw_sel    (rffe_rfsw_sel         ),
 
   // AD9866
-  .rffe_ad9866_rst_n(rffe_ad9866_rst_n),
+  .rffe_ad9866_rst_n(rffe_ad9866_rst_n     ),
 
-  .rffe_ad9866_sdio(rffe_ad9866_sdio),
-  .rffe_ad9866_sclk(rffe_ad9866_sclk),
-  .rffe_ad9866_sen_n(rffe_ad9866_sen_n),
+  .rffe_ad9866_sdio (rffe_ad9866_sdio      ),
+  .rffe_ad9866_sclk (rffe_ad9866_sclk      ),
+  .rffe_ad9866_sen_n(rffe_ad9866_sen_n     ),
 
-  .rffe_ad9866_pga5(rffe_ad9866_pga5),
+  .rffe_ad9866_pga5 (rffe_ad9866_pga5      ),
 
   // Power
-  .pwr_clk3p3(pwr_clk3p3),
-  .pwr_clk1p2(pwr_clk1p2),
-  .pwr_envpa(pwr_envpa),
-  .pwr_envop(pwr_envop),
-  .pwr_envbias(pwr_envbias),
+  .pwr_clk3p3       (pwr_clk3p3            ),
+  .pwr_clk1p2       (pwr_clk1p2            ),
+  .pwr_envpa        (pwr_envpa             ),
+  .pwr_envop        (pwr_envop             ),
+  .pwr_envbias      (pwr_envbias           ),
 
-  .sda1_i(sda1_i),
-  .sda1_o(sda1_o),
-  .sda1_t(sda1_t),
-  .scl1_i(scl1_i),
-  .scl1_o(scl1_o),
-  .scl1_t(scl1_t),
+  .sda1_i           (sda1_i                ),
+  .sda1_o           (sda1_o                ),
+  .sda1_t           (sda1_t                ),
+  .scl1_i           (scl1_i                ),
+  .scl1_o           (scl1_o                ),
+  .scl1_t           (scl1_t                ),
 
-  .sda2_i(sda2_i),
-  .sda2_o(sda2_o),
-  .sda2_t(sda2_t),
-  .scl2_i(scl2_i),
-  .scl2_o(scl2_o),
-  .scl2_t(scl2_t),
+  .sda2_i           (sda2_i                ),
+  .sda2_o           (sda2_o                ),
+  .sda2_t           (sda2_t                ),
+  .scl2_i           (scl2_i                ),
+  .scl2_o           (scl2_o                ),
+  .scl2_t           (scl2_t                ),
 
-  .sda3_i(sda3_i),
-  .sda3_o(sda3_o),
-  .sda3_t(sda3_t),
-  .scl3_i(scl3_i),
-  .scl3_o(scl3_o),
-  .scl3_t(scl3_t),
+  .sda3_i           (sda3_i                ),
+  .sda3_o           (sda3_o                ),
+  .sda3_t           (sda3_t                ),
+  .scl3_i           (scl3_i                ),
+  .scl3_o           (scl3_o                ),
+  .scl3_t           (scl3_t                ),
 
   // IO
-  .io_led_run(io_led_run),
-  .io_led_tx(io_led_tx),
-  .io_led_adc75(io_led_adc75),
-  .io_led_adc100(io_led_adc100),
+  .io_led_run       (io_led_run            ),
+  .io_led_tx        (io_led_tx             ),
+  .io_led_adc75     (io_led_adc75          ),
+  .io_led_adc100    (io_led_adc100         ),
 
-  .io_tx_inhibit(io_tx_inhibit),
+  .io_tx_inhibit    (io_tx_inhibit         ),
 
-  .io_uart_txd(io_uart_txd),
-  .io_cw_keydown(io_cw_keydown),
+  .io_uart_txd      (io_uart_txd           ),
+  .io_cw_keydown    (io_cw_keydown         ),
 
-  .io_phone_tip(io_phone_tip),
-  .io_phone_ring(io_phone_ring),
+  .io_phone_tip     (io_phone_tip          ),
+  .io_phone_ring    (io_phone_ring         ),
 
-  .io_atu_ack(io_atu_ack),
-  .io_atu_req(io_atu_req),
+  .io_atu_ack       (io_atu_ack            ),
+  .io_atu_req       (io_atu_req            ),
 
   // PA
-  .pa_inttr(pa_inttr),
-  .pa_exttr(pa_exttr),
+  .pa_inttr         (pa_inttr              ),
+  .pa_exttr         (pa_exttr              ),
 
-  .hl2_reset(hl2_reset),
-  
-  .fan_pwm(fan_pwm)
+  .hl2_reset        (hl2_reset             ),
+
+  .fan_pwm          (fan_pwm               )
 );
 
 

@@ -8,12 +8,15 @@ module radio (
   tx_cw_key,    // CW waveform is active, tx_cw_level is not zero
   tx_hang,
 
+  cwx_int,
+
   // Transmit
   tx_tdata,
   tx_tid,
   tx_tlast,
   tx_tready,
   tx_tvalid,
+  tx_ctrlbit,
 
   tx_data_dac,
 
@@ -83,6 +86,8 @@ input             tx_on;
 output            tx_cw_key;
 output            tx_hang;
 
+output logic      cwx_int = 1'b0;
+
 input             clk_envelope;
 output            tx_envelope_pwm_out;
 output            tx_envelope_pwm_out_inv;
@@ -92,6 +97,7 @@ input   [ 2:0]    tx_tid;
 input             tx_tlast;
 output            tx_tready;
 input             tx_tvalid;
+input             tx_ctrlbit;
 
 input   [31:0]    lr_tdata;
 input   [ 2:0]    lr_tid;
@@ -163,14 +169,12 @@ logic [5:0]   chanp [0:3];
 logic [31:0]  rx_phase [0:5];    // The Rx phase calculated from the frequency sent by the PC.
 logic [31:0]  tx_phase0;
 
-// Always one more so that dangling assignment can be made
 logic signed [17:0]   mixdata_i [0:5];
 logic signed [17:0]   mixdata_q [0:5];
 
-
 genvar c;
 
-localparam 
+localparam
   CMD_IDLE    = 2'b00,
   CMD_FREQ1   = 2'b01,
   CMD_FREQ2   = 2'b11,
@@ -256,8 +260,8 @@ always @* begin
           end
 
           default:  cmd_state_next = cmd_state;
-        endcase 
-      end        
+        endcase
+      end
     end
 
     CMD_FREQ1: begin
@@ -301,12 +305,12 @@ end
 // TX0 and RX0
 always @ (posedge clk) begin
   if (cmd_state == CMD_FREQ3) begin
-    if (chanp[0] == 6'h01) begin 
-      tx_phase0 <= freqcompp[0]; 
+    if (chanp[0] == 6'h01) begin
+      tx_phase0 <= freqcompp[0];
       if (!duplex && (last_chan == 5'b00000)) rx_phase[0] <= freqcompp[0];
     end
 
-    if (chanp[0] == 6'h02) begin 
+    if (chanp[0] == 6'h02) begin
       if (!duplex && (last_chan == 5'b00000)) rx_phase[0] <= tx_phase0;
       else rx_phase[0] <= freqcompp[0];
     end
@@ -319,7 +323,7 @@ generate
     always @ (posedge clk) begin
       if (cmd_state == CMD_FREQ3) begin
         if (chanp[c/8] == ((c < 7) ? c+2 : c+11)) begin
-          rx_phase[c] <= freqcompp[c/8]; 
+          rx_phase[c] <= freqcompp[c/8];
         end
       end
     end
@@ -401,7 +405,7 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
     .rst(&tx0_phase_zero),
     .phi0(rx0_phase),
     .phi1(rx_phase[2]),
-    .adc(adcpipe[0]), 
+    .adc(adcpipe[0]),
     .mixdata0_i(mixdata_i[0]),
     .mixdata0_q(mixdata_q[0]),
     .mixdata1_i(mixdata_i[2]),
@@ -703,7 +707,7 @@ endgenerate
 
 
 // Send RX data upstream
-localparam 
+localparam
   RXUS_WAIT1  = 2'b00,
   RXUS_I      = 2'b10,
   RXUS_Q      = 2'b11,
@@ -819,25 +823,25 @@ end else begin
   // At least one transmit
   logic signed [15:0] tx_fir_i;
   logic signed [15:0] tx_fir_q;
-  
+
   logic         req2;
   logic [19:0]  y1_r, y1_i;
   logic [15:0]  y2_r, y2_i;
-  
+
   logic signed [15:0] tx_cordic_i_out;
   logic signed [15:0] tx_cordic_q_out;
-  
+
   logic signed [15:0] tx_i;
   logic signed [15:0] tx_q;
-  
+
   logic signed [15:0] txsum;
   logic signed [15:0] txsumq;
-  
+
   logic [31:0]  tx_phase [0:NT-1];    // The Tx phase calculated from the frequency sent by the PC.
-  
+
   logic [18:0]        tx_cw_level;
 
-// TX 
+// TX
 for (c = 0; c < NT; c = c + 1) begin: TXIFFREQ
   if (c == 0) begin
     assign tx_phase[0] = tx0_phase;
@@ -845,7 +849,7 @@ for (c = 0; c < NT; c = c + 1) begin: TXIFFREQ
     always @ (posedge clk) begin
       if (cmd_state == CMD_FREQ3) begin
         if (chanp[c/8] == ((c < 7) ? c+2 : c+11)) begin
-          tx_phase[c] <= freqcompp[c/8]; 
+          tx_phase[c] <= freqcompp[c/8];
         end
       end
     end
@@ -858,11 +862,17 @@ end
     if (tx_tready) begin
       tx_fir_i <= tx_tdata[31:16];
       tx_fir_q <= tx_tdata[15:0];
+      if (~tx_ctrlbit) begin
+        cwx_int <= tx_tdata[16];
+      end else begin
+        cwx_int <= 1'b0;
+      end
     end
   end
 
   // Hang TX until fifo drains
-  assign tx_hang = tx_tvalid;
+  // Use early CWX data to turn TX on early like PTT
+  assign tx_hang = tx_ctrlbit; //tx_tvalid;
 
   // Interpolate I/Q samples from 48 kHz to the clock frequency
   FirInterp8_1024 fi (clk, req2, tx_tready, tx_fir_i, tx_fir_q, y1_r, y1_i);  // req2 enables an output sample, tx_tready requests next input sample.
@@ -881,11 +891,11 @@ end
 
   // NOTE:  I and Q inputs reversed to give correct sideband out
   cpl_cordic #(.OUT_WIDTH(16)) cordic_inst (
-    .clock(clk), 
+    .clock(clk),
     .frequency(tx_phase[0]),
     .in_data_I(tx_i),
-    .in_data_Q(tx_q), 
-    .out_data_I(tx_cordic_i_out), 
+    .in_data_Q(tx_q),
+    .out_data_I(tx_cordic_i_out),
     .out_data_Q(tx_cordic_q_out)
   );
 
@@ -912,11 +922,11 @@ end else begin: DUALTX
   logic signed [15:0] tx_cordic_tx2_q_out;
 
   cpl_cordic #(.OUT_WIDTH(16)) cordic_tx2_inst (
-    .clock(clk), 
-    .frequency(tx_phase[1]), 
+    .clock(clk),
+    .frequency(tx_phase[1]),
     .in_data_I(tx_i),
-    .in_data_Q(tx_q), 
-    .out_data_I(tx_cordic_tx2_i_out), 
+    .in_data_Q(tx_q),
+    .out_data_I(tx_cordic_tx2_i_out),
     .out_data_Q(tx_cordic_tx2_q_out)
   );
 
@@ -1022,7 +1032,7 @@ case (LRDATA)
       txsumqr2<=txsumqr;
       iplusq_over_root2r<=iplusq_over_root2;
     end
-  
+
     assign distorted_dac = DACLUTI[txsumr2[11:0]]-DACLUTI[txsumqr2[11:0]]+DACLUTQ[iplusq_over_root2r[12:1]];
 
     always @ (posedge clk) begin
@@ -1116,26 +1126,26 @@ if (CWSHAPE == 1) begin: CW1
 
   // 4 ms rise and fall, not shaped, but like HiQSDR
   // MAX CWLEVEL is picked to be 8*max cordic level for transmit
-  // ADJUST if cordic max changes...  
-  localparam  cwrx = 2'b00, 
-              cw_keydowndown = 2'b01, 
+  // ADJUST if cordic max changes...
+  localparam  cwrx = 2'b00,
+              cw_keydowndown = 2'b01,
               cw_keydownup = 2'b11;
 
   // CW state machine
-  always @(posedge clk) begin 
+  always @(posedge clk) begin
     case (cwstate)
       cwrx: begin
         tx_cw_level <= 1'b0;
         if (cw_keydown) cwstate <= cw_keydowndown;
         else cwstate <= cwrx;
       end
-  
+
       cw_keydowndown: begin
         if (tx_cw_level != MAX_CWLEVEL) tx_cw_level <= tx_cw_level + 1'b1;
         if (cw_keydown) cwstate <= cw_keydowndown;
         else cwstate <= cw_keydownup;
       end
-  
+
       cw_keydownup: begin
         if (tx_cw_level == 0) cwstate <= cwrx;
         else begin

@@ -93,8 +93,11 @@ set_global_assignment -name VERILOG_FILE ../../rtl/usopenhpsdr1.v
 set_global_assignment -name VERILOG_FILE ../../rtl/cdc_sync.v
 set_global_assignment -name VERILOG_FILE ../../rtl/sync.v
 
+set_global_assignment -name VERILOG_FILE ../../rtl/led_flash.v
 set_global_assignment -name VERILOG_FILE ../../rtl/control.v
-set_global_assignment -name VERILOG_FILE ../../rtl/cw_support.v
+set_global_assignment -name VERILOG_FILE ../../rtl/cw_basic.v
+set_global_assignment -name VERILOG_FILE ../../rtl/cw_openhpsdr.v
+set_global_assignment -name VERILOG_FILE ../../rtl/iambic.v
 set_global_assignment -name VERILOG_FILE ../../rtl/debounce.v
 set_global_assignment -name VERILOG_FILE ../../rtl/i2c_master.v
 set_global_assignment -name VERILOG_FILE ../../rtl/i2c_bus2.v

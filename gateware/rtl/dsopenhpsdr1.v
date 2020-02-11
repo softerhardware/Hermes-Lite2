@@ -13,7 +13,9 @@ module dsopenhpsdr1 (
   wide_spectrum,
 
   watchdog_up,
-  
+
+  msec_pulse,
+
   cmd_addr,
   cmd_data,
   cmd_cnt,
@@ -23,6 +25,7 @@ module dsopenhpsdr1 (
   dseth_tdata,
   dsethiq_tvalid,
   dsethiq_tlast,
+  dsethiq_tctrlbit,
   dsethlr_tvalid,
   dsethlr_tlast,
 
@@ -47,6 +50,8 @@ output logic        wide_spectrum = 1'b0;
 
 input               watchdog_up;
 
+input               msec_pulse;
+
 output logic  [5:0] cmd_addr = 6'h0;
 output logic [31:0] cmd_data = 32'h00;
 output logic        cmd_cnt = 1'b0;
@@ -56,6 +61,7 @@ output logic        cmd_resprqst = 1'b0;
 output        [7:0] dseth_tdata;
 output              dsethiq_tvalid;
 output              dsethiq_tlast;
+output              dsethiq_tctrlbit;
 output              dsethlr_tvalid;
 output              dsethlr_tlast;
 output              dsethasmi_tvalid;
@@ -73,13 +79,13 @@ localparam START        = 'h00,
            ENDPOINT     = 'h05,
            SEQNO3       = 'h06,
            SEQNO2       = 'h07,
-           SEQNO1       = 'h08,           
+           SEQNO1       = 'h08,
            SEQNO0       = 'h09,
            ASMI_DECODE  = 'h2a,
            ASMI_CNT3    = 'h2b,
            ASMI_CNT2    = 'h2c,
            ASMI_CNT1    = 'h2d,
-           ASMI_CNT0    = 'h2e,                                 
+           ASMI_CNT0    = 'h2e,
            ASMI_PROGRAM = 'h2f,
            ASMI_ERASE   = 'h20,
            SYNC2        = 'h10,
@@ -104,10 +110,10 @@ logic   [ 5:0]  state = START;
 logic   [ 5:0]  state_next;
 
 logic   [ 7:0]  pushcnt = 8'h00;
-logic   [ 7:0]  pushcnt_next; 
+logic   [ 7:0]  pushcnt_next;
 
 //logic           framecnt = 1'b0;
-//logic           framecnt_next; 
+//logic           framecnt_next;
 
 logic           run_next;
 logic           wide_spectrum_next;
@@ -124,6 +130,16 @@ logic   [ 9:0]  watchdog_cnt = 10'h00;
 
 logic   [13:0]  asmi_cnt_next;
 
+logic           cwx = 1'b0;
+logic           cwx_next;
+
+logic           cwx_saved = 1'b0;
+logic           cwx_saved_next;
+
+logic  [ 8:0]   msec_cnt;
+logic           msec_cnt_not_zero;
+logic           pushiq;
+
 // State
 always @ (posedge clk) begin
   pushcnt <= pushcnt_next;
@@ -132,8 +148,10 @@ always @ (posedge clk) begin
   cmd_addr <= cmd_addr_next;
   cmd_ptt <= cmd_ptt_next;
   cmd_data <= cmd_data_next;
-  cmd_cnt <= cmd_cnt_next; 
-  asmi_cnt <= asmi_cnt_next; 
+  cmd_cnt <= cmd_cnt_next;
+  asmi_cnt <= asmi_cnt_next;
+  cwx <= cwx_next;
+  cwx_saved <= cwx_saved_next;
   if ((eth_unreachable) | &watchdog_cnt) begin
     state <= START;
     run <= 1'b0;
@@ -162,6 +180,8 @@ always @* begin
   cmd_data_next = cmd_data;
   cmd_cnt_next = cmd_cnt;
   asmi_cnt_next = asmi_cnt;
+  cwx_next = cwx;
+  cwx_saved_next = cwx_saved;
 
   // Combinational output
   eth_metis_discovery = 1'b0;
@@ -169,6 +189,7 @@ always @* begin
   dsethlr_tvalid = 1'b0;
   watchdog_clr   = 1'b0;
   dsethiq_tlast  = 1'b0;
+  dsethiq_tctrlbit = 1'b0;
   dsethlr_tlast  = 1'b0;
 
   dsethasmi_tvalid = 1'b0;
@@ -204,7 +225,7 @@ always @* begin
     ASMI_DECODE: begin
       pushcnt_next = 8'h00;
       if (eth_data == 8'h01) state_next = ASMI_CNT3;
-      else if (eth_data == 8'h02) begin 
+      else if (eth_data == 8'h02) begin
         dsethasmi_erase = 1'b1;
         state_next = ASMI_ERASE;
       end
@@ -221,12 +242,12 @@ always @* begin
     ASMI_CNT1: begin
       state_next = ASMI_CNT0;
       asmi_cnt_next = {eth_data[5:0],asmi_cnt[7:0]};
-    end  
+    end
 
     ASMI_CNT0: begin
       state_next = ASMI_PROGRAM;
       asmi_cnt_next = {asmi_cnt[13:8],eth_data};
-    end     
+    end
 
     ASMI_PROGRAM: begin
       dsethasmi_tvalid = 1'b1;
@@ -332,23 +353,29 @@ always @* begin
     end
 
     PUSHI1: begin
-      dsethiq_tvalid = cmd_ptt;
+      dsethiq_tctrlbit = cmd_ptt;
+      dsethiq_tvalid = pushiq;
       state_next = PUSHI0;
     end
 
     PUSHI0: begin
-      dsethiq_tvalid = cmd_ptt;
+      dsethiq_tctrlbit = cmd_ptt;
+      cwx_saved_next = eth_data[0];
+      dsethiq_tvalid = pushiq;
       state_next = PUSHQ1;
     end
 
     PUSHQ1: begin
-      dsethiq_tvalid = cmd_ptt;
+      dsethiq_tctrlbit = cmd_ptt;
+      dsethiq_tvalid = pushiq;
       state_next = PUSHQ0;
     end
 
     PUSHQ0: begin
-      dsethiq_tvalid = cmd_ptt;
-      dsethiq_tlast  = cmd_ptt;
+      dsethiq_tctrlbit = cmd_ptt;
+      dsethiq_tvalid = pushiq;
+      dsethiq_tlast  = 1'b1;
+      cwx_next = cwx_saved & ~cmd_ptt;
       if (&pushcnt[5:0]) begin
         if (~pushcnt[6]) begin
           //framecnt_next = 1'b1;
@@ -375,7 +402,19 @@ always @(posedge clk) begin
   end else if (watchdog_up) begin
     watchdog_cnt <= watchdog_cnt + 10'h01;
   end
-end 
+end
+
+
+assign msec_cnt_not_zero = |msec_cnt;
+
+assign pushiq = msec_cnt_not_zero | cmd_ptt;
+
+// CWX spacing hang
+always @(posedge clk) begin
+  if (cwx) msec_cnt <= 9'd500;
+  else if (msec_cnt_not_zero & msec_pulse) msec_cnt <= msec_cnt - 1;
+end
+
 
 endmodule
 
