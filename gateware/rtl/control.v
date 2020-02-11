@@ -1,61 +1,10 @@
 
-module led_flash (
-  clk,
-  cnt,
-  sig,
-  led
-);
-input       clk;
-input       cnt;
-input       sig;
-output      led;
-
-localparam  STATE_CLR   = 2'b00,
-            STATE_SET   = 2'b01,
-            STATE_WAIT1 = 2'b10,
-            STATE_WAIT2 = 2'b11;
-
-logic [1:0] state = STATE_CLR;
-logic [1:0] state_next;
-
-always @(posedge clk) state <= state_next;
-
-// LED remains on for 2-3 ticks of cnt
-always @* begin
-  state_next = state;
-
-  case (state)
-    STATE_CLR: begin
-      led = 1'b1; // 1 clears LED
-      if (sig) state_next = STATE_SET;
-    end
-
-    STATE_SET: begin
-      led = 1'b0;
-      if (cnt) state_next = STATE_WAIT1;
-    end
-
-    STATE_WAIT1: begin
-      led = 1'b0;
-      if (cnt) state_next = STATE_WAIT2;
-    end
-
-    STATE_WAIT2: begin
-      led = 1'b0;
-      if (cnt) state_next = STATE_CLR;
-    end
-  endcase
-end
-
-endmodule
-
-
-
 module control(
   // Internal
   clk,
   clk_ad9866,
   clk_125,
+  clk_slow,
 
   ethup,
   have_dhcp_ip,
@@ -80,6 +29,10 @@ module control(
 
   tx_on,
   cw_keydown,
+
+  cwx_int,
+
+  msec_pulse,
 
   resp_rqst,
   resp,
@@ -157,6 +110,7 @@ module control(
 input           clk;
 input           clk_ad9866;
 input           clk_125;
+input           clk_slow;
 
 input           ethup;
 input           have_dhcp_ip;
@@ -181,6 +135,10 @@ input           cmd_ptt;
 
 output          tx_on;
 output          cw_keydown;
+
+input           cwx_int;
+
+output          msec_pulse;
 
 input           resp_rqst;
 output [39:0]   resp;
@@ -258,12 +216,12 @@ parameter     UART = 0;
 parameter     ATU = 0;
 parameter     FAN = 0;
 parameter     PSSYNC = 0;
+parameter     CW = 0;
 
 
 logic         vna = 1'b0;                    // Selects vna mode when set.
 logic         pa_enable = 1'b0;
 logic         tr_disable = 1'b0;
-logic [9:0]   cw_hang_time;
 
 logic [11:0]  fwd_pwr;
 logic [11:0]  rev_pwr;
@@ -284,7 +242,6 @@ logic [ 5:0]  resp_cmd_addr = 6'h00, resp_cmd_addr_next;
 logic [31:0]  resp_cmd_data = 32'h00, resp_cmd_data_next;
 
 logic         int_ptt = 1'b0;
-logic         int_ptt_gated;
 
 logic [8:0]   led_count;
 logic         led_saturate;
@@ -328,6 +285,8 @@ logic         hl2_reset_state = 1'b0;
 
 logic         temp_enabletx = 1'b1;
 
+logic atu_txinhibit = 1'b0;
+
 
 
 
@@ -367,9 +326,6 @@ always @(posedge clk) begin
       pa_enable    <= cmd_data[19];
       tr_disable   <= cmd_data[18];
     end
-    else if (cmd_addr == 6'h10) begin
-      cw_hang_time <= {cmd_data[31:24], cmd_data[17:16]};
-    end
     else if (cmd_addr == 6'h3a) begin
       hl2_reset_state <= cmd_data[0];
     end
@@ -378,61 +334,6 @@ end
 
 // Reset FPGA from configuration flash if not running
 assign hl2_reset = hl2_reset_state & ~run;
-
-
-generate
-  case (UART)
-    0: begin: NOUART // No UART
-      assign uart_txd = 1'b0;
-    end
-
-    1: begin: JI1UDD_HR50 // JI1UDD HR50
-
-      logic [31:0]  tx_freq = 32'h00000000;
-      always @(posedge clk) begin
-        if (cmd_rqst & (cmd_addr == 6'h01)) begin
-          tx_freq <= cmd_data;
-        end
-      end
-
-      extamp extamp_i (
-        .clk(clk),
-        .freq(tx_freq),
-        .ptt(tx_on),
-        .uart_txd(io_uart_txd)
-      );
-    end
-  endcase
-endgenerate
-
-generate
-  case (ATU)
-    0: begin: NOATU // No ATU
-      assign int_ptt_gated = int_ptt;
-      assign io_atu_req = 1'b0;
-    end
-
-    1: begin: JI1UDD_ATU // JI1UDD ATU
-
-      logic auto_tune = 1'b0;
-      always @(posedge clk) begin
-        if (cmd_rqst & (cmd_addr == 6'h09)) begin
-          auto_tune <=cmd_data[20];
-        end
-      end
-
-      exttuner exttuner_i (
-        .clk(clk),
-        .auto_tune(auto_tune),
-        .ATU_Status(io_atu_ack),
-        .ATU_Start(io_atu_req),
-        .mox_in(int_ptt),
-        .mox_out(int_ptt_gated)
-      );
-    end
-  endcase
-endgenerate
-
 
 always @(posedge clk)
   if (slow_adc_rst) use_eeprom_config <= ~(ext_ptt & ext_cwkey);
@@ -491,11 +392,10 @@ slow_adc slow_adc_i (
 debounce de_phone_tip(.clean_pb(ext_cwkey), .pb(~io_phone_tip), .clk(clk));
 assign io_cw_keydown = cw_keydown;
 
-debounce de_phone_ring(.clean_pb(ext_ptt), .pb(~io_phone_ring), .clk(clk));
 debounce de_txinhibit(.clean_pb(ext_txinhibit), .pb(~io_tx_inhibit), .clk(clk));
 
 
-assign tx_on = (int_ptt_gated | cw_keydown | ext_ptt | tx_hang) & ~ext_txinhibit & run & temp_enabletx;
+assign tx_on = (int_ptt | cw_keydown | ext_ptt | tx_hang) & ~ext_txinhibit & run & temp_enabletx & ~atu_txinhibit;
 
 // Gererate two slow pulses for timing.  millisec_pulse occurs every one millisecond.
 // led_saturate occurs every 64 milliseconds.
@@ -510,6 +410,7 @@ always @(posedge clk) begin	// clock is 2.5 MHz
   end
 end
 assign led_saturate = &led_count[5:0];
+assign msec_pulse = millisec_pulse;
 
 
 led_flash led_rxgoodlvl(.clk(clk), .cnt(led_saturate), .sig(rxgoodlvl), .led(led_d4));
@@ -546,18 +447,6 @@ assign io_led_adc100 = run ? led_d5 : ~(ad9866up & good_fast_clk);
 // Clear status
 always @(posedge clk) rxclrstatus <= ~rxclrstatus;
 
-
-
-cw_support cw_support_i(
-  .clk(clk),
-  .millisec_pulse(millisec_pulse),
-  .dot_key(~io_phone_tip),
-  .dash_key(~io_phone_ring),
-  .dot_key_debounced(ext_cwkey),
-  .dash_key_debounced(ext_ptt),
-  .cw_power_on(cw_power_on),
-  .cw_keydown(cw_keydown)
-);
 
 // Include CW and hang times in ptt response
 always @(posedge clk) begin
@@ -836,4 +725,113 @@ generate case (FAN)
 endcase
 endgenerate
 
-endmodule // ioblock
+
+generate
+  case (UART)
+    0: begin: NOUART // No UART
+      assign io_uart_txd = 1'b0;
+    end
+
+    1: begin: JI1UDD_HR50 // JI1UDD HR50
+
+      logic [31:0]  tx_freq = 32'h00000000;
+      logic uart_txd;
+      always @(posedge clk) begin
+        if (cmd_rqst & (cmd_addr == 6'h01)) begin
+          tx_freq <= cmd_data;
+        end
+      end
+
+      extamp extamp_i (
+        .clk(clk),
+        .freq(tx_freq),
+        .ptt(tx_on),
+        .uart_txd(uart_txd)
+      );
+      // Invert for level shifter
+      assign io_uart_txd = ~uart_txd;
+    end
+  endcase
+endgenerate
+
+generate
+  case (ATU)
+    0: begin: NOATU // No ATU
+      assign io_atu_req = 1'b1;
+    end
+
+    1: begin: ATU // ATU
+
+      exttuner exttuner_i (
+        .clk           (clk           ),
+        .cmd_addr      (cmd_addr      ),
+        .cmd_data      (cmd_data      ),
+        .cmd_rqst      (cmd_rqst      ),
+        .millisec_pulse(millisec_pulse),
+        .int_ptt       (int_ptt       ),
+        .key           (io_atu_ack    ),
+        .start         (io_atu_req    ),
+        .txinhibit     (atu_txinhibit )
+      );
+    end
+  endcase
+endgenerate
+
+
+generate
+  case (CW)
+    0: begin: CW_NONE
+      assign cw_keydown = 1'b0;
+      assign cw_power_on = 1'b0;
+
+      assign ext_ptt = 1'b0;
+    end
+
+    1: begin: CW_BASIC
+
+      debounce de_phone_ring(.clean_pb(ext_ptt), .pb(~io_phone_ring), .clk(clk));
+
+      cw_basic cw_basic_i (
+        .clk               (clk           ),
+        .cmd_addr          (cmd_addr      ),
+        .cmd_data          (cmd_data      ),
+        .cmd_rqst          (cmd_rqst      ),
+        .msec_pulse        (millisec_pulse),
+        .dot_key           (~io_phone_tip ),
+        .dash_key          (~io_phone_ring),
+        .dot_key_debounced (ext_cwkey     ),
+        .dash_key_debounced(ext_ptt       ),
+        .cwx               (cwx_int       ),
+        .cw_power_on       (cw_power_on   ),
+        .cw_keydown        (cw_keydown    )
+      );
+    end
+
+    2: begin: CW_OPENHPSDR
+
+      // No ext_ptt 
+      assign ext_ptt = 1'b0;
+
+      cw_openhpsdr cw_openhpsdr_i (
+        .clk               (clk           ),
+        .clk_slow          (clk_slow      ),
+        .cmd_addr          (cmd_addr      ),
+        .cmd_data          (cmd_data      ),
+        .cmd_rqst          (cmd_rqst      ),
+        .millisec_pulse    (millisec_pulse),
+        .dot_key           (~io_phone_tip ),
+        .dash_key          (~io_phone_ring),
+        .cwx               (cwx_int       ),
+        .dot_key_debounced (ext_cwkey     ),
+        .dash_key_debounced(ext_ptt       ),
+        .cw_power_on       (cw_power_on   ),
+        .cw_keydown        (cw_keydown    )
+      );
+    end
+
+  endcase
+endgenerate
+
+
+
+endmodule 

@@ -8,10 +8,10 @@ Hermes-Lite 2.x Gateware
  * Bug fixed where PureSignal was not on proper receiver for 4 receiver gateware. See the [PureSignal wiki page](https://github.com/softerhardware/Hermes-Lite2/wiki/PureSignal) for details on how to setup and use PureSignal with the Hermes-Lite 2.
 
  * Fan PWM implemented. Modes are based on temperature:
-  * Low speed turns on at 35C, off at 30C
-  * Medium speed turns on at 40C, back to low speed at 35C
-  * Full speed turns on at 45C, back to medium speed at 40C
-  * TX disabled at 55C, enabled at 50C or by power cycling the unit
+  - Low speed turns on at 35C, off at 30C
+  - Medium speed turns on at 40C, back to low speed at 35C
+  - Full speed turns on at 45C, back to medium speed at 40C
+  - TX disabled at 55C, enabled at 50C or by power cycling the unit
 
  * IO assignment updated so that all new IO signals connected to DB1. See the [IO wiki page](https://github.com/softerhardware/Hermes-Lite2/wiki/IO). Beta3to4 and beta2 have different IO connections but UART and fan are implemented for these builds. See the variant Verilog files hermeslite.v for pin assignments.
 
