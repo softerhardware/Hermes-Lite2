@@ -140,6 +140,8 @@ logic  [ 8:0]   msec_cnt;
 logic           msec_cnt_not_zero;
 logic           pushiq;
 
+logic           cwx_enable = 1'b0;
+
 // State
 always @ (posedge clk) begin
   pushcnt <= pushcnt_next;
@@ -394,6 +396,14 @@ end
 assign dseth_tdata = eth_data;
 
 
+// Only enable CWX when keyer is internal
+always @(posedge clk) begin
+  if ((cmd_cnt ^ cmd_cnt_next) & (cmd_addr == 6'h0f)) begin
+    cwx_enable <= cmd_data[24];
+  end
+end
+
+
 // Watch dog logic, stop if sending too much
 // without receiving packets
 always @(posedge clk) begin
@@ -411,7 +421,7 @@ assign pushiq = msec_cnt_not_zero | cmd_ptt;
 
 // CWX spacing hang
 always @(posedge clk) begin
-  if (cwx) msec_cnt <= 9'd500;
+  if (cwx & cwx_enable) msec_cnt <= 9'd500;
   else if (msec_cnt_not_zero & msec_pulse) msec_cnt <= msec_cnt - 1;
 end
 

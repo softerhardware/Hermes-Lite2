@@ -123,7 +123,7 @@ parameter       CW = 0; // CW Support
 parameter       LRDATA = 0;
 
 localparam      VERSION_MAJOR = (BOARD==2) ? 8'd49 : 8'd69;
-localparam      VERSION_MINOR = 8'd1;
+localparam      VERSION_MINOR = 8'd2;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
