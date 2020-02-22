@@ -123,17 +123,15 @@ parameter       CW = 0; // CW Support
 parameter       LRDATA = 0;
 
 localparam      VERSION_MAJOR = (BOARD==2) ? 8'd49 : 8'd69;
-localparam      VERSION_MINOR = 8'd2;
+localparam      VERSION_MINOR = 8'd3;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
 logic           cmd_cnt;
-logic           cmd_ptt;
 logic           cmd_requires_resp;
 
-logic           tx_on, tx_on_ad9866sync;
+logic           tx_on, tx_on_iosync;
 logic           cw_keydown, cw_keydown_ad9866sync;
-logic           tx_cw_waveform;     // CW waveform is active. Keep transmit enabled while waveform decays to zero.
 
 logic   [7:0]   dseth_tdata;
 
@@ -145,13 +143,14 @@ logic   [7:0]   dsiq_status;
 
 logic           dsethiq_tvalid;
 logic           dsethiq_tlast;
-logic           dsethiq_tctrlbit;
+logic           dsethiq_tuser;
 
 logic   [35:0]  dslr_tdata;
 logic           dslr_tready;    // controls reading of fifo
 logic           dslr_tvalid;
 logic           dsethlr_tvalid;
 logic           dsethlr_tlast;
+logic           dsethlr_tuser;
 
 logic  [23:0]   rx_tdata;
 logic           rx_tlast;
@@ -197,8 +196,7 @@ logic           clk_envelope;
 logic           clk_ad9866_slow;
 logic           ad9866up;
 
-logic           run, run_sync, run_iosync;
-logic           tx_hang, tx_hang_iosync;
+logic           run, run_sync, run_iosync, run_ad9866sync;
 logic           wide_spectrum, wide_spectrum_sync;
 logic           discovery_reply, discovery_reply_sync;
 
@@ -272,9 +270,8 @@ logic  [ 7:0]   eeprom_config;
 
 logic           hl2_reset;
 
-logic           cwx_int, cwx_int_iosync;
-
-logic           msec_pulse, msec_pulse_ad9866sync, msec_pulse_ethsync;
+logic           qmsec_pulse, qmsec_pulse_ad9866sync;
+logic           msec_pulse, msec_pulse_ethsync;
 
 
 /////////////////////////////////////////////////////
@@ -455,13 +452,12 @@ dsopenhpsdr1 dsopenhpsdr1_i (
   .cmd_addr(cmd_addr),
   .cmd_data(cmd_data),
   .cmd_cnt(cmd_cnt),
-  .cmd_ptt(cmd_ptt),
   .cmd_resprqst(cmd_requires_resp),
 
   .dseth_tdata(dseth_tdata),
   .dsethiq_tvalid(dsethiq_tvalid),
   .dsethiq_tlast(dsethiq_tlast),
-  .dsethiq_tctrlbit(dsethiq_tctrlbit),
+  .dsethiq_tuser(dsethiq_tuser),
   .dsethlr_tvalid(dsethlr_tvalid),
   .dsethlr_tlast(dsethlr_tlast),
 
@@ -473,15 +469,9 @@ dsopenhpsdr1 dsopenhpsdr1_i (
 );
 
 
-sync_one sync_ad9866_msec_pulse (
-  .clock(clk_ad9866),
-  .sig_in(msec_pulse),
-  .sig_out(msec_pulse_ad9866sync)
-);
-
 dsiq_fifo #(.depth(8192)) dsiq_fifo_i (
   .wr_clk(clock_ethrxint),
-  .wr_tdata({dsethiq_tctrlbit,dseth_tdata}),
+  .wr_tdata({dsethiq_tuser,dseth_tdata}),
   .wr_tvalid(dsethiq_tvalid),
   .wr_tready(),
   .wr_tlast(dsethiq_tlast),
@@ -491,8 +481,7 @@ dsiq_fifo #(.depth(8192)) dsiq_fifo_i (
   .rd_tvalid(dsiq_tvalid),
   .rd_tready(dsiq_tready),
   .rd_sample(dsiq_sample_ad9866sync),
-  .rd_status(dsiq_status),
-  .rd_msec_pulse(msec_pulse_ad9866sync)
+  .rd_status(dsiq_status)
 );
 
 sync_pulse sync_pulse_dsiq_sample (
@@ -644,13 +633,19 @@ sync_pulse sync_rxclrstatus_ad9866 (
   .sig_out(rxclrstatus_ad9866sync)
 );
 
-sync sync_ad9866_tx_on (
+sync_one sync_qmsec_pulse_ad9866 (
   .clock(clk_ad9866),
-  .sig_in(tx_on),
-  .sig_out(tx_on_ad9866sync)
+  .sig_in(qmsec_pulse),
+  .sig_out(qmsec_pulse_ad9866sync)
 );
 
-sync sync_ad9866_cw_keydown (
+sync sync_run_ad9866 (
+  .clock(clk_ad9866),
+  .sig_in(run),
+  .sig_out(run_ad9866sync)
+);
+
+sync sync_keydown_ad9866 (
   .clock(clk_ad9866),
   .sig_in(cw_keydown),
   .sig_out(cw_keydown_ad9866sync)
@@ -662,7 +657,7 @@ ad9866 ad9866_i (
 
   .tx_data(tx_data),
   .rx_data(rx_data),
-  .tx_en(tx_on_ad9866sync | tx_cw_waveform),
+  .tx_en(tx_on),
 
   .rxclip(rxclip),
   .rxgoodlvl(rxgoodlvl),
@@ -690,20 +685,18 @@ radio_i
   .clk(clk_ad9866),
   .clk_2x(clk_ad9866_2x),
 
-  .cw_keydown(cw_keydown_ad9866sync),
-  .tx_on(tx_on_ad9866sync),
-  .tx_cw_key(tx_cw_waveform),
-  .tx_hang(tx_hang),
+  .run(run_ad9866sync),
+  .qmsec_pulse(qmsec_pulse_ad9866sync),
+  .ext_keydown(cw_keydown_ad9866sync),
 
-  .cwx_int(cwx_int),
+  .tx_on(tx_on),
 
   // Transmit
   .tx_tdata({dsiq_tdata[7:0],dsiq_tdata[16:9],dsiq_tdata[25:18],dsiq_tdata[34:27]}),
-  .tx_tid(3'h0),
   .tx_tlast(1'b1),
   .tx_tready(dsiq_tready),
   .tx_tvalid(dsiq_tvalid),
-  .tx_ctrlbit(dsiq_tdata[35]),
+  .tx_tuser({dsiq_tdata[8],dsiq_tdata[17],dsiq_tdata[26],dsiq_tdata[35]}),
 
   .tx_data_dac(tx_data),
 
@@ -771,17 +764,12 @@ sync syncio_run (
   .sig_out(run_iosync)
 );
 
-sync syncio_txhang (
+sync syncio_tx_on (
   .clock(clk_ctrl),
-  .sig_in(tx_hang),
-  .sig_out(tx_hang_iosync)
+  .sig_in(tx_on),
+  .sig_out(tx_on_iosync)
 );
 
-sync syncio_cwx_int (
-  .clock(clk_ctrl),
-  .sig_in(cwx_int),
-  .sig_out(cwx_int_iosync)
-);
 
 control #(
   .VERSION_MAJOR(VERSION_MAJOR),
@@ -807,7 +795,6 @@ control #(
   .rxgoodlvl        (rxgoodlvl_iosync      ),
   .rxclrstatus      (rxclrstatus           ),
   .run              (run_iosync            ),
-  .tx_hang          (tx_hang_iosync        ),
 
   .dsiq_status      (dsiq_status           ),
   .dsiq_sample      (dsiq_sample           ),
@@ -815,15 +802,14 @@ control #(
   .cmd_addr         (cmd_addr              ),
   .cmd_data         (cmd_data              ),
   .cmd_rqst         (cmd_rqst_io           ),
-  .cmd_ptt          (cmd_ptt               ),
   .cmd_requires_resp(cmd_requires_resp     ),
 
-  .tx_on            (tx_on                 ),
+  .tx_on            (tx_on_iosync          ),
   .cw_keydown       (cw_keydown            ),
 
-  .cwx_int          (cwx_int_iosync        ),
 
   .msec_pulse       (msec_pulse            ),
+  .qmsec_pulse      (qmsec_pulse           ),
 
   .resp_rqst        (resp_rqst_iosync      ),
   .resp             (resp                  ),

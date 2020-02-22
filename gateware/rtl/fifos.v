@@ -11,8 +11,7 @@ module dsiq_fifo (
   rd_tvalid,
   rd_tready,
   rd_sample,
-  rd_status,
-  rd_msec_pulse
+  rd_status
 );
 
 input         wr_clk;
@@ -27,7 +26,6 @@ output        rd_tvalid;
 input         rd_tready;
 input         rd_sample;
 output [7:0]  rd_status;
-input         rd_msec_pulse;
 
 parameter     depth   = 8192;
 
@@ -41,21 +39,16 @@ localparam    rdbits  = (depth == 16384) ? 12 : 11;
 // Start to allow pop when 1/8 full 5ms
 localparam    rdlimit = (depth == 16384) ? 12'h0200 : 11'h0100;
 
-logic [35:0]  ird_tdata;
-
 logic         wr_treadyn;
 logic         rd_tvalidn;
 
 logic         allow_push = 1'b1;
 logic [(wrbits-1):0]  wr_tlength;
 
-logic         allow_pop  = 1'b0;
 logic [(rdbits-1):0]  rd_tlength;
 
 logic   [6:0] rd_count = 7'h00;
 logic         recovery_flag, recovery_flag_d1;
-
-logic [2:0]   msec_cnt = 3'h4;
 
 // If FIFO fills, drop write data
 // again until only half full
@@ -90,43 +83,25 @@ dcfifo_mixed_widths #(
   .data (wr_tdata),
 
   .rdclk (rd_clk),
-  .rdreq (rd_tready & allow_pop),
+  .rdreq (rd_tready),
   .rdfull (),
   .rdempty (rd_tvalidn),
   .rdusedw (rd_tlength),
-  .q (ird_tdata),
+  .q (rd_tdata),
 
   .aclr (1'b0),
   .eccstatus ()
 );
 
-always @ (posedge rd_clk) begin
-  if (rd_tvalidn) begin
-    allow_pop <= 1'b0;
-    msec_cnt <= 3'h4;
-  end else if (~allow_pop) begin
-    // Count msec_cnt down when rd_telngth is greater than rdlimit
-    // Allow pop again after 4-5 msec, this is to handle cases
-    // When 20ms of data is sent at once
-    if ((rd_tlength >= rdlimit) & (rd_msec_pulse)) msec_cnt <= msec_cnt - 1;
-    if (~(|msec_cnt)) allow_pop <= 1'b1;
-  end
-end
-// Allow CWX bit through early to start tx on via tx_hang
-assign rd_tdata = allow_pop ? ird_tdata : 36'h0;
-
-
 assign wr_tready = ~wr_treadyn & allow_push;
-assign rd_tvalid = ~rd_tvalidn & allow_pop;
-
-assign rd_underflow = ~allow_pop;
+assign rd_tvalid = ~rd_tvalidn;
 
 always @ (posedge rd_clk) begin
   if (rd_sample) begin
     rd_count <= rd_tlength[(rdbits-1):(rdbits-7)];
     recovery_flag <= 1'b0;
     recovery_flag_d1 <= recovery_flag;
-  end else if (~allow_pop | ~allow_push) begin
+  end else if (rd_tvalidn | ~allow_push) begin
     // Known CDC with allow_push, but okay since just status
     recovery_flag <= 1'b1;
   end
