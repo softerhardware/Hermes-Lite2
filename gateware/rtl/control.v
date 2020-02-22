@@ -16,7 +16,6 @@ module control(
   rxgoodlvl,
   rxclrstatus,
   run,
-  tx_hang,
 
   dsiq_status,
   dsiq_sample,
@@ -25,14 +24,12 @@ module control(
   cmd_data,
   cmd_rqst,
   cmd_requires_resp,
-  cmd_ptt,
 
   tx_on,
   cw_keydown,
 
-  cwx_int,
-
   msec_pulse,
+  qmsec_pulse,
 
   resp_rqst,
   resp,
@@ -122,7 +119,6 @@ input           rxclip;
 input           rxgoodlvl;
 output logic    rxclrstatus = 1'b0;
 input           run;
-input           tx_hang;
 
 input [7:0]     dsiq_status;
 output logic    dsiq_sample = 1'b0;
@@ -131,14 +127,12 @@ input  [5:0]    cmd_addr;
 input  [31:0]   cmd_data;
 input           cmd_rqst;
 input           cmd_requires_resp;
-input           cmd_ptt;
 
-output          tx_on;
+input           tx_on;
 output          cw_keydown;
 
-input           cwx_int;
-
-output          msec_pulse;
+output logic    msec_pulse = 1'b0;
+output logic    qmsec_pulse = 1'b0;
 
 input           resp_rqst;
 output [39:0]   resp;
@@ -241,12 +235,10 @@ logic         cmd_ack;
 logic [ 5:0]  resp_cmd_addr = 6'h00, resp_cmd_addr_next;
 logic [31:0]  resp_cmd_data = 32'h00, resp_cmd_data_next;
 
-logic         int_ptt = 1'b0;
-
-logic [8:0]   led_count;
+logic [8:0]   led_count, led_count_next;
 logic         led_saturate;
-logic [11:0]  millisec_count;
-logic         millisec_pulse;
+logic [9:0]   qmillisec_count, qmillisec_count_next;
+logic [1:0]   millisec_count, millisec_count_next;
 
 logic         ext_txinhibit, ext_cwkey, ext_ptt;
 
@@ -273,7 +265,6 @@ logic [1:0]   resp_state = RESP_START, resp_state_next;
 
 
 logic         cw_keydown;
-logic         cw_power_on;
 
 logic         ptt_resp = 1'b0;
 
@@ -286,6 +277,8 @@ logic         hl2_reset_state = 1'b0;
 logic         temp_enabletx = 1'b1;
 
 logic atu_txinhibit = 1'b0;
+
+logic int_tx_on;
 
 
 
@@ -320,7 +313,6 @@ assign ad9866_rst = ~resetsaturate | ~ad9866up;
 
 always @(posedge clk) begin
   if (cmd_rqst) begin
-    int_ptt <= cmd_ptt;
     if (cmd_addr == 6'h09) begin
       vna          <= cmd_data[23];      // 1 = enable vna mode
       pa_enable    <= cmd_data[19];
@@ -395,22 +387,39 @@ assign io_cw_keydown = cw_keydown;
 debounce de_txinhibit(.clean_pb(ext_txinhibit), .pb(~io_tx_inhibit), .clk(clk));
 
 
-assign tx_on = (int_ptt | cw_keydown | ext_ptt | tx_hang) & ~ext_txinhibit & run & temp_enabletx & ~atu_txinhibit;
+assign int_tx_on = (tx_on | ext_ptt ) & ~ext_txinhibit & run & temp_enabletx & ~atu_txinhibit;
 
-// Gererate two slow pulses for timing.  millisec_pulse occurs every one millisecond.
+// Gererate two slow pulses for timing.  msec_pulse occurs every one millisecond.
+// qmsec_pulse occurs every quarter of a millisecond
 // led_saturate occurs every 64 milliseconds.
-always @(posedge clk) begin	// clock is 2.5 MHz
-  if (millisec_count == 12'd2500) begin
-    millisec_count <= 12'b0;
-    millisec_pulse <= 1'b1;
-    led_count <= led_count + 1'b1;
-  end else begin
-    millisec_count <= millisec_count + 1'b1;
-    millisec_pulse <= 1'b0;
+always @(posedge clk) begin
+  qmillisec_count <= qmillisec_count_next;
+  millisec_count <= millisec_count_next;
+  led_count <= led_count_next;
+end
+
+always @* begin
+  qmillisec_count_next = qmillisec_count - 10'd1;
+  millisec_count_next  = millisec_count;
+  led_count_next = led_count;
+
+  qmsec_pulse = 1'b0;
+  msec_pulse = 1'b0;
+  led_saturate = 1'b0;
+
+  if (qmillisec_count == 10'd0) begin
+    qmillisec_count_next = 10'd625;
+    qmsec_pulse = 1'b1;
+
+    millisec_count_next = millisec_count - 2'd1;
+
+    if (&millisec_count) begin
+      msec_pulse = 1'b1;
+      led_count_next = led_count + 9'h01;
+      led_saturate = &led_count[5:0];
+    end
   end
 end
-assign led_saturate = &led_count[5:0];
-assign msec_pulse = millisec_pulse;
 
 
 led_flash led_rxgoodlvl(.clk(clk), .cnt(led_saturate), .sig(rxgoodlvl), .led(led_d4));
@@ -420,15 +429,15 @@ led_flash led_rxclip(.clk(clk), .cnt(led_saturate), .sig(rxclip), .led(led_d5));
 logic [5:0] fast_clk_cnt;
 always @(posedge clk_ad9866) begin
   // Count when 1x, at 76.8 MHz we should see 62 ticks when 1x is true
-  if (millisec_count[1] & ~(&fast_clk_cnt)) fast_clk_cnt <= fast_clk_cnt + 6'h01;
+  if (qmillisec_count[1] & ~(&fast_clk_cnt)) fast_clk_cnt <= fast_clk_cnt + 6'h01;
   // Clear when 01 to prepare for next count
-  else if (millisec_count[0]) fast_clk_cnt <= 6'h00;
+  else if (qmillisec_count[0]) fast_clk_cnt <= 6'h00;
 end
 
 logic good_fast_clk;
 always @(posedge clk) begin
   // Compute when 00
-  if (millisec_count[1:0] == 2'b00) good_fast_clk <= ~(&fast_clk_cnt);
+  if (qmillisec_count[1:0] == 2'b00) good_fast_clk <= ~(&fast_clk_cnt);
 end
 
 // Solid when connected to software
@@ -436,7 +445,7 @@ end
 assign io_led_run = run ? ~run : ~(ethup & led_count[8]);
 
 // Blinking indicates fixed ip, solid indicates dhcp
-assign io_led_tx = run ? ~tx_on : ~((have_fixed_ip & led_count[8]) | have_dhcp_ip);
+assign io_led_tx = run ? ~int_tx_on : ~((have_fixed_ip & led_count[8]) | have_dhcp_ip);
 
 // Blinks if 100 Mbps, solid if 1Gbs, off otherwise
 assign io_led_adc75 = run ? led_d4 : ~(((network_speed == 2'b01) & led_count[8]) | network_speed == 2'b10);
@@ -452,21 +461,17 @@ always @(posedge clk) rxclrstatus <= ~rxclrstatus;
 always @(posedge clk) begin
   if (cw_keydown | ext_ptt) begin
     ptt_resp <= 1'b1;
-  end else begin // PTT back to pc should not depend on hang  if (~tx_hang) begin
+  end else begin // PTT back to pc should depend on only radio originated ptt
     ptt_resp <= 1'b0;
   end
 end
 
 
-
-logic tx_power_on; // Is the power on?
-assign tx_power_on = cw_power_on | tx_on;
-
-assign pwr_envbias = tx_power_on & ~vna & pa_enable;
-assign pwr_envop = tx_power_on;
-assign pa_exttr = tx_power_on;
-assign pa_inttr = tx_power_on & ~vna & (pa_enable | ~tr_disable);
-assign pwr_envpa = tx_power_on & ~vna & pa_enable;
+assign pwr_envbias = int_tx_on & ~vna & pa_enable;
+assign pwr_envop = int_tx_on;
+assign pa_exttr = int_tx_on;
+assign pa_inttr = int_tx_on & ~vna & (pa_enable | ~tr_disable);
+assign pwr_envpa = int_tx_on & ~vna & pa_enable;
 
 assign rffe_rfsw_sel = ~vna & pa_enable;
 
@@ -571,7 +576,7 @@ always @(posedge clk) begin
     resp_addr <= resp_addr + 2'b01; // Slot will be skipped if command response
     if (cmd_resp_rqst & ~resp_cnt) begin // Only every other resp_rqst
       // Command response
-      iresp <= {1'b1,resp_cmd_addr,tx_on, resp_cmd_data}; // Queue size is 1
+      iresp <= {1'b1,resp_cmd_addr,ptt_resp, resp_cmd_data}; // Queue size is 1
     end else begin
       case( resp_addr)
         2'b00: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 7'b0001111,(&clip_cnt), 8'h00, dsiq_status, VERSION_MAJOR};
@@ -745,7 +750,7 @@ generate
       extamp extamp_i (
         .clk(clk),
         .freq(tx_freq),
-        .ptt(tx_on),
+        .ptt(int_tx_on),
         .uart_txd(uart_txd)
       );
       // Invert for level shifter
@@ -767,8 +772,8 @@ generate
         .cmd_addr      (cmd_addr      ),
         .cmd_data      (cmd_data      ),
         .cmd_rqst      (cmd_rqst      ),
-        .millisec_pulse(millisec_pulse),
-        .int_ptt       (int_ptt       ),
+        .millisec_pulse(msec_pulse),
+        .int_ptt       (int_tx_on         ),
         .key           (io_atu_ack    ),
         .start         (io_atu_req    ),
         .txinhibit     (atu_txinhibit )
@@ -782,7 +787,6 @@ generate
   case (CW)
     0: begin: CW_NONE
       assign cw_keydown = 1'b0;
-      assign cw_power_on = 1'b0;
 
       assign ext_ptt = 1'b0;
     end
@@ -796,13 +800,12 @@ generate
         .cmd_addr          (cmd_addr      ),
         .cmd_data          (cmd_data      ),
         .cmd_rqst          (cmd_rqst      ),
-        .msec_pulse        (millisec_pulse),
+        .msec_pulse        (msec_pulse),
         .dot_key           (~io_phone_tip ),
         .dash_key          (~io_phone_ring),
         .dot_key_debounced (ext_cwkey     ),
         .dash_key_debounced(ext_ptt       ),
-        .cwx               (cwx_int       ),
-        .cw_power_on       (cw_power_on   ),
+        .cw_power_on       (  ),
         .cw_keydown        (cw_keydown    )
       );
     end
@@ -818,13 +821,13 @@ generate
         .cmd_addr          (cmd_addr      ),
         .cmd_data          (cmd_data      ),
         .cmd_rqst          (cmd_rqst      ),
-        .millisec_pulse    (millisec_pulse),
+        .millisec_pulse    (msec_pulse),
         .dot_key           (~io_phone_tip ),
         .dash_key          (~io_phone_ring),
-        .cwx               (cwx_int       ),
+        .cwx               (1'b0      ),
         .dot_key_debounced (ext_cwkey     ),
         .dash_key_debounced(ext_ptt       ),
-        .cw_power_on       (cw_power_on   ),
+        .cw_power_on       (  ),
         .cw_keydown        (cw_keydown    )
       );
     end

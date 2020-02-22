@@ -19,13 +19,12 @@ module dsopenhpsdr1 (
   cmd_addr,
   cmd_data,
   cmd_cnt,
-  cmd_ptt,
   cmd_resprqst,
 
   dseth_tdata,
   dsethiq_tvalid,
   dsethiq_tlast,
-  dsethiq_tctrlbit,
+  dsethiq_tuser,
   dsethlr_tvalid,
   dsethlr_tlast,
 
@@ -55,15 +54,15 @@ input               msec_pulse;
 output logic  [5:0] cmd_addr = 6'h0;
 output logic [31:0] cmd_data = 32'h00;
 output logic        cmd_cnt = 1'b0;
-output logic        cmd_ptt = 1'b0;
 output logic        cmd_resprqst = 1'b0;
 
 output        [7:0] dseth_tdata;
 output              dsethiq_tvalid;
 output              dsethiq_tlast;
-output              dsethiq_tctrlbit;
+output              dsethiq_tuser;
 output              dsethlr_tvalid;
 output              dsethlr_tlast;
+//output              dsethlr_tuser;
 output              dsethasmi_tvalid;
 output              dsethasmi_tlast;
 output logic [13:0] asmi_cnt = 14'h000;
@@ -123,6 +122,8 @@ logic   [31:0]  cmd_data_next;
 logic           cmd_cnt_next;
 logic           cmd_ptt_next;
 logic           cmd_resprqst_next;
+logic           cmd_rqst;
+logic           cmd_ptt;
 
 logic           watchdog_clr;
 
@@ -130,15 +131,15 @@ logic   [ 9:0]  watchdog_cnt = 10'h00;
 
 logic   [13:0]  asmi_cnt_next;
 
+logic  [ 8:0]   msec_cnt;
+logic           msec_cnt_not_zero;
+logic           pushiq;
+
 logic           cwx = 1'b0;
 logic           cwx_next;
 
 logic           cwx_saved = 1'b0;
 logic           cwx_saved_next;
-
-logic  [ 8:0]   msec_cnt;
-logic           msec_cnt_not_zero;
-logic           pushiq;
 
 logic           cwx_enable = 1'b0;
 
@@ -191,8 +192,9 @@ always @* begin
   dsethlr_tvalid = 1'b0;
   watchdog_clr   = 1'b0;
   dsethiq_tlast  = 1'b0;
-  dsethiq_tctrlbit = 1'b0;
+  dsethiq_tuser  = 1'b0;
   dsethlr_tlast  = 1'b0;
+  //dsethlr_tuser  = 1'b0;
 
   dsethasmi_tvalid = 1'b0;
   dsethasmi_tlast  = 1'b0;
@@ -355,29 +357,27 @@ always @* begin
     end
 
     PUSHI1: begin
-      dsethiq_tctrlbit = cmd_ptt;
+      dsethiq_tuser  = cmd_ptt;
       dsethiq_tvalid = pushiq;
       state_next = PUSHI0;
     end
 
     PUSHI0: begin
-      dsethiq_tctrlbit = cmd_ptt;
+      dsethiq_tuser  = cwx;
       cwx_saved_next = eth_data[0];
       dsethiq_tvalid = pushiq;
       state_next = PUSHQ1;
     end
 
     PUSHQ1: begin
-      dsethiq_tctrlbit = cmd_ptt;
       dsethiq_tvalid = pushiq;
       state_next = PUSHQ0;
     end
 
     PUSHQ0: begin
-      dsethiq_tctrlbit = cmd_ptt;
       dsethiq_tvalid = pushiq;
       dsethiq_tlast  = 1'b1;
-      cwx_next = cwx_saved & ~cmd_ptt;
+      cwx_next = cwx_saved & cwx_enable & ~cmd_ptt;
       if (&pushcnt[5:0]) begin
         if (~pushcnt[6]) begin
           //framecnt_next = 1'b1;
@@ -395,13 +395,17 @@ end
 
 assign dseth_tdata = eth_data;
 
+assign cmd_rqst = cmd_cnt ^ cmd_cnt_next;
 
 // Only enable CWX when keyer is internal
 always @(posedge clk) begin
-  if ((cmd_cnt ^ cmd_cnt_next) & (cmd_addr == 6'h0f)) begin
-    cwx_enable <= cmd_data[24];
+  if (cmd_rqst) begin
+    if (cmd_addr == 6'h0f) begin
+        cwx_enable <= cmd_data[24];
+    end
   end
 end
+
 
 
 // Watch dog logic, stop if sending too much
@@ -421,10 +425,8 @@ assign pushiq = msec_cnt_not_zero | cmd_ptt;
 
 // CWX spacing hang
 always @(posedge clk) begin
-  if (cwx & cwx_enable) msec_cnt <= 9'd500;
+  if (cwx) msec_cnt <= 9'd500;
   else if (msec_cnt_not_zero & msec_pulse) msec_cnt <= msec_cnt - 1;
 end
 
-
 endmodule
-
