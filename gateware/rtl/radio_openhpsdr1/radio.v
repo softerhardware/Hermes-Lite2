@@ -8,6 +8,7 @@ module radio (
   ext_keydown,
 
   tx_on,
+  cw_on,
 
   // Transmit
   tx_tdata,
@@ -82,6 +83,7 @@ input             run;
 input             qmsec_pulse;
 input             ext_keydown;
 output            tx_on;
+output            cw_on;
 
 input             clk_envelope;
 output            tx_envelope_pwm_out;
@@ -673,18 +675,19 @@ logic [2:0] tx_state = NOTX;
 logic [2:0] tx_state_next;
 logic       tx_cw_key;
 logic [9:0] cw_hang_time;
+logic [4:0] tx_buffer_latency = 5'h0a; // Default to 10ms
+logic [4:0] ptt_hang_time = 5'h04; // Default to 4 ms
 
 localparam MAX_CWLEVEL = 19'h4d800; //(16'h4d80 << 4);
 localparam MIN_CWLEVEL = 19'h0;
-
-localparam TXPREDELAY = 7'h09 << 2;
-localparam TXPOSTDELAY = 7'h10; //5'h04 << 2;
-
 
 always @(posedge clk) begin
   if (cmd_rqst) begin
     if (cmd_addr == 6'h10) begin
       cw_hang_time <= {cmd_data[31:24], cmd_data[17:16]};
+    end else if (cmd_addr == 6'h17) begin
+      tx_buffer_latency <= cmd_data[4:0];
+      ptt_hang_time <= cmd_data[12:8];
     end
   end
 end
@@ -711,6 +714,7 @@ always @* begin
   tx_fir_q_next      = tx_fir_q;
 
   tx_on = 1'b1;
+  cw_on = 1'b0;
   tx_cw_key = 1'b0;
   tx_tready = fir_tready; // Empty FIFO
 
@@ -720,7 +724,7 @@ always @* begin
       tx_fir_i_next = 16'h00;
       tx_fir_q_next = 16'h00;
       tx_cwlevel_next = 19'h00;
-      tx_qmsectimer_next = TXPREDELAY;
+      tx_qmsectimer_next = {tx_buffer_latency, 2'b00};
       tx_on = 1'b0;
 
       if (ext_keydown | cwx | ptt) tx_state_next = PRETX;
@@ -742,7 +746,7 @@ always @* begin
 
     PTTTX: begin
       if (ptt) begin
-        tx_qmsectimer_next = TXPOSTDELAY;
+        tx_qmsectimer_next = {ptt_hang_time, 2'b00};
         if (fir_tready) begin
           tx_fir_i_next = tx_tdata[31:16];
           tx_fir_q_next = tx_tdata[15:0];
@@ -751,7 +755,6 @@ always @* begin
         if (tx_qmsectimer != 7'h00) begin
           if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 7'h01;
         end else begin
-          //tx_qmsectimer_next = TXPREDELAY;
           tx_state_next = NOTX;
         end
       end
@@ -760,18 +763,19 @@ always @* begin
 
 
     CWTX: begin
+      cw_on = 1'b1;
       tx_cw_key = 1'b1;
       if (ext_keydown) begin
         // Shape CW on
         if (tx_cwlevel != MAX_CWLEVEL) tx_cwlevel_next = tx_cwlevel + 19'h01;
-        tx_qmsectimer_next = TXPREDELAY;
+        tx_qmsectimer_next = {tx_buffer_latency, 2'b00};
       end else begin
-        // Extend CW on to match TXPREDELAY if ext key
+        // Extend CW on to match tx_buffer_latency if ext key
         if (tx_qmsectimer != 7'h00) begin
           if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 7'h01;
         end else if (tx_cwlevel != 19'h00) tx_cwlevel_next = tx_cwlevel - 19'h01;
         else begin
-          tx_qmsectimer_next = TXPREDELAY;
+          tx_qmsectimer_next = {tx_buffer_latency, 2'b00};
           tx_cwlevel_next = {7'b0000000, cw_hang_time, 2'b00};
           tx_state_next = CWHANG;
         end
@@ -779,12 +783,13 @@ always @* begin
     end
 
     CWHANG: begin
+      cw_on = 1'b1;
       if (ext_keydown) begin
-        // delay ext CW by TXPREDELAY
+        // delay ext CW by tx_buffer_latency
         if (tx_qmsectimer != 7'h00) begin
           if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 7'h01;
         end else begin
-          tx_qmsectimer_next = TXPREDELAY;
+          tx_qmsectimer_next = {tx_buffer_latency, 2'b00};
           tx_cwlevel_next = 19'h0;
           tx_state_next = CWTX;
         end
@@ -792,7 +797,6 @@ always @* begin
         if (tx_cwlevel != 19'h0) begin
           if (qmsec_pulse) tx_cwlevel_next = tx_cwlevel - 19'h01;
         end else begin
-          //tx_qmsectimer_next = TXPREDELAY;
           tx_state_next = NOTX;
         end
       end
@@ -801,6 +805,7 @@ always @* begin
 
 
     CWXTX: begin
+      cw_on = 1'b1;
       tx_cw_key = 1'b1;
       if (cwx) begin
         // Shape CW on
@@ -815,13 +820,13 @@ always @* begin
     end
 
     CWXHANG: begin
+      cw_on = 1'b1;
       if (cwx) begin
         tx_state_next = CWXTX;
       end else begin
         if (tx_cwlevel != 19'h0) begin
           if (qmsec_pulse) tx_cwlevel_next = tx_cwlevel - 19'h01;
         end else begin
-          //tx_qmsectimer_next = TXPREDELAY;
           tx_state_next = NOTX;
         end
       end

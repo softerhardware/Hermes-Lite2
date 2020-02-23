@@ -26,6 +26,7 @@ module control(
   cmd_requires_resp,
 
   tx_on,
+  cw_on,
   cw_keydown,
 
   msec_pulse,
@@ -129,6 +130,7 @@ input           cmd_rqst;
 input           cmd_requires_resp;
 
 input           tx_on;
+input           cw_on;
 output          cw_keydown;
 
 output logic    msec_pulse = 1'b0;
@@ -280,6 +282,10 @@ logic atu_txinhibit = 1'b0;
 
 logic int_tx_on;
 
+logic clean_ring;
+
+logic slow_adc_sample;
+
 
 
 
@@ -328,7 +334,7 @@ end
 assign hl2_reset = hl2_reset_state & ~run;
 
 always @(posedge clk)
-  if (slow_adc_rst) use_eeprom_config <= ~(ext_ptt & ext_cwkey);
+  if (slow_adc_rst) use_eeprom_config <= ~(clean_ring & ext_cwkey);
 
 assign eeprom_config[7:5] = use_eeprom_config ? ieeprom_config[7:5] : 3'b000;
 assign eeprom_config[4:0] = ieeprom_config[4:0];
@@ -362,10 +368,11 @@ i2c i2c_i (
   .sda2_t(sda2_t)
 );
 
+assign slow_adc_sample = resp_rqst & resp_cnt;
 slow_adc slow_adc_i (
   .clk(clk),
   .rst(slow_adc_rst),
-  .sample(resp_rqst & resp_cnt),
+  .sample(slow_adc_sample),
   .ain0(rev_pwr),
   .ain1(temperature),
   .ain2(bias_current),
@@ -377,17 +384,6 @@ slow_adc slow_adc_i (
   .sda_o(sda3_o),
   .sda_t(sda3_t)
 );
-
-
-
-// 6.5 ms debounce with 2.5MHz clock
-debounce de_phone_tip(.clean_pb(ext_cwkey), .pb(~io_phone_tip), .clk(clk));
-assign io_cw_keydown = cw_keydown;
-
-debounce de_txinhibit(.clean_pb(ext_txinhibit), .pb(~io_tx_inhibit), .clk(clk));
-
-
-assign int_tx_on = (tx_on | ext_ptt ) & ~ext_txinhibit & run & temp_enabletx & ~atu_txinhibit;
 
 // Gererate two slow pulses for timing.  msec_pulse occurs every one millisecond.
 // qmsec_pulse occurs every quarter of a millisecond
@@ -456,16 +452,7 @@ assign io_led_adc100 = run ? led_d5 : ~(ad9866up & good_fast_clk);
 // Clear status
 always @(posedge clk) rxclrstatus <= ~rxclrstatus;
 
-
-// Include CW and hang times in ptt response
-always @(posedge clk) begin
-  if (cw_keydown | ext_ptt) begin
-    ptt_resp <= 1'b1;
-  end else begin // PTT back to pc should depend on only radio originated ptt
-    ptt_resp <= 1'b0;
-  end
-end
-
+assign int_tx_on = (tx_on | ext_ptt ) & ~ext_txinhibit & run & temp_enabletx & ~atu_txinhibit;
 
 assign pwr_envbias = int_tx_on & ~vna & pa_enable;
 assign pwr_envop = int_tx_on;
@@ -565,6 +552,10 @@ always @* begin
 
   endcase
 end
+
+
+assign ptt_resp = cw_on | ext_ptt;
+
 
 // Resp request occurs relatively infrequently
 // Output register iresp is updated on resp_rqst
@@ -679,11 +670,17 @@ generate case (FAN)
 
     logic [15:0] fan_cnt;
     logic [2:0] fan_state_next, fan_state = FAN_OFF;
+    logic [1:0] tupvote_next, tupvote;
+    logic [1:0] tdnvote_next, tdnvote;
 
     // Fan state machine
     always @ (posedge clk) begin
       fan_cnt <= fan_cnt + 1;
-      fan_state <= fan_state_next;
+      if (slow_adc_sample) begin
+        fan_state <= fan_state_next;
+        tupvote <= tupvote_next;
+        tdnvote <= tdnvote_next;
+      end
     end
 
     // FSM Combinational
@@ -691,36 +688,47 @@ generate case (FAN)
       // Next State
       fan_state_next = fan_state;
 
+      tupvote_next = (tupvote == 2'b00) ? tupvote : tupvote - 2'b01;
+      tdnvote_next = (tdnvote == 2'b00) ? tdnvote : tdnvote - 2'b01;
+
       // Combo
       fan_pwm = 1'b0;
       temp_enabletx = 1'b1;
 
       case (fan_state)
         FAN_OFF: begin
-          if (temperature > TEMP_35C) fan_state_next = FAN_LOWSPEED;
+          if (temperature > TEMP_35C) tupvote_next = tupvote + 2'b01;
+          if (&tupvote) fan_state_next = FAN_LOWSPEED;
           fan_pwm = 1'b0;
         end
 
         FAN_LOWSPEED: begin
-          if (temperature > TEMP_40C) fan_state_next = FAN_MEDSPEED;
-          else if (temperature < TEMP_30C) fan_state_next = FAN_OFF;
+          if (temperature > TEMP_40C) tupvote_next = tupvote + 2'b01;
+          else if (temperature < TEMP_30C) tdnvote_next = tdnvote + 2'b01;
+          if (&tupvote) fan_state_next = FAN_MEDSPEED;
+          else if (&tdnvote) fan_state_next = FAN_OFF;
           fan_pwm = fan_cnt[15]; // on 50% of time
         end
 
         FAN_MEDSPEED: begin
-          if (temperature > TEMP_45C) fan_state_next = FAN_FULLSPEED;
-          else if (temperature < TEMP_35C) fan_state_next = FAN_LOWSPEED;
+          if (temperature > TEMP_45C) tupvote_next = tupvote + 2'b01;
+          else if (temperature < TEMP_35C) tdnvote_next = tdnvote + 2'b01;
+          if (&tupvote) fan_state_next = FAN_FULLSPEED;
+          else if (&tdnvote) fan_state_next = FAN_LOWSPEED;
           fan_pwm = fan_cnt[15] | fan_cnt[14]; // on 75% of time
         end
 
         FAN_FULLSPEED: begin
-          if (temperature > TEMP_55C) fan_state_next = FAN_OVERHEAT;
-          else if (temperature < TEMP_40C) fan_state_next = FAN_MEDSPEED;
+          if (temperature > TEMP_55C) tupvote_next = tupvote + 2'b01;
+          else if (temperature < TEMP_40C) tdnvote_next = tdnvote + 2'b01;
+          if (&tupvote) fan_state_next = FAN_OVERHEAT;
+          else if (&tdnvote) fan_state_next = FAN_MEDSPEED;
           fan_pwm = 1'b1; // on 100% of time
         end
 
         FAN_OVERHEAT: begin
-          if (temperature < TEMP_50C) fan_state_next = FAN_FULLSPEED;
+          if (temperature < TEMP_50C) tdnvote_next = tdnvote + 2'b01;
+          if (&tdnvote) fan_state_next = FAN_FULLSPEED;
           fan_pwm = 1'b1;
           temp_enabletx = 1'b0;
         end
@@ -783,6 +791,13 @@ generate
 endgenerate
 
 
+debounce de_phone_tip(.clean_pb(ext_cwkey), .pb(~io_phone_tip), .clk(clk), .msec_pulse(msec_pulse));
+assign io_cw_keydown = cw_keydown;
+
+debounce de_txinhibit(.clean_pb(ext_txinhibit), .pb(~io_tx_inhibit), .clk(clk), .msec_pulse(msec_pulse));
+
+debounce de_phone_ring(.clean_pb(clean_ring), .pb(~io_phone_ring), .clk(clk), .msec_pulse(msec_pulse));
+
 generate
   case (CW)
     0: begin: CW_NONE
@@ -793,48 +808,29 @@ generate
 
     1: begin: CW_BASIC
 
-      debounce de_phone_ring(.clean_pb(ext_ptt), .pb(~io_phone_ring), .clk(clk));
+      assign cw_keydown = ext_cwkey;
+      assign ext_ptt = clean_ring;
 
-      cw_basic cw_basic_i (
-        .clk               (clk           ),
-        .cmd_addr          (cmd_addr      ),
-        .cmd_data          (cmd_data      ),
-        .cmd_rqst          (cmd_rqst      ),
-        .msec_pulse        (msec_pulse),
-        .dot_key           (~io_phone_tip ),
-        .dash_key          (~io_phone_ring),
-        .dot_key_debounced (ext_cwkey     ),
-        .dash_key_debounced(ext_ptt       ),
-        .cw_power_on       (  ),
-        .cw_keydown        (cw_keydown    )
-      );
     end
 
     2: begin: CW_OPENHPSDR
 
-      // No ext_ptt 
+      // No ext_ptt
       assign ext_ptt = 1'b0;
 
       cw_openhpsdr cw_openhpsdr_i (
-        .clk               (clk           ),
-        .clk_slow          (clk_slow      ),
-        .cmd_addr          (cmd_addr      ),
-        .cmd_data          (cmd_data      ),
-        .cmd_rqst          (cmd_rqst      ),
-        .millisec_pulse    (msec_pulse),
-        .dot_key           (~io_phone_tip ),
-        .dash_key          (~io_phone_ring),
-        .cwx               (1'b0      ),
-        .dot_key_debounced (ext_cwkey     ),
-        .dash_key_debounced(ext_ptt       ),
-        .cw_power_on       (  ),
-        .cw_keydown        (cw_keydown    )
+        .clk               (clk       ),
+        .clk_slow          (clk_slow  ),
+        .cmd_addr          (cmd_addr  ),
+        .cmd_data          (cmd_data  ),
+        .cmd_rqst          (cmd_rqst  ),
+        .dot_key           (ext_cwkey ),
+        .dash_key          (clean_ring),
+        .cw_keydown        (cw_keydown)
       );
     end
 
   endcase
 endgenerate
 
-
-
-endmodule 
+endmodule
