@@ -131,6 +131,7 @@ logic           cmd_cnt;
 logic           cmd_requires_resp;
 
 logic           tx_on, tx_on_iosync;
+logic           cw_on, cw_on_iosync;
 logic           cw_keydown, cw_keydown_ad9866sync;
 
 logic   [7:0]   dseth_tdata;
@@ -690,6 +691,7 @@ radio_i
   .ext_keydown(cw_keydown_ad9866sync),
 
   .tx_on(tx_on),
+  .cw_on(cw_on),
 
   // Transmit
   .tx_tdata({dsiq_tdata[7:0],dsiq_tdata[16:9],dsiq_tdata[25:18],dsiq_tdata[34:27]}),
@@ -770,6 +772,11 @@ sync syncio_tx_on (
   .sig_out(tx_on_iosync)
 );
 
+sync syncio_cw_on (
+  .clock(clk_ctrl),
+  .sig_in(cw_on),
+  .sig_out(cw_on_iosync)
+);
 
 control #(
   .VERSION_MAJOR(VERSION_MAJOR),
@@ -805,6 +812,7 @@ control #(
   .cmd_requires_resp(cmd_requires_resp     ),
 
   .tx_on            (tx_on_iosync          ),
+  .cw_on            (cw_on_iosync          ),
   .cw_keydown       (cw_keydown            ),
 
 
