@@ -36,8 +36,9 @@ module radioberry_core(
 	input [3:0] 	pi_tx_data,
  
 	// Radioberry IO
-	output 			ptt_out
-	
+	input           io_phone_tip,
+	input           io_phone_ring,
+	output 			io_ptt_out
 );
 
 // PARAMETERS
@@ -47,8 +48,10 @@ parameter       CLK_FREQ = 76800000;
 parameter       UART = 0;
 parameter       ATU = 0;
 parameter       VNA = 0;
+parameter       CW = 0; // CW Support
 
-localparam      VERSION_MAJOR = 8'd68;
+localparam      VERSION_MAJOR = 8'd69;
+localparam      VERSION_MINOR = 8'd3;
 
 
 logic   [5:0]   cmd_addr;
@@ -56,11 +59,11 @@ logic   [31:0]  cmd_data;
 logic           cmd_cnt;
 logic           cmd_cnt_next;
 logic           cmd_ptt;
-logic           cmd_requires_resp;         
+logic			cwx_enabled = 1'b0;    
 
-logic           tx_on, tx_on_ad9866sync;
-logic           cw_keydown, cw_keydown_ad9866sync;
-logic           tx_cw_waveform;    
+logic           tx_on, tx_on_iosync;
+logic           cw_on, cw_on_iosync;
+logic           cw_keydown = 1'b0, cw_keydown_ad9866sync;
 
 logic   [31:0]  dsiq_tdata;
 logic           dsiq_tready;   
@@ -83,9 +86,8 @@ logic           clk_ad9866;
 logic           clk_ad9866_2x;
 logic           clk_envelope;
 logic			clk_internal;
+logic           clk_ad9866_slow;
 logic           ad9866up;
-
-logic           tx_hang, tx_hang_iosync;
 
 logic [11:0]    rx_data;
 logic [11:0]    tx_data;
@@ -93,6 +95,13 @@ logic [11:0]    tx_data;
 logic           rxclip, rxclip_iosync;
 logic           rxgoodlvl, rxgoodlvl_iosync;
 logic           rxclrstatus, rxclrstatus_ad9866sync;
+
+logic           qmsec_pulse, qmsec_pulse_ad9866sync;
+logic           msec_pulse;
+
+logic           run, run_iosync, run_ad9866sync;
+
+logic 			cwx;
 
 //------------------------------------------------------------------------------
 //                           Radioberry Software Reset Handler
@@ -105,13 +114,14 @@ reset_handler reset_handler_inst(.clock(clk_internal), .reset(reset));
 //------------------------------------------------------------------------------
 wire [47:0] spi0_recv;
 
-spi_slave spi_slave_inst(.rstb(!reset),.ten(1'b1),.tdata({40'h0, VERSION_MAJOR}),.mlb(1'b1),.ss(pi_spi_ce[0]),.sck(pi_spi_sck),.sdin(pi_spi_mosi), .sdout(pi_spi_miso),.done(pi_spi_done),.rdata(spi0_recv));
+spi_slave spi_slave_inst(.rstb(!reset),.ten(1'b1),.tdata({32'h0, VERSION_MAJOR, VERSION_MINOR}),.mlb(1'b1),.ss(pi_spi_ce[0]),.sck(pi_spi_sck),.sdin(pi_spi_mosi), .sdout(pi_spi_miso),.done(pi_spi_done),.rdata(spi0_recv));
 
 always @ (posedge pi_spi_done) 	cmd_cnt <= ~cmd_cnt_next; 
 		
 always @* begin
 	cmd_cnt_next = cmd_cnt;
-	cmd_requires_resp = spi0_recv[39];
+	cwx_enabled = spi0_recv[41];
+	run = spi0_recv[40];
 	cmd_ptt = spi0_recv[32];
 	cmd_addr = spi0_recv[38:33];
 	cmd_data = spi0_recv[31: 0];
@@ -152,9 +162,6 @@ usiq_fifo usiq_fifo_i (
 logic [7:0] tx_data_assembled;
 logic [3:0] tx_data_n;
 
-assign tx_on = cmd_ptt;
-assign ptt_out = cmd_ptt;
-
 always @ (posedge pi_tx_clk) tx_data_assembled <= {pi_tx_data, tx_data_n};
 always @ (negedge pi_tx_clk) tx_data_n <= pi_tx_data;
 logic [1:0] tx_last;
@@ -183,7 +190,14 @@ dsiq_fifo #(.depth(8192)) dsiq_fifo_i (
 //------------------------------------------------------------------------------
 //                           Radioberry Clock Handler
 //------------------------------------------------------------------------------													
-ad9866pll ad9866pll_inst (.inclk0(rffe_ad9866_clk76p8), .c0(clk_ad9866), .c1(clk_ad9866_2x), .c2(clk_envelope), .c3(clk_internal),  .locked(ad9866up));
+ad9866pll ad9866pll_inst (
+	.inclk0(rffe_ad9866_clk76p8), 
+	.c0(clk_ad9866), 
+	.c1(clk_ad9866_2x), 
+	.c2(clk_envelope), 
+	.c3(clk_internal), 
+	.c4(clk_ad9866_slow), 
+	.locked(ad9866up));
 
 //------------------------------------------------------------------------------
 //                           Radioberry AD9866 Clock Domain Handler
@@ -201,16 +215,22 @@ sync_pulse sync_rxclrstatus_ad9866 (
   .sig_out(rxclrstatus_ad9866sync)
 );
 
-sync sync_ad9866_tx_on (
+sync_one sync_qmsec_pulse_ad9866 (
   .clock(clk_ad9866),
-  .sig_in(tx_on),
-  .sig_out(tx_on_ad9866sync)
+  .sig_in(qmsec_pulse),
+  .sig_out(qmsec_pulse_ad9866sync)
 );
 
 sync sync_ad9866_cw_keydown (
   .clock(clk_ad9866),
   .sig_in(cw_keydown),
   .sig_out(cw_keydown_ad9866sync)
+);
+
+sync sync_run_ad9866 (
+  .clock(clk_ad9866),
+  .sig_in(run),
+  .sig_out(run_ad9866sync)
 );
 
 
@@ -220,7 +240,7 @@ ad9866 ad9866_i (
 
   .tx_data(tx_data),
   .rx_data(rx_data),
-  .tx_en(tx_on_ad9866sync | tx_cw_waveform),
+  .tx_en(tx_on),
 
   .rxclip(rxclip),
   .rxgoodlvl(rxgoodlvl),
@@ -240,6 +260,8 @@ ad9866 ad9866_i (
 //------------------------------------------------------------------------------
 //                           Radioberry Radio Handler
 //------------------------------------------------------------------------------
+assign cwx = (cwx_enabled) ? (|dsiq_tdata) : 1'b0;
+
 radio #(
   .NR(NR), 
   .NT(NT),
@@ -250,18 +272,20 @@ radio_i
 (
   .clk(clk_ad9866),
   .clk_2x(clk_ad9866_2x),
+  
+  .run(run_ad9866sync),
+  .qmsec_pulse(qmsec_pulse_ad9866sync),
+  .ext_keydown(cw_keydown_ad9866sync),
 
-  .cw_keydown(cw_keydown_ad9866sync),
-  .tx_on(tx_on_ad9866sync),
-  .tx_cw_key(tx_cw_waveform),
-  .tx_hang(tx_hang),
+  .tx_on(tx_on),
+  .cw_on(cw_on),
 
   // Transmit
   .tx_tdata({dsiq_tdata[7:0],dsiq_tdata[15:8], dsiq_tdata[23:16],dsiq_tdata[31:24]}),
-  .tx_tid(3'h0),
   .tx_tlast(1'b1),
   .tx_tready(dsiq_tready),
   .tx_tvalid(dsiq_tvalid),
+  .tx_tuser({cmd_ptt, cwx,  2'b00}),  
 
   .tx_data_dac(tx_data),
 
@@ -306,12 +330,6 @@ sync syncio_rxgoodlvl (
   .sig_out(rxgoodlvl_iosync)
 );
 
-sync syncio_txhang (
-  .clock(clk_internal),
-  .sig_in(tx_hang),
-  .sig_out(tx_hang_iosync)
-);
-
 //------------------------------------------------------------------------------
 //                           Radioberry AD9866 Control Handler
 //------------------------------------------------------------------------------
@@ -331,5 +349,38 @@ ad9866ctrl ad9866ctrl_i (
   .cmd_rqst(cmd_rqst_io),
   .cmd_ack()
 );
+
+
+//------------------------------------------------------------------------------
+//                           Radioberry IO Clock Domain Handler
+//------------------------------------------------------------------------------
+sync syncio_run (
+  .clock(clk_internal),
+  .sig_in(run),
+  .sig_out(run_iosync)
+);
+
+control #(.CW(CW)) control_i (
+	.clk(clk_internal),
+	.clk_slow(clk_ad9866_slow),  
+	
+	.run(run_iosync),
+	
+	.cmd_addr(cmd_addr),
+	.cmd_data(cmd_data),
+	.cmd_rqst(cmd_rqst_io),
+ 
+	.tx_on(tx_on),
+	.cw_on(cw_on),
+	.cw_keydown(cw_keydown),
+  
+	.io_phone_tip(io_phone_tip),  
+	.io_phone_ring(io_phone_ring),  
+
+	.msec_pulse(msec_pulse),
+	.qmsec_pulse(qmsec_pulse),
+	
+	.pa_exttr(io_ptt_out)
+  );
 
 endmodule
