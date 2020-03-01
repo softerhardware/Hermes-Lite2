@@ -38,7 +38,9 @@ module radioberry (
 	input [3:0]  	pi_tx_data,  
  
 	// Radioberry IO
-	output 			ptt_out
+	input           io_phone_tip,
+	input           io_phone_ring,
+	output 			io_ptt_out
 );
 
 
@@ -47,7 +49,8 @@ module radioberry (
     .NT   (1                                    ),
     .UART (0                                    ),
     .ATU  (0                                    ),
-	.VNA  (0									)
+	.VNA  (0									),
+	.CW   (2									)
   ) radioberry_core_i (
  
     .rffe_ad9866_rst_n         (rffe_ad9866_rst_n    ),
@@ -72,7 +75,9 @@ module radioberry (
 	.pi_rx_last					(pi_rx_last),
 	.pi_tx_clk					(pi_tx_clk),
 	.pi_tx_data					(pi_tx_data),
-	.ptt_out					(ptt_out)
+	.io_phone_tip				(io_phone_tip),
+	.io_phone_ring				(io_phone_ring),
+	.io_ptt_out					(io_ptt_out)
   );
 
 endmodule
