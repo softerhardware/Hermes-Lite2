@@ -46,22 +46,27 @@ localparam
   PASS    = 3'b101,
   FAIL    = 3'b010;
 
-localparam TRY_TIME   = 12'd2047;
-localparam HANG_TIME  = 12'd255 ;
-localparam DELAY_TIME = 12'd127 ;
-localparam TIMEOUT    = 12'd4085;
+// Picked to have similar binary patterns
+localparam HANG_TIME    = 12'd311 ;
+localparam RESET_TIME   = 12'd71  ;
+localparam DELAY_TIME   = 12'd71  ;
+localparam SUCCESS_TIME = 12'd71  ;
+localparam TRY_TIME     = 12'd511 ;
+localparam TX_TIME      = 12'd4095;
 
-logic [11:0] timer_next, timer = TRY_TIME;
+logic [11:0] timer_next, timer = DELAY_TIME;
 logic [ 2:0] state_next, state = IDLE;
 
 logic enable = 1'b0;
+logic reset  = 1'b0;
 
 always @(posedge clk) begin
   if (cmd_rqst & (cmd_addr == 6'h09)) begin
     // enable tune if
     // PA on and not disable TR in low power mode
     // PA off and disable TR in low power mode
-    enable <= cmd_data[20] & (cmd_data[19] ^ cmd_data[18]);
+    enable <= cmd_data[20] & cmd_data[19];
+    reset  <= cmd_data[18];
   end
 end
 
@@ -88,16 +93,21 @@ always @* begin
     end
 
     DELAY: begin
+      txinhibit = 1'b1;
       if (timer == 12'd0) begin
         state_next = TRY;
-        timer_next = TRY_TIME;
+        if (reset) timer_next = RESET_TIME;
+        else timer_next = TRY_TIME;
       end
     end
 
     TRY: begin
+      txinhibit = 1'b1;
       start = 1'b0;
       if (timer == 12'd0) begin
-        state_next = FAIL;
+        timer_next = SUCCESS_TIME;
+        // Always go to success in case no ATU connected so tune still works
+        state_next = SUCCESS;
       end else if (~key) begin
         state_next = HANG;
         timer_next = HANG_TIME;
@@ -105,10 +115,11 @@ always @* begin
     end
 
     HANG: begin
+      txinhibit = 1'b1;
       start = 1'b0;
       if (timer == 12'd0) begin
         state_next = TX;
-        timer_next = TIMEOUT;
+        timer_next = TX_TIME;
       end
     end
 
@@ -117,7 +128,7 @@ always @* begin
         state_next = FAIL;
       end else if (key) begin
         state_next = SUCCESS;
-        timer_next = DELAY_TIME;
+        timer_next = SUCCESS_TIME;
       end
     end
 

@@ -25,6 +25,7 @@ module control(
   cmd_rqst,
   cmd_requires_resp,
 
+  atu_txinhibit,
   tx_on,
   cw_on,
   cw_keydown,
@@ -129,6 +130,7 @@ input  [31:0]   cmd_data;
 input           cmd_rqst;
 input           cmd_requires_resp;
 
+output          atu_txinhibit;
 input           tx_on;
 input           cw_on;
 output          cw_keydown;
@@ -277,8 +279,6 @@ logic         use_eeprom_config = 1'b0;
 logic         hl2_reset_state = 1'b0;
 
 logic         temp_enabletx = 1'b1;
-
-logic atu_txinhibit = 1'b0;
 
 logic int_tx_on;
 
@@ -452,7 +452,7 @@ assign io_led_adc100 = run ? led_d5 : ~(ad9866up & good_fast_clk);
 // Clear status
 always @(posedge clk) rxclrstatus <= ~rxclrstatus;
 
-assign int_tx_on = (tx_on | ext_ptt ) & ~ext_txinhibit & run & temp_enabletx & ~atu_txinhibit;
+assign int_tx_on = (tx_on | ext_ptt ) & ~ext_txinhibit & run & temp_enabletx;
 
 assign pwr_envbias = int_tx_on & ~vna & pa_enable;
 assign pwr_envop = int_tx_on;
@@ -771,6 +771,7 @@ generate
   case (ATU)
     0: begin: NOATU // No ATU
       assign io_atu_req = 1'b1;
+      assign atu_txinhibit = 1'b0;
     end
 
     1: begin: ATU // ATU

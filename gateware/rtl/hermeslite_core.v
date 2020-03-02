@@ -123,7 +123,7 @@ parameter       CW = 0; // CW Support
 parameter       LRDATA = 0;
 
 localparam      VERSION_MAJOR = (BOARD==2) ? 8'd49 : 8'd69;
-localparam      VERSION_MINOR = 8'd3;
+localparam      VERSION_MINOR = 8'd4;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
@@ -273,6 +273,8 @@ logic           hl2_reset;
 
 logic           qmsec_pulse, qmsec_pulse_ad9866sync;
 logic           msec_pulse, msec_pulse_ethsync;
+
+logic           atu_txinhibit, atu_txinhibit_ad9866ync;
 
 
 /////////////////////////////////////////////////////
@@ -652,13 +654,19 @@ sync sync_keydown_ad9866 (
   .sig_out(cw_keydown_ad9866sync)
 );
 
+sync sync_atutxinhibit_ad9866 (
+  .clock(clk_ad9866),
+  .sig_in(atu_txinhibit),
+  .sig_out(atu_txinhibit_ad9866sync)
+);
+
 ad9866 ad9866_i (
   .clk(clk_ad9866),
   .clk_2x(clk_ad9866_2x),
 
   .tx_data(tx_data),
   .rx_data(rx_data),
-  .tx_en(tx_on),
+  .tx_en(tx_on & ~atu_txinhibit_ad9866sync),
 
   .rxclip(rxclip),
   .rxgoodlvl(rxgoodlvl),
@@ -811,6 +819,7 @@ control #(
   .cmd_rqst         (cmd_rqst_io           ),
   .cmd_requires_resp(cmd_requires_resp     ),
 
+  .atu_txinhibit    (atu_txinhibit         ),
   .tx_on            (tx_on_iosync          ),
   .cw_on            (cw_on_iosync          ),
   .cw_keydown       (cw_keydown            ),

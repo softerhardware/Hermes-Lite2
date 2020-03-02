@@ -392,10 +392,7 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
     );
 
 
-  // First receiver
-  // If in VNA mode use the Tx[0] phase word for the first receiver phase
-  //assign rx0_phase = vna ? tx0_phase : rx_phase[0];
-
+  // One receiver minimum
   mix2 #(.CALCTYPE(3)) mix2_0 (
     .clk(clk),
     .clk_2x(clk_2x),
@@ -408,6 +405,8 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
     .mixdata1_i(mixdata_i[2]),
     .mixdata1_q(mixdata_q[2])
   );
+  assign cordic_data_I = mixdata_i[0];
+  assign cordic_data_Q = mixdata_q[0];
 
   receiver_nco #(.CICRATE(CICRATE)) receiver_0 (
     .clock(clk),
@@ -420,25 +419,10 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
     .out_data_Q(rx0_out_Q)
   );
 
-assign cordic_data_I = mixdata_i[0];
-assign cordic_data_Q = mixdata_q[0];
-
 generate
-if (NR >= 3) begin: RECEIVER2
-  receiver_nco #(.CICRATE(CICRATE)) receiver_2 (
-    .clock(clk),
-    .clock_2x(clk_2x),
-    .rate(rate),
-    .mixdata_I(mixdata_i[1]),
-    .mixdata_Q(mixdata_q[1]),
-    .out_strobe(rx_data_rdy[2]),
-    .out_data_I(rx_data_i[2]),
-    .out_data_Q(rx_data_q[2])
-  );
-end
 
 if (NR >= 2) begin: MIX1_3
-  // Build double mixer
+  // Always build second mixer for second receiver for PureSignal support
   mix2 #(.CALCTYPE(3)) mix2_2 (
     .clk(clk),
     .clk_2x(clk_2x),
@@ -463,6 +447,19 @@ if (NR >= 2) begin: RECEIVER1
     .out_strobe(rx_data_rdy[1]),
     .out_data_I(rx_data_i[1]),
     .out_data_Q(rx_data_q[1])
+  );
+end
+
+if (NR >= 3) begin: RECEIVER2
+  receiver_nco #(.CICRATE(CICRATE)) receiver_2 (
+    .clock(clk),
+    .clock_2x(clk_2x),
+    .rate(rate),
+    .mixdata_I(mixdata_i[2]),
+    .mixdata_Q(mixdata_q[2]),
+    .out_strobe(rx_data_rdy[2]),
+    .out_data_I(rx_data_i[2]),
+    .out_data_Q(rx_data_q[2])
   );
 end
 

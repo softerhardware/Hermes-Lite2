@@ -104,4 +104,5 @@ set_instance_assignment -name FAST_INPUT_REGISTER ON -to io_s*
 
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to pa_*
 
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PIN_83
 
