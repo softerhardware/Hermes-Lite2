@@ -103,10 +103,10 @@ For pin information, see [Rear IO strip](https://github.com/softerhardware/Herme
 | DB1-8 Vlvds to J2-1 Vlvds | | |
 | DB1-14 GND to J2-15 GND | | |
 | Rear IO Vsup to J2-7 Vsup | | ACC1-1 to Red Power |
-| Read IO GND to J2-11 GND | | ACC1-9 to Black Ground |
+| Rear IO GND to J2-11 GND | | ACC1-9 to Black Ground |
 
  * Two grounds are connected to avoid loops.
- * To reduce RF noise and pickup on the KEY and START wires, install 0.1 uF capacitors in IO Endplate footprints D1 and D2.
+ * To reduce RF noise and pickup on the KEY and START wires, you can install 0.1 uF capacitors at IO Endplate footprints D1 and D2.
  * With R16 of 10K, the voltage on KEY may not be pulled up to 12V as the AH-4 draws current. R16 can be converted to 5K by mounting 2 10K resistors, one on top of the other. This will keep KEY closer to 12V.
  * Only odd pins are used on ACC1 so that they will match to the 5 pins of a terminal block if installed at position ACC1.
 
@@ -118,18 +118,18 @@ For pin information, see [Rear IO strip](https://github.com/softerhardware/Herme
  | DB1-14 | 0V |
  | ACC1-1 | 12V |
  | ACC1-3 | 9-12V |
- | ACC1-7 | 3.3 5V |
+ | ACC1-7 | 3.3-5V |
  | ACC1-9 | 0V |
 
 ## Operation
 
-The ATU tune function will activate if the TUNE request bit is set during transmit. See the [protocol wiki](https://github.com/softerhardware/Hermes-Lite2/wiki/Protocol) for details. The PA must be on (ATU functionality is not available during low power out) and power out must be 5W to activate the tuner. The 'Enable Filters' checkbox (PowerSDR) or 'Disable TR switch in lowpower' selection (Quisk) selects between tune or bypass. Currently there is no way to force retune of a specific frequency (reset memory setting) as this does not appear to be supported by the AH-4 protocol. To erase all memorized settings, you must remove power from the AH-4 and wait for a capacitor to discharge. My unit took more than 12 hours to discharge. You can also open the unit and discharge the processor's 5V supply with a wire.
+The ATU tune function will activate if the TUNE request bit is set during transmit. See the [protocol wiki](https://github.com/softerhardware/Hermes-Lite2/wiki/Protocol) for details. The PA must be on (ATU functionality is not available during low power out) and power out must be 5W to activate the tuner. The 'Enable Filters' checkbox (PowerSDR) or 'Disable T/R in low power' selection (Quisk) selects between tune or bypass. Currently there is no way to force retune of a specific frequency (reset memory setting) as this does not appear to be supported by the AH-4 protocol. To erase all memorized settings, you must remove power from the AH-4 and wait for a capacitor to discharge. My unit took more than 12 hours to discharge. You can also open the unit and quickly discharge the processor's 5V supply with a wire.
 
 Pressing tune in PowerSDR or Spot in Quisk (with code modifications) will activate the tuner. You will hear relays click in the ATU if nearby. A successful tune will end after 2-4 seconds and the tune signal will still be transmitting as seen with duplex enabled. You can confirm a low SWR with Quisk. An unsuccessful tune will end in 2-4 seconds but the tune signal will not be transmitting.
 
 Initiating tune in bypass mode will always result in success but no matching network will be inserted by the AH-4.
 
-If you do not have an ATU and press the tune or spot button, a signal will be generated as expected, but may be delayed by up to 0.5 seconds as the HL2 discovers there is no ATU. To reduce this time, enable bypass mode by checking the 'disable TR switch in lowpower' or the 'Enable Filters' checkbox.
+If you do not have an ATU and press the tune or spot button, a signal will be generated as expected, but may be delayed by up to 0.5 seconds as the HL2 discovers there is no ATU. To reduce this time, enable bypass mode by checking the 'Disable T/R in low power' or the 'Enable Filters' checkbox.
 
 ### Quisk
 
