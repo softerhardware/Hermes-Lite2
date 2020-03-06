@@ -51,7 +51,7 @@ parameter       VNA = 0;
 parameter       CW = 0; // CW Support
 
 localparam      VERSION_MAJOR = 8'd69;
-localparam      VERSION_MINOR = 8'd3;
+localparam      VERSION_MINOR = 8'd4;
 
 
 logic   [5:0]   cmd_addr;
