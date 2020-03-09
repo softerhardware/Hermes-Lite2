@@ -37,8 +37,8 @@ set_location_assignment PIN_49 -to pi_tx_data[0]
 
 #Radioberry IO
 set_location_assignment PIN_144 -to io_ptt_out
-set_location_assignment PIN_115 -to io_phone_tip
-set_location_assignment PIN_119 -to io_phone_ring
+set_location_assignment PIN_120 -to io_phone_tip
+set_location_assignment PIN_121 -to io_phone_ring
 
 #RF-Frontend
 set_location_assignment PIN_111 -to rffe_ad9866_mode
