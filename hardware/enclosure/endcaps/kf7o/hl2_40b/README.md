@@ -107,8 +107,8 @@ For pin information, see [Rear IO strip](https://github.com/softerhardware/Herme
 
  * Two grounds are connected to avoid loops.
  * To reduce RF noise and pickup on the KEY and START wires, you can install 0.1 uF capacitors at IO Endplate footprints D1 and D2.
- * With R16 of 10K, the voltage on KEY may not be pulled up to 12V as the AH-4 draws current. R16 can be converted to 5K by mounting 2 10K resistors, one on top of the other. This will keep KEY closer to 12V.
  * Only odd pins are used on ACC1 so that they will match to the 5 pins of a terminal block if installed at position ACC1.
+ * If you do not see the expected idle voltages on ACC1-3 or ACC1-7, replace the BSS138 on the respective channel.
 
  | Pin | Expected Idle Voltage |
  | --- | --------------------- |
@@ -117,8 +117,8 @@ For pin information, see [Rear IO strip](https://github.com/softerhardware/Herme
  | DB1-8 | 2.5V |
  | DB1-14 | 0V |
  | ACC1-1 | 12V |
- | ACC1-3 | 9-12V |
- | ACC1-7 | 3.3-5V |
+ | ACC1-3 | ACC1-1 +/- 0.5V |
+ | ACC1-7 | 5V |
  | ACC1-9 | 0V |
 
 ## Operation
