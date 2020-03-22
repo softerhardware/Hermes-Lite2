@@ -1,4 +1,4 @@
 (sym_lib_table
-  (lib (name endcap)(type Legacy)(uri /home/shaynal/Hermes-Lite2/hardware/enclosure/endcaps/kf7o/endcaplib/endcap.lib)(options "")(descr ""))
-  (lib (name hermeslite)(type Legacy)(uri ${HLPATH}/libs/hermeslite.lib)(options "")(descr ""))
+  (lib (name endcap)(type Legacy)(uri ${KIPRJMOD}/../endcaplib/endcap.lib)(options "")(descr ""))
+  (lib (name hermeslite)(type Legacy)(uri ${KIPRJMOD}/../../../../hl/libs/hermeslite.lib)(options "")(descr ""))
 )
