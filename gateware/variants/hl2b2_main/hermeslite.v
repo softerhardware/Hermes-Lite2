@@ -100,7 +100,8 @@ module hermeslite (
     .UART  (1                                    ),
     .ATU   (0                                    ),
     .FAN   (1                                    ),
-    .PSSYNC(1                                    )
+    .PSSYNC(1                                    ),
+    .ASMII (1                                    )
   ) hermeslite_core_i (
     .pwr_clk3p3                (pwr_clk3p3           ),
     .pwr_clk1p2                (pwr_clk1p2           ),

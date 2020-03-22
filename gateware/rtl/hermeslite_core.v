@@ -122,8 +122,11 @@ parameter       CW = 0; // CW Support
 //   when using the TX envelope PWM reduce the number of receivers (NR) above by 1
 parameter       LRDATA = 0;
 
-localparam      VERSION_MAJOR = (BOARD==2) ? 8'd49 : 8'd69;
-localparam      VERSION_MINOR = 8'd4;
+// Use ASMII for EEPROM configuration
+parameter       ASMII = 0;
+
+localparam      VERSION_MAJOR = (BOARD==2) ? 8'd50 : 8'd70;
+localparam      VERSION_MINOR = 8'd0;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
@@ -259,11 +262,6 @@ logic           dsethasmi_erase, dsethasmi_erase_ack;
 logic           usethasmi_send_more, usethasmi_erase_done, usethasmi_ack;
 logic [13:0]    asmi_cnt = 14'h0000;
 logic           dsethasmi_tvalid;
-
-logic [ 7:0]    asmi_data;
-logic [ 9:0]    asmi_rx_used;
-logic           asmi_rdreq;
-logic           asmi_reconfig;
 
 logic  [31:0]   static_ip;
 logic  [15:0]   alt_mac;
@@ -917,56 +915,61 @@ assign io_adc_scl = scl3_t ? 1'bz : scl3_o;
 assign sda3_i = io_adc_sda;
 assign io_adc_sda = sda3_t ? 1'bz : sda3_o;
 
-asmi_fifo asmi_fifo_i (
-  .wrclk (clock_ethrxint),
-  .wrreq(dsethasmi_tvalid),
-  .data (dseth_tdata),
 
-  .rdreq (asmi_rdreq),
-  .rdclk (clk_ctrl),
-  .q (asmi_data),
-  .rdusedw(asmi_rx_used),
+generate case (ASMII)
 
-  .aclr(1'b0)
-);
+  1: begin: INCLUDEASMII
+    logic [ 7:0]    asmi_data;
+    logic [ 9:0]    asmi_rx_used;
+    logic           asmi_rdreq;
+    logic           asmi_reconfig;
 
+    asmi_fifo asmi_fifo_i (
+      .wrclk (clock_ethrxint),
+      .wrreq(dsethasmi_tvalid),
+      .data (dseth_tdata),
+      .rdreq (asmi_rdreq),
+      .rdclk (clk_ctrl),
+      .q (asmi_data),
+      .rdusedw(asmi_rx_used),
+      .aclr(1'b0)
+    );
 
-asmi_interface asmi_interface_i (
-  .clock(clk_ctrl),
-  .busy(),
-  .erase(dsethasmi_erase),
-  .erase_ACK(dsethasmi_erase_ack),
-  .IF_Rx_used(asmi_rx_used),
-  .rdreq(asmi_rdreq),
-  .IF_PHY_data(asmi_data),
-  .erase_done(usethasmi_erase_done),
-  .erase_done_ACK(usethasmi_ack),
-  .send_more(usethasmi_send_more),
-  .send_more_ACK(usethasmi_ack),
-  .num_blocks(asmi_cnt),
-  .NCONFIG(asmi_reconfig)
-);
+    asmi_interface asmi_interface_i (
+      .clock(clk_ctrl),
+      .busy(),
+      .erase(dsethasmi_erase),
+      .erase_ACK(dsethasmi_erase_ack),
+      .IF_Rx_used(asmi_rx_used),
+      .rdreq(asmi_rdreq),
+      .IF_PHY_data(asmi_data),
+      .erase_done(usethasmi_erase_done),
+      .erase_done_ACK(usethasmi_ack),
+      .send_more(usethasmi_send_more),
+      .send_more_ACK(usethasmi_ack),
+      .num_blocks(asmi_cnt),
+      .NCONFIG(asmi_reconfig)
+    );
 
+    remote_update remote_update_i (
+      .clk(clk_ctrl),
+      .rst(~ethpll_locked),
+      .reboot(asmi_reconfig | hl2_reset),
+      .factory( (~io_phone_tip & ~io_phone_ring) )
+    );
 
+  end
 
-`ifdef FACTORY
+  default: begin: NOASMII
 
-remote_update_fac remote_update_fac_i (
-  .clk(clk_ctrl),
-  .rst(~ethpll_locked),
-  .bootapp(io_tx_inhibit)
-);
+    assign usethasmi_erase_done = 1'b0;
+    assign usethasmi_send_more = 1'b0;
+    assign dsethasmi_erase_ack = 1'b1;
 
+  end
+endcase
+endgenerate
 
-`else
-
-remote_update_app remote_update_app_i (
-  .clk(clk_ctrl),
-  .rst(~ethpll_locked),
-  .reconfig(asmi_reconfig | hl2_reset)
-);
-
-`endif
 
 
 endmodule

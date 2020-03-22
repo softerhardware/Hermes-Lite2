@@ -75,8 +75,8 @@ case (state)
 		write <= 0;
 		erase_ACK <= 0;
 		erase_done <= 0;
-		//address <= 24'h100000;			// set starting address to write to is top 1MB
-		address <= 24'h0;
+		address <= 24'h100000;			// set starting address to write to is top 1MB
+		//address <= 24'h0;
 		byte_count <= 0;
 		page <= 0;
 		send_more <= 0;
