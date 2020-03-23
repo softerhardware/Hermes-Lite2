@@ -1,12 +1,11 @@
 EESchema Schematic File Version 4
-LIBS:hermeslite-cache
-EELAYER 26 0
+EELAYER 30 0
 EELAYER END
 $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 7 7
 Title "Hermes-Lite V2 5W Power Amplifier"
-Date "2019-08-25"
+Date "2020-03-22"
 Rev "2.0-build9"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
@@ -656,7 +655,7 @@ F 3 "" H 7725 5675 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Text Notes 8875 5275 0    60   ~ 0
-External PTT\nWill ground pin 1 during TX\nExternal PA to supply pullup\nvoltage up to 28V
+External PTT\nWill ground EXTTR during TX\nExternal PA to supply pullup\nvoltage up to 28V
 Text Notes 7475 1400 0    60   ~ 0
 No onboard TR relay installed by assembly house\nOn board TR: Hand install K2\nExternal TR: Install J14 or wire from K2 pin 8 to pin 9
 Text Notes 7475 1075 0    60   ~ 12
@@ -1566,7 +1565,7 @@ Expected User Install for Standard Build
 Text Notes 8450 3500 0    60   ~ 0
 T3\nEither K2 or J14/equivalent wire\nRF2 if no companion card
 Text Notes 8875 4500 0    60   ~ 0
-Internal PTT\nMay ground pin 1 during TX\ndepending on firmware setting\nPullup to 3.3V by K2\nMay pullup to 28V if K2 absent
+Internal PTT\nMay ground INTTR during TX\ndepending on firmware setting\nPullup to 3.3V by K2\nMay pullup to 28V if K2 absent
 Wire Wire Line
 	2275 5700 2275 5850
 Wire Wire Line

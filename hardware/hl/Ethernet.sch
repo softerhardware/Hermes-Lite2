@@ -1,12 +1,11 @@
 EESchema Schematic File Version 4
-LIBS:hermeslite-cache
-EELAYER 26 0
+EELAYER 30 0
 EELAYER END
 $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 3 7
 Title "Ethernet"
-Date "2019-08-25"
+Date "2020-03-22"
 Rev "2.0-build9"
 Comp "SofterHardware"
 Comment1 "KF7O Steve Haynal"
