@@ -48,8 +48,6 @@ module control(
   rffe_ad9866_sclk,
   rffe_ad9866_sen_n,
 
-  rffe_ad9866_pga5,
-
   // Power
   pwr_clk3p3,
   pwr_clk1p2,
@@ -154,8 +152,6 @@ output          rffe_ad9866_sdio;
 output          rffe_ad9866_sclk;
 output          rffe_ad9866_sen_n;
 
-output          rffe_ad9866_pga5;
-
 // Power
 output logic    pwr_clk3p3 = 1'b0;
 output logic    pwr_clk1p2 = 1'b0;
@@ -215,6 +211,7 @@ parameter     ATU = 0;
 parameter     FAN = 0;
 parameter     PSSYNC = 0;
 parameter     CW = 0;
+parameter     FAST_LNA = 0;
 
 
 logic         vna = 1'b0;                    // Selects vna mode when set.
@@ -464,15 +461,13 @@ assign rffe_rfsw_sel = ~vna & pa_enable;
 
 
 // AD9866 Ctrl
-ad9866ctrl ad9866ctrl_i (
+ad9866ctrl #(.FAST_LNA(FAST_LNA)) ad9866ctrl_i (
   .clk(clk),
   .rst(ad9866_rst),
 
   .rffe_ad9866_sdio(rffe_ad9866_sdio),
   .rffe_ad9866_sclk(rffe_ad9866_sclk),
   .rffe_ad9866_sen_n(rffe_ad9866_sen_n),
-
-  .rffe_ad9866_pga5(rffe_ad9866_pga5),
 
   .cmd_addr(cmd_addr),
   .cmd_data(cmd_data),

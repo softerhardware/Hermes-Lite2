@@ -26,8 +26,6 @@ module ad9866ctrl (
   rffe_ad9866_sclk,
   rffe_ad9866_sen_n,
 
-  rffe_ad9866_pga5,
-
   // Command slave interface
   cmd_addr,
   cmd_data,
@@ -42,13 +40,13 @@ output            rffe_ad9866_sdio;
 output            rffe_ad9866_sclk;
 output            rffe_ad9866_sen_n;
 
-output            rffe_ad9866_pga5;
-
 // Command slave interface
 input  [5:0]      cmd_addr;
 input  [31:0]     cmd_data;
 input             cmd_rqst;
 output logic      cmd_ack = 1'b0;
+
+parameter         FAST_LNA = 0;
 
 
 // SPI
@@ -96,7 +94,7 @@ initial begin
   initarray[8] = {1'b0,8'h4b}; // Address 0x08, RX filter f-3db at ~34 MHz after scaling
   initarray[9] = {1'b0,8'h00}; // Address 0x09,
   initarray[10] = {1'b0,8'h00}; // Address 0x0a,
-  initarray[11] = {1'b1,8'h00}; // Address 0x0b, No RX gain on PGA
+  initarray[11] = {1'b1,((FAST_LNA == 1) ? 8'h04 : 8'h00)}; // Address 0x0b, Enable RxPGA update via Tx[5:0]
   initarray[12] = {1'b1,8'h43}; // Address 0x0c, TX twos complement and interpolation factor
   initarray[13] = {1'b1,8'h03}; // Address 0x0d, RX twos complement
   initarray[14] = {1'b1,8'h81}; // Address 0x0e, Enable/Disable IAMP
@@ -107,20 +105,18 @@ initial begin
   initarray[19] = {1'b0,8'h00}; // Address 0x13,
 end
 
-assign rffe_ad9866_pga5 = 1'b0;
-
 // Command Slave State Machine
 always @(posedge clk) begin
   cmd_state <= cmd_state_next;
   tx_gain <= tx_gain_next;
-  rx_gain <= rx_gain_next;
+  //rx_gain <= rx_gain_next;
   cmd_ack <= cmd_ack_next;
 end
 
 always @* begin
   cmd_state_next = cmd_state;
   tx_gain_next = tx_gain;
-  rx_gain_next = rx_gain;
+  //rx_gain_next = rx_gain;
   cmd_ack_next = cmd_ack;
   istart = 1'b0;
 
@@ -148,14 +144,19 @@ always @* begin
 
           // Hermes RX Gain Setting
           6'h0a: begin
-            if (rx_gain != cmd_data[6:0]) begin
-              // Must update
-              if (rffe_ad9866_sen_n) begin
-                rx_gain_next = cmd_data[6:0];
-                cmd_state_next = CMD_RXGAIN;
-              end else begin
-                cmd_ack_next = 1'b0;
+            // Rely on synthesis to prune
+            if (FAST_LNA != 1) begin
+              if (rx_gain != cmd_data[6:0]) begin
+                // Must update
+                if (rffe_ad9866_sen_n) begin
+                  rx_gain_next = cmd_data[6:0];
+                  cmd_state_next = CMD_RXGAIN;
+                end else begin
+                  cmd_ack_next = 1'b0;
+                end
               end
+            end else begin
+              cmd_state_next = CMD_RXGAIN;
             end
           end
 
@@ -181,10 +182,15 @@ always @* begin
     end
 
     CMD_RXGAIN: begin
-      istart          = 1'b1;
-      icmd_data[12:6] = {5'h09,2'b01};
-      icmd_data[5:0]  = rx_gain[6] ? rx_gain[5:0] : (rx_gain[5] ? ~rx_gain[5:0] : {1'b1,rx_gain[4:0]});
-      cmd_state_next  = CMD_IDLE;
+      // Rely on synthesis to prune
+      if (FAST_LNA != 1) begin
+        istart          = 1'b1;
+        icmd_data[12:6] = {5'h09,2'b01};
+        icmd_data[5:0]  = rx_gain[6] ? rx_gain[5:0] : (rx_gain[5] ? ~rx_gain[5:0] : {1'b1,rx_gain[4:0]});
+        cmd_state_next  = CMD_IDLE;
+      end else begin
+        cmd_state_next  = CMD_IDLE;
+      end
     end
 
     CMD_WRITE: begin
