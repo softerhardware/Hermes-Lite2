@@ -125,6 +125,9 @@ parameter       LRDATA = 0;
 // Use ASMII for EEPROM configuration
 parameter       ASMII = 0;
 
+parameter       FAST_LNA = 0; // Support for fast LNA setting, TX/RX values
+
+
 localparam      VERSION_MAJOR = (BOARD==2) ? 8'd50 : 8'd70;
 localparam      VERSION_MINOR = 8'd0;
 
@@ -658,7 +661,7 @@ sync sync_atutxinhibit_ad9866 (
   .sig_out(atu_txinhibit_ad9866sync)
 );
 
-ad9866 ad9866_i (
+ad9866 #(.FAST_LNA(FAST_LNA)) ad9866_i (
   .clk(clk_ad9866),
   .clk_2x(clk_ad9866_2x),
 
@@ -677,7 +680,14 @@ ad9866 ad9866_i (
   .rffe_ad9866_txquiet_n(rffe_ad9866_txquiet_n),
   .rffe_ad9866_txsync(rffe_ad9866_txsync),
 
-  .rffe_ad9866_mode(rffe_ad9866_mode)
+  .rffe_ad9866_mode(rffe_ad9866_mode),
+  .rffe_ad9866_pga5(rffe_ad9866_pga5),
+
+  // Command Slave
+  .cmd_addr(cmd_addr),
+  .cmd_data(cmd_data),
+  .cmd_rqst(cmd_rqst_ad9866),
+  .cmd_ack() // No need for ack
 );
 
 
@@ -790,7 +800,8 @@ control #(
   .ATU          (ATU          ),
   .FAN          (FAN          ),
   .PSSYNC       (PSSYNC       ),
-  .CW           (CW           )
+  .CW           (CW           ),
+  .FAST_LNA     (FAST_LNA     )
 ) control_i (
   // Internal
   .clk              (clk_ctrl              ),
@@ -842,8 +853,6 @@ control #(
   .rffe_ad9866_sdio (rffe_ad9866_sdio      ),
   .rffe_ad9866_sclk (rffe_ad9866_sclk      ),
   .rffe_ad9866_sen_n(rffe_ad9866_sen_n     ),
-
-  .rffe_ad9866_pga5 (rffe_ad9866_pga5      ),
 
   // Power
   .pwr_clk3p3       (pwr_clk3p3            ),

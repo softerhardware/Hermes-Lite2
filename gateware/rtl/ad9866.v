@@ -33,10 +33,18 @@ module ad9866 (
   rffe_ad9866_tx,
   rffe_ad9866_rx,
   rffe_ad9866_rxsync,
-  rffe_ad9866_rxclk,  
+  rffe_ad9866_rxclk,
   rffe_ad9866_txquiet_n,
   rffe_ad9866_txsync,
-  rffe_ad9866_mode
+  rffe_ad9866_mode,
+  rffe_ad9866_pga5,
+
+  // Command slave interface
+  cmd_addr,
+  cmd_data,
+  cmd_rqst,
+  cmd_ack
+
 );
 
 input             clk;
@@ -65,6 +73,16 @@ output            rffe_ad9866_txquiet_n;
 output            rffe_ad9866_txsync;
 
 output            rffe_ad9866_mode;
+
+output            rffe_ad9866_pga5;
+
+// Command slave interface
+input   [5:0]     cmd_addr;
+input   [31:0]    cmd_data;
+input             cmd_rqst;
+output            cmd_ack;
+
+parameter         FAST_LNA = 0;
 
 
 // TX Path
@@ -95,22 +113,58 @@ assign rffe_ad9866_txsync = tx_en_d1;
 assign rffe_ad9866_txquiet_n = clk;
 
 `else
-always @(posedge clk_2x) begin
-  tx_en_d1 <= tx_en;
-  tx_sync <= ~tx_sync;
-  if (tx_en_d1) begin
-    if (tx_sync) begin 
-      tx_data_d1 <= tx_data;
-      rffe_ad9866_tx <= tx_data_d1[5:0];
-    end else begin
-      rffe_ad9866_tx <= tx_data_d1[11:6];
+
+generate if (FAST_LNA == 1) begin: FAST_LNA
+
+  logic   [ 5:0]    rx_gain = 6'h1f;
+
+  always @(posedge clk) begin
+    if (cmd_rqst & (cmd_addr == 6'h0a)) begin
+      rx_gain <= cmd_data[6] ? cmd_data[5:0] : (cmd_data[5] ? ~cmd_data[5:0] : {1'b1,cmd_data[4:0]});
     end
-    rffe_ad9866_txsync <= tx_sync;
-  end else begin
-    rffe_ad9866_tx <= 6'h00;
-    rffe_ad9866_txsync <= 1'b0;
   end
-end
+
+  always @(posedge clk_2x) begin
+    tx_en_d1 <= tx_en;
+    tx_sync <= ~tx_sync;
+    if (tx_en_d1) begin
+      rffe_ad9866_pga5 <= 1'b0;
+      if (tx_sync) begin 
+        tx_data_d1 <= tx_data;
+        rffe_ad9866_tx <= tx_data_d1[5:0];
+      end else begin
+        rffe_ad9866_tx <= tx_data_d1[11:6];
+      end
+      rffe_ad9866_txsync <= tx_sync;
+    end else begin
+      rffe_ad9866_tx <= rx_gain;
+      rffe_ad9866_txsync <= 1'b0;
+      rffe_ad9866_pga5 <= 1'b1;
+    end
+  end
+
+end else begin: SLOW_LNA
+
+  assign rffe_ad9866_pga5 = 1'b0;
+
+  always @(posedge clk_2x) begin
+    tx_en_d1 <= tx_en;
+    tx_sync <= ~tx_sync;
+    if (tx_en_d1) begin
+      if (tx_sync) begin 
+        tx_data_d1 <= tx_data;
+        rffe_ad9866_tx <= tx_data_d1[5:0];
+      end else begin
+        rffe_ad9866_tx <= tx_data_d1[11:6];
+      end
+      rffe_ad9866_txsync <= tx_sync;
+    end else begin
+      rffe_ad9866_tx <= 6'h00;
+      rffe_ad9866_txsync <= 1'b0;
+    end
+  end
+
+end endgenerate
 
 assign rffe_ad9866_txquiet_n = tx_en_d1; 
 
