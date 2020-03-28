@@ -116,11 +116,18 @@ assign rffe_ad9866_txquiet_n = clk;
 
 generate if (FAST_LNA == 1) begin: FAST_LNA
 
-  logic   [ 5:0]    rx_gain = 6'h1f;
+  logic   [ 5:0]    gain_next, gain = 6'h1f;
+  logic             pga5_d1;
+  logic             update_gain = 1'b0;
+
+  assign gain_next = cmd_data[6] ? cmd_data[5:0] : (cmd_data[5] ? ~cmd_data[5:0] : {1'b1,cmd_data[4:0]});
 
   always @(posedge clk) begin
     if (cmd_rqst & (cmd_addr == 6'h0a)) begin
-      rx_gain <= cmd_data[6] ? cmd_data[5:0] : (cmd_data[5] ? ~cmd_data[5:0] : {1'b1,cmd_data[4:0]});
+      gain <= gain_next;
+      update_gain <= gain != gain_next;
+    end else begin
+      update_gain <= 1'b0;
     end
   end
 
@@ -128,18 +135,23 @@ generate if (FAST_LNA == 1) begin: FAST_LNA
     tx_en_d1 <= tx_en;
     tx_sync <= ~tx_sync;
     if (tx_en_d1) begin
-      rffe_ad9866_pga5 <= 1'b0;
-      if (tx_sync) begin 
-        tx_data_d1 <= tx_data;
+      if (tx_sync) begin
+        tx_data_d1 <= update_gain ? {gain,tx_data[5:0]} : tx_data;
+        pga5_d1 <= update_gain;
         rffe_ad9866_tx <= tx_data_d1[5:0];
+        rffe_ad9866_pga5 <= 1'b0;
+        rffe_ad9866_txsync <= ~pga5_d1; // No TX transaction completion if fast
       end else begin
         rffe_ad9866_tx <= tx_data_d1[11:6];
+        rffe_ad9866_pga5 <= pga5_d1;
+        rffe_ad9866_txsync <= 1'b0;
       end
-      rffe_ad9866_txsync <= tx_sync;
     end else begin
-      rffe_ad9866_tx <= rx_gain;
+      tx_data_d1 <= {gain,tx_data[5:0]};
+      pga5_d1 <= update_gain;
+      rffe_ad9866_tx <= tx_data_d1[11:6];
       rffe_ad9866_txsync <= 1'b0;
-      rffe_ad9866_pga5 <= 1'b1;
+      rffe_ad9866_pga5 <= pga5_d1;
     end
   end
 
@@ -151,7 +163,7 @@ end else begin: SLOW_LNA
     tx_en_d1 <= tx_en;
     tx_sync <= ~tx_sync;
     if (tx_en_d1) begin
-      if (tx_sync) begin 
+      if (tx_sync) begin
         tx_data_d1 <= tx_data;
         rffe_ad9866_tx <= tx_data_d1[5:0];
       end else begin
