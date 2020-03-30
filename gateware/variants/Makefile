@@ -4,6 +4,7 @@
 all:
 	$(MAKE) -C hl2b2_main
 	$(MAKE) -C hl2b3to4_main
+	$(MAKE) -C hl2b5up_main
 	$(MAKE) -C hl2b5up_6rx
 
 clean:

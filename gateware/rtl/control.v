@@ -100,7 +100,10 @@ module control(
 
   hl2_reset,
 
-  fan_pwm
+  fan_pwm,
+
+  ad9866_rst
+  
 );
 
 // Internal
@@ -204,6 +207,8 @@ output          hl2_reset;
 
 output          fan_pwm;
 
+output          ad9866_rst;
+
 
 parameter     VERSION_MAJOR = 8'h0;
 parameter     UART = 0;
@@ -243,7 +248,7 @@ logic [1:0]   millisec_count, millisec_count_next;
 
 logic         ext_txinhibit, ext_cwkey, ext_ptt;
 
-logic         slow_adc_rst, ad9866_rst;
+logic         slow_adc_rst;
 logic         clk_i2c_rst;
 logic         clk_i2c_start;
 
