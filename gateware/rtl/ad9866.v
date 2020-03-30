@@ -22,6 +22,8 @@ module ad9866 (
   clk,
   clk_2x,
 
+  rst,
+
   tx_data,
   rx_data,
   tx_en,
@@ -49,6 +51,8 @@ module ad9866 (
 
 input             clk;
 input             clk_2x;
+
+input             rst;
 
 input   [11:0]    tx_data;
 output  [11:0]    rx_data;
@@ -116,18 +120,33 @@ assign rffe_ad9866_txquiet_n = clk;
 
 generate if (FAST_LNA == 1) begin: FAST_LNA
 
-  logic   [ 5:0]    gain_next, gain = 6'h1f;
+  logic   [ 5:0]    gain, tx_gain, rx_gain = 6'h1f;
+  logic             en_tx_gain = 1'b0;
   logic             pga5_d1;
   logic             update_gain = 1'b0;
 
-  assign gain_next = cmd_data[6] ? cmd_data[5:0] : (cmd_data[5] ? ~cmd_data[5:0] : {1'b1,cmd_data[4:0]});
-
   always @(posedge clk) begin
-    if (cmd_rqst & (cmd_addr == 6'h0a)) begin
-      gain <= gain_next;
-      update_gain <= gain != gain_next;
+    if (cmd_rqst) begin
+      case (cmd_addr)
+          6'h0a: begin
+            rx_gain <= cmd_data[6] ? cmd_data[5:0] : (cmd_data[5] ? ~cmd_data[5:0] : {1'b1,cmd_data[4:0]});
+          end
+
+          6'h0e: begin
+            tx_gain <= cmd_data[14] ? cmd_data[13:8] : (cmd_data[13] ? ~cmd_data[13:8] : {1'b1,cmd_data[12:8]});
+            en_tx_gain <= cmd_data[15];
+          end
+      endcase
+    end
+
+    if ((rx_gain != gain) & (~tx_en | ~en_tx_gain)) begin
+      gain <= rx_gain;
+      update_gain <= 1'b1;
+    end else if ((tx_gain != gain) & (tx_en & en_tx_gain)) begin
+      gain <= tx_gain;
+      update_gain <= 1'b1;
     end else begin
-      update_gain <= 1'b0;
+      update_gain <= rst;
     end
   end
 
@@ -140,7 +159,7 @@ generate if (FAST_LNA == 1) begin: FAST_LNA
         pga5_d1 <= update_gain;
         rffe_ad9866_tx <= tx_data_d1[5:0];
         rffe_ad9866_pga5 <= 1'b0;
-        rffe_ad9866_txsync <= ~pga5_d1; // No TX transaction completion if fast
+        rffe_ad9866_txsync <= ~pga5_d1; // No TX transaction completion if fast LNA update
       end else begin
         rffe_ad9866_tx <= tx_data_d1[11:6];
         rffe_ad9866_pga5 <= pga5_d1;

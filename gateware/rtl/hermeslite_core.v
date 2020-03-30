@@ -202,6 +202,7 @@ logic           clk_ad9866_2x;
 logic           clk_envelope;
 logic           clk_ad9866_slow;
 logic           ad9866up;
+logic           ad9866_rst;
 
 logic           run, run_sync, run_iosync, run_ad9866sync;
 logic           wide_spectrum, wide_spectrum_sync;
@@ -473,6 +474,10 @@ dsopenhpsdr1 dsopenhpsdr1_i (
 );
 
 
+generate
+
+if (NT != 0) begin
+
 dsiq_fifo #(.depth(8192)) dsiq_fifo_i (
   .wr_clk(clock_ethrxint),
   .wr_tdata({dsethiq_tuser,dseth_tdata}),
@@ -493,6 +498,13 @@ sync_pulse sync_pulse_dsiq_sample (
   .sig_in(dsiq_sample),
   .sig_out(dsiq_sample_ad9866sync)
 );
+
+end else begin
+  assign dsiq_tdata = 36'b0;
+  assign dsiq_tvalid = 1'b0;
+  assign dsiq_status = 8'b0;
+end
+endgenerate
 
 
 generate
@@ -664,6 +676,8 @@ sync sync_atutxinhibit_ad9866 (
 ad9866 #(.FAST_LNA(FAST_LNA)) ad9866_i (
   .clk(clk_ad9866),
   .clk_2x(clk_ad9866_2x),
+
+  .rst(ad9866_rst),
 
   .tx_data(tx_data),
   .rx_data(rx_data),
@@ -905,7 +919,9 @@ control #(
 
   .hl2_reset        (hl2_reset             ),
 
-  .fan_pwm          (fan_pwm               )
+  .fan_pwm          (fan_pwm               ),
+
+  .ad9866_rst       (ad9866_rst            )
 );
 
 

@@ -92,16 +92,18 @@ module hermeslite (
   assign rffe_ad9866_pga5 = 6'h00;
 
   hermeslite_core #(
-    .BOARD (2                                    ),
-    .IP    ({8'd0,8'd0,8'd0,8'd0}                ),
-    .MAC   ({8'h00,8'h1c,8'hc0,8'ha2,8'h12,8'hdd}),
-    .NR    (4                                    ),
-    .NT    (1                                    ),
-    .UART  (1                                    ),
-    .ATU   (0                                    ),
-    .FAN   (1                                    ),
-    .PSSYNC(1                                    ),
-    .ASMII (1                                    )
+    .BOARD   (2                                    ),
+    .IP      ({8'd0,8'd0,8'd0,8'd0}                ),
+    .MAC     ({8'h00,8'h1c,8'hc0,8'ha2,8'h12,8'hdd}),
+    .NR      (4                                    ),
+    .NT      (1                                    ),
+    .UART    (1                                    ),
+    .ATU     (0                                    ),
+    .FAN     (1                                    ),
+    .PSSYNC  (1                                    ),
+    .CW      (1                                    ),
+    .ASMII   (1                                    ),
+    .FAST_LNA(1                                    )
   ) hermeslite_core_i (
     .pwr_clk3p3                (pwr_clk3p3           ),
     .pwr_clk1p2                (pwr_clk1p2           ),
