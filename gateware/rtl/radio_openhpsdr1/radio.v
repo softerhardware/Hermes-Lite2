@@ -168,7 +168,6 @@ logic [31:0]  tx_phase0;
 logic signed [17:0]   mixdata_i [0:5];
 logic signed [17:0]   mixdata_q [0:5];
 
-
 genvar c;
 
 localparam
@@ -419,6 +418,7 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
     .out_data_Q(rx0_out_Q)
   );
 
+
 generate
 
 if (NR >= 2) begin: MIX1_3
@@ -661,12 +661,12 @@ logic fir_tready;
 
 localparam
   NOTX      = 3'b000,
-  PTTTX     = 3'b001,
-  PRETX     = 3'b110,
-  CWTX      = 3'b100,
-  CWHANG    = 3'b101,
-  CWXTX     = 3'b010,
-  CWXHANG   = 3'b011;
+  PTTTX     = 3'b011,
+  PRETX     = 3'b001,
+  CWTX      = 3'b101,
+  CWHANG    = 3'b100;
+//  CWXTX     = 3'b010,
+//  CWXHANG   = 3'b011;
 
 logic [2:0] tx_state = NOTX;
 logic [2:0] tx_state_next;
@@ -728,18 +728,15 @@ always @* begin
     end
 
     PRETX: begin
-      tx_tready = 1'b0; // Stall data to fill FIFO
+      tx_tready = cwx & fir_tready; // Stall data to fill FIFO unless in CWX mode
       if (tx_qmsectimer != 7'h00) begin
         if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 7'h01;
         if (~(ext_keydown | cwx | ptt)) tx_state_next = NOTX;
       end else begin
         if (ptt) tx_state_next = PTTTX;
-        else if (ext_keydown) tx_state_next = CWTX;
-        else tx_state_next = CWXTX;
+        else tx_state_next = CWTX;
       end
     end
-
-
 
     PTTTX: begin
       if (ptt) begin
@@ -762,7 +759,7 @@ always @* begin
     CWTX: begin
       cw_on = 1'b1;
       tx_cw_key = 1'b1;
-      if (ext_keydown) begin
+      if (ext_keydown | cwx) begin
         // Shape CW on
         if (tx_cwlevel != MAX_CWLEVEL) tx_cwlevel_next = tx_cwlevel + 19'h01;
         tx_qmsectimer_next = {tx_buffer_latency, 2'b00};
@@ -781,7 +778,7 @@ always @* begin
 
     CWHANG: begin
       cw_on = 1'b1;
-      if (ext_keydown) begin
+      if (ext_keydown | cwx) begin
         // delay ext CW by tx_buffer_latency
         if (tx_qmsectimer != 7'h00) begin
           if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 7'h01;
@@ -801,33 +798,33 @@ always @* begin
 
 
 
-    CWXTX: begin
-      cw_on = 1'b1;
-      tx_cw_key = 1'b1;
-      if (cwx) begin
-        // Shape CW on
-        if (tx_cwlevel != MAX_CWLEVEL) tx_cwlevel_next = tx_cwlevel + 19'h01;
-      end else begin
-        if (tx_cwlevel != 19'h00) tx_cwlevel_next = tx_cwlevel - 19'h01;
-        else begin
-          tx_cwlevel_next = {7'b0000000, cw_hang_time, 2'b00};
-          tx_state_next = CWXHANG;
-        end
-      end
-    end
+//CWXTX: begin
+//  cw_on = 1'b1;
+//  tx_cw_key = 1'b1;
+//  if (cwx) begin
+//    // Shape CW on
+//    if (tx_cwlevel != MAX_CWLEVEL) tx_cwlevel_next = tx_cwlevel + 19'h01;
+//  end else begin
+//    if (tx_cwlevel != 19'h00) tx_cwlevel_next = tx_cwlevel - 19'h01;
+//    else begin
+//      tx_cwlevel_next = {7'b0000000, cw_hang_time, 2'b00};
+//      tx_state_next = CWXHANG;
+//    end
+//  end
+//end
 
-    CWXHANG: begin
-      cw_on = 1'b1;
-      if (cwx) begin
-        tx_state_next = CWXTX;
-      end else begin
-        if (tx_cwlevel != 19'h0) begin
-          if (qmsec_pulse) tx_cwlevel_next = tx_cwlevel - 19'h01;
-        end else begin
-          tx_state_next = NOTX;
-        end
-      end
-    end
+//CWXHANG: begin
+//  cw_on = 1'b1;
+//  if (cwx) begin
+//    tx_state_next = CWXTX;
+//  end else begin
+//    if (tx_cwlevel != 19'h0) begin
+//      if (qmsec_pulse) tx_cwlevel_next = tx_cwlevel - 19'h01;
+//    end else begin
+//      tx_state_next = NOTX;
+//    end
+//  end
+//end
 
   endcase
 end
