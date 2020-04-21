@@ -370,7 +370,7 @@ i2c i2c_i (
   .sda2_t(sda2_t)
 );
 
-assign slow_adc_sample = resp_rqst & resp_cnt;
+assign slow_adc_sample = run ? (resp_rqst & resp_cnt) : (~led_count[5] & led_count_next[5]);
 slow_adc slow_adc_i (
   .clk(clk),
   .rst(slow_adc_rst),
@@ -656,9 +656,13 @@ generate case (FAN)
     localparam TEMP_25C = 12'b001110101110;
     localparam TEMP_30C = 12'b001111101101;
     localparam TEMP_35C = 12'b010000101011;
+    localparam TEMP_37C = 12'b010001001011;
     localparam TEMP_40C = 12'b010001101011;
+    localparam TEMP_42C = 12'b010010001010;
     localparam TEMP_45C = 12'b010010101010;
+    localparam TEMP_47C = 12'b010011001001;
     localparam TEMP_50C = 12'b010011101000;
+    localparam TEMP_52C = 12'b010100000111;
     localparam TEMP_55C = 12'b010100100111;
     localparam TEMP_60C = 12'b010101100110;
 
@@ -697,14 +701,14 @@ generate case (FAN)
 
       case (fan_state)
         FAN_OFF: begin
-          if (temperature > TEMP_35C) tupvote_next = tupvote + 2'b01;
+          if (temperature > TEMP_37C) tupvote_next = tupvote + 2'b01;
           if (&tupvote) fan_state_next = FAN_LOWSPEED;
           fan_pwm = 1'b0;
         end
 
         FAN_LOWSPEED: begin
           if (temperature > TEMP_40C) tupvote_next = tupvote + 2'b01;
-          else if (temperature < TEMP_30C) tdnvote_next = tdnvote + 2'b01;
+          else if (temperature < TEMP_35C) tdnvote_next = tdnvote + 2'b01;
           if (&tupvote) fan_state_next = FAN_MEDSPEED;
           else if (&tdnvote) fan_state_next = FAN_OFF;
           fan_pwm = fan_cnt[15]; // on 50% of time
@@ -712,7 +716,7 @@ generate case (FAN)
 
         FAN_MEDSPEED: begin
           if (temperature > TEMP_45C) tupvote_next = tupvote + 2'b01;
-          else if (temperature < TEMP_35C) tdnvote_next = tdnvote + 2'b01;
+          else if (temperature < TEMP_37C) tdnvote_next = tdnvote + 2'b01;
           if (&tupvote) fan_state_next = FAN_FULLSPEED;
           else if (&tdnvote) fan_state_next = FAN_LOWSPEED;
           fan_pwm = fan_cnt[15] | fan_cnt[14]; // on 75% of time
