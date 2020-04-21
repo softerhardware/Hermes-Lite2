@@ -128,7 +128,7 @@ parameter       ASMII = 0;
 parameter       FAST_LNA = 0; // Support for fast LNA setting, TX/RX values
 
 
-localparam      VERSION_MAJOR = (BOARD==2) ? 8'd50 : 8'd70;
+localparam      VERSION_MAJOR = (BOARD==2) ? 8'd51 : 8'd71;
 localparam      VERSION_MINOR = 8'd0;
 
 logic   [5:0]   cmd_addr;
