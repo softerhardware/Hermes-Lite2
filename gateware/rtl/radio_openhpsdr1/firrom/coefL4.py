@@ -984,6 +984,25 @@ CONTENT
 BEGIN
 """
 
+
+def dgain():
+  gain = 0
+  m = 0
+  scale = 670914.837311
+  coeffs = scoeffs.split("\n")
+  for coeff in coeffs:
+      cs = coeff.split()
+      c2 = float(cs[2])
+      c3 = float(cs[3])
+      m += (c3/c2)
+      print c3,round(c2*scale,2)
+      #c2 = coeff.split()[2]
+      #coeff = coeff.split()[3]
+      #gain = gain + (1.5*float(coeff))/4096
+  print "gain is",gain
+  print "m is",m/len(coeffs)
+
+
 def do(filename,modulus):
   f1 = open(filename+".txt","w")
   f2 = open(filename+".mif","w")
@@ -1030,8 +1049,74 @@ def do(filename,modulus):
   f1.close()
   f2.close()
 
+
+def do_with_gain(filename,modulus,gain):
+  f1 = open(filename+".txt","w")
+  f2 = open(filename+".mif","w")
+  f2.write(mifpreamble)
+  coeffs = scoeffs.split('\n')
+  i = 0
+  k = 0
+  for coeff in coeffs:
+    if i%8 == (modulus+4): 
+      coeff = coeff.split()[2]
+      fv = gain*float(coeff)
+      iv = int(round(fv))
+      hv = 0x3ffff & iv
+      f1.write("{0:018b} // {1} {2}\n".format(hv,iv,fv))
+      f2.write("{0:02X} : {1:05X}; --  {2} {3}\n".format(k,hv,iv,fv))
+      k = k + 1
+    i = i + 1
+
+  for j in range(k,128):
+    f1.write("000000000000000000\n")
+    f2.write("{0:02X} : 00000;\n".format(j))
+    i = i + 1
+
+  i = 128
+  k = 128
+  for coeff in coeffs:
+    if i%8 == modulus: 
+      coeff = coeff.split()[2]
+      fv = gain*float(coeff)
+      iv = int(round(fv))
+      hv = 0x3ffff & iv
+      f1.write("{0:018b} // {1} {2}\n".format(hv,iv,fv))
+      f2.write("{0:02X} : {1:05X}; --  {2} {3}\n".format(k,hv,iv,fv))
+      k = k + 1
+    i = i + 1
+
+  for j in range(k,256):
+    f1.write("000000000000000000\n")
+    f2.write("{0:02X} : 00000;\n".format(j))
+
+
+  f2.write("END;\n")
+
+  f1.close()
+  f2.close()
+
+
+
 do("coefL4AE",3)
 do("coefL4BF",2)
 do("coefL4CG",1)
 do("coefL4DH",0)
+
+## Input is 16 bit signed, may not reach max
+## Output is 24 bit signed
+## 8 bits to grow
+## Algorithm is shifting by 12 bits to divide by 2**12
+## 1.5/670914/2**12 < 256
+g = 1.5*670914
+#do_with_gain("coefL4AE",3,g)
+#do_with_gain("coefL4BF",2,g)
+#do_with_gain("coefL4CG",1,g)
+#do_with_gain("coefL4DH",0,g)
+
+
+dgain()
+
+
+
 
