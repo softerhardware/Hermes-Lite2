@@ -626,7 +626,7 @@ void HL2Run(void)
 		pwr30 = hermes_fwd_power;
 		hermes_key_down = 0;
 		snprintf(output120, 120, "PA power code at 30 MHz is %.1f", pwr30);
-		CheckResult(output120, pwr30, 3600.0, 0.10, NULL);
+		CheckResult(output120, pwr30, 3500.0, 0.10, NULL);
 		snprintf(output120, 120, "PA power code ratio 1.8 MHz vs 30 MHz is %.2f", pwr1p8 / pwr30);
 		hermes_run_state = END_OF_TESTS;
 		break;
