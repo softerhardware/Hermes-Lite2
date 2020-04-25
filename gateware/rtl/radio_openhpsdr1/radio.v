@@ -668,15 +668,26 @@ localparam
 //  CWXTX     = 3'b010,
 //  CWXHANG   = 3'b011;
 
-logic [2:0] tx_state = NOTX;
-logic [2:0] tx_state_next;
-logic       tx_cw_key;
-logic [9:0] cw_hang_time;
-logic [4:0] tx_buffer_latency = 5'h0a; // Default to 10ms
-logic [4:0] ptt_hang_time = 5'h04; // Default to 4 ms
+logic [ 2:0] tx_state           = NOTX ;
+logic [ 2:0] tx_state_next             ;
+logic        tx_cw_key                 ;
+logic [ 9:0] cw_hang_time              ;
+logic [10:0] accumdelay                ;
+logic        accumdelay_incr           ;
+logic        accumdelay_decr           ;
+logic        accumdelay_notzero        ;
+logic [ 4:0] tx_buffer_latency  = 5'h0a; // Default to 10ms
+logic [ 4:0] ptt_hang_time      = 5'h04; // Default to 4 ms
 
 localparam MAX_CWLEVEL = 19'h4d800; //(16'h4d80 << 4);
 localparam MIN_CWLEVEL = 19'h0;
+
+always @(posedge clk) begin
+  if (accumdelay_incr) accumdelay <= accumdelay + 1;
+  else if (accumdelay_decr & accumdelay_notzero) accumdelay <= accumdelay -1;
+end
+assign accumdelay_notzero = |accumdelay;
+
 
 always @(posedge clk) begin
   if (cmd_rqst) begin
@@ -715,6 +726,9 @@ always @* begin
   tx_cw_key = 1'b0;
   tx_tready = fir_tready; // Empty FIFO
 
+  accumdelay_incr = 1'b0;
+  accumdelay_decr = 1'b0;
+
   case (tx_state)
 
     NOTX: begin
@@ -724,17 +738,22 @@ always @* begin
       tx_qmsectimer_next = {tx_buffer_latency, 2'b00};
       tx_on = 1'b0;
 
+      // Free accumulated samples to maintain time coherency in tape recorder mode
+      accumdelay_decr = ~fir_tready;
+      tx_tready = accumdelay_notzero | fir_tready;
+
       if (ext_keydown | cwx | ptt) tx_state_next = PRETX;
     end
 
     PRETX: begin
-      tx_tready = cwx & fir_tready; // Stall data to fill FIFO unless in CWX mode
+      tx_tready = 1'b0; //Stall data to fill FIFO unless in CWX mode
+      accumdelay_incr = fir_tready; // Count samples accumulated
       if (tx_qmsectimer != 7'h00) begin
         if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 7'h01;
         if (~(ext_keydown | cwx | ptt)) tx_state_next = NOTX;
       end else begin
-        if (ptt) tx_state_next = PTTTX;
-        else tx_state_next = CWTX;
+        if (cwx | ext_keydown) tx_state_next = CWTX;
+        else tx_state_next = PTTTX;
       end
     end
 
