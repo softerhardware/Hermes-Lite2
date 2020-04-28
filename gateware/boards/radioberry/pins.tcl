@@ -84,3 +84,6 @@ set_instance_assignment -name FAST_OUTPUT_REGISTER ON 	-to rffe_ad9866_txquiet_n
 
 set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to *
 
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_phone_tip
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_ptt_out
+

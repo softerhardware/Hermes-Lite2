@@ -49,9 +49,10 @@ parameter       UART = 0;
 parameter       ATU = 0;
 parameter       VNA = 0;
 parameter       CW = 0; // CW Support
+parameter       FAST_LNA = 0; // Support for fast LNA setting, TX/RX values
 
-localparam      VERSION_MAJOR = 8'd69;
-localparam      VERSION_MINOR = 8'd4;
+localparam      VERSION_MAJOR = 8'd71;
+localparam      VERSION_MINOR = 8'd1;
 
 
 logic   [5:0]   cmd_addr;
@@ -234,9 +235,11 @@ sync sync_run_ad9866 (
 );
 
 
-ad9866 ad9866_i (
+ad9866 #(.FAST_LNA(FAST_LNA)) ad9866_i (
   .clk(clk_ad9866),
   .clk_2x(clk_ad9866_2x),
+  
+  .rst(reset),
 
   .tx_data(tx_data),
   .rx_data(rx_data),
@@ -253,8 +256,13 @@ ad9866 ad9866_i (
   .rffe_ad9866_txquiet_n(rffe_ad9866_txquiet_n),
   .rffe_ad9866_txsync(rffe_ad9866_txsync),
 
-  .rffe_ad9866_mode(rffe_ad9866_mode)
-
+  .rffe_ad9866_mode(rffe_ad9866_mode),
+  
+  // Command Slave
+  .cmd_addr(cmd_addr),
+  .cmd_data(cmd_data),
+  .cmd_rqst(cmd_rqst_ad9866),
+  .cmd_ack() // No need for ack
 );
 
 //------------------------------------------------------------------------------
@@ -335,14 +343,13 @@ sync syncio_rxgoodlvl (
 //------------------------------------------------------------------------------
 assign rffe_ad9866_rst_n = ~reset;
 
-ad9866ctrl ad9866ctrl_i (
+ad9866ctrl #(.FAST_LNA(FAST_LNA)) ad9866ctrl_i (
   .clk(clk_internal),
   .rst(reset),
 
   .rffe_ad9866_sdio(rffe_ad9866_sdio),
   .rffe_ad9866_sclk(rffe_ad9866_sclk),
   .rffe_ad9866_sen_n(rffe_ad9866_sen_n),
-  .rffe_ad9866_pga5(),
 
   .cmd_addr(cmd_addr),
   .cmd_data(cmd_data),
