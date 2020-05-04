@@ -1,12 +1,12 @@
-Analysis & Synthesis Status : Successful - Tue Apr 28 19:22:10 2020
+Analysis & Synthesis Status : Successful - Mon May 04 17:35:43 2020
 Quartus Prime Version : 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 Revision Name : radioberry
 Top-level Entity Name : radioberry
 Family : Cyclone 10 LP
-Total logic elements : 17,140
-    Total combinational functions : 12,002
-    Dedicated logic registers : 13,759
-Total registers : 13759
+Total logic elements : 17,118
+    Total combinational functions : 11,970
+    Dedicated logic registers : 13,747
+Total registers : 13747
 Total pins : 42
 Total virtual pins : 0
 Total memory bits : 306,688

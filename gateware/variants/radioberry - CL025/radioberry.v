@@ -50,8 +50,7 @@ module radioberry (
     .UART 		(0                                  ),
     .ATU  		(0                                  ),
 	.VNA 		(0									),
-	.CW   		(2									),
-    .FAST_LNA	(1                                  )
+	.CW   		(2									)
   ) radioberry_core_i (
  
     .rffe_ad9866_rst_n         (rffe_ad9866_rst_n    ),
