@@ -1,5 +1,5 @@
 Analysis & Synthesis report for radioberry-10CL016
-Tue Apr 28 17:30:19 2020
+Mon May 04 17:23:47 2020
 Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 
 
@@ -356,82 +356,81 @@ Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 348. Parameter Settings for User Entity Instance: radioberry_core:radioberry_core_i|sync_pulse:syncio_cmd_rqst
 349. Parameter Settings for User Entity Instance: radioberry_core:radioberry_core_i|sync:syncio_rxclip
 350. Parameter Settings for User Entity Instance: radioberry_core:radioberry_core_i|sync:syncio_rxgoodlvl
-351. Parameter Settings for User Entity Instance: radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i
-352. Parameter Settings for User Entity Instance: radioberry_core:radioberry_core_i|sync:syncio_run
-353. Parameter Settings for User Entity Instance: radioberry_core:radioberry_core_i|control:control_i
-354. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|mix2:mix2_0|nco2:nco2_i|sincos:sincos_i|coarserom:coarserom_i|altsyncram:rom_rtl_0
-355. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|nco2:nco2_i|sincos:sincos_i|coarserom:coarserom_i|altsyncram:rom_rtl_0
-356. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|lpm_mult:Mult0
-357. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:CG|lpm_mult:Mult1
-358. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:BF|lpm_mult:Mult1
-359. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:AE|lpm_mult:Mult1
-360. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:DH|lpm_mult:Mult1
-361. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:CG|lpm_mult:Mult1
-362. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:BF|lpm_mult:Mult1
-363. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:AE|lpm_mult:Mult1
-364. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:DH|lpm_mult:Mult1
-365. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:CG|lpm_mult:Mult1
-366. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:BF|lpm_mult:Mult1
-367. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:AE|lpm_mult:Mult1
-368. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:DH|lpm_mult:Mult1
-369. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|firX8R8:fir2|fir256:CG|lpm_mult:Mult1
-370. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|firX8R8:fir2|fir256:BF|lpm_mult:Mult1
-371. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|firX8R8:fir2|fir256:AE|lpm_mult:Mult1
-372. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|firX8R8:fir2|fir256:DH|lpm_mult:Mult1
-373. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:CG|lpm_mult:Mult0
-374. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:BF|lpm_mult:Mult0
-375. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:AE|lpm_mult:Mult0
-376. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:DH|lpm_mult:Mult0
-377. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:CG|lpm_mult:Mult0
-378. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:BF|lpm_mult:Mult0
-379. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:AE|lpm_mult:Mult0
-380. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:DH|lpm_mult:Mult0
-381. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:CG|lpm_mult:Mult0
-382. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:BF|lpm_mult:Mult0
-383. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:AE|lpm_mult:Mult0
-384. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:DH|lpm_mult:Mult0
-385. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|firX8R8:fir2|fir256:CG|lpm_mult:Mult0
-386. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|firX8R8:fir2|fir256:BF|lpm_mult:Mult0
-387. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|firX8R8:fir2|fir256:AE|lpm_mult:Mult0
-388. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|firX8R8:fir2|fir256:DH|lpm_mult:Mult0
-389. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|mix2:mix2_0|lpm_mult:Mult1
-390. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|mix2:mix2_0|lpm_mult:Mult0
-391. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|mix2:mix2_0|nco2:nco2_i|sincos:sincos_i|lpm_mult:Mult0
-392. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|lpm_mult:Mult1
-393. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|lpm_mult:Mult0
-394. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|nco2:nco2_i|sincos:sincos_i|lpm_mult:Mult0
-395. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|FirInterp8_1024:fi|lpm_mult:Mult0
-396. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|FirInterp8_1024:fi|lpm_mult:Mult1
-397. dcfifo Parameter Settings by Entity Instance
-398. altpll Parameter Settings by Entity Instance
-399. lpm_mult Parameter Settings by Entity Instance
-400. altsyncram Parameter Settings by Entity Instance
-401. Port Connectivity Checks: "radioberry_core:radioberry_core_i|control:control_i"
-402. Port Connectivity Checks: "radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i"
-403. Port Connectivity Checks: "radioberry_core:radioberry_core_i|sync:syncio_rxgoodlvl"
-404. Port Connectivity Checks: "radioberry_core:radioberry_core_i|sync:syncio_rxclip"
-405. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|cpl_cordic:cordic_inst"
-406. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|CicInterpM5:in2"
-407. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3"
-408. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2"
-409. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1"
-410. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2"
-411. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|varcic:varcic_inst_Q1"
-412. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|varcic:varcic_inst_I1|cic_comb:cic_stages[4].cic_comb_inst"
-413. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|cic:cic_inst_Q2"
-414. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|cic:cic_inst_I2|cic_comb:cic_stages[2].cic_comb_inst"
-415. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|cic:cic_inst_I2"
-416. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i"
-417. Port Connectivity Checks: "radioberry_core:radioberry_core_i|ad9866:ad9866_i"
-418. Port Connectivity Checks: "radioberry_core:radioberry_core_i|ad9866pll:ad9866pll_inst"
-419. Port Connectivity Checks: "radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i"
-420. Port Connectivity Checks: "radioberry_core:radioberry_core_i|usiq_fifo:usiq_fifo_i"
-421. Port Connectivity Checks: "radioberry_core:radioberry_core_i|spi_slave:spi_slave_inst"
-422. Port Connectivity Checks: "radioberry_core:radioberry_core_i"
-423. Post-Synthesis Netlist Statistics for Top Partition
-424. Elapsed Time Per Partition
-425. Analysis & Synthesis Messages
-426. Analysis & Synthesis Suppressed Messages
+351. Parameter Settings for User Entity Instance: radioberry_core:radioberry_core_i|sync:syncio_run
+352. Parameter Settings for User Entity Instance: radioberry_core:radioberry_core_i|control:control_i
+353. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|mix2:mix2_0|nco2:nco2_i|sincos:sincos_i|coarserom:coarserom_i|altsyncram:rom_rtl_0
+354. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|nco2:nco2_i|sincos:sincos_i|coarserom:coarserom_i|altsyncram:rom_rtl_0
+355. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|lpm_mult:Mult0
+356. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:CG|lpm_mult:Mult1
+357. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:BF|lpm_mult:Mult1
+358. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:AE|lpm_mult:Mult1
+359. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:DH|lpm_mult:Mult1
+360. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:CG|lpm_mult:Mult1
+361. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:BF|lpm_mult:Mult1
+362. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:AE|lpm_mult:Mult1
+363. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:DH|lpm_mult:Mult1
+364. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:CG|lpm_mult:Mult1
+365. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:BF|lpm_mult:Mult1
+366. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:AE|lpm_mult:Mult1
+367. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:DH|lpm_mult:Mult1
+368. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|firX8R8:fir2|fir256:CG|lpm_mult:Mult1
+369. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|firX8R8:fir2|fir256:BF|lpm_mult:Mult1
+370. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|firX8R8:fir2|fir256:AE|lpm_mult:Mult1
+371. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|firX8R8:fir2|fir256:DH|lpm_mult:Mult1
+372. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:CG|lpm_mult:Mult0
+373. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:BF|lpm_mult:Mult0
+374. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:AE|lpm_mult:Mult0
+375. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:DH|lpm_mult:Mult0
+376. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:CG|lpm_mult:Mult0
+377. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:BF|lpm_mult:Mult0
+378. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:AE|lpm_mult:Mult0
+379. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:DH|lpm_mult:Mult0
+380. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:CG|lpm_mult:Mult0
+381. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:BF|lpm_mult:Mult0
+382. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:AE|lpm_mult:Mult0
+383. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:DH|lpm_mult:Mult0
+384. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|firX8R8:fir2|fir256:CG|lpm_mult:Mult0
+385. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|firX8R8:fir2|fir256:BF|lpm_mult:Mult0
+386. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|firX8R8:fir2|fir256:AE|lpm_mult:Mult0
+387. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|firX8R8:fir2|fir256:DH|lpm_mult:Mult0
+388. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|mix2:mix2_0|lpm_mult:Mult1
+389. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|mix2:mix2_0|lpm_mult:Mult0
+390. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|mix2:mix2_0|nco2:nco2_i|sincos:sincos_i|lpm_mult:Mult0
+391. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|lpm_mult:Mult1
+392. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|lpm_mult:Mult0
+393. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|nco2:nco2_i|sincos:sincos_i|lpm_mult:Mult0
+394. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|FirInterp8_1024:fi|lpm_mult:Mult0
+395. Parameter Settings for Inferred Entity Instance: radioberry_core:radioberry_core_i|radio:radio_i|FirInterp8_1024:fi|lpm_mult:Mult1
+396. dcfifo Parameter Settings by Entity Instance
+397. altpll Parameter Settings by Entity Instance
+398. lpm_mult Parameter Settings by Entity Instance
+399. altsyncram Parameter Settings by Entity Instance
+400. Port Connectivity Checks: "radioberry_core:radioberry_core_i|control:control_i"
+401. Port Connectivity Checks: "radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i"
+402. Port Connectivity Checks: "radioberry_core:radioberry_core_i|sync:syncio_rxgoodlvl"
+403. Port Connectivity Checks: "radioberry_core:radioberry_core_i|sync:syncio_rxclip"
+404. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|cpl_cordic:cordic_inst"
+405. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|CicInterpM5:in2"
+406. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3"
+407. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2"
+408. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1"
+409. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2"
+410. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|varcic:varcic_inst_Q1"
+411. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|varcic:varcic_inst_I1|cic_comb:cic_stages[4].cic_comb_inst"
+412. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|cic:cic_inst_Q2"
+413. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|cic:cic_inst_I2|cic_comb:cic_stages[2].cic_comb_inst"
+414. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|cic:cic_inst_I2"
+415. Port Connectivity Checks: "radioberry_core:radioberry_core_i|radio:radio_i"
+416. Port Connectivity Checks: "radioberry_core:radioberry_core_i|ad9866:ad9866_i"
+417. Port Connectivity Checks: "radioberry_core:radioberry_core_i|ad9866pll:ad9866pll_inst"
+418. Port Connectivity Checks: "radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i"
+419. Port Connectivity Checks: "radioberry_core:radioberry_core_i|usiq_fifo:usiq_fifo_i"
+420. Port Connectivity Checks: "radioberry_core:radioberry_core_i|spi_slave:spi_slave_inst"
+421. Port Connectivity Checks: "radioberry_core:radioberry_core_i"
+422. Post-Synthesis Netlist Statistics for Top Partition
+423. Elapsed Time Per Partition
+424. Analysis & Synthesis Messages
+425. Analysis & Synthesis Suppressed Messages
 
 
 
@@ -457,15 +456,15 @@ refer to the applicable agreement for further details.
 +----------------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                     ;
 +------------------------------------+---------------------------------------------+
-; Analysis & Synthesis Status        ; Successful - Tue Apr 28 17:30:18 2020       ;
+; Analysis & Synthesis Status        ; Successful - Mon May 04 17:23:46 2020       ;
 ; Quartus Prime Version              ; 18.1.0 Build 625 09/12/2018 SJ Lite Edition ;
 ; Revision Name                      ; radioberry-10CL016                          ;
 ; Top-level Entity Name              ; radioberry                                  ;
 ; Family                             ; Cyclone 10 LP                               ;
-; Total logic elements               ; 16,455                                      ;
-;     Total combinational functions  ; 11,334                                      ;
-;     Dedicated logic registers      ; 13,711                                      ;
-; Total registers                    ; 13711                                       ;
+; Total logic elements               ; 16,434                                      ;
+;     Total combinational functions  ; 11,303                                      ;
+;     Dedicated logic registers      ; 13,699                                      ;
+; Total registers                    ; 13699                                       ;
 ; Total pins                         ; 42                                          ;
 ; Total virtual pins                 ; 0                                           ;
 ; Total memory bits                  ; 306,688                                     ;
@@ -574,7 +573,7 @@ refer to the applicable agreement for further details.
 ;                            ;             ;
 ; Usage by Processor         ; % Time Used ;
 ;     Processor 1            ; 100.0%      ;
-;     Processor 2            ;   3.3%      ;
+;     Processor 2            ;   2.7%      ;
 +----------------------------+-------------+
 
 
@@ -704,20 +703,20 @@ refer to the applicable agreement for further details.
 +---------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------+
 ; Resource                                    ; Usage                                                                                                                               ;
 +---------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------+
-; Estimated Total logic elements              ; 16,455                                                                                                                              ;
+; Estimated Total logic elements              ; 16,434                                                                                                                              ;
 ;                                             ;                                                                                                                                     ;
-; Total combinational functions               ; 11334                                                                                                                               ;
+; Total combinational functions               ; 11303                                                                                                                               ;
 ; Logic element usage by number of LUT inputs ;                                                                                                                                     ;
-;     -- 4 input functions                    ; 1303                                                                                                                                ;
-;     -- 3 input functions                    ; 8102                                                                                                                                ;
-;     -- <=2 input functions                  ; 1929                                                                                                                                ;
+;     -- 4 input functions                    ; 1292                                                                                                                                ;
+;     -- 3 input functions                    ; 8080                                                                                                                                ;
+;     -- <=2 input functions                  ; 1931                                                                                                                                ;
 ;                                             ;                                                                                                                                     ;
 ; Logic elements by mode                      ;                                                                                                                                     ;
-;     -- normal mode                          ; 2836                                                                                                                                ;
+;     -- normal mode                          ; 2805                                                                                                                                ;
 ;     -- arithmetic mode                      ; 8498                                                                                                                                ;
 ;                                             ;                                                                                                                                     ;
-; Total registers                             ; 13711                                                                                                                               ;
-;     -- Dedicated logic registers            ; 13711                                                                                                                               ;
+; Total registers                             ; 13699                                                                                                                               ;
+;     -- Dedicated logic registers            ; 13699                                                                                                                               ;
 ;     -- I/O registers                        ; 0                                                                                                                                   ;
 ;                                             ;                                                                                                                                     ;
 ; I/O pins                                    ; 42                                                                                                                                  ;
@@ -729,8 +728,8 @@ refer to the applicable agreement for further details.
 ;     -- PLLs                                 ; 1                                                                                                                                   ;
 ;                                             ;                                                                                                                                     ;
 ; Maximum fan-out node                        ; radioberry_core:radioberry_core_i|ad9866pll:ad9866pll_inst|altpll:altpll_component|ad9866pll_altpll:auto_generated|wire_pll1_clk[0] ;
-; Maximum fan-out                             ; 14339                                                                                                                               ;
-; Total fan-out                               ; 89141                                                                                                                               ;
+; Maximum fan-out                             ; 14326                                                                                                                               ;
+; Total fan-out                               ; 89002                                                                                                                               ;
 ; Average fan-out                             ; 3.42                                                                                                                                ;
 +---------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------+
 
@@ -740,10 +739,10 @@ refer to the applicable agreement for further details.
 +-------------------------------------------------------------------+---------------------+---------------------------+-------------+--------------+---------+-----------+------+--------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------+--------------+
 ; Compilation Hierarchy Node                                        ; Combinational ALUTs ; Dedicated Logic Registers ; Memory Bits ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; Pins ; Virtual Pins ; Full Hierarchy Name                                                                                                                                                                              ; Entity Name         ; Library Name ;
 +-------------------------------------------------------------------+---------------------+---------------------------+-------------+--------------+---------+-----------+------+--------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------+--------------+
-; |radioberry                                                       ; 11334 (1)           ; 13711 (0)                 ; 306688      ; 92           ; 0       ; 46        ; 42   ; 0            ; |radioberry                                                                                                                                                                                      ; radioberry          ; work         ;
-;    |radioberry_core:radioberry_core_i|                            ; 11333 (18)          ; 13711 (15)                ; 306688      ; 92           ; 0       ; 46        ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i                                                                                                                                                    ; radioberry_core     ; work         ;
-;       |ad9866:ad9866_i|                                           ; 46 (46)             ; 78 (78)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|ad9866:ad9866_i                                                                                                                                    ; ad9866              ; work         ;
-;       |ad9866ctrl:ad9866ctrl_i|                                   ; 83 (83)             ; 36 (36)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i                                                                                                                            ; ad9866ctrl          ; work         ;
+; |radioberry                                                       ; 11303 (1)           ; 13699 (0)                 ; 306688      ; 92           ; 0       ; 46        ; 42   ; 0            ; |radioberry                                                                                                                                                                                      ; radioberry          ; work         ;
+;    |radioberry_core:radioberry_core_i|                            ; 11302 (17)          ; 13699 (15)                ; 306688      ; 92           ; 0       ; 46        ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i                                                                                                                                                    ; radioberry_core     ; work         ;
+;       |ad9866:ad9866_i|                                           ; 7 (7)               ; 57 (57)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|ad9866:ad9866_i                                                                                                                                    ; ad9866              ; work         ;
+;       |ad9866ctrl:ad9866ctrl_i|                                   ; 93 (93)             ; 44 (44)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i                                                                                                                            ; ad9866ctrl          ; work         ;
 ;       |ad9866pll:ad9866pll_inst|                                  ; 0 (0)               ; 0 (0)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|ad9866pll:ad9866pll_inst                                                                                                                           ; ad9866pll           ; work         ;
 ;          |altpll:altpll_component|                                ; 0 (0)               ; 0 (0)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|ad9866pll:ad9866pll_inst|altpll:altpll_component                                                                                                   ; altpll              ; work         ;
 ;             |ad9866pll_altpll:auto_generated|                     ; 0 (0)               ; 0 (0)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|ad9866pll:ad9866pll_inst|altpll:altpll_component|ad9866pll_altpll:auto_generated                                                                   ; ad9866pll_altpll    ; work         ;
@@ -751,9 +750,9 @@ refer to the applicable agreement for further details.
 ;          |debounce:de_phone_ring|                                 ; 4 (4)               ; 7 (7)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|control:control_i|debounce:de_phone_ring                                                                                                           ; debounce            ; work         ;
 ;          |debounce:de_phone_tip|                                  ; 4 (4)               ; 7 (7)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|control:control_i|debounce:de_phone_tip                                                                                                            ; debounce            ; work         ;
 ;       |ddr_mux:ddr_mux_rx_inst|                                   ; 18 (18)             ; 37 (37)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|ddr_mux:ddr_mux_rx_inst                                                                                                                            ; ddr_mux             ; work         ;
-;       |dsiq_fifo:dsiq_fifo_i|                                     ; 113 (7)             ; 145 (1)                   ; 73728       ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i                                                                                                                              ; dsiq_fifo           ; work         ;
-;          |dcfifo_mixed_widths:fifo_i|                             ; 106 (0)             ; 144 (0)                   ; 73728       ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i                                                                                                   ; dcfifo_mixed_widths ; work         ;
-;             |dcfifo_72i1:auto_generated|                          ; 106 (18)            ; 144 (38)                  ; 73728       ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated                                                                        ; dcfifo_72i1         ; work         ;
+;       |dsiq_fifo:dsiq_fifo_i|                                     ; 111 (6)             ; 145 (1)                   ; 73728       ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i                                                                                                                              ; dsiq_fifo           ; work         ;
+;          |dcfifo_mixed_widths:fifo_i|                             ; 105 (0)             ; 144 (0)                   ; 73728       ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i                                                                                                   ; dcfifo_mixed_widths ; work         ;
+;             |dcfifo_72i1:auto_generated|                          ; 105 (18)            ; 144 (38)                  ; 73728       ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated                                                                        ; dcfifo_72i1         ; work         ;
 ;                |a_gray2bin_1ib:wrptr_g_gray2bin|                  ; 10 (10)             ; 0 (0)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|a_gray2bin_1ib:wrptr_g_gray2bin                                        ; a_gray2bin_1ib      ; work         ;
 ;                |a_gray2bin_1ib:ws_dgrp_gray2bin|                  ; 11 (11)             ; 0 (0)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|a_gray2bin_1ib:ws_dgrp_gray2bin                                        ; a_gray2bin_1ib      ; work         ;
 ;                |a_graycounter_q6c:wrptr_g1p|                      ; 22 (22)             ; 16 (16)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|a_graycounter_q6c:wrptr_g1p                                            ; a_graycounter_q6c   ; work         ;
@@ -763,7 +762,7 @@ refer to the applicable agreement for further details.
 ;                |alt_synch_pipe_1bl:ws_dgrp|                       ; 0 (0)               ; 24 (0)                    ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|alt_synch_pipe_1bl:ws_dgrp                                             ; alt_synch_pipe_1bl  ; work         ;
 ;                   |dffpipe_k09:dffpipe9|                          ; 0 (0)               ; 24 (24)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|alt_synch_pipe_1bl:ws_dgrp|dffpipe_k09:dffpipe9                        ; dffpipe_k09         ; work         ;
 ;                |altsyncram_2qu:fifo_ram|                          ; 0 (0)               ; 0 (0)                     ; 73728       ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|altsyncram_2qu:fifo_ram                                                ; altsyncram_2qu      ; work         ;
-;                |cmpr_i76:rdempty_eq_comp|                         ; 9 (9)               ; 0 (0)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|cmpr_i76:rdempty_eq_comp                                               ; cmpr_i76            ; work         ;
+;                |cmpr_i76:rdempty_eq_comp|                         ; 8 (8)               ; 0 (0)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|cmpr_i76:rdempty_eq_comp                                               ; cmpr_i76            ; work         ;
 ;                |cmpr_i76:wrfull_eq_comp|                          ; 8 (8)               ; 0 (0)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|cmpr_i76:wrfull_eq_comp                                                ; cmpr_i76            ; work         ;
 ;                |cntr_ild:cntr_b|                                  ; 4 (4)               ; 2 (2)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|cntr_ild:cntr_b                                                        ; cntr_ild            ; work         ;
 ;                |dffpipe_d09:ws_brp|                               ; 0 (0)               ; 11 (11)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|dffpipe_d09:ws_brp                                                     ; dffpipe_d09         ; work         ;
@@ -816,7 +815,7 @@ refer to the applicable agreement for further details.
 ;                      |mult_u0t:auto_generated|                    ; 0 (0)               ; 0 (0)                     ; 0           ; 2            ; 0       ; 1         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|mix2:mix2_0|nco2:nco2_i|sincos:sincos_i|lpm_mult:cosmult|mult_u0t:auto_generated                                                     ; mult_u0t            ; work         ;
 ;                   |lpm_mult:sinmult|                              ; 0 (0)               ; 0 (0)                     ; 0           ; 2            ; 0       ; 1         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|mix2:mix2_0|nco2:nco2_i|sincos:sincos_i|lpm_mult:sinmult                                                                             ; lpm_mult            ; work         ;
 ;                      |mult_u0t:auto_generated|                    ; 0 (0)               ; 0 (0)                     ; 0           ; 2            ; 0       ; 1         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|mix2:mix2_0|nco2:nco2_i|sincos:sincos_i|lpm_mult:sinmult|mult_u0t:auto_generated                                                     ; mult_u0t            ; work         ;
-;          |receiver_nco:RECEIVER1.receiver_1|                      ; 1821 (0)            ; 2528 (0)                  ; 55296       ; 16           ; 0       ; 8         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1                                                                                                    ; receiver_nco        ; work         ;
+;          |receiver_nco:RECEIVER1.receiver_1|                      ; 1824 (0)            ; 2528 (0)                  ; 55296       ; 16           ; 0       ; 8         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1                                                                                                    ; receiver_nco        ; work         ;
 ;             |cic:cic_inst_I2|                                     ; 189 (39)            ; 234 (17)                  ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|cic:cic_inst_I2                                                                                    ; cic                 ; work         ;
 ;                |cic_comb:cic_stages[0].cic_comb_inst|             ; 25 (25)             ; 50 (50)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|cic:cic_inst_I2|cic_comb:cic_stages[0].cic_comb_inst                                               ; cic_comb            ; work         ;
 ;                |cic_comb:cic_stages[1].cic_comb_inst|             ; 25 (25)             ; 50 (50)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|cic:cic_inst_I2|cic_comb:cic_stages[1].cic_comb_inst                                               ; cic_comb            ; work         ;
@@ -831,8 +830,8 @@ refer to the applicable agreement for further details.
 ;                |cic_integrator:cic_stages[0].cic_integrator_inst| ; 25 (25)             ; 25 (25)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|cic:cic_inst_Q2|cic_integrator:cic_stages[0].cic_integrator_inst                                   ; cic_integrator      ; work         ;
 ;                |cic_integrator:cic_stages[1].cic_integrator_inst| ; 25 (25)             ; 25 (25)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|cic:cic_inst_Q2|cic_integrator:cic_stages[1].cic_integrator_inst                                   ; cic_integrator      ; work         ;
 ;                |cic_integrator:cic_stages[2].cic_integrator_inst| ; 25 (25)             ; 25 (25)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|cic:cic_inst_Q2|cic_integrator:cic_stages[2].cic_integrator_inst                                   ; cic_integrator      ; work         ;
-;             |firX8R8:fir2|                                        ; 474 (161)           ; 760 (60)                  ; 55296       ; 16           ; 0       ; 8         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2                                                                                       ; firX8R8             ; work         ;
-;                |fir256:AE|                                        ; 79 (79)             ; 175 (175)                 ; 13824       ; 4            ; 0       ; 2         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:AE                                                                             ; fir256              ; work         ;
+;             |firX8R8:fir2|                                        ; 477 (162)           ; 760 (60)                  ; 55296       ; 16           ; 0       ; 8         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2                                                                                       ; firX8R8             ; work         ;
+;                |fir256:AE|                                        ; 81 (81)             ; 175 (175)                 ; 13824       ; 4            ; 0       ; 2         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:AE                                                                             ; fir256              ; work         ;
 ;                   |firram36:ram|                                  ; 0 (0)               ; 0 (0)                     ; 9216        ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:AE|firram36:ram                                                                ; firram36            ; work         ;
 ;                      |altsyncram:altsyncram_component|            ; 0 (0)               ; 0 (0)                     ; 9216        ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:AE|firram36:ram|altsyncram:altsyncram_component                                ; altsyncram          ; work         ;
 ;                         |altsyncram_pin1:auto_generated|          ; 0 (0)               ; 0 (0)                     ; 9216        ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:AE|firram36:ram|altsyncram:altsyncram_component|altsyncram_pin1:auto_generated ; altsyncram_pin1     ; work         ;
@@ -898,7 +897,7 @@ refer to the applicable agreement for further details.
 ;                |cic_integrator:cic_stages[2].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|varcic:varcic_inst_Q1|cic_integrator:cic_stages[2].cic_integrator_inst                             ; cic_integrator      ; work         ;
 ;                |cic_integrator:cic_stages[3].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|varcic:varcic_inst_Q1|cic_integrator:cic_stages[3].cic_integrator_inst                             ; cic_integrator      ; work         ;
 ;                |cic_integrator:cic_stages[4].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|varcic:varcic_inst_Q1|cic_integrator:cic_stages[4].cic_integrator_inst                             ; cic_integrator      ; work         ;
-;          |receiver_nco:RECEIVER2.receiver_2|                      ; 1639 (0)            ; 2318 (0)                  ; 36864       ; 16           ; 0       ; 8         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2                                                                                                    ; receiver_nco        ; work         ;
+;          |receiver_nco:RECEIVER2.receiver_2|                      ; 1637 (0)            ; 2318 (0)                  ; 36864       ; 16           ; 0       ; 8         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2                                                                                                    ; receiver_nco        ; work         ;
 ;             |cic:cic_inst_I2|                                     ; 166 (16)            ; 217 (0)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|cic:cic_inst_I2                                                                                    ; cic                 ; work         ;
 ;                |cic_comb:cic_stages[0].cic_comb_inst|             ; 25 (25)             ; 50 (50)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|cic:cic_inst_I2|cic_comb:cic_stages[0].cic_comb_inst                                               ; cic_comb            ; work         ;
 ;                |cic_comb:cic_stages[1].cic_comb_inst|             ; 25 (25)             ; 50 (50)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|cic:cic_inst_I2|cic_comb:cic_stages[1].cic_comb_inst                                               ; cic_comb            ; work         ;
@@ -913,7 +912,7 @@ refer to the applicable agreement for further details.
 ;                |cic_integrator:cic_stages[0].cic_integrator_inst| ; 25 (25)             ; 25 (25)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|cic:cic_inst_Q2|cic_integrator:cic_stages[0].cic_integrator_inst                                   ; cic_integrator      ; work         ;
 ;                |cic_integrator:cic_stages[1].cic_integrator_inst| ; 25 (25)             ; 25 (25)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|cic:cic_inst_Q2|cic_integrator:cic_stages[1].cic_integrator_inst                                   ; cic_integrator      ; work         ;
 ;                |cic_integrator:cic_stages[2].cic_integrator_inst| ; 25 (25)             ; 25 (25)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|cic:cic_inst_Q2|cic_integrator:cic_stages[2].cic_integrator_inst                                   ; cic_integrator      ; work         ;
-;             |firX8R8:fir2|                                        ; 346 (146)           ; 584 (48)                  ; 36864       ; 16           ; 0       ; 8         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2                                                                                       ; firX8R8             ; work         ;
+;             |firX8R8:fir2|                                        ; 345 (145)           ; 584 (48)                  ; 36864       ; 16           ; 0       ; 8         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2                                                                                       ; firX8R8             ; work         ;
 ;                |fir256:AE|                                        ; 50 (50)             ; 134 (134)                 ; 9216        ; 4            ; 0       ; 2         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:AE                                                                             ; fir256              ; work         ;
 ;                   |firram36:ram|                                  ; 0 (0)               ; 0 (0)                     ; 9216        ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:AE|firram36:ram                                                                ; firram36            ; work         ;
 ;                      |altsyncram:altsyncram_component|            ; 0 (0)               ; 0 (0)                     ; 9216        ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|fir256:AE|firram36:ram|altsyncram:altsyncram_component                                ; altsyncram          ; work         ;
@@ -957,7 +956,7 @@ refer to the applicable agreement for further details.
 ;                |cic_integrator:cic_stages[2].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|varcic:varcic_inst_I1|cic_integrator:cic_stages[2].cic_integrator_inst                             ; cic_integrator      ; work         ;
 ;                |cic_integrator:cic_stages[3].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|varcic:varcic_inst_I1|cic_integrator:cic_stages[3].cic_integrator_inst                             ; cic_integrator      ; work         ;
 ;                |cic_integrator:cic_stages[4].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|varcic:varcic_inst_I1|cic_integrator:cic_stages[4].cic_integrator_inst                             ; cic_integrator      ; work         ;
-;             |varcic:varcic_inst_Q1|                               ; 481 (51)            ; 650 (16)                  ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|varcic:varcic_inst_Q1                                                                              ; varcic              ; work         ;
+;             |varcic:varcic_inst_Q1|                               ; 480 (50)            ; 650 (16)                  ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|varcic:varcic_inst_Q1                                                                              ; varcic              ; work         ;
 ;                |cic_comb:cic_stages[0].cic_comb_inst|             ; 43 (43)             ; 86 (86)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|varcic:varcic_inst_Q1|cic_comb:cic_stages[0].cic_comb_inst                                         ; cic_comb            ; work         ;
 ;                |cic_comb:cic_stages[1].cic_comb_inst|             ; 43 (43)             ; 86 (86)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|varcic:varcic_inst_Q1|cic_comb:cic_stages[1].cic_comb_inst                                         ; cic_comb            ; work         ;
 ;                |cic_comb:cic_stages[2].cic_comb_inst|             ; 43 (43)             ; 86 (86)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|varcic:varcic_inst_Q1|cic_comb:cic_stages[2].cic_comb_inst                                         ; cic_comb            ; work         ;
@@ -968,7 +967,7 @@ refer to the applicable agreement for further details.
 ;                |cic_integrator:cic_stages[2].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|varcic:varcic_inst_Q1|cic_integrator:cic_stages[2].cic_integrator_inst                             ; cic_integrator      ; work         ;
 ;                |cic_integrator:cic_stages[3].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|varcic:varcic_inst_Q1|cic_integrator:cic_stages[3].cic_integrator_inst                             ; cic_integrator      ; work         ;
 ;                |cic_integrator:cic_stages[4].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|varcic:varcic_inst_Q1|cic_integrator:cic_stages[4].cic_integrator_inst                             ; cic_integrator      ; work         ;
-;          |receiver_nco:RECEIVER3.receiver_3|                      ; 1638 (0)            ; 2318 (0)                  ; 36864       ; 16           ; 0       ; 8         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3                                                                                                    ; receiver_nco        ; work         ;
+;          |receiver_nco:RECEIVER3.receiver_3|                      ; 1639 (0)            ; 2318 (0)                  ; 36864       ; 16           ; 0       ; 8         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3                                                                                                    ; receiver_nco        ; work         ;
 ;             |cic:cic_inst_I2|                                     ; 166 (16)            ; 217 (0)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|cic:cic_inst_I2                                                                                    ; cic                 ; work         ;
 ;                |cic_comb:cic_stages[0].cic_comb_inst|             ; 25 (25)             ; 50 (50)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|cic:cic_inst_I2|cic_comb:cic_stages[0].cic_comb_inst                                               ; cic_comb            ; work         ;
 ;                |cic_comb:cic_stages[1].cic_comb_inst|             ; 25 (25)             ; 50 (50)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|cic:cic_inst_I2|cic_comb:cic_stages[1].cic_comb_inst                                               ; cic_comb            ; work         ;
@@ -1027,7 +1026,7 @@ refer to the applicable agreement for further details.
 ;                |cic_integrator:cic_stages[2].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|varcic:varcic_inst_I1|cic_integrator:cic_stages[2].cic_integrator_inst                             ; cic_integrator      ; work         ;
 ;                |cic_integrator:cic_stages[3].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|varcic:varcic_inst_I1|cic_integrator:cic_stages[3].cic_integrator_inst                             ; cic_integrator      ; work         ;
 ;                |cic_integrator:cic_stages[4].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|varcic:varcic_inst_I1|cic_integrator:cic_stages[4].cic_integrator_inst                             ; cic_integrator      ; work         ;
-;             |varcic:varcic_inst_Q1|                               ; 480 (50)            ; 650 (16)                  ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|varcic:varcic_inst_Q1                                                                              ; varcic              ; work         ;
+;             |varcic:varcic_inst_Q1|                               ; 481 (51)            ; 650 (16)                  ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|varcic:varcic_inst_Q1                                                                              ; varcic              ; work         ;
 ;                |cic_comb:cic_stages[0].cic_comb_inst|             ; 43 (43)             ; 86 (86)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|varcic:varcic_inst_Q1|cic_comb:cic_stages[0].cic_comb_inst                                         ; cic_comb            ; work         ;
 ;                |cic_comb:cic_stages[1].cic_comb_inst|             ; 43 (43)             ; 86 (86)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|varcic:varcic_inst_Q1|cic_comb:cic_stages[1].cic_comb_inst                                         ; cic_comb            ; work         ;
 ;                |cic_comb:cic_stages[2].cic_comb_inst|             ; 43 (43)             ; 86 (86)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|varcic:varcic_inst_Q1|cic_comb:cic_stages[2].cic_comb_inst                                         ; cic_comb            ; work         ;
@@ -1038,7 +1037,7 @@ refer to the applicable agreement for further details.
 ;                |cic_integrator:cic_stages[2].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|varcic:varcic_inst_Q1|cic_integrator:cic_stages[2].cic_integrator_inst                             ; cic_integrator      ; work         ;
 ;                |cic_integrator:cic_stages[3].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|varcic:varcic_inst_Q1|cic_integrator:cic_stages[3].cic_integrator_inst                             ; cic_integrator      ; work         ;
 ;                |cic_integrator:cic_stages[4].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|varcic:varcic_inst_Q1|cic_integrator:cic_stages[4].cic_integrator_inst                             ; cic_integrator      ; work         ;
-;          |receiver_nco:receiver_0|                                ; 1646 (0)            ; 2318 (0)                  ; 36864       ; 16           ; 0       ; 8         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0                                                                                                              ; receiver_nco        ; work         ;
+;          |receiver_nco:receiver_0|                                ; 1644 (0)            ; 2318 (0)                  ; 36864       ; 16           ; 0       ; 8         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0                                                                                                              ; receiver_nco        ; work         ;
 ;             |cic:cic_inst_I2|                                     ; 166 (16)            ; 217 (0)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|cic:cic_inst_I2                                                                                              ; cic                 ; work         ;
 ;                |cic_comb:cic_stages[0].cic_comb_inst|             ; 25 (25)             ; 50 (50)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|cic:cic_inst_I2|cic_comb:cic_stages[0].cic_comb_inst                                                         ; cic_comb            ; work         ;
 ;                |cic_comb:cic_stages[1].cic_comb_inst|             ; 25 (25)             ; 50 (50)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|cic:cic_inst_I2|cic_comb:cic_stages[1].cic_comb_inst                                                         ; cic_comb            ; work         ;
@@ -1053,8 +1052,8 @@ refer to the applicable agreement for further details.
 ;                |cic_integrator:cic_stages[0].cic_integrator_inst| ; 25 (25)             ; 25 (25)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|cic:cic_inst_Q2|cic_integrator:cic_stages[0].cic_integrator_inst                                             ; cic_integrator      ; work         ;
 ;                |cic_integrator:cic_stages[1].cic_integrator_inst| ; 25 (25)             ; 25 (25)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|cic:cic_inst_Q2|cic_integrator:cic_stages[1].cic_integrator_inst                                             ; cic_integrator      ; work         ;
 ;                |cic_integrator:cic_stages[2].cic_integrator_inst| ; 25 (25)             ; 25 (25)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|cic:cic_inst_Q2|cic_integrator:cic_stages[2].cic_integrator_inst                                             ; cic_integrator      ; work         ;
-;             |firX8R8:fir2|                                        ; 354 (144)           ; 584 (48)                  ; 36864       ; 16           ; 0       ; 8         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2                                                                                                 ; firX8R8             ; work         ;
-;                |fir256:AE|                                        ; 53 (53)             ; 134 (134)                 ; 9216        ; 4            ; 0       ; 2         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:AE                                                                                       ; fir256              ; work         ;
+;             |firX8R8:fir2|                                        ; 352 (144)           ; 584 (48)                  ; 36864       ; 16           ; 0       ; 8         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2                                                                                                 ; firX8R8             ; work         ;
+;                |fir256:AE|                                        ; 51 (51)             ; 134 (134)                 ; 9216        ; 4            ; 0       ; 2         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:AE                                                                                       ; fir256              ; work         ;
 ;                   |firram36:ram|                                  ; 0 (0)               ; 0 (0)                     ; 9216        ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:AE|firram36:ram                                                                          ; firram36            ; work         ;
 ;                      |altsyncram:altsyncram_component|            ; 0 (0)               ; 0 (0)                     ; 9216        ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:AE|firram36:ram|altsyncram:altsyncram_component                                          ; altsyncram          ; work         ;
 ;                         |altsyncram_pin1:auto_generated|          ; 0 (0)               ; 0 (0)                     ; 9216        ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:AE|firram36:ram|altsyncram:altsyncram_component|altsyncram_pin1:auto_generated           ; altsyncram_pin1     ; work         ;
@@ -1110,7 +1109,7 @@ refer to the applicable agreement for further details.
 ;                |cic_integrator:cic_stages[4].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|varcic:varcic_inst_Q1|cic_integrator:cic_stages[4].cic_integrator_inst                                       ; cic_integrator      ; work         ;
 ;          |vna_scanner:rx_vna|                                     ; 322 (322)           ; 219 (219)                 ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|vna_scanner:rx_vna                                                                                                                   ; vna_scanner         ; work         ;
 ;       |reset_handler:reset_handler_inst|                          ; 32 (32)             ; 25 (25)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|reset_handler:reset_handler_inst                                                                                                                   ; reset_handler       ; work         ;
-;       |spi_slave:spi_slave_inst|                                  ; 60 (60)             ; 137 (137)                 ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|spi_slave:spi_slave_inst                                                                                                                           ; spi_slave           ; work         ;
+;       |spi_slave:spi_slave_inst|                                  ; 61 (61)             ; 138 (138)                 ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|spi_slave:spi_slave_inst                                                                                                                           ; spi_slave           ; work         ;
 ;       |sync:sync_ad9866_cw_keydown|                               ; 0 (0)               ; 2 (2)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|sync:sync_ad9866_cw_keydown                                                                                                                        ; sync                ; work         ;
 ;       |sync:sync_run_ad9866|                                      ; 0 (0)               ; 2 (2)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|sync:sync_run_ad9866                                                                                                                               ; sync                ; work         ;
 ;       |sync:syncio_run|                                           ; 0 (0)               ; 2 (2)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|sync:syncio_run                                                                                                                                    ; sync                ; work         ;
@@ -1417,7 +1416,6 @@ Encoding Type:  One-Hot
 ; radioberry_core:radioberry_core_i|radio:radio_i|FirInterp8_1024:fi|y_real[0]                                                                 ; Stuck at GND due to stuck port data_in                                                                                            ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|FirInterp8_1024:fi|y_imag[0]                                                                 ; Stuck at GND due to stuck port data_in                                                                                            ;
 ; radioberry_core:radioberry_core_i|spi_slave:spi_slave_inst|rreg[41..47]                                                                      ; Lost fanout                                                                                                                       ;
-; radioberry_core:radioberry_core_i|spi_slave:spi_slave_inst|treg[0]                                                                           ; Stuck at VCC due to stuck port data_in                                                                                            ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|CicInterpM5:in2|q0[0]                                                                        ; Stuck at GND due to stuck port data_in                                                                                            ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|CicInterpM5:in2|x0[0]                                                                        ; Stuck at GND due to stuck port data_in                                                                                            ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|CicInterpM5:in2|dq0[0]                                                                       ; Stuck at GND due to stuck port data_in                                                                                            ;
@@ -1447,8 +1445,8 @@ Encoding Type:  One-Hot
 ; radioberry_core:radioberry_core_i|radio:radio_i|cpl_cordic:cordic_inst|Z[0][19]                                                              ; Merged with radioberry_core:radioberry_core_i|radio:radio_i|cpl_cordic:cordic_inst|Z[0][18]                                       ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|CicInterpM5:in2|q0[20..50]                                                                   ; Merged with radioberry_core:radioberry_core_i|radio:radio_i|CicInterpM5:in2|q0[19]                                                ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|CicInterpM5:in2|x0[20..50]                                                                   ; Merged with radioberry_core:radioberry_core_i|radio:radio_i|CicInterpM5:in2|x0[19]                                                ;
-; radioberry_core:radioberry_core_i|radio:radio_i|mix2:mix2_0|state                                                                            ; Merged with radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|state                                              ;
 ; radioberry_core:radioberry_core_i|ad9866:ad9866_i|tx_sync                                                                                    ; Merged with radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|state                                              ;
+; radioberry_core:radioberry_core_i|radio:radio_i|mix2:mix2_0|state                                                                            ; Merged with radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|state                                              ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|adci[0]                                                                   ; Merged with radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|adcq[0]                                            ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|adci[1]                                                                   ; Merged with radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|adcq[1]                                            ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|adci[2]                                                                   ; Merged with radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|adcq[2]                                            ;
@@ -2327,7 +2325,6 @@ Encoding Type:  One-Hot
 ; radioberry_core:radioberry_core_i|radio:radio_i|CicInterpM5:in2|dx4[24..50]                                                                  ; Merged with radioberry_core:radioberry_core_i|radio:radio_i|CicInterpM5:in2|dx4[23]                                               ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|CicInterpM5:in2|x5[25..50]                                                                   ; Merged with radioberry_core:radioberry_core_i|radio:radio_i|CicInterpM5:in2|x5[24]                                                ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|CicInterpM5:in2|q5[25..50]                                                                   ; Merged with radioberry_core:radioberry_core_i|radio:radio_i|CicInterpM5:in2|q5[24]                                                ;
-; radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|cmd_state.CMD_WRITE                                                                ; Lost fanout                                                                                                                       ;
 ; radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|cmd_state~2                                                                        ; Lost fanout                                                                                                                       ;
 ; radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|cmd_state~3                                                                        ; Lost fanout                                                                                                                       ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|tx_state~2                                                                                   ; Lost fanout                                                                                                                       ;
@@ -2349,7 +2346,7 @@ Encoding Type:  One-Hot
 ; radioberry_core:radioberry_core_i|radio:radio_i|FirInterp8_1024:fi|Raccum[21..23]                                                            ; Lost fanout                                                                                                                       ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|mix2:mix2_0|nco2:nco2_i|sincos:sincos_i|cop                                                  ; Merged with radioberry_core:radioberry_core_i|radio:radio_i|mix2:mix2_0|nco2:nco2_i|sincos:sincos_i|sop                           ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|nco2:nco2_i|sincos:sincos_i|cop                                           ; Merged with radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|nco2:nco2_i|sincos:sincos_i|sop                    ;
-; Total Number of Removed Registers = 1559                                                                                                     ;                                                                                                                                   ;
+; Total Number of Removed Registers = 1557                                                                                                     ;                                                                                                                                   ;
 +----------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------+
 
 
@@ -2412,12 +2409,12 @@ Encoding Type:  One-Hot
 +----------------------------------------------+-------+
 ; Statistic                                    ; Value ;
 +----------------------------------------------+-------+
-; Total registers                              ; 13711 ;
+; Total registers                              ; 13699 ;
 ; Number of registers using Synchronous Clear  ; 1880  ;
-; Number of registers using Synchronous Load   ; 625   ;
-; Number of registers using Asynchronous Clear ; 137   ;
+; Number of registers using Synchronous Load   ; 623   ;
+; Number of registers using Asynchronous Clear ; 138   ;
 ; Number of registers using Asynchronous Load  ; 0     ;
-; Number of registers using Clock Enable       ; 10292 ;
+; Number of registers using Clock Enable       ; 10287 ;
 ; Number of registers using Preset             ; 0     ;
 +----------------------------------------------+-------+
 
@@ -2428,17 +2425,13 @@ Encoding Type:  One-Hot
 ; Inverted Register                                                                                                                                       ; Fan out ;
 +---------------------------------------------------------------------------------------------------------------------------------------------------------+---------+
 ; radioberry_core:radioberry_core_i|reset_handler:reset_handler_inst|reset                                                                                ; 177     ;
+; radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|rx_gain[6]                                                                                    ; 6       ;
 ; radioberry_core:radioberry_core_i|usiq_fifo:usiq_fifo_i|dcfifo:fifo_i|dcfifo_l6k1:auto_generated|a_graycounter_to6:rdptr_g1p|counter5a0                 ; 7       ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|tx_buffer_latency[3]                                                                                    ; 1       ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|ptt_hang_time[2]                                                                                        ; 1       ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|tx_buffer_latency[1]                                                                                    ; 1       ;
 ; radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|a_graycounter_uo6:rdptr_g1p|counter5a0    ; 7       ;
 ; radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|allow_push                                                                                      ; 2       ;
-; radioberry_core:radioberry_core_i|ad9866:ad9866_i|FAST_LNA.rx_gain[0]                                                                                   ; 2       ;
-; radioberry_core:radioberry_core_i|ad9866:ad9866_i|FAST_LNA.rx_gain[1]                                                                                   ; 2       ;
-; radioberry_core:radioberry_core_i|ad9866:ad9866_i|FAST_LNA.rx_gain[2]                                                                                   ; 2       ;
-; radioberry_core:radioberry_core_i|ad9866:ad9866_i|FAST_LNA.rx_gain[3]                                                                                   ; 2       ;
-; radioberry_core:radioberry_core_i|ad9866:ad9866_i|FAST_LNA.rx_gain[4]                                                                                   ; 2       ;
 ; radioberry_core:radioberry_core_i|usiq_fifo:usiq_fifo_i|dcfifo:fifo_i|dcfifo_l6k1:auto_generated|a_graycounter_to6:rdptr_g1p|parity6                    ; 4       ;
 ; radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|a_graycounter_uo6:rdptr_g1p|parity6       ; 4       ;
 ; radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|cntr_ild:cntr_b|counter_reg_bit0          ; 2       ;
@@ -2452,7 +2445,8 @@ Encoding Type:  One-Hot
 ; radioberry_core:radioberry_core_i|spi_slave:spi_slave_inst|treg[3]                                                                                      ; 1       ;
 ; radioberry_core:radioberry_core_i|spi_slave:spi_slave_inst|treg[2]                                                                                      ; 1       ;
 ; radioberry_core:radioberry_core_i|spi_slave:spi_slave_inst|treg[1]                                                                                      ; 1       ;
-; Total number of inverted registers = 25                                                                                                                 ;         ;
+; radioberry_core:radioberry_core_i|spi_slave:spi_slave_inst|treg[0]                                                                                      ; 1       ;
+; Total number of inverted registers = 22                                                                                                                 ;         ;
 +---------------------------------------------------------------------------------------------------------------------------------------------------------+---------+
 
 
@@ -2471,52 +2465,50 @@ Encoding Type:  One-Hot
 +--------------------+-----------+---------------+----------------------+------------------------+------------+---------------------------------------------------------------------------------------------------------------------------------+
 ; Multiplexer Inputs ; Bus Width ; Baseline Area ; Area if Restructured ; Saving if Restructured ; Registered ; Example Multiplexer Output                                                                                                      ;
 +--------------------+-----------+---------------+----------------------+------------------------+------------+---------------------------------------------------------------------------------------------------------------------------------+
-; 3:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ddr_mux:ddr_mux_rx_inst|mux_sel[0]                                                ;
-; 3:1                ; 6 bits    ; 12 LEs        ; 6 LEs                ; 6 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ad9866:ad9866_i|FAST_LNA.gain[0]                                                  ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|rx_phase[0][1]                                                      ;
+; 3:1                ; 6 bits    ; 12 LEs        ; 12 LEs               ; 0 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ad9866:ad9866_i|rffe_ad9866_tx[4]                                                 ;
+; 3:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ddr_mux:ddr_mux_rx_inst|mux_sel[1]                                                ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|rx_phase[0][13]                                                     ;
 ; 3:1                ; 18 bits   ; 36 LEs        ; 36 LEs               ; 0 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|cpl_cordic:cordic_inst|Y[0][5]                                      ;
-; 3:1                ; 18 bits   ; 36 LEs        ; 36 LEs               ; 0 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|cpl_cordic:cordic_inst|X[0][17]                                     ;
-; 3:1                ; 392 bits  ; 784 LEs       ; 392 LEs              ; 392 LEs                ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:AE|Iaccum[21]           ;
+; 3:1                ; 18 bits   ; 36 LEs        ; 36 LEs               ; 0 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|cpl_cordic:cordic_inst|X[0][5]                                      ;
+; 3:1                ; 392 bits  ; 784 LEs       ; 392 LEs              ; 392 LEs                ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:AE|Iaccum[23] ;
 ; 3:1                ; 392 bits  ; 784 LEs       ; 392 LEs              ; 392 LEs                ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:BF|Iaccum[0]            ;
 ; 3:1                ; 392 bits  ; 784 LEs       ; 392 LEs              ; 392 LEs                ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:CG|Iaccum[0]            ;
-; 3:1                ; 392 bits  ; 784 LEs       ; 392 LEs              ; 392 LEs                ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|firX8R8:fir2|fir256:DH|Iaccum[17] ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 14 LEs               ; 14 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:AE|caddr[6]   ;
-; 3:1                ; 7 bits    ; 14 LEs        ; 7 LEs                ; 7 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:AE|raddr[5]   ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 14 LEs               ; 14 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:BF|counter[7] ;
+; 3:1                ; 392 bits  ; 784 LEs       ; 392 LEs              ; 392 LEs                ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|firX8R8:fir2|fir256:DH|Iaccum[10] ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 14 LEs               ; 14 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:AE|caddr[2]   ;
+; 3:1                ; 7 bits    ; 14 LEs        ; 7 LEs                ; 7 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:AE|raddr[2]   ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 14 LEs               ; 14 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:BF|caddr[1]   ;
 ; 3:1                ; 7 bits    ; 14 LEs        ; 7 LEs                ; 7 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:BF|raddr[0]   ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 14 LEs               ; 14 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:CG|caddr[1]   ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 14 LEs               ; 14 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:CG|caddr[4]   ;
 ; 3:1                ; 7 bits    ; 14 LEs        ; 7 LEs                ; 7 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:CG|raddr[6]   ;
-; 3:1                ; 14 bits   ; 28 LEs        ; 14 LEs               ; 14 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:DH|counter[4] ;
-; 3:1                ; 7 bits    ; 14 LEs        ; 7 LEs                ; 7 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:DH|raddr[0]   ;
+; 3:1                ; 14 bits   ; 28 LEs        ; 14 LEs               ; 14 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:DH|counter[5] ;
+; 3:1                ; 7 bits    ; 14 LEs        ; 7 LEs                ; 7 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|fir256:DH|raddr[6]   ;
 ; 4:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|dut2_data[15]                                             ;
-; 5:1                ; 8 bits    ; 24 LEs        ; 16 LEs               ; 8 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ddr_mux:ddr_mux_rx_inst|data_p[3]                                                 ;
-; 4:1                ; 5 bits    ; 10 LEs        ; 5 LEs                ; 5 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|wstate[0]            ;
-; 4:1                ; 6 bits    ; 12 LEs        ; 6 LEs                ; 6 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ad9866:ad9866_i|tx_data_d1[10]                                                    ;
-; 4:1                ; 4 bits    ; 8 LEs         ; 8 LEs                ; 0 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|dut2_bitcount[0]                                          ;
-; 4:1                ; 108 bits  ; 216 LEs       ; 108 LEs              ; 108 LEs                ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|FirInterp8_1024:fi|Rmult[24]                                        ;
-; 4:1                ; 56 bits   ; 112 LEs       ; 56 LEs               ; 56 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|vna_scanner:rx_vna|vna_Q[13]                                        ;
-; 4:1                ; 6 bits    ; 12 LEs        ; 12 LEs               ; 0 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|dut1_pc[3]                                                ;
-; 6:1                ; 9 bits    ; 36 LEs        ; 27 LEs               ; 9 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|dut2_data[7]                                              ;
-; 6:1                ; 3 bits    ; 12 LEs        ; 9 LEs                ; 3 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|dut2_data[1]                                              ;
-; 7:1                ; 192 bits  ; 768 LEs       ; 192 LEs              ; 576 LEs                ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|Iacc[20]             ;
-; 5:1                ; 10 bits   ; 30 LEs        ; 10 LEs               ; 20 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|vna_scanner:rx_vna|data_counter[9]                                  ;
-; 7:1                ; 7 bits    ; 28 LEs        ; 7 LEs                ; 21 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|FirInterp8_1024:fi|caddr[9]                                         ;
-; 7:1                ; 7 bits    ; 28 LEs        ; 7 LEs                ; 21 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|FirInterp8_1024:fi|raddr[3]                                         ;
-; 9:1                ; 9 bits    ; 54 LEs        ; 18 LEs               ; 36 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|tx_cwlevel[17]                                                      ;
-; 9:1                ; 10 bits   ; 60 LEs        ; 20 LEs               ; 40 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|tx_cwlevel[11]                                                      ;
-; 9:1                ; 14 bits   ; 84 LEs        ; 28 LEs               ; 56 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|vna_scanner:rx_vna|vna_decimation[6]                                ;
-; 10:1               ; 2 bits    ; 12 LEs        ; 2 LEs                ; 10 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|tx_qmsectimer[0]                                                    ;
+; 5:1                ; 8 bits    ; 24 LEs        ; 16 LEs               ; 8 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ddr_mux:ddr_mux_rx_inst|data_p[2]                                                 ;
+; 4:1                ; 5 bits    ; 10 LEs        ; 5 LEs                ; 5 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|wstate[1]            ;
+; 4:1                ; 4 bits    ; 8 LEs         ; 8 LEs                ; 0 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|dut2_bitcount[3]                                          ;
+; 4:1                ; 108 bits  ; 216 LEs       ; 108 LEs              ; 108 LEs                ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|FirInterp8_1024:fi|Imult[20]                                        ;
+; 4:1                ; 56 bits   ; 112 LEs       ; 56 LEs               ; 56 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|vna_scanner:rx_vna|vna_I[21]                                        ;
+; 4:1                ; 6 bits    ; 12 LEs        ; 12 LEs               ; 0 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|dut1_pc[0]                                                ;
+; 5:1                ; 4 bits    ; 12 LEs        ; 8 LEs                ; 4 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|dut2_data[9]                                              ;
+; 7:1                ; 192 bits  ; 768 LEs       ; 192 LEs              ; 576 LEs                ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|Iacc[12]             ;
+; 6:1                ; 5 bits    ; 20 LEs        ; 15 LEs               ; 5 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|dut2_data[7]                                              ;
+; 5:1                ; 10 bits   ; 30 LEs        ; 10 LEs               ; 20 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|vna_scanner:rx_vna|data_counter[8]                                  ;
+; 7:1                ; 7 bits    ; 28 LEs        ; 7 LEs                ; 21 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|FirInterp8_1024:fi|caddr[3]                                         ;
+; 7:1                ; 7 bits    ; 28 LEs        ; 7 LEs                ; 21 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|FirInterp8_1024:fi|raddr[6]                                         ;
+; 8:1                ; 2 bits    ; 10 LEs        ; 8 LEs                ; 2 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|dut2_data[1]                                              ;
+; 9:1                ; 9 bits    ; 54 LEs        ; 18 LEs               ; 36 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|tx_cwlevel[18]                                                      ;
+; 9:1                ; 10 bits   ; 60 LEs        ; 20 LEs               ; 40 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|tx_cwlevel[9]                                                       ;
+; 9:1                ; 14 bits   ; 84 LEs        ; 28 LEs               ; 56 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|vna_scanner:rx_vna|vna_decimation[11]                               ;
+; 10:1               ; 2 bits    ; 12 LEs        ; 2 LEs                ; 10 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|tx_qmsectimer[1]                                                    ;
 ; 10:1               ; 5 bits    ; 30 LEs        ; 10 LEs               ; 20 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|tx_qmsectimer[2]                                                    ;
-; 3:1                ; 15 bits   ; 30 LEs        ; 30 LEs               ; 0 LEs                  ; No         ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|tx_i[5]                                                             ;
+; 3:1                ; 15 bits   ; 30 LEs        ; 30 LEs               ; 0 LEs                  ; No         ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|tx_i[2]                                                             ;
 ; 3:1                ; 15 bits   ; 30 LEs        ; 30 LEs               ; 0 LEs                  ; No         ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|vna_scanner:rx_vna|vna_counter_next                                 ;
-; 9:1                ; 48 bits   ; 288 LEs       ; 192 LEs              ; 96 LEs                 ; No         ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|Mux33                                                               ;
-; 6:1                ; 32 bits   ; 128 LEs       ; 64 LEs               ; 64 LEs                 ; No         ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|vna_scanner:rx_vna|Selector18                                       ;
-; 6:1                ; 2 bits    ; 8 LEs         ; 6 LEs                ; 2 LEs                  ; No         ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|Selector12                                                          ;
-; 12:1               ; 136 bits  ; 1088 LEs      ; 272 LEs              ; 816 LEs                ; No         ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|varcic:varcic_inst_Q1|Selector16  ;
+; 9:1                ; 48 bits   ; 288 LEs       ; 192 LEs              ; 96 LEs                 ; No         ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|Mux43                                                               ;
+; 6:1                ; 32 bits   ; 128 LEs       ; 64 LEs               ; 64 LEs                 ; No         ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|vna_scanner:rx_vna|Selector19                                       ;
+; 6:1                ; 2 bits    ; 8 LEs         ; 6 LEs                ; 2 LEs                  ; No         ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|Selector11                                                          ;
+; 12:1               ; 136 bits  ; 1088 LEs      ; 272 LEs              ; 816 LEs                ; No         ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER3.receiver_3|varcic:varcic_inst_Q1|Selector13  ;
 ; 8:1                ; 2 bits    ; 10 LEs        ; 4 LEs                ; 6 LEs                  ; No         ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|vna_scanner:rx_vna|vna_state                                        ;
-; 68:1               ; 2 bits    ; 90 LEs        ; 16 LEs               ; 74 LEs                 ; No         ; |radioberry|radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|cmd_state_next.CMD_WRITE                                  ;
-; 68:1               ; 2 bits    ; 90 LEs        ; 12 LEs               ; 78 LEs                 ; No         ; |radioberry|radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|cmd_state_next.CMD_RXGAIN                                 ;
-; 5:1                ; 192 bits  ; 576 LEs       ; 384 LEs              ; 192 LEs                ; No         ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER2.receiver_2|firX8R8:fir2|Add2                 ;
+; 5:1                ; 192 bits  ; 576 LEs       ; 384 LEs              ; 192 LEs                ; No         ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|Add2                 ;
 ; 3:1                ; 192 bits  ; 384 LEs       ; 0 LEs                ; 384 LEs                ; No         ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:RECEIVER1.receiver_1|firX8R8:fir2|Add3                 ;
 +--------------------+-----------+---------------+----------------------+------------------------+------------+---------------------------------------------------------------------------------------------------------------------------------+
 
@@ -3252,7 +3244,7 @@ Encoding Type:  One-Hot
 ; ATU            ; 0        ; Signed Integer                                     ;
 ; VNA            ; 0        ; Signed Integer                                     ;
 ; CW             ; 1        ; Signed Integer                                     ;
-; FAST_LNA       ; 1        ; Signed Integer                                     ;
+; FAST_LNA       ; 0        ; Signed Integer                                     ;
 +----------------+----------+----------------------------------------------------+
 Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
 
@@ -3794,7 +3786,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 +----------------+-------+-----------------------------------------------------------------------+
 ; Parameter Name ; Value ; Type                                                                  ;
 +----------------+-------+-----------------------------------------------------------------------+
-; FAST_LNA       ; 1     ; Signed Integer                                                        ;
+; FAST_LNA       ; 0     ; Signed Integer                                                        ;
 +----------------+-------+-----------------------------------------------------------------------+
 Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
 
@@ -8156,16 +8148,6 @@ Note: In order to hide this table in the UI and the text report file, please set
 Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
 
 
-+--------------------------------------------------------------------------------------------------------+
-; Parameter Settings for User Entity Instance: radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i ;
-+----------------+-------+-------------------------------------------------------------------------------+
-; Parameter Name ; Value ; Type                                                                          ;
-+----------------+-------+-------------------------------------------------------------------------------+
-; FAST_LNA       ; 1     ; Signed Integer                                                                ;
-+----------------+-------+-------------------------------------------------------------------------------+
-Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
-
-
 +------------------------------------------------------------------------------------------------+
 ; Parameter Settings for User Entity Instance: radioberry_core:radioberry_core_i|sync:syncio_run ;
 +----------------+-------+-----------------------------------------------------------------------+
@@ -10891,9 +10873,10 @@ Note: In order to hide this table in the UI and the text report file, please set
 ; tdata[10..8]  ; Input  ; Info     ; Stuck at VCC                                                                        ;
 ; tdata[47..15] ; Input  ; Info     ; Stuck at GND                                                                        ;
 ; tdata[13..11] ; Input  ; Info     ; Stuck at GND                                                                        ;
-; tdata[7..1]   ; Input  ; Info     ; Stuck at GND                                                                        ;
+; tdata[7..2]   ; Input  ; Info     ; Stuck at GND                                                                        ;
 ; tdata[14]     ; Input  ; Info     ; Stuck at VCC                                                                        ;
-; tdata[0]      ; Input  ; Info     ; Stuck at VCC                                                                        ;
+; tdata[1]      ; Input  ; Info     ; Stuck at VCC                                                                        ;
+; tdata[0]      ; Input  ; Info     ; Stuck at GND                                                                        ;
 ; mlb           ; Input  ; Info     ; Stuck at VCC                                                                        ;
 ; rdata[47..42] ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
 ; rdata[39]     ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
@@ -10915,27 +10898,27 @@ Note: In order to hide this table in the UI and the text report file, please set
 ; Type                  ; Count                       ;
 +-----------------------+-----------------------------+
 ; boundary_port         ; 42                          ;
-; cycloneiii_ff         ; 13711                       ;
-;     ENA               ; 8069                        ;
-;     ENA CLR           ; 137                         ;
-;     ENA SCLR          ; 1766                        ;
-;     ENA SCLR SLD      ; 19                          ;
+; cycloneiii_ff         ; 13699                       ;
+;     ENA               ; 8062                        ;
+;     ENA CLR           ; 138                         ;
+;     ENA SCLR          ; 1763                        ;
+;     ENA SCLR SLD      ; 23                          ;
 ;     ENA SLD           ; 301                         ;
-;     SCLR              ; 87                          ;
+;     SCLR              ; 86                          ;
 ;     SCLR SLD          ; 8                           ;
-;     SLD               ; 297                         ;
+;     SLD               ; 291                         ;
 ;     plain             ; 3027                        ;
 ; cycloneiii_io_obuf    ; 1                           ;
-; cycloneiii_lcell_comb ; 11335                       ;
+; cycloneiii_lcell_comb ; 11304                       ;
 ;     arith             ; 8498                        ;
 ;         2 data inputs ; 915                         ;
 ;         3 data inputs ; 7583                        ;
-;     normal            ; 2837                        ;
+;     normal            ; 2806                        ;
 ;         0 data inputs ; 6                           ;
-;         1 data inputs ; 101                         ;
-;         2 data inputs ; 908                         ;
-;         3 data inputs ; 519                         ;
-;         4 data inputs ; 1303                        ;
+;         1 data inputs ; 102                         ;
+;         2 data inputs ; 909                         ;
+;         3 data inputs ; 497                         ;
+;         4 data inputs ; 1292                        ;
 ; cycloneiii_mac_mult   ; 46                          ;
 ; cycloneiii_mac_out    ; 46                          ;
 ; cycloneiii_pll        ; 1                           ;
@@ -10951,7 +10934,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 +----------------+--------------+
 ; Partition Name ; Elapsed Time ;
 +----------------+--------------+
-; Top            ; 00:01:12     ;
+; Top            ; 00:00:42     ;
 +----------------+--------------+
 
 
@@ -10961,7 +10944,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus Prime Analysis & Synthesis
     Info: Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
-    Info: Processing started: Tue Apr 28 17:28:11 2020
+    Info: Processing started: Mon May 04 17:22:28 2020
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off radioberry-10CL016 -c radioberry-10CL016
 Info (16303): High Performance Effort optimization mode selected -- timing performance will be prioritized at the potential cost of increased compilation time
     Info (16304): Mode behavior is affected by advanced setting Perform Register Retiming for Performance (default for this mode is On)
@@ -11123,7 +11106,7 @@ Warning (10236): Verilog HDL Implicit Net warning at radioberry_core.v(326): cre
 Warning (10236): Verilog HDL Implicit Net warning at control.v(82): created implicit net for "ext_cwkey" File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/control.v Line: 82
 Warning (10236): Verilog HDL Implicit Net warning at control.v(83): created implicit net for "clean_ring" File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/control.v Line: 83
 Info (12127): Elaborating entity "radioberry" for the top level hierarchy
-Info (12128): Elaborating entity "radioberry_core" for hierarchy "radioberry_core:radioberry_core_i" File: C:/dev/git/Hermes-Lite2/gateware/variants/radioberry - CL016/radioberry.v Line: 82
+Info (12128): Elaborating entity "radioberry_core" for hierarchy "radioberry_core:radioberry_core_i" File: C:/dev/git/Hermes-Lite2/gateware/variants/radioberry - CL016/radioberry.v Line: 81
 Info (12128): Elaborating entity "reset_handler" for hierarchy "radioberry_core:radioberry_core_i|reset_handler:reset_handler_inst" File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/radioberry_core.v Line: 111
 Warning (10230): Verilog HDL assignment warning at reset_handler.v(24): truncated value with size 32 to match size of target (24) File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/reset_handler.v Line: 24
 Info (10648): Verilog HDL Display System Task info at reset_handler.v(35): Reset handler initialization done File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/reset_handler.v Line: 35
@@ -11536,10 +11519,9 @@ Info (12128): Elaborating entity "altsyncram_jin1" for hierarchy "radioberry_cor
 Info (12128): Elaborating entity "CicInterpM5" for hierarchy "radioberry_core:radioberry_core_i|radio:radio_i|CicInterpM5:in2" File: C:/dev/git/Hermes-Lite2/gateware/rtl/radio_openhpsdr1/radio.v Line: 855
 Info (12128): Elaborating entity "cpl_cordic" for hierarchy "radioberry_core:radioberry_core_i|radio:radio_i|cpl_cordic:cordic_inst" File: C:/dev/git/Hermes-Lite2/gateware/rtl/radio_openhpsdr1/radio.v Line: 874
 Info (12128): Elaborating entity "ad9866ctrl" for hierarchy "radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i" File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/radioberry_core.v Line: 358
-Warning (10036): Verilog HDL or VHDL warning at ad9866ctrl.v(80): object "rx_gain_next" assigned a value but never read File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/ad9866ctrl.v Line: 80
-Warning (10030): Net "initarray.data_a" at ad9866ctrl.v(66) has no driver or initial value, using a default initial value '0' File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/ad9866ctrl.v Line: 66
-Warning (10030): Net "initarray.waddr_a" at ad9866ctrl.v(66) has no driver or initial value, using a default initial value '0' File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/ad9866ctrl.v Line: 66
-Warning (10030): Net "initarray.we_a" at ad9866ctrl.v(66) has no driver or initial value, using a default initial value '0' File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/ad9866ctrl.v Line: 66
+Warning (10030): Net "initarray.data_a" at ad9866ctrl.v(64) has no driver or initial value, using a default initial value '0' File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/ad9866ctrl.v Line: 64
+Warning (10030): Net "initarray.waddr_a" at ad9866ctrl.v(64) has no driver or initial value, using a default initial value '0' File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/ad9866ctrl.v Line: 64
+Warning (10030): Net "initarray.we_a" at ad9866ctrl.v(64) has no driver or initial value, using a default initial value '0' File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/ad9866ctrl.v Line: 64
 Info (12128): Elaborating entity "control" for hierarchy "radioberry_core:radioberry_core_i|control:control_i" File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/radioberry_core.v Line: 391
 Info (12128): Elaborating entity "debounce" for hierarchy "radioberry_core:radioberry_core_i|control:control_i|debounce:de_phone_tip" File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/control.v Line: 82
 Warning (14284): Synthesized away the following node(s):
@@ -11765,8 +11747,8 @@ Warning (14284): Synthesized away the following node(s):
         Warning (14320): Synthesized away node "radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:AE|firromH:rom|altsyncram:altsyncram_component|altsyncram_dd91:auto_generated|q_a[16]" File: C:/dev/git/Hermes-Lite2/gateware/variants/radioberry - CL016/db/altsyncram_dd91.tdf Line: 386
         Warning (14320): Synthesized away node "radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:AE|firromH:rom|altsyncram:altsyncram_component|altsyncram_dd91:auto_generated|q_a[17]" File: C:/dev/git/Hermes-Lite2/gateware/variants/radioberry - CL016/db/altsyncram_dd91.tdf Line: 408
 Info (276014): Found 1 instances of uninferred RAM logic
-    Info (276004): RAM logic "radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|initarray" is uninferred due to inappropriate RAM size File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/ad9866ctrl.v Line: 66
-Critical Warning (127005): Memory depth (32) in the design file differs from memory depth (20) in the Memory Initialization File "C:/dev/git/Hermes-Lite2/gateware/variants/radioberry - CL016/db/radioberry-10CL016.ram0_ad9866ctrl_75a00a4d.hdl.mif" -- setting initial value for remaining addresses to 0
+    Info (276004): RAM logic "radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|initarray" is uninferred due to inappropriate RAM size File: C:/dev/git/Hermes-Lite2/gateware/rtl/radioberry/ad9866ctrl.v Line: 64
+Critical Warning (127005): Memory depth (32) in the design file differs from memory depth (20) in the Memory Initialization File "C:/dev/git/Hermes-Lite2/gateware/variants/radioberry - CL016/db/radioberry-10CL016.ram0_ad9866ctrl_b1ca24c7.hdl.mif" -- setting initial value for remaining addresses to 0
 Info (19000): Inferred 2 megafunctions from design logic
     Info (276029): Inferred altsyncram megafunction from the following design logic: "radioberry_core:radioberry_core_i|radio:radio_i|mix2:mix2_0|nco2:nco2_i|sincos:sincos_i|coarserom:coarserom_i|rom_rtl_0" 
         Info (286033): Parameter OPERATION_MODE set to ROM
@@ -11921,7 +11903,7 @@ Info (13003): DEV_CLRn pin will set, and not reset, register with preset signal 
 Warning (13024): Output pins are stuck at VCC or GND
     Warning (13410): Pin "rffe_ad9866_mode" is stuck at VCC File: C:/dev/git/Hermes-Lite2/gateware/variants/radioberry - CL016/radioberry.v Line: 22
 Info (286030): Timing-Driven Synthesis is running
-Info (17049): 45 registers lost all their fanouts during netlist optimizations.
+Info (17049): 44 registers lost all their fanouts during netlist optimizations.
 Warning (15899): PLL "radioberry_core:radioberry_core_i|ad9866pll:ad9866pll_inst|altpll:altpll_component|ad9866pll_altpll:auto_generated|pll1" has parameters clk2_multiply_by and clk2_divide_by specified but port CLK[2] is not connected File: C:/dev/git/Hermes-Lite2/gateware/variants/radioberry - CL016/db/ad9866pll_altpll.v Line: 45
 Info (128000): Starting physical synthesis optimizations for speed
 Info (332164): Evaluating HDL-embedded SDC commands
@@ -11960,25 +11942,25 @@ Info (332111): Found 11 clocks
     Info (332111):    6.510 virt_ad9866_rxclk_tx
 Info (128002): Starting physical synthesis algorithm combinational resynthesis using boolean division
 Info (128003): Physical synthesis algorithm combinational resynthesis using boolean division complete: estimated slack improvement of 0 ps
-Info (128001): Physical synthesis optimizations for speed complete: elapsed time is 00:00:07
+Info (128001): Physical synthesis optimizations for speed complete: elapsed time is 00:00:04
 Info (144001): Generated suppressed messages file C:/dev/git/Hermes-Lite2/gateware/variants/radioberry - CL016/build/radioberry-10CL016.map.smsg
 Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
     Info (16011): Adding 1 node(s), including 0 DDIO, 1 PLL, 0 transceiver and 0 LCELL
 Warning (21074): Design contains 2 input pin(s) that do not drive logic
     Warning (15610): No output dependent on input pin "rffe_ad9866_rxclk" File: C:/dev/git/Hermes-Lite2/gateware/variants/radioberry - CL016/radioberry.v Line: 15
     Warning (15610): No output dependent on input pin "pi_spi_ce[1]" File: C:/dev/git/Hermes-Lite2/gateware/variants/radioberry - CL016/radioberry.v Line: 28
-Info (21057): Implemented 17533 device resources after synthesis - the final resource count might be different
+Info (21057): Implemented 17516 device resources after synthesis - the final resource count might be different
     Info (21058): Implemented 21 input pins
     Info (21059): Implemented 21 output pins
-    Info (21061): Implemented 16590 logic cells
+    Info (21061): Implemented 16573 logic cells
     Info (21064): Implemented 808 RAM segments
     Info (21065): Implemented 1 PLLs
     Info (21062): Implemented 92 DSP elements
-Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 272 warnings
-    Info: Peak virtual memory: 5013 megabytes
-    Info: Processing ended: Tue Apr 28 17:30:20 2020
-    Info: Elapsed time: 00:02:09
-    Info: Total CPU time (on all processors): 00:02:37
+Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 271 warnings
+    Info: Peak virtual memory: 5015 megabytes
+    Info: Processing ended: Mon May 04 17:23:47 2020
+    Info: Elapsed time: 00:01:19
+    Info: Total CPU time (on all processors): 00:01:40
 
 
 +------------------------------------------+

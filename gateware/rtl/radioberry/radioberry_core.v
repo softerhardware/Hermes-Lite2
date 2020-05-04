@@ -49,10 +49,10 @@ parameter       UART = 0;
 parameter       ATU = 0;
 parameter       VNA = 0;
 parameter       CW = 0; // CW Support
-parameter       FAST_LNA = 0; // Support for fast LNA setting, TX/RX values
+parameter       FAST_LNA = 0; 
 
 localparam      VERSION_MAJOR = 8'd71;
-localparam      VERSION_MINOR = 8'd1;
+localparam      VERSION_MINOR = 8'd2;
 
 
 logic   [5:0]   cmd_addr;
@@ -343,7 +343,7 @@ sync syncio_rxgoodlvl (
 //------------------------------------------------------------------------------
 assign rffe_ad9866_rst_n = ~reset;
 
-ad9866ctrl #(.FAST_LNA(FAST_LNA)) ad9866ctrl_i (
+ad9866ctrl ad9866ctrl_i (
   .clk(clk_internal),
   .rst(reset),
 
