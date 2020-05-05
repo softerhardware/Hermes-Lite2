@@ -49,6 +49,9 @@ set_false_path -to [get_ports {pi_rx_last}]
 set_false_path -to [get_ports {pi_rx_data[*]}]
 set_false_path -to [get_ports {pi_tx_samples}]
 set_false_path -from [get_ports {pi_tx_data[*]}]
+set_false_path -from [get_ports {io_phone_*}]
+set_false_path -to [get_ports {io_ptt_out}]
+
 
 
 ## AD9866 RX Path
@@ -68,6 +71,7 @@ set_output_delay -add_delay -min -clock virt_ad9866_rxclk_tx 0.0 [get_ports {rff
 set_output_delay -add_delay -max -clock virt_ad9866_rxclk_tx 2.5 [get_ports {rffe_ad9866_tx[*]}]
 set_output_delay -add_delay -min -clock virt_ad9866_rxclk_tx 0.0 [get_ports {rffe_ad9866_tx[*]}]
 
+set_max_delay -from radioberry_core:radioberry_core_i|ad9866:ad9866_i|rffe_ad9866_tx[4]	-to rffe_ad9866_tx[4] 10
 
 ## AD9866 Other IO
 set_false_path -to [get_ports {rffe_ad9866_sclk}]
@@ -80,9 +84,12 @@ set_false_path -to [get_ports {rffe_ad9866_txquiet_n}]
 
 
 ## Additional timing constraints
+set_max_delay -from radioberry_core:radioberry_core_i|control:control_i|qmillisec_count[*]	-to radioberry_core:radioberry_core_i|sync_one:sync_qmsec_pulse_ad9866|sync_chain[*] 3
+set_max_delay -from radioberry_core:radioberry_core_i|control:control_i|debounce:de_phone_tip|clean_pb	-to radioberry_core:radioberry_core_i|sync:sync_ad9866_cw_keydown|sync_chain[1] 2
+set_max_delay -from radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|nco2:nco2_i|sincos:sincos_i|coarserom:coarserom_i|altsyncram:rom_rtl_0|altsyncram_8h71:auto_generated|ram_block1a0~porta_address_reg0 -to radioberry_core:radioberry_core_i|radio:radio_i|mix2:MIX1_3.mix2_2|nco2:nco2_i|sincos:sincos_i|lpm_mult:sinmult|mult_u0t:auto_generated|mac_mult1~OBSERVABLEDATAA_REGOUT* 7
+
 
 ## Multicycle for FIR
-
 set_multicycle_path -from [get_clocks {clock_153p6_mhz}] -to [get_clocks {clock_76p8MHz}] -setup -start 2
 set_multicycle_path -from [get_clocks {clock_153p6_mhz}] -to [get_clocks {clock_76p8MHz}] -hold -start 2
 

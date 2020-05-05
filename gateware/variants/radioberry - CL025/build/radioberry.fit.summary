@@ -1,16 +1,16 @@
-Fitter Status : Successful - Mon May 04 17:40:03 2020
+Fitter Status : Successful - Tue May 05 16:08:09 2020
 Quartus Prime Version : 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 Revision Name : radioberry
 Top-level Entity Name : radioberry
 Family : Cyclone 10 LP
 Device : 10CL025YE144C8G
 Timing Models : Final
-Total logic elements : 15,912 / 24,624 ( 65 % )
-    Total combinational functions : 11,970 / 24,624 ( 49 % )
-    Dedicated logic registers : 12,946 / 24,624 ( 53 % )
-Total registers : 12965
+Total logic elements : 15,241 / 24,624 ( 62 % )
+    Total combinational functions : 11,305 / 24,624 ( 46 % )
+    Dedicated logic registers : 12,905 / 24,624 ( 52 % )
+Total registers : 12924
 Total pins : 42 / 77 ( 55 % )
 Total virtual pins : 0
 Total memory bits : 306,688 / 608,256 ( 50 % )
-Embedded Multiplier 9-bit elements : 94 / 132 ( 71 % )
+Embedded Multiplier 9-bit elements : 92 / 132 ( 70 % )
 Total PLLs : 1 / 4 ( 25 % )

@@ -1,5 +1,5 @@
 Analysis & Synthesis report for radioberry-10CL016
-Mon May 04 17:23:47 2020
+Tue May 05 16:39:18 2020
 Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 
 
@@ -456,13 +456,13 @@ refer to the applicable agreement for further details.
 +----------------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                     ;
 +------------------------------------+---------------------------------------------+
-; Analysis & Synthesis Status        ; Successful - Mon May 04 17:23:46 2020       ;
+; Analysis & Synthesis Status        ; Successful - Tue May 05 16:39:17 2020       ;
 ; Quartus Prime Version              ; 18.1.0 Build 625 09/12/2018 SJ Lite Edition ;
 ; Revision Name                      ; radioberry-10CL016                          ;
 ; Top-level Entity Name              ; radioberry                                  ;
 ; Family                             ; Cyclone 10 LP                               ;
-; Total logic elements               ; 16,434                                      ;
-;     Total combinational functions  ; 11,303                                      ;
+; Total logic elements               ; 16,436                                      ;
+;     Total combinational functions  ; 11,305                                      ;
 ;     Dedicated logic registers      ; 13,699                                      ;
 ; Total registers                    ; 13699                                       ;
 ; Total pins                         ; 42                                          ;
@@ -703,16 +703,16 @@ refer to the applicable agreement for further details.
 +---------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------+
 ; Resource                                    ; Usage                                                                                                                               ;
 +---------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------+
-; Estimated Total logic elements              ; 16,434                                                                                                                              ;
+; Estimated Total logic elements              ; 16,436                                                                                                                              ;
 ;                                             ;                                                                                                                                     ;
-; Total combinational functions               ; 11303                                                                                                                               ;
+; Total combinational functions               ; 11305                                                                                                                               ;
 ; Logic element usage by number of LUT inputs ;                                                                                                                                     ;
-;     -- 4 input functions                    ; 1292                                                                                                                                ;
-;     -- 3 input functions                    ; 8080                                                                                                                                ;
+;     -- 4 input functions                    ; 1295                                                                                                                                ;
+;     -- 3 input functions                    ; 8079                                                                                                                                ;
 ;     -- <=2 input functions                  ; 1931                                                                                                                                ;
 ;                                             ;                                                                                                                                     ;
 ; Logic elements by mode                      ;                                                                                                                                     ;
-;     -- normal mode                          ; 2805                                                                                                                                ;
+;     -- normal mode                          ; 2807                                                                                                                                ;
 ;     -- arithmetic mode                      ; 8498                                                                                                                                ;
 ;                                             ;                                                                                                                                     ;
 ; Total registers                             ; 13699                                                                                                                               ;
@@ -729,7 +729,7 @@ refer to the applicable agreement for further details.
 ;                                             ;                                                                                                                                     ;
 ; Maximum fan-out node                        ; radioberry_core:radioberry_core_i|ad9866pll:ad9866pll_inst|altpll:altpll_component|ad9866pll_altpll:auto_generated|wire_pll1_clk[0] ;
 ; Maximum fan-out                             ; 14326                                                                                                                               ;
-; Total fan-out                               ; 89002                                                                                                                               ;
+; Total fan-out                               ; 89009                                                                                                                               ;
 ; Average fan-out                             ; 3.42                                                                                                                                ;
 +---------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------+
 
@@ -739,10 +739,10 @@ refer to the applicable agreement for further details.
 +-------------------------------------------------------------------+---------------------+---------------------------+-------------+--------------+---------+-----------+------+--------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------+--------------+
 ; Compilation Hierarchy Node                                        ; Combinational ALUTs ; Dedicated Logic Registers ; Memory Bits ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; Pins ; Virtual Pins ; Full Hierarchy Name                                                                                                                                                                              ; Entity Name         ; Library Name ;
 +-------------------------------------------------------------------+---------------------+---------------------------+-------------+--------------+---------+-----------+------+--------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------+--------------+
-; |radioberry                                                       ; 11303 (1)           ; 13699 (0)                 ; 306688      ; 92           ; 0       ; 46        ; 42   ; 0            ; |radioberry                                                                                                                                                                                      ; radioberry          ; work         ;
-;    |radioberry_core:radioberry_core_i|                            ; 11302 (17)          ; 13699 (15)                ; 306688      ; 92           ; 0       ; 46        ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i                                                                                                                                                    ; radioberry_core     ; work         ;
+; |radioberry                                                       ; 11305 (1)           ; 13699 (0)                 ; 306688      ; 92           ; 0       ; 46        ; 42   ; 0            ; |radioberry                                                                                                                                                                                      ; radioberry          ; work         ;
+;    |radioberry_core:radioberry_core_i|                            ; 11304 (18)          ; 13699 (15)                ; 306688      ; 92           ; 0       ; 46        ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i                                                                                                                                                    ; radioberry_core     ; work         ;
 ;       |ad9866:ad9866_i|                                           ; 7 (7)               ; 57 (57)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|ad9866:ad9866_i                                                                                                                                    ; ad9866              ; work         ;
-;       |ad9866ctrl:ad9866ctrl_i|                                   ; 93 (93)             ; 44 (44)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i                                                                                                                            ; ad9866ctrl          ; work         ;
+;       |ad9866ctrl:ad9866ctrl_i|                                   ; 94 (94)             ; 44 (44)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i                                                                                                                            ; ad9866ctrl          ; work         ;
 ;       |ad9866pll:ad9866pll_inst|                                  ; 0 (0)               ; 0 (0)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|ad9866pll:ad9866pll_inst                                                                                                                           ; ad9866pll           ; work         ;
 ;          |altpll:altpll_component|                                ; 0 (0)               ; 0 (0)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|ad9866pll:ad9866pll_inst|altpll:altpll_component                                                                                                   ; altpll              ; work         ;
 ;             |ad9866pll_altpll:auto_generated|                     ; 0 (0)               ; 0 (0)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|ad9866pll:ad9866pll_inst|altpll:altpll_component|ad9866pll_altpll:auto_generated                                                                   ; ad9866pll_altpll    ; work         ;
@@ -750,9 +750,9 @@ refer to the applicable agreement for further details.
 ;          |debounce:de_phone_ring|                                 ; 4 (4)               ; 7 (7)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|control:control_i|debounce:de_phone_ring                                                                                                           ; debounce            ; work         ;
 ;          |debounce:de_phone_tip|                                  ; 4 (4)               ; 7 (7)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|control:control_i|debounce:de_phone_tip                                                                                                            ; debounce            ; work         ;
 ;       |ddr_mux:ddr_mux_rx_inst|                                   ; 18 (18)             ; 37 (37)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|ddr_mux:ddr_mux_rx_inst                                                                                                                            ; ddr_mux             ; work         ;
-;       |dsiq_fifo:dsiq_fifo_i|                                     ; 111 (6)             ; 145 (1)                   ; 73728       ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i                                                                                                                              ; dsiq_fifo           ; work         ;
-;          |dcfifo_mixed_widths:fifo_i|                             ; 105 (0)             ; 144 (0)                   ; 73728       ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i                                                                                                   ; dcfifo_mixed_widths ; work         ;
-;             |dcfifo_72i1:auto_generated|                          ; 105 (18)            ; 144 (38)                  ; 73728       ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated                                                                        ; dcfifo_72i1         ; work         ;
+;       |dsiq_fifo:dsiq_fifo_i|                                     ; 112 (6)             ; 145 (1)                   ; 73728       ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i                                                                                                                              ; dsiq_fifo           ; work         ;
+;          |dcfifo_mixed_widths:fifo_i|                             ; 106 (0)             ; 144 (0)                   ; 73728       ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i                                                                                                   ; dcfifo_mixed_widths ; work         ;
+;             |dcfifo_72i1:auto_generated|                          ; 106 (18)            ; 144 (38)                  ; 73728       ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated                                                                        ; dcfifo_72i1         ; work         ;
 ;                |a_gray2bin_1ib:wrptr_g_gray2bin|                  ; 10 (10)             ; 0 (0)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|a_gray2bin_1ib:wrptr_g_gray2bin                                        ; a_gray2bin_1ib      ; work         ;
 ;                |a_gray2bin_1ib:ws_dgrp_gray2bin|                  ; 11 (11)             ; 0 (0)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|a_gray2bin_1ib:ws_dgrp_gray2bin                                        ; a_gray2bin_1ib      ; work         ;
 ;                |a_graycounter_q6c:wrptr_g1p|                      ; 22 (22)             ; 16 (16)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|a_graycounter_q6c:wrptr_g1p                                            ; a_graycounter_q6c   ; work         ;
@@ -762,12 +762,12 @@ refer to the applicable agreement for further details.
 ;                |alt_synch_pipe_1bl:ws_dgrp|                       ; 0 (0)               ; 24 (0)                    ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|alt_synch_pipe_1bl:ws_dgrp                                             ; alt_synch_pipe_1bl  ; work         ;
 ;                   |dffpipe_k09:dffpipe9|                          ; 0 (0)               ; 24 (24)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|alt_synch_pipe_1bl:ws_dgrp|dffpipe_k09:dffpipe9                        ; dffpipe_k09         ; work         ;
 ;                |altsyncram_2qu:fifo_ram|                          ; 0 (0)               ; 0 (0)                     ; 73728       ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|altsyncram_2qu:fifo_ram                                                ; altsyncram_2qu      ; work         ;
-;                |cmpr_i76:rdempty_eq_comp|                         ; 8 (8)               ; 0 (0)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|cmpr_i76:rdempty_eq_comp                                               ; cmpr_i76            ; work         ;
+;                |cmpr_i76:rdempty_eq_comp|                         ; 9 (9)               ; 0 (0)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|cmpr_i76:rdempty_eq_comp                                               ; cmpr_i76            ; work         ;
 ;                |cmpr_i76:wrfull_eq_comp|                          ; 8 (8)               ; 0 (0)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|cmpr_i76:wrfull_eq_comp                                                ; cmpr_i76            ; work         ;
 ;                |cntr_ild:cntr_b|                                  ; 4 (4)               ; 2 (2)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|cntr_ild:cntr_b                                                        ; cntr_ild            ; work         ;
 ;                |dffpipe_d09:ws_brp|                               ; 0 (0)               ; 11 (11)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|dffpipe_d09:ws_brp                                                     ; dffpipe_d09         ; work         ;
 ;                |dffpipe_f09:ws_bwp|                               ; 0 (0)               ; 13 (13)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|dsiq_fifo:dsiq_fifo_i|dcfifo_mixed_widths:fifo_i|dcfifo_72i1:auto_generated|dffpipe_f09:ws_bwp                                                     ; dffpipe_f09         ; work         ;
-;       |radio:radio_i|                                             ; 10799 (505)         ; 13040 (355)               ; 207360      ; 92           ; 0       ; 46        ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i                                                                                                                                      ; radio               ; work         ;
+;       |radio:radio_i|                                             ; 10798 (505)         ; 13040 (355)               ; 207360      ; 92           ; 0       ; 46        ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i                                                                                                                                      ; radio               ; work         ;
 ;          |CicInterpM5:in2|                                        ; 783 (783)           ; 978 (978)                 ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|CicInterpM5:in2                                                                                                                      ; CicInterpM5         ; work         ;
 ;          |FirInterp8_1024:fi|                                     ; 131 (131)           ; 227 (227)                 ; 23040       ; 4            ; 0       ; 2         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|FirInterp8_1024:fi                                                                                                                   ; FirInterp8_1024     ; work         ;
 ;             |firram36I_1024:ram|                                  ; 0 (0)               ; 0 (0)                     ; 4608        ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|FirInterp8_1024:fi|firram36I_1024:ram                                                                                                ; firram36I_1024      ; work         ;
@@ -1107,7 +1107,7 @@ refer to the applicable agreement for further details.
 ;                |cic_integrator:cic_stages[2].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|varcic:varcic_inst_Q1|cic_integrator:cic_stages[2].cic_integrator_inst                                       ; cic_integrator      ; work         ;
 ;                |cic_integrator:cic_stages[3].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|varcic:varcic_inst_Q1|cic_integrator:cic_stages[3].cic_integrator_inst                                       ; cic_integrator      ; work         ;
 ;                |cic_integrator:cic_stages[4].cic_integrator_inst| ; 43 (43)             ; 43 (43)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|receiver_nco:receiver_0|varcic:varcic_inst_Q1|cic_integrator:cic_stages[4].cic_integrator_inst                                       ; cic_integrator      ; work         ;
-;          |vna_scanner:rx_vna|                                     ; 322 (322)           ; 219 (219)                 ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|vna_scanner:rx_vna                                                                                                                   ; vna_scanner         ; work         ;
+;          |vna_scanner:rx_vna|                                     ; 321 (321)           ; 219 (219)                 ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|vna_scanner:rx_vna                                                                                                                   ; vna_scanner         ; work         ;
 ;       |reset_handler:reset_handler_inst|                          ; 32 (32)             ; 25 (25)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|reset_handler:reset_handler_inst                                                                                                                   ; reset_handler       ; work         ;
 ;       |spi_slave:spi_slave_inst|                                  ; 61 (61)             ; 138 (138)                 ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|spi_slave:spi_slave_inst                                                                                                                           ; spi_slave           ; work         ;
 ;       |sync:sync_ad9866_cw_keydown|                               ; 0 (0)               ; 2 (2)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |radioberry|radioberry_core:radioberry_core_i|sync:sync_ad9866_cw_keydown                                                                                                                        ; sync                ; work         ;
@@ -2411,10 +2411,10 @@ Encoding Type:  One-Hot
 +----------------------------------------------+-------+
 ; Total registers                              ; 13699 ;
 ; Number of registers using Synchronous Clear  ; 1880  ;
-; Number of registers using Synchronous Load   ; 623   ;
+; Number of registers using Synchronous Load   ; 622   ;
 ; Number of registers using Asynchronous Clear ; 138   ;
 ; Number of registers using Asynchronous Load  ; 0     ;
-; Number of registers using Clock Enable       ; 10287 ;
+; Number of registers using Clock Enable       ; 10286 ;
 ; Number of registers using Preset             ; 0     ;
 +----------------------------------------------+-------+
 
@@ -2425,7 +2425,7 @@ Encoding Type:  One-Hot
 ; Inverted Register                                                                                                                                       ; Fan out ;
 +---------------------------------------------------------------------------------------------------------------------------------------------------------+---------+
 ; radioberry_core:radioberry_core_i|reset_handler:reset_handler_inst|reset                                                                                ; 177     ;
-; radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|rx_gain[6]                                                                                    ; 6       ;
+; radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|rx_gain[6]                                                                                    ; 5       ;
 ; radioberry_core:radioberry_core_i|usiq_fifo:usiq_fifo_i|dcfifo:fifo_i|dcfifo_l6k1:auto_generated|a_graycounter_to6:rdptr_g1p|counter5a0                 ; 7       ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|tx_buffer_latency[3]                                                                                    ; 1       ;
 ; radioberry_core:radioberry_core_i|radio:radio_i|ptt_hang_time[2]                                                                                        ; 1       ;
@@ -2495,7 +2495,7 @@ Encoding Type:  One-Hot
 ; 5:1                ; 10 bits   ; 30 LEs        ; 10 LEs               ; 20 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|vna_scanner:rx_vna|data_counter[8]                                  ;
 ; 7:1                ; 7 bits    ; 28 LEs        ; 7 LEs                ; 21 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|FirInterp8_1024:fi|caddr[3]                                         ;
 ; 7:1                ; 7 bits    ; 28 LEs        ; 7 LEs                ; 21 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|FirInterp8_1024:fi|raddr[6]                                         ;
-; 8:1                ; 2 bits    ; 10 LEs        ; 8 LEs                ; 2 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|dut2_data[1]                                              ;
+; 8:1                ; 3 bits    ; 15 LEs        ; 12 LEs               ; 3 LEs                  ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|ad9866ctrl:ad9866ctrl_i|dut2_data[3]                                              ;
 ; 9:1                ; 9 bits    ; 54 LEs        ; 18 LEs               ; 36 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|tx_cwlevel[18]                                                      ;
 ; 9:1                ; 10 bits   ; 60 LEs        ; 20 LEs               ; 40 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|tx_cwlevel[9]                                                       ;
 ; 9:1                ; 14 bits   ; 84 LEs        ; 28 LEs               ; 56 LEs                 ; Yes        ; |radioberry|radioberry_core:radioberry_core_i|radio:radio_i|vna_scanner:rx_vna|vna_decimation[11]                               ;
@@ -10902,29 +10902,29 @@ Note: In order to hide this table in the UI and the text report file, please set
 ;     ENA               ; 8062                        ;
 ;     ENA CLR           ; 138                         ;
 ;     ENA SCLR          ; 1763                        ;
-;     ENA SCLR SLD      ; 23                          ;
+;     ENA SCLR SLD      ; 22                          ;
 ;     ENA SLD           ; 301                         ;
-;     SCLR              ; 86                          ;
+;     SCLR              ; 87                          ;
 ;     SCLR SLD          ; 8                           ;
 ;     SLD               ; 291                         ;
 ;     plain             ; 3027                        ;
 ; cycloneiii_io_obuf    ; 1                           ;
-; cycloneiii_lcell_comb ; 11304                       ;
+; cycloneiii_lcell_comb ; 11306                       ;
 ;     arith             ; 8498                        ;
 ;         2 data inputs ; 915                         ;
 ;         3 data inputs ; 7583                        ;
-;     normal            ; 2806                        ;
+;     normal            ; 2808                        ;
 ;         0 data inputs ; 6                           ;
 ;         1 data inputs ; 102                         ;
 ;         2 data inputs ; 909                         ;
-;         3 data inputs ; 497                         ;
-;         4 data inputs ; 1292                        ;
+;         3 data inputs ; 496                         ;
+;         4 data inputs ; 1295                        ;
 ; cycloneiii_mac_mult   ; 46                          ;
 ; cycloneiii_mac_out    ; 46                          ;
 ; cycloneiii_pll        ; 1                           ;
 ; cycloneiii_ram_block  ; 808                         ;
 ;                       ;                             ;
-; Max LUT depth         ; 9.00                        ;
+; Max LUT depth         ; 10.00                       ;
 ; Average LUT depth     ; 3.04                        ;
 +-----------------------+-----------------------------+
 
@@ -10944,7 +10944,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus Prime Analysis & Synthesis
     Info: Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
-    Info: Processing started: Mon May 04 17:22:28 2020
+    Info: Processing started: Tue May 05 16:38:00 2020
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off radioberry-10CL016 -c radioberry-10CL016
 Info (16303): High Performance Effort optimization mode selected -- timing performance will be prioritized at the potential cost of increased compilation time
     Info (16304): Mode behavior is affected by advanced setting Perform Register Retiming for Performance (default for this mode is On)
@@ -11949,17 +11949,17 @@ Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
 Warning (21074): Design contains 2 input pin(s) that do not drive logic
     Warning (15610): No output dependent on input pin "rffe_ad9866_rxclk" File: C:/dev/git/Hermes-Lite2/gateware/variants/radioberry - CL016/radioberry.v Line: 15
     Warning (15610): No output dependent on input pin "pi_spi_ce[1]" File: C:/dev/git/Hermes-Lite2/gateware/variants/radioberry - CL016/radioberry.v Line: 28
-Info (21057): Implemented 17516 device resources after synthesis - the final resource count might be different
+Info (21057): Implemented 17518 device resources after synthesis - the final resource count might be different
     Info (21058): Implemented 21 input pins
     Info (21059): Implemented 21 output pins
-    Info (21061): Implemented 16573 logic cells
+    Info (21061): Implemented 16575 logic cells
     Info (21064): Implemented 808 RAM segments
     Info (21065): Implemented 1 PLLs
     Info (21062): Implemented 92 DSP elements
 Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 271 warnings
-    Info: Peak virtual memory: 5015 megabytes
-    Info: Processing ended: Mon May 04 17:23:47 2020
-    Info: Elapsed time: 00:01:19
+    Info: Peak virtual memory: 5013 megabytes
+    Info: Processing ended: Tue May 05 16:39:18 2020
+    Info: Elapsed time: 00:01:18
     Info: Total CPU time (on all processors): 00:01:40
 
 
