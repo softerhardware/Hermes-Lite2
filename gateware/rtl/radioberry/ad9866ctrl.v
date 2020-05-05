@@ -90,8 +90,8 @@ initial begin
   initarray[6] = {1'b1,8'h14}; // Address 0x06, Disable clkout2
   initarray[7] = {1'b1,8'h21}; // Address 0x07, Initiate DC offset calibration and RX filter on, 21 to 20 to disable RX filter
   initarray[8] = {1'b1,8'h40}; // Address 0x08, RX filter f-3db at ~34 MHz after scaling
-  initarray[9] = {1'b1,8'h40}; // Address 0x09,
-  initarray[10] = {1'b1,8'h40}; // Address 0x0a,
+  initarray[9] = {1'b1,8'h7f}; // Address 0x09,
+  initarray[10] = {1'b1,8'h7f}; // Address 0x0a,
   initarray[11] = {1'b1,8'h00}; // Address 0x0b, No RX gain on PGA
   initarray[12] = {1'b1,8'h43}; // Address 0x0c, TX twos complement and interpolation factor
   initarray[13] = {1'b1,8'h03}; // Address 0x0d, RX twos complement
