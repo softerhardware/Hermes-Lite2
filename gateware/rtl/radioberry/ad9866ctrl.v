@@ -72,8 +72,9 @@ localparam
 // Command slave
 logic [1:0]       cmd_state = CMD_IDLE;
 logic [1:0]       cmd_state_next;
-logic [3:0]       tx_gain = 4'h0;
-logic [3:0]       tx_gain_next;
+logic [5:0]       tx_gain = 8'h0;
+logic [5:0]       tx_gain_computed;
+logic [5:0]       tx_gain_next;
 logic [6:0]       rx_gain = 7'b1000000;
 logic [6:0]       rx_gain_next;
 
@@ -117,6 +118,8 @@ always @* begin
   rx_gain_next = rx_gain;
   cmd_ack_next = cmd_ack;
   istart = 1'b0;
+  // Linear mapping from 0to255 to 0to39, like Hermes-Lite 1
+  tx_gain_computed = ((cmd_data[31:24]+4) >> 3) + (cmd_data[31:24] >> 5);
 
   icmd_data  = {cmd_data[20:16],cmd_data[7:0]};
 
@@ -129,10 +132,10 @@ always @* begin
         case (cmd_addr)
           // Hermes TX Gain Setting
           6'h09: begin
-            if (tx_gain != cmd_data[31:28]) begin
+            if (tx_gain != tx_gain_computed) begin
               // Must update
               if (rffe_ad9866_sen_n) begin
-                tx_gain_next = cmd_data[31:28];
+                tx_gain_next = tx_gain_computed;
                 cmd_state_next = CMD_TXGAIN;
               end else begin
                 cmd_ack_next = 1'b0;
@@ -170,7 +173,7 @@ always @* begin
 
     CMD_TXGAIN: begin
       istart     = 1'b1;
-      icmd_data  = {5'h0a,4'b0100,tx_gain};
+      icmd_data  = {5'h0a,2'b01,tx_gain};
       cmd_state_next = CMD_IDLE;
     end
     
