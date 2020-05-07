@@ -52,7 +52,7 @@ parameter       CW = 0; // CW Support
 parameter       FAST_LNA = 0; 
 
 localparam      VERSION_MAJOR = 8'd71;
-localparam      VERSION_MINOR = 8'd2;
+localparam      VERSION_MINOR = 8'd3;
 
 
 logic   [5:0]   cmd_addr;
@@ -66,7 +66,7 @@ logic           tx_on, tx_on_iosync;
 logic           cw_on, cw_on_iosync;
 logic           cw_keydown = 1'b0, cw_keydown_ad9866sync;
 
-logic   [31:0]  dsiq_tdata;
+logic   [35:0]  dsiq_tdata;
 logic           dsiq_tready;   
 logic           dsiq_tvalid;
 
@@ -175,7 +175,7 @@ sync_one sync_tx_one_inst(.clock(clk_ad9866), .sig_in(pi_tx_clk), .sig_out(wr_re
 
 dsiq_fifo #(.depth(8192)) dsiq_fifo_i (
   .wr_clk(clk_ad9866),
-  .wr_tdata(tx_data_assembled),
+  .wr_tdata({1'b0, tx_data_assembled}),
   .wr_tvalid(wr_req),
   .wr_tready(),
   .wr_tlast(txlast),
@@ -289,7 +289,7 @@ radio_i
   .cw_on(cw_on),
 
   // Transmit
-  .tx_tdata({dsiq_tdata[7:0],dsiq_tdata[15:8], dsiq_tdata[23:16],dsiq_tdata[31:24]}),
+  .tx_tdata({dsiq_tdata[7:0],dsiq_tdata[16:9], dsiq_tdata[25:18],dsiq_tdata[34:27]}),
   .tx_tlast(1'b1),
   .tx_tready(dsiq_tready),
   .tx_tvalid(dsiq_tvalid),
