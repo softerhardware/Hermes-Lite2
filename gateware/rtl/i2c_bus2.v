@@ -72,6 +72,7 @@ logic [7:0]   data0_reg, data0_next, data1_reg, data1_next;
 logic         cmd_ack_reg, cmd_ack_next;
 
 logic [6:0]   filter_select_reg, filter_select_next;
+logic         rx_antenna_reg, rx_antenna_next;
 
 logic         en_i2c2_next;
 
@@ -105,6 +106,7 @@ always @(posedge clk) begin
     data1_reg <= 'h0;
     cmd_ack_reg <= 1'b0;
     filter_select_reg <= 'h0;
+    rx_antenna_reg <= 1'b0;
   end else begin
     state <= state_next;
     cmd_reg <= cmd_next;
@@ -112,6 +114,7 @@ always @(posedge clk) begin
     data1_reg <= data1_next;
     cmd_ack_reg <= cmd_ack_next;
     filter_select_reg <= filter_select_next;
+    rx_antenna_reg <= rx_antenna_next;
     en_i2c2 <= en_i2c2_next;
   end
   resp_data <= resp_data_next;
@@ -135,6 +138,7 @@ always @* begin
   resp_data_next = resp_data;
   cmd_ack_next = cmd_ack;
   filter_select_next = filter_select_reg;
+  rx_antenna_next = rx_antenna_reg;
   cmd_next = cmd_reg;
   data0_next = data0_reg;
   data1_next = data1_reg;
@@ -174,13 +178,15 @@ always @* begin
 
         // Filter select update
         if (cmd_addr == 6'h00) begin
-          if (cmd_data[23:17] != filter_select_reg) begin
+          if ((cmd_data[23:17] != filter_select_reg) | (cmd_data[13] != rx_antenna_reg)) begin
             // Must send
             if (~busy) begin
               filter_select_next = cmd_data[23:17];
+              rx_antenna_next = cmd_data[13];
               cmd_next = 'h20;
               data0_next = 'h0a;
-              data1_next = {1'b0,cmd_data[23:17]};
+              // Alex rx antenna option passed to GP7 on MCP23008 GP7
+              data1_next = {cmd_data[13],cmd_data[23:17]};
               en_i2c2_next = 1'b1;
               state_next = STATE_FCMDADDR;
             end else begin
