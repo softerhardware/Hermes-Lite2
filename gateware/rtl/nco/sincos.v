@@ -1,6 +1,6 @@
 
 `timescale 1us/1ns
-
+/* verilator lint_off WIDTH */
 module sincos (
   clk,
   angle,
@@ -39,14 +39,18 @@ end
 
 //Pipestage2
 //Sign magnitude values to make full use of Cyclone IV multipliers
-logic  [18:0]   coarse_sin, coarse_cos, coarse_sinp, coarse_cosp;
-logic           fine_sign_d1, fine_sign_pd1;
-          
+logic [18:0] coarse_sin, coarse_cos, coarse_sinp, coarse_cosp;
+logic        coarse_sinp18, coarse_cosp18;
+logic        fine_sign_d1, fine_sign_pd1;
+
 always @(posedge clk) begin
-  coarse_sinp[18]          <=  sin_sign;
-  coarse_cosp[18]          <=  cos_sign;
-  fine_sign_pd1            <=  fine_sign;
-end // always @(posedge clk)
+  coarse_sinp18 <= sin_sign;
+  coarse_cosp18 <= cos_sign;
+  fine_sign_pd1 <= fine_sign;
+end// always @(posedge clk)
+
+assign coarse_sinp[18] = coarse_sinp18;
+assign coarse_cosp[18] = coarse_cosp18;
 
 coarserom #(.init_file("sincos_coarse.txt")) coarserom_i (
   .address(coarse_addr),
@@ -296,3 +300,4 @@ always @(posedge clk) begin
 end
 
 endmodule
+/* verilator lint_on WIDTH */

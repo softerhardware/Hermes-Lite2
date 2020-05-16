@@ -33,6 +33,7 @@
 //authorized distributors.  Please refer to the applicable 
 //agreement for further details.
 
+`ifdef USE_ALTSYNCRAM
 
 // synopsys translate_off
 `timescale 1 ps / 1 ps
@@ -212,3 +213,49 @@ endmodule
 // Retrieval info: GEN_FILE: TYPE_NORMAL firram36_inst.v FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL firram36_bb.v FALSE
 // Retrieval info: LIB_FILE: altera_mf
+
+
+
+`else
+
+
+
+// synopsys translate_off
+`timescale 1 ps / 1 ps
+// synopsys translate_on
+module firram36 (
+    clock,
+    data,
+    rdaddress,
+    wraddress,
+    wren,
+    q);
+
+    input     clock;
+    input   [35:0]  data;
+    input   [7:0]  rdaddress;
+    input   [7:0]  wraddress;
+    input     wren;
+    output  reg [35:0]  q;
+
+    reg [35:0] ram[255:0];
+
+    integer i;
+    initial begin
+        q = 0;
+        for (i=0; i<256; i++) begin
+            ram[i] =0;
+        end
+    end
+
+
+    always @ (posedge clock)
+    begin
+        q <= ram[rdaddress];
+        if (wren) ram[wraddress] <= data;
+    end
+
+endmodule
+
+
+`endif

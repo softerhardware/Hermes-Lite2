@@ -43,7 +43,9 @@ module radio (
   cmd_addr,
   cmd_data,
   cmd_rqst,
-  cmd_ack
+  cmd_ack,
+
+  debug_out
 );
 
 parameter         NR = 3;
@@ -54,6 +56,8 @@ parameter         CLK_FREQ = 76800000;
 
 parameter         RECEIVER2 = 0;
 parameter         QS1R = 0;
+
+parameter         DEBUGRX = 0;
 
 // B57 = 2^57.   M2 = B57/OSC
 // 61440000
@@ -118,6 +122,8 @@ input   [31:0]    cmd_data;
 input             cmd_rqst;
 output            cmd_ack;
 
+output signed [15:0] debug_out;
+
 
 logic [ 1:0]        tx_predistort = 2'b00;
 logic [ 1:0]        tx_predistort_next;
@@ -167,6 +173,8 @@ logic [31:0]  tx_phase0;
 
 logic signed [17:0]   mixdata_i [0:5];
 logic signed [17:0]   mixdata_q [0:5];
+
+logic [33:0] debug;
 
 genvar c;
 
@@ -326,13 +334,7 @@ generate
   end
 endgenerate
 
-// Pipeline for adc fanout
-always @ (posedge clk) begin
-  adcpipe[0] <= rx_data_adc;
-  adcpipe[1] <= rx_data_adc;
-  adcpipe[2] <= rx_data_adc;
-  adcpipe[3] <= rx_data_adc;
-end
+
 
 // set the decimation rate 40 = 48k.....2 = 960k
 always @ (rx_rate) begin
@@ -415,7 +417,8 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
     .mixdata_Q(mixdata_q[0]),
     .out_strobe(rx0_strobe),
     .out_data_I(rx0_out_I),
-    .out_data_Q(rx0_out_Q)
+    .out_data_Q(rx0_out_Q),
+    .debug(debug)
   );
 
 
@@ -1072,6 +1075,94 @@ endcase
 end
 
 endgenerate
+
+
+generate if (DEBUGRX == 1) begin: DEBUGRX
+
+logic [3:0] synthetic_count;
+logic signed [11:0] synthetic_adc;
+logic signed [15:0] debugreg0;
+logic signed [15:0] debugreg1;
+logic signed [15:0] debugreg2;
+logic signed [15:0] debugreg3;
+logic [1:0] debugsel;
+
+always @ (posedge clk) begin
+  if (cmd_rqst & cmd_addr == 6'h39) begin
+    debugreg0 <= 0;
+    debugreg1 <= 0;
+    debugreg2 <= 0;
+    debugreg3 <= 0;
+    debugsel  <= cmd_data[1:0];
+  end else begin
+    if ($signed(mixdata_i[0][17:2]) > debugreg0) debugreg0 <= $signed(mixdata_i[0][17:2]);
+    if (rx0_strobe & ($signed(rx0_out_I[23:8]) > debugreg1)) debugreg1 <= $signed(rx0_out_I[23:8]);
+    if (debug[16] & ($signed(debug[15:0]) > debugreg2)) debugreg2 <= $signed(debug[15:0]);
+    if (debug[33] & ($signed(debug[32:17]) > debugreg3)) debugreg3 <= $signed(debug[32:17]);
+  end
+end
+
+always @* begin
+  case (debugsel)
+    2'h0: debug_out = debugreg0;
+    2'h1: debug_out = debugreg1;
+    2'h2: debug_out = debugreg2;
+    2'h3: debug_out = debugreg3;
+  endcase
+end
+
+
+// Synthetic 76.8/13 = 5.907 MHz Signal
+always @ (posedge clk) begin
+  if (synthetic_count == 4'hc) synthetic_count <= 4'h0;
+  else synthetic_count <= synthetic_count + 1;
+end
+
+// i from 0 to 12
+//int(round((2**11-1)*np.sin(2*np.pi*i/13+(np.pi/2)+.01)))
+always @* begin
+  case (synthetic_count)
+    4'h0: synthetic_adc = 2047;
+    4'h1: synthetic_adc = 1803;
+    4'h2: synthetic_adc = 1146;
+    4'h3: synthetic_adc = 226;
+    4'h4: synthetic_adc = -745;
+    4'h5: synthetic_adc = -1546;
+    4'h6: synthetic_adc = -1992;
+    4'h7: synthetic_adc = -1983;
+    4'h8: synthetic_adc = -1519;
+    4'h9: synthetic_adc = -707;
+    4'ha: synthetic_adc = 267;
+    4'hb: synthetic_adc = 1180;
+    4'hc: synthetic_adc = 1822;
+    default: synthetic_adc = 2047;
+  endcase
+end
+
+
+// Pipeline for adc fanout
+always @ (posedge clk) begin
+  adcpipe[0] <= synthetic_adc;
+  adcpipe[1] <= rx_data_adc;
+  adcpipe[2] <= rx_data_adc;
+  adcpipe[3] <= rx_data_adc;
+end
+
+end else begin
+
+  // Pipeline for adc fanout
+always @ (posedge clk) begin
+  adcpipe[0] <= rx_data_adc;
+  adcpipe[1] <= rx_data_adc;
+  adcpipe[2] <= rx_data_adc;
+  adcpipe[3] <= rx_data_adc;
+end
+
+assign debug_out = 16'd0;
+
+end
+endgenerate
+
 
 
 endmodule

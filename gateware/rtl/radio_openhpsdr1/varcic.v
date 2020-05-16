@@ -21,6 +21,7 @@ Boston, MA  02110-1301, USA.
 //------------------------------------------------------------------------------
 
 // 2013 Jan 26	- Modified to accept decimation values from 1-40. VK6APH 
+/* verilator lint_off WIDTH */
 
 module varcic(decimation, clock, in_strobe,  out_strobe, in_data, out_data );
 
@@ -49,14 +50,14 @@ reg [15:0] sample_no = 0;
 always @(posedge clock)
   if (in_strobe)
     begin
-    if (sample_no == (decimation - 1))
+    if (sample_no == {10'b0,(decimation - 6'h1)})
       begin
       sample_no <= 0;
       out_strobe <= 1;
       end
     else
       begin
-      sample_no <= sample_no + 8'd1;
+      sample_no <= sample_no + 16'd1;
       out_strobe <= 0;
       end
     end
@@ -209,3 +210,4 @@ endgenerate
 endmodule
 
   
+/* verilator lint_on WIDTH */

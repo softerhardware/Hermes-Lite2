@@ -129,7 +129,7 @@ parameter       FAST_LNA = 0; // Support for fast LNA setting, TX/RX values
 
 
 localparam      VERSION_MAJOR = (BOARD==2) ? 8'd51 : 8'd71;
-localparam      VERSION_MINOR = 8'd1;
+localparam      VERSION_MINOR = 8'd2;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
@@ -277,6 +277,8 @@ logic           qmsec_pulse, qmsec_pulse_ad9866sync;
 logic           msec_pulse, msec_pulse_ethsync;
 
 logic           atu_txinhibit, atu_txinhibit_ad9866ync;
+
+logic signed [15:0] debug;
 
 
 /////////////////////////////////////////////////////
@@ -704,7 +706,6 @@ ad9866 #(.FAST_LNA(FAST_LNA)) ad9866_i (
   .cmd_ack() // No need for ack
 );
 
-
 radio #(
   .NR(NR),
   .NT(NT),
@@ -756,7 +757,8 @@ radio_i
   .cmd_addr(cmd_addr),
   .cmd_data(cmd_data),
   .cmd_rqst(cmd_rqst_ad9866),
-  .cmd_ack() // No need for ack from radio yet
+  .cmd_ack(), // No need for ack from radio yet
+  .debug_out(debug)
 );
 
 
@@ -921,7 +923,8 @@ control #(
 
   .fan_pwm          (fan_pwm               ),
 
-  .ad9866_rst       (ad9866_rst            )
+  .ad9866_rst       (ad9866_rst            ),
+  .debug            (debug                 )
 );
 
 

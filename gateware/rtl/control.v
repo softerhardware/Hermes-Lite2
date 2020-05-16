@@ -102,8 +102,10 @@ module control(
 
   fan_pwm,
 
-  ad9866_rst
-  
+  ad9866_rst,
+
+  debug
+
 );
 
 // Internal
@@ -154,6 +156,8 @@ output          rffe_ad9866_rst_n;
 output          rffe_ad9866_sdio;
 output          rffe_ad9866_sclk;
 output          rffe_ad9866_sen_n;
+
+input signed [15:0] debug;
 
 // Power
 output logic    pwr_clk3p3 = 1'b0;
@@ -573,7 +577,7 @@ always @(posedge clk) begin
         2'b00: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 7'b0001111,(&clip_cnt), 8'h00, dsiq_status, VERSION_MAJOR};
         2'b01: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 4'h0,temperature, 4'h0,fwd_pwr};
         2'b10: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 4'h0,rev_pwr, 4'h0,bias_current};
-        2'b11: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 32'h0}; // Unused in HL
+        2'b11: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 16'h0, debug}; // Unused in HL
       endcase
     end
   end else if (~(&clip_cnt)) begin

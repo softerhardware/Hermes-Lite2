@@ -37,10 +37,11 @@ module receiver_nco(
   input signed [17:0] mixdata_Q,  
   output out_strobe,
   output [23:0] out_data_I,
-  output [23:0] out_data_Q
+  output [23:0] out_data_Q,
+  output [33:0] debug
   );
 
-  parameter CICRATE;
+  parameter CICRATE = 5;
 
 // gain adjustment, Hermes reduced by 6dB to match previous receiver code.
 // Hermes-Lite gain reduced to calibrate QtRadio
@@ -57,6 +58,8 @@ wire signed [15:0] decimB_real, decimB_imag;
 
 localparam VARCICWIDTH = (CICRATE == 10) ? 36 : (CICRATE == 13) ? 36 : (CICRATE == 5) ? 43 : 39; // Last is default rate of 8
 localparam ACCWIDTH = (CICRATE == 10) ? 28 : (CICRATE == 13) ? 30 : (CICRATE == 5) ? 25 : 27; // Last is default rate of 8
+
+assign debug = {decimA_avail,decimA_real,decimB_avail,decimB_real};
 
 
 // CIC filter 
