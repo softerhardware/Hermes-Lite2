@@ -80,6 +80,7 @@ set_instance_assignment -name IO_MAXIMUM_TOGGLE_RATE "0 MHz" -to rffe_rfsw_sel
 
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_tx[*]
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_txsync
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_pga5
 set_instance_assignment -name FAST_INPUT_REGISTER ON -to rffe_ad9866_rx[*]
 set_instance_assignment -name FAST_INPUT_REGISTER ON -to rffe_ad9866_rxsync
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_sdio

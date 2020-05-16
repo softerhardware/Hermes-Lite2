@@ -310,6 +310,8 @@ set_input_delay -add_delay -min -clock virt_ad9866_rxclk_rx 0.0 [get_ports {rffe
 
 set_output_delay -add_delay -max -clock virt_ad9866_rxclk_tx 1.4 [get_ports {rffe_ad9866_txsync}]
 set_output_delay -add_delay -min -clock virt_ad9866_rxclk_tx -1.3 [get_ports {rffe_ad9866_txsync}]
+set_output_delay -add_delay -max -clock virt_ad9866_rxclk_tx 1.4 [get_ports {rffe_ad9866_pga5}]
+set_output_delay -add_delay -min -clock virt_ad9866_rxclk_tx -1.3 [get_ports {rffe_ad9866_pga5}]
 
 set_output_delay -add_delay -max -clock virt_ad9866_rxclk_tx 1.4 [get_ports {rffe_ad9866_tx[*]}]
 set_output_delay -add_delay -min -clock virt_ad9866_rxclk_tx -1.3 [get_ports {rffe_ad9866_tx[*]}]
