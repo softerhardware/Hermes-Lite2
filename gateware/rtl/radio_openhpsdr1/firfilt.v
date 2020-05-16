@@ -153,7 +153,11 @@ module firX8R8 (
   // at end of sequence indicate new data is available
   assign y_avail = (wstate == 8);
 
+`ifdef USE_ALTSYNCRAM
   fir256 #(.ifile("coefL4AE.mif"), .ABITS(ABITS), .TAPS(TAPS)) AE (
+`else
+  fir256 #(.ifile("coefL4AE.txt"), .ABITS(ABITS), .TAPS(TAPS)) AE (
+`endif
     .clock(clock_2x),
     .waddr(waddr),
     .ebanksel(banksel),
@@ -164,7 +168,11 @@ module firX8R8 (
     .Iaccum(IaccA)
   );
 
+`ifdef USE_ALTSYNCRAM
   fir256 #(.ifile("coefL4BF.mif"), .ABITS(ABITS), .TAPS(TAPS)) BF (
+`else
+  fir256 #(.ifile("coefL4BF.txt"), .ABITS(ABITS), .TAPS(TAPS)) BF (
+`endif
     .clock(clock_2x),
     .waddr(waddr),
     .ebanksel(banksel),
@@ -175,7 +183,11 @@ module firX8R8 (
     .Iaccum(IaccB)
   );
 
+`ifdef USE_ALTSYNCRAM
   fir256 #(.ifile("coefL4CG.mif"), .ABITS(ABITS), .TAPS(TAPS)) CG (
+`else
+  fir256 #(.ifile("coefL4CG.txt"), .ABITS(ABITS), .TAPS(TAPS)) CG (
+`endif
     .clock(clock_2x),
     .waddr(waddr),
     .ebanksel(banksel),
@@ -186,7 +198,11 @@ module firX8R8 (
     .Iaccum(IaccC)
   );
 
+`ifdef USE_ALTSYNCRAM
   fir256 #(.ifile("coefL4DH.mif"), .ABITS(ABITS), .TAPS(TAPS)) DH (
+`else
+  fir256 #(.ifile("coefL4DH.txt"), .ABITS(ABITS), .TAPS(TAPS)) DH (
+`endif
     .clock(clock_2x),
     .waddr(waddr),
     .ebanksel(banksel),
@@ -215,8 +231,8 @@ module fir256(
   input ewe,                         // memory write enable
   input signed [MBITS-1:0] x_real,            // sample to write
   input signed [MBITS-1:0] x_imag,
-  output signed [ABITS-1:0] Raccum,
-  output signed [ABITS-1:0] Iaccum
+  output reg signed [ABITS-1:0] Raccum,
+  output reg signed [ABITS-1:0] Iaccum
   );
 
   localparam ADDRBITS = 7;                // Address bits for 18/36 X 256 rom/ram blocks
@@ -273,7 +289,7 @@ module fir256(
       begin
         counter <= TAPS[ADDRBITS:0] + 4;     // count samples and pipeline latency (delay of 3 clocks from address being presented)
         raddr <= waddr;                  // read address -> newest sample
-        caddr <= 1'd0;                 // start at coefficient zero
+        caddr <= {ADDRBITS{1'b0}};                 // start at coefficient zero
         Raccum <= 0;
         Iaccum <= 0;
         Rmult <= 0;
@@ -287,13 +303,13 @@ module fir256(
           //if (fir_step)
           //begin
             Rmult <= q_real * reg_coef;
-            Raccum <= Raccum + Rmult[35:12] + Rmult[11];  // truncate 36 bits down to 24 bits to prevent DC spur
+            Raccum <= Raccum + Rmult[35:12] + {23'b0,Rmult[11]};  // truncate 36 bits down to 24 bits to prevent DC spur
             //fir_step <= 1'b0;
           //end
           //else 
           //begin
             Imult <= q_imag * reg_coef;
-            Iaccum <= Iaccum + Imult[35:12] + Imult[11];
+            Iaccum <= Iaccum + Imult[35:12] + {23'b0,Imult[11]};
             //fir_step <= 1'b1;
           //end
         end

@@ -67,7 +67,7 @@ module firromH (
 
   input [7:0]  address;
   input   clock;
-  output  [17:0]  q;
+  output  reg [17:0]  q;
 
 
   reg [17:0] rom[255:0];

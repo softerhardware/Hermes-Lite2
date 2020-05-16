@@ -21,19 +21,20 @@ Boston, MA  02110-1301, USA.
 //------------------------------------------------------------------------------
 
 // 2015 Jan 31 - udated for Hermes-Lite 12bit Steve Haynal KF7O
+/* verilator lint_on WIDTH */
 
 module cic( clock, in_strobe, out_strobe, in_data, out_data );
 
 //design parameters
 parameter STAGES = 3;
-parameter DECIMATION = 10;  
+parameter DECIMATION = 5;
 parameter IN_WIDTH = 18;
 
 //computed parameters
 //ACC_WIDTH = IN_WIDTH + Ceil(STAGES * Log2(DECIMATION))
 //OUT_WIDTH = IN_WIDTH + Ceil(Log2(DECIMATION) / 2)
-parameter ACC_WIDTH = IN_WIDTH  + 10;
-parameter OUT_WIDTH = IN_WIDTH  + 2; // Hermes only uses ADC input width plus 2 here
+parameter ACC_WIDTH = 25; //IN_WIDTH  + 10;
+parameter OUT_WIDTH = 16; //IN_WIDTH  + 2; // Hermes only uses ADC input width plus 2 here
 
 input clock;
 input in_strobe;
@@ -56,7 +57,7 @@ always @(posedge clock)
       end
     else
       begin
-      sample_no <= sample_no + 8'd1;
+      sample_no <= sample_no + 16'd1;
       out_strobe <= 0;
       end
     end
@@ -119,3 +120,4 @@ assign out_data = comb_data[STAGES][ACC_WIDTH-1:ACC_WIDTH-OUT_WIDTH] +
 
 endmodule
 
+/* verilator lint_on WIDTH */

@@ -9,7 +9,7 @@ module nco2 (
   phi0,
   phi1,
   cos,
-  sin,
+  sin
 );
 
 input             state;
