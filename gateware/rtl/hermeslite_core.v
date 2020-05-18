@@ -684,6 +684,7 @@ ad9866 #(.FAST_LNA(FAST_LNA)) ad9866_i (
   .tx_data(tx_data),
   .rx_data(rx_data),
   .tx_en(tx_on & ~atu_txinhibit_ad9866sync),
+  .cw_on(cw_on & ~atu_txinhibit_ad9866sync),
 
   .rxclip(rxclip),
   .rxgoodlvl(rxgoodlvl),

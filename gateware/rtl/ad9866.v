@@ -27,6 +27,7 @@ module ad9866 (
   tx_data,
   rx_data,
   tx_en,
+  cw_on,
 
   rxclip,
   rxgoodlvl,
@@ -57,6 +58,7 @@ input             rst;
 input   [11:0]    tx_data;
 output  [11:0]    rx_data;
 input             tx_en;
+input             cw_on;
 
 output logic      rxclip = 1'b0;
 output logic      rxgoodlvl = 1'b0;
@@ -144,6 +146,9 @@ generate if (FAST_LNA == 1) begin: FAST_LNA
       update_gain <= 1'b1;
     end else if ((tx_gain != gain) & (tx_en & en_tx_gain)) begin
       gain <= tx_gain;
+      update_gain <= 1'b1;
+    end else if ((tx_gain != gain) & cw_on) begin
+      gain <= 6'h00;
       update_gain <= 1'b1;
     end else begin
       update_gain <= rst;

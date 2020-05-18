@@ -79,6 +79,7 @@ localparam RATE96  =  RATE48  >> 1;
 localparam RATE192 =  RATE96  >> 1;
 localparam RATE384 =  RATE192 >> 1;
 
+localparam CALCTYPE = (NR > 6) ? 0 : 3;
 
 input             clk;
 input             clk_2x;
@@ -156,23 +157,23 @@ logic  [ 9:0]       PWM_max = 10'd1023; // maximum width of TX envelope PWM puls
 logic  [ 9:0]       PWM_max_next;
 
 logic   [5:0]       rate;
-logic   [11:0]      adcpipe [0:3];
+logic   [11:0]      adcpipe [0:4];
 
 
-logic [23:0]  rx_data_i [0:5];
-logic [23:0]  rx_data_q [0:5];
-logic         rx_data_rdy [0:5];
+logic [23:0]  rx_data_i [0:9];
+logic [23:0]  rx_data_q [0:9];
+logic         rx_data_rdy [0:9];
 
 logic [63:0]  freqcomp;
 logic [31:0]  freqcompp [0:3];
 logic [5:0]   chanp [0:3];
 
 
-logic [31:0]  rx_phase [0:5];    // The Rx phase calculated from the frequency sent by the PC.
+logic [31:0]  rx_phase [0:9];    // The Rx phase calculated from the frequency sent by the PC.
 logic [31:0]  tx_phase0;
 
-logic signed [17:0]   mixdata_i [0:5];
-logic signed [17:0]   mixdata_q [0:5];
+logic signed [17:0]   mixdata_i [0:9];
+logic signed [17:0]   mixdata_q [0:9];
 
 logic [33:0] debug;
 
@@ -394,7 +395,7 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
 
 
   // One receiver minimum
-  mix2 #(.CALCTYPE(3)) mix2_0 (
+  mix2 #(.CALCTYPE(CALCTYPE)) mix2_0 (
     .clk(clk),
     .clk_2x(clk_2x),
     .rst(&tx0_phase_zero),
@@ -426,7 +427,7 @@ generate
 
 if (NR >= 2) begin: MIX1_3
   // Always build second mixer for second receiver for PureSignal support
-  mix2 #(.CALCTYPE(3)) mix2_2 (
+  mix2 #(.CALCTYPE(CALCTYPE)) mix2_2 (
     .clk(clk),
     .clk_2x(clk_2x),
     .rst(1'b0),
@@ -481,7 +482,7 @@ end
 
 if (NR >= 5) begin: MIX4_5
   // Build double mixer
-  mix2 #(.CALCTYPE(3)) mix2_4 (
+  mix2 #(.CALCTYPE(CALCTYPE)) mix2_4 (
     .clk(clk),
     .clk_2x(clk_2x),
     .rst(1'b0),
@@ -520,6 +521,93 @@ if (NR >= 6) begin: RECEIVER5
     .out_data_Q(rx_data_q[5])
   );
 end
+
+
+if (NR >= 7) begin: MIX6_7
+  // Build double mixer
+  mix2 #(.CALCTYPE(CALCTYPE)) mix2_6 (
+    .clk(clk),
+    .clk_2x(clk_2x),
+    .rst(1'b0),
+    .phi0(rx_phase[6]),
+    .phi1(rx_phase[7]),
+    .adc(adcpipe[3]),
+    .mixdata0_i(mixdata_i[6]),
+    .mixdata0_q(mixdata_q[6]),
+    .mixdata1_i(mixdata_i[7]),
+    .mixdata1_q(mixdata_q[7])
+  );
+end
+
+if (NR >= 7) begin: RECEIVER6
+  receiver_nco #(.CICRATE(CICRATE)) receiver_6 (
+    .clock(clk),
+    .clock_2x(clk_2x),
+    .rate(rate),
+    .mixdata_I(mixdata_i[6]),
+    .mixdata_Q(mixdata_q[6]),
+    .out_strobe(rx_data_rdy[6]),
+    .out_data_I(rx_data_i[6]),
+    .out_data_Q(rx_data_q[6])
+  );
+end
+
+if (NR >= 8) begin: RECEIVER7
+  receiver_nco #(.CICRATE(CICRATE)) receiver_7 (
+    .clock(clk),
+    .clock_2x(clk_2x),
+    .rate(rate),
+    .mixdata_I(mixdata_i[7]),
+    .mixdata_Q(mixdata_q[7]),
+    .out_strobe(rx_data_rdy[7]),
+    .out_data_I(rx_data_i[7]),
+    .out_data_Q(rx_data_q[7])
+  );
+end
+
+
+if (NR >= 9) begin: MIX8_9
+  // Build double mixer
+  mix2 #(.CALCTYPE(CALCTYPE)) mix2_8 (
+    .clk(clk),
+    .clk_2x(clk_2x),
+    .rst(1'b0),
+    .phi0(rx_phase[8]),
+    .phi1(rx_phase[9]),
+    .adc(adcpipe[4]),
+    .mixdata0_i(mixdata_i[8]),
+    .mixdata0_q(mixdata_q[8]),
+    .mixdata1_i(mixdata_i[9]),
+    .mixdata1_q(mixdata_q[9])
+  );
+end
+
+if (NR >= 9) begin: RECEIVER8
+  receiver_nco #(.CICRATE(CICRATE)) receiver_8 (
+    .clock(clk),
+    .clock_2x(clk_2x),
+    .rate(rate),
+    .mixdata_I(mixdata_i[8]),
+    .mixdata_Q(mixdata_q[8]),
+    .out_strobe(rx_data_rdy[8]),
+    .out_data_I(rx_data_i[8]),
+    .out_data_Q(rx_data_q[8])
+  );
+end
+
+if (NR >= 10) begin: RECEIVER9
+  receiver_nco #(.CICRATE(CICRATE)) receiver_9 (
+    .clock(clk),
+    .clock_2x(clk_2x),
+    .rate(rate),
+    .mixdata_I(mixdata_i[9]),
+    .mixdata_Q(mixdata_q[9]),
+    .out_strobe(rx_data_rdy[9]),
+    .out_data_I(rx_data_i[9]),
+    .out_data_Q(rx_data_q[9])
+  );
+end
+
 
 endgenerate
 
@@ -761,7 +849,9 @@ always @* begin
     end
 
     PTTTX: begin
-      if (ptt) begin
+      if (ext_keydown) begin
+        tx_state_next = CWTX;
+      end else if (ptt) begin
         tx_qmsectimer_next = {ptt_hang_time, 2'b00};
         if (fir_tready) begin
           tx_fir_i_next = tx_tdata[31:16];
@@ -775,8 +865,6 @@ always @* begin
         end
       end
     end
-
-
 
     CWTX: begin
       cw_on = 1'b1;
@@ -1146,6 +1234,7 @@ always @ (posedge clk) begin
   adcpipe[1] <= rx_data_adc;
   adcpipe[2] <= rx_data_adc;
   adcpipe[3] <= rx_data_adc;
+  adcpipe[4] <= rx_data_adc;
 end
 
 end else begin
@@ -1156,6 +1245,7 @@ always @ (posedge clk) begin
   adcpipe[1] <= rx_data_adc;
   adcpipe[2] <= rx_data_adc;
   adcpipe[3] <= rx_data_adc;
+  adcpipe[4] <= rx_data_adc;
 end
 
 assign debug_out = 16'd0;

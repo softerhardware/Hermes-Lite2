@@ -4,7 +4,7 @@ import os
 from shutil import copy2 as cp
 
 subdirs = ["hl2b5up_main"]
-subdirs_alt = ["hl2b5up_6rx","hl2b3to4_main","hl2b2_main"]
+subdirs_alt = ["hl2b5up_cicrx","hl2b5up_6rx","hl2b3to4_main","hl2b2_main"]
 
 
 for subdir in subdirs:
