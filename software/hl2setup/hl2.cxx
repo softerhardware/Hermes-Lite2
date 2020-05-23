@@ -247,7 +247,7 @@ void HL2Run(void)
 	case FILTER_BOARD + 1:
 		snprintf(output120, 120, "Signal level when tx=%d is %.0f with filter 0x%02x", 
 			hermes_tx_freq,hermes_sample_rms,hermes_filter_tx);
-		CheckResult(output120, hermes_sample_rms, -27.0, 0.10, NULL);
+		CheckResult(output120, hermes_sample_rms, -27.0, 0.15, NULL);
 		hermes_filter_tx = FILTER_160;
 		DELAY_NEXT
 		break;
