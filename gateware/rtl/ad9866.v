@@ -141,13 +141,13 @@ generate if (FAST_LNA == 1) begin: FAST_LNA
       endcase
     end
 
-    if ((rx_gain != gain) & (~tx_en | ~en_tx_gain)) begin
+    if ((rx_gain != gain) & (~tx_en | (~en_tx_gain & ~cw_on))) begin
       gain <= rx_gain;
       update_gain <= 1'b1;
     end else if ((tx_gain != gain) & (tx_en & en_tx_gain)) begin
       gain <= tx_gain;
       update_gain <= 1'b1;
-    end else if ((tx_gain != gain) & cw_on) begin
+    end else if ((gain != 6'h0) & ~en_tx_gain & cw_on) begin
       gain <= 6'h00;
       update_gain <= 1'b1;
     end else begin
