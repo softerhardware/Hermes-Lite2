@@ -90,6 +90,8 @@ set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_rst_n
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_txquiet_n
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_rfsw_sel
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to pwr_*
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to io_db1_3
+
 
 set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to clk_s*
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to clk_s*
