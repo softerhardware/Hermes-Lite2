@@ -140,11 +140,11 @@ logic  [15:0]       vna_count_next;
 logic  [ 1:0]       rx_rate = 2'b00;
 logic  [ 1:0]       rx_rate_next;
 
-logic  [ 4:0]       last_chan = 5'h0;
-logic  [ 4:0]       last_chan_next;
+logic  [ 3:0]       last_chan = 4'h0;
+logic  [ 3:0]       last_chan_next;
 
-logic  [ 4:0]       chan = 5'h0;
-logic  [ 4:0]       chan_next;
+logic  [ 3:0]       chan = 4'h0;
+logic  [ 3:0]       chan_next;
 
 logic               duplex = 1'b0;
 logic               duplex_next;
@@ -166,7 +166,7 @@ logic         rx_data_rdy [0:9];
 
 logic [63:0]  freqcomp;
 logic [31:0]  freqcompp [0:3];
-logic [5:0]   chanp [0:3];
+logic [4:0]   chanp [0:3];
 
 
 logic [31:0]  rx_phase [0:9];    // The Rx phase calculated from the frequency sent by the PC.
@@ -241,7 +241,7 @@ always @* begin
           6'h00: begin
             rx_rate_next              = cmd_data[25:24];
             pa_mode_next              = cmd_data[16];
-            last_chan_next            = cmd_data[7:3];
+            last_chan_next            = cmd_data[6:3];
             duplex_next               = cmd_data[2];
           end
 
@@ -300,23 +300,23 @@ always @ (posedge clk) begin
     freqcompp[1] <= freqcomp[56:25];
     freqcompp[2] <= freqcomp[56:25];
     freqcompp[3] <= freqcomp[56:25];
-    chanp[0] <= cmd_addr;
-    chanp[1] <= cmd_addr;
-    chanp[2] <= cmd_addr;
-    chanp[3] <= cmd_addr;
+    chanp[0] <= cmd_addr[4:0];
+    chanp[1] <= cmd_addr[4:0];
+    chanp[2] <= cmd_addr[4:0];
+    chanp[3] <= cmd_addr[4:0];
   end
 end
 
 // TX0 and RX0
 always @ (posedge clk) begin
   if (cmd_state == CMD_FREQ3) begin
-    if (chanp[0] == 6'h01) begin
+    if (chanp[0] == 5'h01) begin
       tx_phase0 <= freqcompp[0];
-      if (!duplex && (last_chan == 5'b00000)) rx_phase[0] <= freqcompp[0];
+      if (!duplex && (last_chan == 4'b0000)) rx_phase[0] <= freqcompp[0];
     end
 
-    if (chanp[0] == 6'h02) begin
-      if (!duplex && (last_chan == 5'b00000)) rx_phase[0] <= tx_phase0;
+    if (chanp[0] == 5'h02) begin
+      if (!duplex && (last_chan == 4'b0000)) rx_phase[0] <= tx_phase0;
       else rx_phase[0] <= freqcompp[0];
     end
   end
@@ -641,7 +641,7 @@ always @* begin
 
   case(rxus_state)
     RXUS_WAIT1: begin
-      chan_next = 5'h0;
+      chan_next = 4'h0;
       if (rx_data_rdy[0] & rx_tready) begin
         rxus_state_next = RXUS_I;
       end
@@ -662,13 +662,13 @@ always @* begin
         rx_tlast = 1'b1;
         rxus_state_next = RXUS_WAIT0;
       end else begin
-        chan_next = chan + 5'h1;
+        chan_next = chan + 4'h1;
         rxus_state_next = RXUS_I;
       end
     end
 
     RXUS_WAIT0: begin
-      chan_next = 5'h0;
+      chan_next = 4'h0;
       if (~rx_data_rdy[0]) begin
         rxus_state_next = RXUS_WAIT1;
       end
