@@ -129,7 +129,7 @@ parameter       FAST_LNA = 0; // Support for fast LNA setting, TX/RX values
 
 
 localparam      VERSION_MAJOR = (BOARD==2) ? 8'd51 : 8'd71;
-localparam      VERSION_MINOR = 8'd2;
+localparam      VERSION_MINOR = 8'd3;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;

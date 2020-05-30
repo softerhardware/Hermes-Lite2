@@ -37,26 +37,28 @@ module i2c (
 logic         scl_i, scl_o, scl_t, sda_i, sda_o, sda_t;
 logic         en_i2c2, ready;
 
-localparam [3:0]
-  STATE_W0    = 4'h0,
-  STATE_W1    = 4'h1,
-  STATE_W2    = 4'h2,
-  STATE_W3    = 4'h3,
-  STATE_W4    = 4'h4,
-  STATE_W5    = 4'h5,
-  STATE_W6    = 4'h6,
-  STATE_WWAIT = 4'h7,
-  STATE_R0    = 4'h8,
-  STATE_R1    = 4'h9,
-  STATE_R2    = 4'ha,
-  STATE_R3    = 4'hb,
-  STATE_R4    = 4'hc,
-  STATE_R5    = 4'hd,
-  STATE_R6    = 4'he,
-  STATE_PASS  = 4'hf;
+localparam [4:0]
+  STATE_W0    = 5'h0,
+  STATE_W1    = 5'h1,
+  STATE_W2    = 5'h2,
+  STATE_W3    = 5'h3,
+  STATE_W4    = 5'h4,
+  STATE_W5    = 5'h5,
+  STATE_W6    = 5'h6,
+  STATE_WWAIT = 5'h7,
+  STATE_R0    = 5'h8,
+  STATE_R1    = 5'h9,
+  STATE_R2    = 5'ha,
+  STATE_R3    = 5'hb,
+  STATE_R4    = 5'hc,
+  STATE_R5    = 5'hd,
+  STATE_R6    = 5'he,
+  STATE_PASS  = 5'hf,
+  STATE_RST1  = 5'h1f,
+  STATE_RST2  = 5'h1e;
 
 
-logic [ 3:0]  state = STATE_W0, state_next;
+logic [ 4:0]  state = STATE_W0, state_next;
 
 logic [ 5:0]  icmd_addr;
 logic [31:0]  icmd_data;
@@ -66,6 +68,18 @@ logic         read_done;
 logic [31:0]  static_ip_next;
 logic [15:0]  alt_mac_next;
 logic [7:0]   eeprom_config_next;
+
+logic         versa_rst = 1'b0;
+
+
+always @(posedge clk) begin
+  if (cmd_rqst & cmd_addr == 6'h39) begin
+    versa_rst <= cmd_data[0];
+  end else begin
+    versa_rst <= 1'b0;
+  end
+end
+
 
 always @(posedge clk) begin
   state <= state_next;
@@ -237,7 +251,29 @@ always @* begin
 
     STATE_PASS: begin
       if (~init_start) state_next = STATE_W0;
+      else if (versa_rst) state_next = STATE_RST1;
     end
+
+    STATE_RST1: begin
+      icmd_addr = 6'h3c;
+      icmd_data = {8'h06, 1'b1, 7'h6a, 8'h76, 8'h43};
+      icmd_rqst = 1'b0;
+      if (init_start & ready) begin
+          icmd_rqst = 1'b1;
+          state_next = STATE_RST2;
+      end
+    end
+
+    STATE_RST2: begin
+      icmd_addr = 6'h3c;
+      icmd_data = {8'h06, 1'b1, 7'h6a, 8'h76, 8'h63};
+      icmd_rqst = 1'b0;
+      if (init_start & ready) begin
+          icmd_rqst = 1'b1;
+          state_next = STATE_PASS;
+      end
+    end
+
 
   endcase
 end
