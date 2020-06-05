@@ -13,7 +13,7 @@ The BOM below lists possible options for the DB9 adapter board. The builder shou
 
 # Assembly
 
-Please refer to the [schematic](db9.pdf) during assembly. 
+Please refer to the [schematic](db9.pdf) during assembly. Please refer to the HR50 interface notes found on the [IO wiki page](https://github.com/softerhardware/Hermes-Lite2/wiki/IO#io-boards) for details on how to use this with the HR50.
 
 Below is a picture of an assembled DB-9 IO board. Only one of the level shifter channels is installed, TX on pin 3 of the DB-9. This is all the that HR50 requires. The other level shifter can be installed if RX is required.
 
