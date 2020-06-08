@@ -19,6 +19,8 @@ module control(
 	msec_pulse,
 	qmsec_pulse,
 	
+	resp,
+	
 	pa_exttr
   );
 
@@ -41,6 +43,8 @@ input           io_phone_ring;
 output logic    msec_pulse = 1'b0;
 output logic    qmsec_pulse = 1'b0;
 
+output [7:0] 	resp;
+
 output          pa_exttr;
 
 parameter     CW = 0;
@@ -53,6 +57,7 @@ logic ext_ptt;
 
 assign int_tx_on = (tx_on | ext_ptt ) & run;
 assign pa_exttr = int_tx_on;
+assign resp = {5'b0, ext_cwkey,  1'b0, cw_on | ext_ptt};
 
 
 // Gererate two slow pulses for timing.  msec_pulse occurs every one millisecond.

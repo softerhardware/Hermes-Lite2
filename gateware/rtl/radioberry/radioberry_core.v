@@ -52,7 +52,7 @@ parameter       CW = 0; // CW Support
 parameter       FAST_LNA = 0; 
 
 localparam      VERSION_MAJOR = 8'd71;
-localparam      VERSION_MINOR = 8'd3;
+localparam      VERSION_MINOR = 8'd4;
 
 
 logic   [5:0]   cmd_addr;
@@ -104,6 +104,8 @@ logic           run, run_iosync, run_ad9866sync;
 
 logic 			cwx;
 
+logic [7:0]		resp;
+
 //------------------------------------------------------------------------------
 //                           Radioberry Software Reset Handler
 //------------------------------------------------------------------------------
@@ -115,7 +117,7 @@ reset_handler reset_handler_inst(.clock(clk_internal), .reset(reset));
 //------------------------------------------------------------------------------
 wire [47:0] spi0_recv;
 
-spi_slave spi_slave_inst(.rstb(!reset),.ten(1'b1),.tdata({32'h0, VERSION_MAJOR, VERSION_MINOR}),.mlb(1'b1),.ss(pi_spi_ce[0]),.sck(pi_spi_sck),.sdin(pi_spi_mosi), .sdout(pi_spi_miso),.done(pi_spi_done),.rdata(spi0_recv));
+spi_slave spi_slave_inst(.rstb(!reset),.ten(1'b1),.tdata({resp, 24'h0, VERSION_MAJOR, VERSION_MINOR}),.mlb(1'b1),.ss(pi_spi_ce[0]),.sck(pi_spi_sck),.sdin(pi_spi_mosi), .sdout(pi_spi_miso),.done(pi_spi_done),.rdata(spi0_recv));
 
 always @ (posedge pi_spi_done) 	cmd_cnt <= ~cmd_cnt_next; 
 		
@@ -268,7 +270,7 @@ ad9866 #(.FAST_LNA(FAST_LNA)) ad9866_i (
 //------------------------------------------------------------------------------
 //                           Radioberry Radio Handler
 //------------------------------------------------------------------------------
-assign cwx = (cwx_enabled) ? (|dsiq_tdata) : 1'b0;
+assign cwx = (cwx_enabled) ? (dsiq_tdata[0] | dsiq_tdata[9] | dsiq_tdata[18] | dsiq_tdata[27] ) : 1'b0;
 
 radio #(
   .NR(NR), 
@@ -386,6 +388,8 @@ control #(.CW(CW)) control_i (
 
 	.msec_pulse(msec_pulse),
 	.qmsec_pulse(qmsec_pulse),
+	
+	.resp(resp),
 	
 	.pa_exttr(io_ptt_out)
   );
