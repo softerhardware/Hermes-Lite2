@@ -48,7 +48,8 @@
 // Maximum NTAPS is 8 * (previous and current decimation) less overhead.
 // Maximum NTAPS is 2048 (or less).
 
-module firX8R8 (  
+module firX8R8 (
+  input rst_all,
   input clock,
   input clock_2x,
   input x_avail,                  // new sample is available
@@ -90,8 +91,12 @@ module firX8R8 (
     waddr = 0;
   end
   
-  always @(posedge clock)
-  begin
+  always @(posedge clock) begin
+  if (rst_all) begin
+    wstate <= 0;
+    waddr <= 0;
+  end else begin
+
     if (wstate == 8) wstate <= wstate + 1'd1; // used to set y_avail
     if (wstate == 9) begin
       wstate <= 0;                  // reset state machine and increment RAM write address
@@ -136,7 +141,7 @@ module firX8R8 (
       endcase
     end
   end
-  
+end
   
   // Enable each FIR in sequence
   assign weA    = (x_avail && wstate == 0);
@@ -158,6 +163,7 @@ module firX8R8 (
 `else
   fir256 #(.ifile("coefL4AE.txt"), .ABITS(ABITS), .TAPS(TAPS)) AE (
 `endif
+    .rst_all(rst_all),
     .clock(clock_2x),
     .waddr(waddr),
     .ebanksel(banksel),
@@ -173,6 +179,7 @@ module firX8R8 (
 `else
   fir256 #(.ifile("coefL4BF.txt"), .ABITS(ABITS), .TAPS(TAPS)) BF (
 `endif
+    .rst_all(rst_all),
     .clock(clock_2x),
     .waddr(waddr),
     .ebanksel(banksel),
@@ -188,6 +195,7 @@ module firX8R8 (
 `else
   fir256 #(.ifile("coefL4CG.txt"), .ABITS(ABITS), .TAPS(TAPS)) CG (
 `endif
+    .rst_all(rst_all),
     .clock(clock_2x),
     .waddr(waddr),
     .ebanksel(banksel),
@@ -203,6 +211,7 @@ module firX8R8 (
 `else
   fir256 #(.ifile("coefL4DH.txt"), .ABITS(ABITS), .TAPS(TAPS)) DH (
 `endif
+    .rst_all(rst_all),
     .clock(clock_2x),
     .waddr(waddr),
     .ebanksel(banksel),
@@ -225,6 +234,7 @@ endmodule
 
 module fir256(
 
+  input rst_all,
   input clock,
   input [ADDRBITS-1:0] waddr,             // memory write address
   input ebanksel,
@@ -259,8 +269,11 @@ module fir256(
 
   //reg fir_step;                   // Pipeline register for fir
 
-  always @(posedge clock) begin 
-    if (ewe & ~we) begin 
+  always @(posedge clock) begin
+    if (rst_all) begin
+      we <= 1'b0;
+      banksel <= 1'b0;
+    end else if (ewe & ~we) begin 
       we <= 1'b1;
       banksel <= ebanksel;
     end
@@ -283,8 +296,13 @@ module fir256(
     .q(q)
   );
 
-  always @(posedge clock)
-  begin
+  always @(posedge clock) begin
+  if (rst_all) begin
+    counter <= TAPS[ADDRBITS:0] + 4;     // count samples and pipeline latency (delay of 3 clocks from address being presented)
+    raddr <= waddr;                  // read address -> newest sample
+    caddr <= {ADDRBITS{1'b0}};                 // start at coefficient zero
+  end else begin
+
     if (we)   // Wait until a new sample is written to memory
       begin
         counter <= TAPS[ADDRBITS:0] + 4;     // count samples and pipeline latency (delay of 3 clocks from address being presented)
@@ -325,5 +343,6 @@ module fir256(
           reg_coef <= coef;
         end
       end
+    end
   end
 endmodule
