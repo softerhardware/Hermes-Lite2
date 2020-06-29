@@ -34,6 +34,9 @@ module usopenhpsdr1 (
   resp,
   resp_rqst,
 
+  stall_req,
+  stall_ack,
+
   static_ip,
   alt_mac,
   eeprom_config,
@@ -76,6 +79,9 @@ input               cmd_rqst;
 
 input  [39:0]       resp;
 output logic        resp_rqst = 1'b0;
+
+input               stall_req;
+output              stall_ack;
 
 input  [31:0]       static_ip;
 input  [15:0]       alt_mac;
@@ -121,11 +127,11 @@ logic   [10:0]  byte_no_next;
 
 logic   [10:0]  udp_tx_length_next;
 
-logic   [31:0]  ep6_seq_no = 32'h0;
-logic   [31:0]  ep6_seq_no_next;
+logic   [19:0]  ep6_seq_no = 20'h0;
+logic   [19:0]  ep6_seq_no_next;
 
-logic   [31:0]  ep4_seq_no = 32'h0;
-logic   [31:0]  ep4_seq_no_next;
+logic   [19:0]  ep4_seq_no = 20'h0;
+logic   [19:0]  ep4_seq_no_next;
 
 logic   [ 7:0]  discover_data = 'd0, discover_data_next;
 logic   [ 7:0]  wide_data = 'd0, wide_data_next;
@@ -184,12 +190,12 @@ always @ (posedge clk) begin
   vna_mic_bit <= vna_mic_bit_next;
 
   if (~run) begin
-    ep6_seq_no <= 32'h0;
-    ep4_seq_no <= 32'h0;
+    ep6_seq_no <= 20'h0;
+    ep4_seq_no <= 20'h0;
   end else begin
     ep6_seq_no <= ep6_seq_no_next;
     // Synchronize sequence number lower 2 bits as some software may require this
-    ep4_seq_no <= (bs_tvalid) ? ep4_seq_no_next : {ep4_seq_no_next[31:2],2'b00};
+    ep4_seq_no <= (bs_tvalid) ? ep4_seq_no_next : {ep4_seq_no_next[19:2],2'b00};
   end
 end
 
@@ -228,10 +234,16 @@ always @* begin
 
   usethasmi_ack = 1'b0;
 
+  stall_ack = 1'b0;
+
   case (state)
     START: begin
 
-      if (discovery | usethasmi_erase_done | usethasmi_send_more) begin
+      if (stall_req) begin
+        stall_ack = 1'b1;
+        ep6_seq_no_next = 20'h0;
+
+      end else if (discovery | usethasmi_erase_done | usethasmi_send_more) begin
         udp_tx_length_next = 'h3c;
         state_next = DISCOVER1;
 
@@ -311,8 +323,8 @@ always @* begin
         3'h6: wide_data_next = 8'hfe;
         3'h5: wide_data_next = 8'h01;
         3'h4: wide_data_next = 8'h04;
-        3'h3: wide_data_next = ep4_seq_no[31:24];
-        3'h2: wide_data_next = ep4_seq_no[23:16];
+        3'h3: wide_data_next = 8'h00; //ep4_seq_no[31:24];
+        3'h2: wide_data_next = {4'h0,ep4_seq_no[19:16]};
         3'h1: wide_data_next = ep4_seq_no[15:8];
         3'h0: begin
           wide_data_next = ep4_seq_no[7:0];
@@ -355,8 +367,8 @@ always @* begin
         3'h6: udp_data_next = 8'hfe;
         3'h5: udp_data_next = 8'h01;
         3'h4: udp_data_next = 8'h06;
-        3'h3: udp_data_next = ep6_seq_no[31:24];
-        3'h2: udp_data_next = ep6_seq_no[23:16];
+        3'h3: udp_data_next = 8'h00; //ep6_seq_no[31:24];
+        3'h2: udp_data_next = {4'h00,ep6_seq_no[19:16]};
         3'h1: udp_data_next = ep6_seq_no[15:8];
         3'h0: begin
           udp_data_next = ep6_seq_no[7:0];
