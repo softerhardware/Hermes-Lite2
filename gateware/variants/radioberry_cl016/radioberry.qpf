@@ -1,8 +1,8 @@
 # -------------------------------------------------------------------------- #
 #
-# Copyright (C) 2018  Intel Corporation. All rights reserved.
+# Copyright (C) 2019  Intel Corporation. All rights reserved.
 # Your use of Intel Corporation's design tools, logic functions 
-# and other software and tools, and its AMPP partner logic 
+# and other software and tools, and any partner logic 
 # functions, and any output files from any of the foregoing 
 # (including device programming or simulation files), and any 
 # associated documentation or information are expressly subject 
@@ -12,19 +12,21 @@
 # agreement, including, without limitation, that your use is for
 # the sole purpose of programming logic devices manufactured by
 # Intel and sold by Intel or its authorized distributors.  Please
-# refer to the applicable agreement for further details.
+# refer to the applicable agreement for further details, at
+# https://fpgasoftware.intel.com/eula.
 #
 # -------------------------------------------------------------------------- #
 #
 # Quartus Prime
-# Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
-# Date created = 11:50:01  December 22, 2019
+# Version 19.1.0 Build 670 09/22/2019 SJ Lite Edition
+# Date created = 21:10:05  June 28, 2020
 #
 # -------------------------------------------------------------------------- #
 
-QUARTUS_VERSION = "18.1"
-DATE = "11:50:01  December 22, 2019"
+QUARTUS_VERSION = "19.1"
+DATE = "21:10:05  June 28, 2020"
 
 # Revisions
 
-PROJECT_REVISION = "radioberry-10CL016"
+PROJECT_REVISION = "radioberry"
+
