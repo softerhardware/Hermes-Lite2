@@ -23,7 +23,7 @@ Boston, MA  02110-1301, USA.
 // 2013 Jan 26	- Modified to accept decimation values from 1-40. VK6APH 
 /* verilator lint_off WIDTH */
 
-module varcic(decimation, clock, in_strobe,  out_strobe, in_data, out_data );
+module varcic(rst_all, decimation, clock, in_strobe,  out_strobe, in_data, out_data );
 
   //design parameters
   parameter STAGES = 5;
@@ -31,9 +31,10 @@ module varcic(decimation, clock, in_strobe,  out_strobe, in_data, out_data );
   parameter ACC_WIDTH = 45;
   parameter OUT_WIDTH = 18;
   parameter CICRATE = 12;
-  
-  input [5:0] decimation; 
-  
+
+  input rst_all;
+  input [5:0] decimation;
+
   input clock;
   input in_strobe;
   output reg out_strobe;
@@ -48,7 +49,10 @@ module varcic(decimation, clock, in_strobe,  out_strobe, in_data, out_data );
 reg [15:0] sample_no = 0;
 
 always @(posedge clock)
-  if (in_strobe)
+  if (rst_all) begin
+    sample_no <= 0;
+    out_strobe <= 0;
+  end else if (in_strobe)
     begin
     if (sample_no == {10'b0,(decimation - 6'h1)})
       begin

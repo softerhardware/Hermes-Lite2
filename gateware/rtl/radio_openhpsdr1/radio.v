@@ -3,6 +3,9 @@ module radio (
   clk,
   clk_2x,
 
+  rst_all,
+  rst_nco,
+
   run,
   qmsec_pulse,
   ext_keydown,
@@ -83,6 +86,9 @@ localparam CALCTYPE = (NR > 6) ? 0 : 3;
 
 input             clk;
 input             clk_2x;
+
+input             rst_all;
+input             rst_nco;
 
 input             run;
 input             qmsec_pulse;
@@ -398,7 +404,7 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
   mix2 #(.CALCTYPE(CALCTYPE)) mix2_0 (
     .clk(clk),
     .clk_2x(clk_2x),
-    .rst(&tx0_phase_zero),
+    .rst(rst_nco | &tx0_phase_zero),
     .phi0(rx0_phase),
     .phi1(rx_phase[2]),
     .adc(adcpipe[0]),
@@ -411,6 +417,7 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
   assign cordic_data_Q = mixdata_q[0];
 
   receiver_nco #(.CICRATE(CICRATE)) receiver_0 (
+    .rst_all(rst_all),
     .clock(clk),
     .clock_2x(clk_2x),
     .rate(rate),
@@ -430,7 +437,7 @@ if (NR >= 2) begin: MIX1_3
   mix2 #(.CALCTYPE(CALCTYPE)) mix2_2 (
     .clk(clk),
     .clk_2x(clk_2x),
-    .rst(1'b0),
+    .rst(rst_nco),
     .phi0(rx_phase[1]),
     .phi1(rx_phase[3]),
     .adc((tx_on & pure_signal) ? tx_data_dac : adcpipe[1]),
@@ -443,6 +450,7 @@ end
 
 if (NR >= 2) begin: RECEIVER1
   receiver_nco #(.CICRATE(CICRATE)) receiver_1 (
+    .rst_all(rst_all),
     .clock(clk),
     .clock_2x(clk_2x),
     .rate(rate),
@@ -456,6 +464,7 @@ end
 
 if (NR >= 3) begin: RECEIVER2
   receiver_nco #(.CICRATE(CICRATE)) receiver_2 (
+    .rst_all(rst_all),
     .clock(clk),
     .clock_2x(clk_2x),
     .rate(rate),
@@ -469,6 +478,7 @@ end
 
 if (NR >= 4) begin: RECEIVER3
   receiver_nco #(.CICRATE(CICRATE)) receiver_3 (
+    .rst_all(rst_all),
     .clock(clk),
     .clock_2x(clk_2x),
     .rate(rate),
@@ -485,7 +495,7 @@ if (NR >= 5) begin: MIX4_5
   mix2 #(.CALCTYPE(CALCTYPE)) mix2_4 (
     .clk(clk),
     .clk_2x(clk_2x),
-    .rst(1'b0),
+    .rst(rst_nco),
     .phi0(rx_phase[4]),
     .phi1(rx_phase[5]),
     .adc(adcpipe[2]),
@@ -498,6 +508,7 @@ end
 
 if (NR >= 5) begin: RECEIVER4
   receiver_nco #(.CICRATE(CICRATE)) receiver_4 (
+    .rst_all(rst_all),
     .clock(clk),
     .clock_2x(clk_2x),
     .rate(rate),
@@ -511,6 +522,7 @@ end
 
 if (NR >= 6) begin: RECEIVER5
   receiver_nco #(.CICRATE(CICRATE)) receiver_5 (
+    .rst_all(rst_all),
     .clock(clk),
     .clock_2x(clk_2x),
     .rate(rate),
@@ -528,7 +540,7 @@ if (NR >= 7) begin: MIX6_7
   mix2 #(.CALCTYPE(CALCTYPE)) mix2_6 (
     .clk(clk),
     .clk_2x(clk_2x),
-    .rst(1'b0),
+    .rst(rst_nco),
     .phi0(rx_phase[6]),
     .phi1(rx_phase[7]),
     .adc(adcpipe[3]),
@@ -541,6 +553,7 @@ end
 
 if (NR >= 7) begin: RECEIVER6
   receiver_nco #(.CICRATE(CICRATE)) receiver_6 (
+    .rst_all(rst_all),
     .clock(clk),
     .clock_2x(clk_2x),
     .rate(rate),
@@ -554,6 +567,7 @@ end
 
 if (NR >= 8) begin: RECEIVER7
   receiver_nco #(.CICRATE(CICRATE)) receiver_7 (
+    .rst_all(rst_all),
     .clock(clk),
     .clock_2x(clk_2x),
     .rate(rate),
@@ -571,7 +585,7 @@ if (NR >= 9) begin: MIX8_9
   mix2 #(.CALCTYPE(CALCTYPE)) mix2_8 (
     .clk(clk),
     .clk_2x(clk_2x),
-    .rst(1'b0),
+    .rst(rst_nco),
     .phi0(rx_phase[8]),
     .phi1(rx_phase[9]),
     .adc(adcpipe[4]),
@@ -584,6 +598,7 @@ end
 
 if (NR >= 9) begin: RECEIVER8
   receiver_nco #(.CICRATE(CICRATE)) receiver_8 (
+    .rst_all(rst_all),
     .clock(clk),
     .clock_2x(clk_2x),
     .rate(rate),
@@ -597,6 +612,7 @@ end
 
 if (NR >= 10) begin: RECEIVER9
   receiver_nco #(.CICRATE(CICRATE)) receiver_9 (
+    .rst_all(rst_all),
     .clock(clk),
     .clock_2x(clk_2x),
     .rate(rate),
@@ -624,8 +640,13 @@ logic [1:0]   rxus_state = RXUS_WAIT1;
 logic [1:0]   rxus_state_next;
 
 always @(posedge clk) begin
-  rxus_state <= rxus_state_next;
-  chan <= chan_next;
+  if (rst_all) begin
+    rxus_state <= RXUS_WAIT1;
+    chan <= 4'h0;
+  end else begin
+    rxus_state <= rxus_state_next;
+    chan <= chan_next;
+  end
 end
 
 always @* begin

@@ -61,10 +61,8 @@ module hermeslite (
   output       io_led_d4            ,
   output       io_led_d5            ,
   //
-  input        io_lvds_rxn          ,
-  input        io_lvds_rxp          ,
-  output       io_lvds_txn          ,
-  output       io_lvds_txp          ,
+  input  [1:0] io_link_rx           ,
+  output [1:0] io_link_tx           ,
   //
   input        io_cn8               ,
   input        io_cn9               ,
@@ -103,6 +101,7 @@ module hermeslite (
     .PSSYNC  (1                                    ),
     .CW      (1                                    ),
     .ASMII   (1                                    ),
+    .HL2LINK (1                                    ),
     .FAST_LNA(1                                    )
   ) hermeslite_core_i (
     .pwr_clk3p3                (pwr_clk3p3           ),
@@ -158,7 +157,9 @@ module hermeslite (
     .io_atu_req                (                     ),
     .pa_inttr                  (pa_tr                ),
     .pa_exttr                  (                     ),
-    .fan_pwm                   (io_cn4_6             )
+    .fan_pwm                   (io_cn4_6             ),
+    .linkrx                    (io_link_rx           ),
+    .linktx                    (io_link_tx           )
   );
 
 endmodule

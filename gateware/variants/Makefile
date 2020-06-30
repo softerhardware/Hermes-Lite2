@@ -7,8 +7,9 @@ all:
 	$(MAKE) -C hl2b5up_6rx
 	$(MAKE) -C hl2b5up_cicrx
 	$(MAKE) -C hl2b5up_15ce
-	$(MAKE) -C 'radioberry - CL025'
-	$(MAKE) -C 'radioberry - CL016'
+	$(MAKE) -C radioberry_cl025
+	$(MAKE) -C radioberry_cl016
+
 
 clean:
 	$(MAKE) -C hl2b2_main clean
@@ -18,8 +19,8 @@ clean:
 	$(MAKE) -C hl2b5up_6rx clean
 	$(MAKE) -C hl2b5up_cicrx clean
 	$(MAKE) -C hl2b5up_15ce clean
-	$(MAKE) -C 'radioberry - CL025' clean
-	$(MAKE) -C 'radioberry - CL016' clean
+	$(MAKE) -C radioberry_cl025 clean
+	$(MAKE) -C radioberry_cl016 clean
 
 realclean:
 	$(MAKE) -C hl2b2_main realclean
@@ -29,8 +30,8 @@ realclean:
 	$(MAKE) -C hl2b5up_6rx realclean
 	$(MAKE) -C hl2b5up_cicrx realclean
 	$(MAKE) -C hl2b5up_15ce realclean
-	$(MAKE) -C 'radioberry - CL025' realclean
-	$(MAKE) -C 'radioberry - CL016' realclean
+	$(MAKE) -C radioberry_cl025 realclean
+	$(MAKE) -C radioberry_cl016 realclean
 
 
 .PHONY: all clean realclean
