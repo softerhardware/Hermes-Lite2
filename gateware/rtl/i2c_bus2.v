@@ -78,6 +78,10 @@ logic         en_i2c2_next;
 
 logic [31:0]  resp_data_next, resp_data=32'h00000000;
 
+`ifdef AK4951
+logic         ak4951_spon_reg, ak4951_spon_next;
+logic         ak4951_micboost_reg, ak4951_micboost_next;
+`endif
 
 
 
@@ -107,6 +111,10 @@ always @(posedge clk) begin
     cmd_ack_reg <= 1'b0;
     filter_select_reg <= 'h0;
     rx_antenna_reg <= 1'b0;
+`ifdef AK4951
+    ak4951_spon_reg <= 1'b0;
+    ak4951_micboost_reg <= 1'b0;
+`endif
   end else begin
     state <= state_next;
     cmd_reg <= cmd_next;
@@ -115,6 +123,10 @@ always @(posedge clk) begin
     cmd_ack_reg <= cmd_ack_next;
     filter_select_reg <= filter_select_next;
     rx_antenna_reg <= rx_antenna_next;
+`ifdef AK4951
+    ak4951_spon_reg <= ak4951_spon_next;
+    ak4951_micboost_reg <= ak4951_micboost_next;
+`endif
     en_i2c2 <= en_i2c2_next;
   end
   resp_data <= resp_data_next;
@@ -139,6 +151,10 @@ always @* begin
   cmd_ack_next = cmd_ack;
   filter_select_next = filter_select_reg;
   rx_antenna_next = rx_antenna_reg;
+`ifdef AK4951
+  ak4951_spon_next = ak4951_spon_reg;
+  ak4951_micboost_next = ak4951_micboost_reg;
+`endif
   cmd_next = cmd_reg;
   data0_next = data0_reg;
   data1_next = data1_reg;
@@ -193,7 +209,43 @@ always @* begin
               cmd_ack_next = 1'b0; // Missed
             end
           end
+
+`ifdef AK4951
+          // AK4951 speaker on/off setting update
+          if (cmd_data[11] != ak4951_spon_reg) begin
+            // Must send
+            if (~busy) begin
+              ak4951_spon_next = cmd_data[11]; // reuse Dither
+              cmd_next = 'h12;
+              data0_next = 'h02;
+              data1_next = 8'h2a | (ak4951_micboost_reg? 8'h40: 8'h04) | (cmd_data[11]? 8'h80 : 8'h00);
+              en_i2c2_next = 1'b0;
+              state_next = STATE_FCMDADDR;
+            end else begin
+              cmd_ack_next = 1'b0; // Missed
+            end
+          end
+`endif          
         end
+
+`ifdef AK4951
+        // AK4951 mic boost setting update
+        if (cmd_addr == 6'h09) begin
+          if (cmd_data[16] != ak4951_micboost_reg) begin
+            // Must send
+            if (~busy) begin
+              ak4951_micboost_next = cmd_data[16];
+              cmd_next = 'h12;
+              data0_next = 'h02;
+              data1_next = 8'h2a | (cmd_data[16]? 8'h40: 8'h04) | (ak4951_spon_reg? 8'h80 : 8'h00);
+              en_i2c2_next = 1'b0;
+              state_next = STATE_FCMDADDR;
+            end else begin
+              cmd_ack_next = 1'b0; // Missed
+            end
+          end
+        end
+`endif
       end
     end
 
