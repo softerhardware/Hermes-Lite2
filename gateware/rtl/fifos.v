@@ -185,6 +185,7 @@ module usiq_fifo (
   wr_tready,
   wr_tlast,
   wr_tuser,
+  wr_aclr,
 
   rd_clk,
   rd_tdata,
@@ -201,6 +202,7 @@ input         wr_tvalid;
 output        wr_tready;
 input         wr_tlast;
 input [1:0]   wr_tuser;
+input         wr_aclr;
 
 input         rd_clk;
 output [23:0] rd_tdata;
@@ -227,7 +229,8 @@ dcfifo #(
   .rdsync_delaypipe(4),
   .underflow_checking("ON"),
   .use_eab("ON"),
-  .wrsync_delaypipe(4)
+  .wrsync_delaypipe(4),
+  .wrsync_aclr_synch("ON")
 ) fifo_i (
   .wrclk (wr_clk),
   .wrreq (wr_tvalid),
@@ -243,7 +246,7 @@ dcfifo #(
   .rdusedw (rd_tlength),
   .q (rd_data),
 
-  .aclr (1'b0),
+  .aclr (wr_aclr),
   .eccstatus ()
 );
 

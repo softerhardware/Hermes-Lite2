@@ -149,6 +149,7 @@ usiq_fifo usiq_fifo_i (
   .wr_tready(rx_tready),
   .wr_tlast(rx_tlast),
   .wr_tuser(rx_tuser),
+  .wr_aclr(1'b0),
 
   .rd_clk(clk_internal), 
   .rd_tdata(usiq_tdata), 
@@ -282,7 +283,10 @@ radio_i
 (
   .clk(clk_ad9866),
   .clk_2x(clk_ad9866_2x),
-  
+
+  .rst_all(1'b0),
+  .rst_nco(1'b0),
+
   .run(run_ad9866sync),
   .qmsec_pulse(qmsec_pulse_ad9866sync),
   .ext_keydown(cw_keydown_ad9866sync),

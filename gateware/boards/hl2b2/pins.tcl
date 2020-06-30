@@ -4,10 +4,10 @@ set_location_assignment PIN_104 -to clk_scl1
 set_location_assignment PIN_103 -to clk_sda1
 set_location_assignment PIN_33 -to io_adc_scl
 set_location_assignment PIN_32 -to io_adc_sda
-set_location_assignment PIN_86 -to io_lvds_txn
-set_location_assignment PIN_87 -to io_lvds_txp
-set_location_assignment PIN_88 -to io_lvds_rxp
-set_location_assignment PIN_89 -to io_lvds_rxn
+set_location_assignment PIN_86 -to io_link_tx[0]
+set_location_assignment PIN_87 -to io_link_tx[1]
+set_location_assignment PIN_88 -to io_link_rx[0]
+set_location_assignment PIN_89 -to io_link_rx[1]
 set_location_assignment PIN_25 -to io_cn8
 set_location_assignment PIN_24 -to io_cn9
 set_location_assignment PIN_23 -to io_cn10
@@ -93,6 +93,9 @@ set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_rst_n
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_ad9866_txquiet_n
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to rffe_rfsw_sel
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to pwr_*
+
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to io_link_tx[*]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to io_link_rx[*]
 
 set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to clk_s*
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to clk_s*

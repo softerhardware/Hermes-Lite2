@@ -30,6 +30,7 @@ Boston, MA  02110-1301, USA.
 // 2015 Jan 31 - updated for Hermes-Lite 12bit Steve Haynal KF7O
 
 module receiver_nco(
+  input rst_all,
   input clock,                  //61.44 MHz
   input clock_2x,
   input [5:0] rate,             //48k....384k
@@ -66,6 +67,7 @@ assign debug = {decimA_avail,decimA_real,decimB_avail,decimB_real};
 //I channel
 cic #(.STAGES(3), .DECIMATION(CICRATE), .IN_WIDTH(18), .ACC_WIDTH(ACCWIDTH), .OUT_WIDTH(16))      
   cic_inst_I2(
+    .rst_all(rst_all),
     .clock(clock),
     .in_strobe(1'b1),
     .out_strobe(decimA_avail),
@@ -76,6 +78,7 @@ cic #(.STAGES(3), .DECIMATION(CICRATE), .IN_WIDTH(18), .ACC_WIDTH(ACCWIDTH), .OU
 //Q channel
 cic #(.STAGES(3), .DECIMATION(CICRATE), .IN_WIDTH(18), .ACC_WIDTH(ACCWIDTH), .OUT_WIDTH(16))  
   cic_inst_Q2(
+    .rst_all(rst_all),
     .clock(clock),
     .in_strobe(1'b1),
     .out_strobe(),
@@ -88,6 +91,7 @@ cic #(.STAGES(3), .DECIMATION(CICRATE), .IN_WIDTH(18), .ACC_WIDTH(ACCWIDTH), .OU
 //I channel
 varcic #(.STAGES(5), .IN_WIDTH(16), .ACC_WIDTH(VARCICWIDTH), .OUT_WIDTH(16), .CICRATE(CICRATE))
   varcic_inst_I1(
+    .rst_all(rst_all),
     .clock(clock),
     .in_strobe(decimA_avail),
     .decimation(rate),
@@ -99,6 +103,7 @@ varcic #(.STAGES(5), .IN_WIDTH(16), .ACC_WIDTH(VARCICWIDTH), .OUT_WIDTH(16), .CI
 //Q channel
 varcic #(.STAGES(5), .IN_WIDTH(16), .ACC_WIDTH(VARCICWIDTH), .OUT_WIDTH(16), .CICRATE(CICRATE))
   varcic_inst_Q1(
+    .rst_all(rst_all),
     .clock(clock),
     .in_strobe(decimA_avail),
     .decimation(rate),
@@ -106,7 +111,17 @@ varcic #(.STAGES(5), .IN_WIDTH(16), .ACC_WIDTH(VARCICWIDTH), .OUT_WIDTH(16), .CI
     .in_data(decimA_imag),
     .out_data(decimB_imag)
     );
-				
-firX8R8 fir2 (clock, clock_2x, decimB_avail, {{2{decimB_real[15]}},decimB_real}, {{2{decimB_imag[15]}},decimB_imag}, out_strobe, out_data_I2, out_data_Q2);
+
+firX8R8 fir2 (
+  .rst_all(rst_all),
+  .clock(clock),
+  .clock_2x(clock_2x),
+  .x_avail(decimB_avail),
+  .x_real({{2{decimB_real[15]}},decimB_real}),
+  .x_imag({{2{decimB_imag[15]}},decimB_imag}),
+  .y_avail(out_strobe),
+  .y_real(out_data_I2),
+  .y_imag(out_data_Q2)
+  );
 
 endmodule

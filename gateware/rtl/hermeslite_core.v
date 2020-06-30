@@ -20,60 +20,54 @@
 // This RTL originated from www.openhpsdr.org and has been modified to support
 // the Hermes-Lite hardware described at http://github.com/softerhardware/Hermes-Lite2.
 
-module hermeslite_core(
-
+module hermeslite_core (
   // Power
-  output          pwr_clk3p3,
-  output          pwr_clk1p2,
-  output          pwr_envpa,
-  output          pwr_envop,
-  output          pwr_envbias,
-
+  output       pwr_clk3p3                ,
+  output       pwr_clk1p2                ,
+  output       pwr_envpa                 ,
+  output       pwr_envop                 ,
+  output       pwr_envbias               ,
   // Ethernet PHY
-  input           phy_clk125,
-  output  [3:0]   phy_tx,
-  output          phy_tx_en,
-  output          phy_tx_clk,
-  input   [3:0]   phy_rx,
-  input           phy_rx_dv,
-  input           phy_rx_clk,
-  input           phy_rst_n,
-  inout           phy_mdio,
-  output          phy_mdc,
-
+  input        phy_clk125                ,
+  output [3:0] phy_tx                    ,
+  output       phy_tx_en                 ,
+  output       phy_tx_clk                ,
+  input  [3:0] phy_rx                    ,
+  input        phy_rx_dv                 ,
+  input        phy_rx_clk                ,
+  input        phy_rst_n                 ,
+  inout        phy_mdio                  ,
+  output       phy_mdc                   ,
   // Clock
-  inout           clk_sda1,
-  inout           clk_scl1,
-
+  inout        clk_sda1                  ,
+  inout        clk_scl1                  ,
   // RF Frontend
-  output          rffe_ad9866_rst_n,
-
-  output  [5:0]   rffe_ad9866_tx,
-  input   [5:0]   rffe_ad9866_rx,
-  input           rffe_ad9866_rxsync,
-  input           rffe_ad9866_rxclk,
-
-  output          rffe_ad9866_txquiet_n,
-  output          rffe_ad9866_txsync,
-  output          rffe_ad9866_sdio,
-  output          rffe_ad9866_sclk,
-  output          rffe_ad9866_sen_n,
-  input           rffe_ad9866_clk76p8,
-  output          rffe_rfsw_sel,
-  output          rffe_ad9866_mode,
-  output          rffe_ad9866_pga5,
+  output       rffe_ad9866_rst_n         ,
+  output [5:0] rffe_ad9866_tx            ,
+  input  [5:0] rffe_ad9866_rx            ,
+  input        rffe_ad9866_rxsync        ,
+  input        rffe_ad9866_rxclk         ,
+  output       rffe_ad9866_txquiet_n     ,
+  output       rffe_ad9866_txsync        ,
+  output       rffe_ad9866_sdio          ,
+  output       rffe_ad9866_sclk          ,
+  output       rffe_ad9866_sen_n         ,
+  input        rffe_ad9866_clk76p8       ,
+  output       rffe_rfsw_sel             ,
+  output       rffe_ad9866_mode          ,
+  output       rffe_ad9866_pga5          ,
   // IO
-  output          io_led_run,
-  output          io_led_tx,
-  output          io_led_adc75,
-  output          io_led_adc100,
+  output       io_led_run                ,
+  output       io_led_tx                 ,
+  output       io_led_adc75              ,
+  output       io_led_adc100             ,
   //
-  output          io_tx_envelope_pwm_out,
-  output          io_tx_envelope_pwm_out_inv,
+  output       io_tx_envelope_pwm_out    ,
+  output       io_tx_envelope_pwm_out_inv,
   //
-  input           io_tx_inhibit,
-  input           io_id_hermeslite,
-  input           io_alternate_mac,
+  input        io_tx_inhibit             ,
+  input        io_id_hermeslite          ,
+  input        io_alternate_mac          ,
   //
   inout           io_adc_scl,
   inout           io_adc_sda,
@@ -104,7 +98,9 @@ module hermeslite_core(
   output          i2s_mosi,
 `endif
 
-  output          fan_pwm
+  output          fan_pwm,
+  input  [1:0] linkrx                    ,
+  output [1:0] linktx
 );
 
 
@@ -135,11 +131,13 @@ parameter       LRDATA = 0;
 // Use ASMII for EEPROM configuration
 parameter       ASMII = 0;
 
+parameter       HL2LINK = 0;
+
 parameter       FAST_LNA = 0; // Support for fast LNA setting, TX/RX values
 
 
-localparam      VERSION_MAJOR = (BOARD==2) ? 8'd51 : 8'd71;
-localparam      VERSION_MINOR = 8'd3;
+localparam      VERSION_MAJOR = (BOARD==2) ? 8'd52 : 8'd72;
+localparam      VERSION_MINOR = 8'd0;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
@@ -291,6 +289,10 @@ logic           qmsec_pulse, qmsec_pulse_ad9866sync;
 logic           msec_pulse, msec_pulse_ethsync;
 
 logic           atu_txinhibit, atu_txinhibit_ad9866ync;
+
+logic           stall_req, stall_req_sync;
+logic           stall_ack, stall_ack_ad9866;
+logic           rst_all, rst_nco;
 
 logic signed [15:0] debug;
 
@@ -448,6 +450,7 @@ sync_pulse sync_pulse_watchdog (
   .sig_out(watchdog_up_sync)
 );
 
+// CDC okay as clock is >2x faster than sig_in domain
 sync_one sync_msec_pulse_eth (
   .clock(clock_ethrxint),
   .sig_in(msec_pulse),
@@ -620,6 +623,8 @@ sync_pulse sync_pulse_usopenhpsdr1 (
   .sig_out(cmd_rqst_usopenhpsdr1)
 );
 
+
+
 usopenhpsdr1 #(.NR(NR), .VERSION_MAJOR(VERSION_MAJOR), .VERSION_MINOR(VERSION_MINOR), .BOARD(BOARD)) usopenhpsdr1_i (
   .clk(clock_ethtxint),
   .have_ip(~(network_state_dhcp & network_state_fixedip)), // network_state is on sync 2.5 MHz domain
@@ -652,6 +657,9 @@ usopenhpsdr1 #(.NR(NR), .VERSION_MAJOR(VERSION_MAJOR), .VERSION_MINOR(VERSION_MI
   .resp(resp),
   .resp_rqst(resp_rqst),
 
+  .stall_req(stall_req_sync),
+  .stall_ack(stall_ack),
+
   .static_ip(static_ip),
   .alt_mac(alt_mac),
   .eeprom_config(eeprom_config),
@@ -671,6 +679,7 @@ usiq_fifo usiq_fifo_i (
   .wr_tready(rx_tready),
   .wr_tlast(rx_tlast),
   .wr_tuser(rx_tuser),
+  .wr_aclr(rst_all),
 
   .rd_clk(clock_ethtxint),
   .rd_tdata(usiq_tdata),
@@ -730,6 +739,7 @@ sync_pulse sync_rxclrstatus_ad9866 (
   .sig_out(rxclrstatus_ad9866sync)
 );
 
+// CDC okay as clock is >2x faster than sig_in domain
 sync_one sync_qmsec_pulse_ad9866 (
   .clock(clk_ad9866),
   .sig_in(qmsec_pulse),
@@ -742,12 +752,14 @@ sync sync_run_ad9866 (
   .sig_out(run_ad9866sync)
 );
 
+// CDC okay as clock is >2x faster than sig_in domain
 sync sync_keydown_ad9866 (
   .clock(clk_ad9866),
   .sig_in(cw_keydown),
   .sig_out(cw_keydown_ad9866sync)
 );
 
+// CDC okay as clock is >2x faster than sig_in domain
 sync sync_atutxinhibit_ad9866 (
   .clock(clk_ad9866),
   .sig_in(atu_txinhibit),
@@ -796,6 +808,9 @@ radio_i
 (
   .clk(clk_ad9866),
   .clk_2x(clk_ad9866_2x),
+
+  .rst_all(rst_all),
+  .rst_nco(rst_nco),
 
   .run(run_ad9866sync),
   .qmsec_pulse(qmsec_pulse_ad9866sync),
@@ -986,7 +1001,8 @@ control #(
 
   .io_tx_inhibit    (io_tx_inhibit         ),
 
-  .io_uart_txd      (io_uart_txd           ),
+  //.io_uart_txd      (io_uart_txd           ),
+  .io_uart_txd ( ),
   .io_cw_keydown    (io_cw_keydown         ),
 
   .io_phone_tip     (io_phone_tip          ),
@@ -1084,9 +1100,48 @@ generate case (ASMII)
 endcase
 endgenerate
 
+generate
+if (HL2LINK == 1) begin
 
+  sync sync_stall_ack (
+    .clock(clk_ad9866),
+    .sig_in(stall_ack),
+    .sig_out(stall_ack_ad9866)
+  );
+
+  sync sync_stall_req(
+    .clock(clock_ethtxint),
+    .sig_in(stall_req),
+    .sig_out(stall_req_sync)
+  );
+
+  hl2link hl2link_i (
+    .clk      (clk_ad9866      ),
+    .linkrx   (linkrx          ),
+    .linktx   (linktx          ),
+    .stall_req(stall_req       ),
+    .stall_ack(stall_ack_ad9866),
+    .rst_all  (rst_all         ),
+    .rst_nco  (rst_nco         ),
+    .cmd_addr (cmd_addr        ),
+    .cmd_data (cmd_data        ),
+    .cmd_rqst (cmd_rqst_ad9866 )
+  );
+
+  assign io_uart_txd = rst_all | rst_nco;
+
+ 
 `ifdef AK4951
   assign pa_exttr_clone = pa_exttr ; // AK4951 Companion Board V3
 `endif
+end else begin
+  assign linktx = 2'b00;
+  assign stall_req_sync = 1'b0;
+  assign rst_all = 1'b0;
+  assign rst_nco = 1'b0;
+end
+
+endgenerate
+
 
 endmodule
