@@ -50,6 +50,7 @@ parameter       ATU = 0;
 parameter       VNA = 0;
 parameter       CW = 0; // CW Support
 parameter       FAST_LNA = 0; 
+parameter       AK4951 = 0; 
 
 localparam      VERSION_MAJOR = 8'd71;
 localparam      VERSION_MINOR = 8'd4;

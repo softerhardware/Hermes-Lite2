@@ -69,36 +69,29 @@ module hermeslite_core (
   input        io_id_hermeslite          ,
   input        io_alternate_mac          ,
   //
-  inout           io_adc_scl,
-  inout           io_adc_sda,
-  inout           io_scl2,
-  inout           io_sda2,
-
-  output          io_uart_txd,
-  input           io_uart_rxd,
-
-  output          io_cw_keydown,
-
-  input           io_phone_tip,
-  input           io_phone_ring,
-
-  input           io_atu_ack,
-  output          io_atu_req,
-
-  output          pa_inttr,
-  output          pa_exttr,
-
-`ifdef AK4951
-  output          pa_exttr_clone,  // AK4951 Companion Board V3
-  input           io_ptt_in,       // AK4951 Companion Board V3
-  output          i2s_pdn,
-  output          i2s_bck,
-  output          i2s_lrck,
-  input           i2s_miso,
-  output          i2s_mosi,
-`endif
-
-  output          fan_pwm,
+  inout        io_adc_scl                ,
+  inout        io_adc_sda                ,
+  inout        io_scl2                   ,
+  inout        io_sda2                   ,
+  output       io_uart_txd               ,
+  input        io_uart_rxd               ,
+  output       io_cw_keydown             ,
+  input        io_phone_tip              ,
+  input        io_phone_ring             ,
+  input        io_atu_ack                ,
+  output       io_atu_req                ,
+  output       pa_inttr                  ,
+  output       pa_exttr                  ,
+  // AK4951
+  output       pa_exttr_clone            , // AK4951 Companion Board V3
+  input        io_ptt_in                 , // AK4951 Companion Board V3
+  output       i2s_pdn                   ,
+  output       i2s_bck                   ,
+  output       i2s_lrck                  ,
+  input        i2s_miso                  ,
+  output       i2s_mosi                  ,
+  //
+  output       fan_pwm                   ,
   input  [1:0] linkrx                    ,
   output [1:0] linktx
 );
@@ -112,7 +105,7 @@ parameter       NR = 4; // Recievers
 parameter       NT = 1; // Transmitters
 parameter       CLK_FREQ = 76800000;
 
-// UART Type 0 is none is JI1UDD HR50
+// UART Type 0 is none, 1 is JI1UDD HR50
 parameter       UART = 0;
 
 // ATU Type 0 is none, 1 is JI1UDD ATU
@@ -135,9 +128,12 @@ parameter       HL2LINK = 0;
 
 parameter       FAST_LNA = 0; // Support for fast LNA setting, TX/RX values
 
+parameter       AK4951 = 0;
 
-localparam      VERSION_MAJOR = (BOARD==2) ? 8'd52 : 8'd72;
-localparam      VERSION_MINOR = 8'd0;
+localparam      TUSERWIDTH = (AK4951 == 1) ? 16 : 2;
+
+localparam      VERSION_MAJOR = (BOARD==2) ? 8'd52 : 8'd71;
+localparam      VERSION_MINOR = 8'd3;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
@@ -177,11 +173,9 @@ logic  [23:0]   usiq_tdata;
 logic           usiq_tlast;
 logic           usiq_tready;
 logic           usiq_tvalid;
-`ifndef AK4951
-logic  [ 1:0]   usiq_tuser;
-`else
-logic  [15:0]   usiq_tuser; // 16bit mic(Lch) data
-`endif
+
+logic  [TUSERWIDTH-1:0]   usiq_tuser;
+
 logic  [10:0]   usiq_tlength;
 
 logic           response_inp_tready;
@@ -293,6 +287,9 @@ logic           atu_txinhibit, atu_txinhibit_ad9866ync;
 logic           stall_req, stall_req_sync;
 logic           stall_ack, stall_ack_ad9866;
 logic           rst_all, rst_nco;
+
+logic        clk_i2c_rst;
+logic [15:0] au_rdata   ;
 
 logic signed [15:0] debug;
 
@@ -526,8 +523,7 @@ end
 endgenerate
 
 
-`ifndef AK4951
-generate
+generate if (AK4951 == 0) begin
 
 case (LRDATA)
   0: begin // Left/Right downstream (PC->Card) audio data not used
@@ -564,51 +560,9 @@ case (LRDATA)
     );
   end
 endcase
-
+end
 endgenerate
 
-`else
-
-dslr_fifo dslr_fifo_i (
-      .wr_clk(clock_ethrxint),
-      .wr_tdata(dseth_tdata),
-      .wr_tvalid(dsethlr_tvalid),
-      .wr_tready(),
-
-      .rd_clk(clk_ad9866),
-      .rd_tdata(dslr_tdata),
-      .rd_tvalid(dslr_tvalid),
-      .rd_tready(au_tready)
-);
-
-logic        clk_i2c_rst ;
-logic        au_tready ;
-logic [15:0] au_rdata ;
-
-localaudio localaudio_i (
-    .clk(clk_ad9866),
-    .rst(ad9866_rst),
-    .clk_i2c_rst(clk_i2c_rst),
-
-    .au_tdata(dslr_tdata),                 // audio L/R tx data (16bit * 2)
-    .au_tready(au_tready),                 // next tx data request
-    .au_rdata(au_rdata),                   // audio L rx data (16bit)
-    .au_rvalid(),                          // audio rx data valid
-
-    .sidetone_sel(cw_on),                  // select sideton as audio output ; ad9866sync
-    .sidetone_req(cw_keydown_ad9866sync),  // sideton on/off
-
-    .cmd_addr(cmd_addr),                   // Command slave interface
-    .cmd_data(cmd_data),
-    .cmd_rqst(cmd_rqst_ad9866),            // cmd_cnt ; ad9866sync
-
-    .i2s_pdn(i2s_pdn),                     // AK4951 i/o pins (I2S)
-    .i2s_bck(i2s_bck),
-    .i2s_lrck(i2s_lrck),
-    .i2s_mosi(i2s_mosi),
-    .i2s_miso(i2s_miso)
-) ;
-`endif
 
 ///////////////////////////////////////////////
 // Upstream ethtxint clock domain
@@ -625,7 +579,13 @@ sync_pulse sync_pulse_usopenhpsdr1 (
 
 
 
-usopenhpsdr1 #(.NR(NR), .VERSION_MAJOR(VERSION_MAJOR), .VERSION_MINOR(VERSION_MINOR), .BOARD(BOARD)) usopenhpsdr1_i (
+usopenhpsdr1 #(
+  .NR(NR),
+  .VERSION_MAJOR(VERSION_MAJOR),
+  .VERSION_MINOR(VERSION_MINOR),
+  .BOARD(BOARD),
+  .AK4951(AK4951)
+) usopenhpsdr1_i (
   .clk(clock_ethtxint),
   .have_ip(~(network_state_dhcp & network_state_fixedip)), // network_state is on sync 2.5 MHz domain
   .run(run_sync),
@@ -671,14 +631,16 @@ usopenhpsdr1 #(.NR(NR), .VERSION_MAJOR(VERSION_MAJOR), .VERSION_MINOR(VERSION_MI
   .usethasmi_ack(usethasmi_ack)
 );
 
-`ifndef AK4951
-usiq_fifo usiq_fifo_i (
+usiq_fifo #(.AK4951(AK4951))
+  usiq_fifo_i
+(
   .wr_clk(clk_ad9866),
   .wr_tdata(rx_tdata),
   .wr_tvalid(rx_tvalid),
   .wr_tready(rx_tready),
   .wr_tlast(rx_tlast),
-  .wr_tuser(rx_tuser),
+  .wr_tuser( (AK4951 == 1) ? au_rdata : rx_tuser),
+  //.wr_tuser( vna? {14'b0,rx_tuser} : au_rdata ),
   .wr_aclr(rst_all),
 
   .rd_clk(clock_ethtxint),
@@ -690,26 +652,6 @@ usiq_fifo usiq_fifo_i (
   .rd_tlength(usiq_tlength)
 );
 
-`else
-
-logic vna = 1'b0;
-usiql_fifo usiq_fifo_i (
-  .wr_clk(clk_ad9866),
-  .wr_tdata(rx_tdata),
-  .wr_tvalid(rx_tvalid),
-  .wr_tready(rx_tready),
-  .wr_tlast(rx_tlast),
-  .wr_tuser( vna? {14'b0,rx_tuser} : au_rdata ),
-
-  .rd_clk(clock_ethtxint),
-  .rd_tdata(usiq_tdata),
-  .rd_tvalid(usiq_tvalid),
-  .rd_tready(usiq_tready),
-  .rd_tlast(usiq_tlast),
-  .rd_tuser(usiq_tuser),
-  .rd_tlength(usiq_tlength)
-);
-`endif
 
 usbs_fifo usbs_fifo_i (
   .wr_clk(clk_ad9866),
@@ -912,7 +854,8 @@ control #(
   .FAN          (FAN          ),
   .PSSYNC       (PSSYNC       ),
   .CW           (CW           ),
-  .FAST_LNA     (FAST_LNA     )
+  .FAST_LNA     (FAST_LNA     ),
+  .AK4951       (AK4951       )
 ) control_i (
   // Internal
   .clk              (clk_ctrl              ),
@@ -1001,8 +944,7 @@ control #(
 
   .io_tx_inhibit    (io_tx_inhibit         ),
 
-  //.io_uart_txd      (io_uart_txd           ),
-  .io_uart_txd ( ),
+  .io_uart_txd      (io_uart_txd           ),
   .io_cw_keydown    (io_cw_keydown         ),
 
   .io_phone_tip     (io_phone_tip          ),
@@ -1021,10 +963,8 @@ control #(
 
   .ad9866_rst       (ad9866_rst            ),
 
-`ifdef AK4951
   .clk_i2c_rst      (clk_i2c_rst           ),
   .io_ptt_in        (io_ptt_in             ),
-`endif
 
   .debug            (debug                 )
 );
@@ -1128,12 +1068,10 @@ if (HL2LINK == 1) begin
     .cmd_rqst (cmd_rqst_ad9866 )
   );
 
-  assign io_uart_txd = rst_all | rst_nco;
+  //assign io_uart_txd = rst_all | rst_nco;
 
- 
-`ifdef AK4951
-  assign pa_exttr_clone = pa_exttr ; // AK4951 Companion Board V3
-`endif
+
+
 end else begin
   assign linktx = 2'b00;
   assign stall_req_sync = 1'b0;
@@ -1142,6 +1080,62 @@ end else begin
 end
 
 endgenerate
+
+
+generate
+if (AK4951 == 1) begin
+
+  logic        au_tready  ;
+
+  dslr_fifo dslr_fifo_i (
+    .wr_clk(clock_ethrxint),
+    .wr_tdata(dseth_tdata),
+    .wr_tvalid(dsethlr_tvalid),
+    .wr_tready(),
+
+    .rd_clk(clk_ad9866),
+    .rd_tdata(dslr_tdata),
+    .rd_tvalid(dslr_tvalid),
+    .rd_tready(au_tready)
+  );
+
+  localaudio localaudio_i (
+    .clk(clk_ad9866),
+    .rst(ad9866_rst),
+    .clk_i2c_rst(clk_i2c_rst),
+
+    .au_tdata(dslr_tdata),                 // audio L/R tx data (16bit * 2)
+    .au_tready(au_tready),                 // next tx data request
+    .au_rdata(au_rdata),                   // audio L rx data (16bit)
+    .au_rvalid(),                          // audio rx data valid
+
+    .sidetone_sel(cw_on),                  // select sideton as audio output ; ad9866sync
+    .sidetone_req(cw_keydown_ad9866sync),  // sideton on/off
+
+    .cmd_addr(cmd_addr),                   // Command slave interface
+    .cmd_data(cmd_data),
+    .cmd_rqst(cmd_rqst_ad9866),            // cmd_cnt ; ad9866sync
+
+    .i2s_pdn(i2s_pdn),                     // AK4951 i/o pins (I2S)
+    .i2s_bck(i2s_bck),
+    .i2s_lrck(i2s_lrck),
+    .i2s_mosi(i2s_mosi),
+    .i2s_miso(i2s_miso)
+  );
+
+  assign pa_exttr_clone = pa_exttr ; // AK4951 Companion Board V3
+
+
+end else begin
+  assign pa_exttr_clone = 1'b0;
+  assign i2s_pdn  = 1'b0;
+  assign i2s_bck  = 1'b0;
+  assign i2s_lrck = 1'b0;
+  assign i2s_mosi = 1'b0;
+
+end
+endgenerate
+
 
 
 endmodule

@@ -105,6 +105,7 @@ module hermeslite (
     .CW      (1                                    ),
     .ASMII   (1                                    ),
     .HL2LINK (1                                    ),
+    .AK4951  (0                                    ),
     .FAST_LNA(1                                    )
   ) hermeslite_core_i (
     .pwr_clk3p3                (pwr_clk3p3           ),
@@ -162,7 +163,14 @@ module hermeslite (
     .pa_exttr                  (pa_exttr             ),
     .fan_pwm                   (io_cn4_6             ),
     .linkrx                    (io_link_rx           ),
-    .linktx                    (io_link_tx           )
+    .linktx                    (io_link_tx           ),
+    .pa_exttr_clone            (                     ),
+    .io_ptt_in                 (1'b0                 ),
+    .i2s_pdn                   (                     ),
+    .i2s_bck                   (                     ),
+    .i2s_lrck                  (                     ),
+    .i2s_miso                  (1'b0                 ),
+    .i2s_mosi                  (                     )
   );
 
 endmodule

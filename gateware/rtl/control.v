@@ -104,10 +104,8 @@ module control(
 
   ad9866_rst,
 
-`ifdef AK4951
   io_ptt_in,
   clk_i2c_rst,
-`endif
 
   debug
 
@@ -218,10 +216,8 @@ output          fan_pwm;
 
 output          ad9866_rst;
 
-`ifdef AK4951
 input           io_ptt_in;
 output          clk_i2c_rst;
-`endif
 
 parameter     VERSION_MAJOR = 8'h0;
 parameter     UART = 0;
@@ -230,6 +226,7 @@ parameter     FAN = 0;
 parameter     PSSYNC = 0;
 parameter     CW = 0;
 parameter     FAST_LNA = 0;
+parameter     AK4951 = 0;
 
 
 logic         vna = 1'b0;                    // Selects vna mode when set.
@@ -779,7 +776,7 @@ generate
         .uart_txd(uart_txd)
       );
       // Invert for level shifter
-      assign io_uart_txd = ~uart_txd;
+      assign io_uart_txd = (AK4951 == 1) ? uart_txd : ~uart_txd;
     end
   endcase
 endgenerate
@@ -816,11 +813,6 @@ debounce de_txinhibit(.clean_pb(ext_txinhibit), .pb(~io_tx_inhibit), .clk(clk), 
 
 debounce de_phone_ring(.clean_pb(clean_ring), .pb(~io_phone_ring), .clk(clk), .msec_pulse(msec_pulse));
 
-`ifdef AK4951
-logic clean_ptt_in ;
-debounce de_ptt(.clean_pb(clean_ptt_in), .pb(~io_ptt_in), .clk(clk), .msec_pulse(msec_pulse));
-`endif
-
 generate
   case (CW)
     0: begin: CW_NONE
@@ -838,12 +830,13 @@ generate
 
     2: begin: CW_OPENHPSDR
 
-`ifndef AK4951
-      // No ext_ptt
-      assign ext_ptt = 1'b0;
-`else
-      assign ext_ptt = clean_ptt_in;
-`endif
+      if (AK4951 == 1) begin
+        logic clean_ptt_in ;
+        debounce de_ptt(.clean_pb(clean_ptt_in), .pb(~io_ptt_in), .clk(clk), .msec_pulse(msec_pulse));
+        assign ext_ptt = clean_ptt_in;
+      end else begin
+        assign ext_ptt = 1'b0;
+      end
 
       cw_openhpsdr cw_openhpsdr_i (
         .clk               (clk       ),
