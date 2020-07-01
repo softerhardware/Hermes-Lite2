@@ -57,6 +57,17 @@ localparam [4:0]
   STATE_RST1  = 5'h1f,
   STATE_RST2  = 5'h1e;
 
+`ifdef AK4951
+localparam [4:0]
+  STATE_W0_AK = 5'h10,
+  STATE_W1_AK = 5'h11,
+  STATE_W2_AK = 5'h12,
+  STATE_W3_AK = 5'h13,
+  STATE_W4_AK = 5'h14,
+  STATE_W5_AK = 5'h15,
+  STATE_W6_AK = 5'h16,
+  STATE_WWAIT_AK = 5'h17;
+`endif
 
 logic [ 4:0]  state = STATE_W0, state_next;
 
@@ -175,9 +186,96 @@ always @* begin
       icmd_data = {8'h06, 1'b1, 7'h6a, 8'h60, 8'h3b};
       icmd_rqst = 1'b0;
       if (init_start & ready) begin
+`ifndef AK4951
+          state_next = STATE_R0;
+`else
+          state_next = STATE_W0_AK;
+`endif
+      end
+    end
+
+`ifdef AK4951
+    STATE_W0_AK: begin
+      icmd_addr = 6'h3c;
+      icmd_data = {8'h06, 1'b1, 7'h12, 8'h00, 8'h00};
+      icmd_rqst = 1'b0;
+      if (init_start & ready) begin
+          icmd_rqst = 1'b1;
+          state_next = STATE_W1_AK;
+      end
+    end
+
+    STATE_W1_AK: begin
+      icmd_addr = 6'h3c;
+      icmd_data = {8'h06, 1'b1, 7'h12, 8'h05, 8'h33};
+      icmd_rqst = 1'b0;
+      if (init_start & ready) begin
+          icmd_rqst = 1'b1;
+          state_next = STATE_W2_AK;
+      end
+    end
+
+    STATE_W2_AK: begin
+      icmd_addr = 6'h3c;
+      icmd_data = {8'h06, 1'b1, 7'h12, 8'h00, 8'hc5};
+      icmd_rqst = 1'b0;
+      if (init_start & ready) begin
+          icmd_rqst = 1'b1;
+          state_next = STATE_W3_AK;
+      end
+    end
+
+    STATE_W3_AK: begin
+      icmd_addr = 6'h3c;
+      icmd_data = {8'h06, 1'b1, 7'h12, 8'h01, 8'hb6};
+      icmd_rqst = 1'b0;
+      if (init_start & ready) begin
+          icmd_rqst = 1'b1;
+          state_next = STATE_W4_AK;
+      end
+    end
+
+    STATE_W4_AK: begin
+      icmd_addr = 6'h3c;
+//    icmd_data = {8'h06, 1'b1, 7'h12, 8'h04, 8'h47}; // monoral
+      icmd_data = {8'h06, 1'b1, 7'h12, 8'h04, 8'h44}; // stereo
+      icmd_rqst = 1'b0;
+      if (init_start & ready) begin
+          icmd_rqst = 1'b1;
+          state_next = STATE_W5_AK;
+      end
+    end
+
+    STATE_W5_AK: begin
+      icmd_addr = 6'h3c;
+      icmd_data = {8'h06, 1'b1, 7'h12, 8'h03, 8'h00};
+      icmd_rqst = 1'b0;
+      if (init_start & ready) begin
+          icmd_rqst = 1'b1;
+          state_next = STATE_W6_AK;
+      end
+    end
+
+    STATE_W6_AK: begin
+      icmd_addr = 6'h3c;
+      icmd_data = {8'h06, 1'b1, 7'h12, 8'h02, 8'hae};
+      icmd_rqst = 1'b0;
+      if (init_start & ready) begin
+          icmd_rqst = 1'b1;
+          state_next = STATE_WWAIT_AK;
+      end
+    end
+
+    // Wait state is need to switch between i2c controllers
+    STATE_WWAIT_AK: begin
+      icmd_addr = 6'h3c;
+      icmd_data = {8'h06, 1'b1, 7'h12, 8'h02, 8'hae};
+      icmd_rqst = 1'b0;
+      if (init_start & ready) begin
           state_next = STATE_R0;
       end
     end
+`endif
 
     STATE_R0: begin
       icmd_addr = 6'h3d;
