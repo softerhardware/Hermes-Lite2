@@ -63,10 +63,8 @@ module hermeslite (
   output       io_led_d4            ,
   output       io_led_d5            ,
   //
-  input        io_lvds_rxn          ,
-  input        io_lvds_rxp          ,
-  output       io_lvds_txn          ,
-  output       io_lvds_txp          ,
+  input  [1:0] io_link_rx           ,
+  output [1:0] io_link_tx           ,
   //
   input        io_cn8               ,
   input        io_cn9               ,
@@ -101,11 +99,13 @@ module hermeslite (
     .NR      (4                                    ),
     .NT      (1                                    ),
     .UART    (1                                    ),
-    .ATU     (1                                    ),
+    .ATU     (0                                    ),
     .FAN     (1                                    ),
     .PSSYNC  (1                                    ),
     .CW      (2                                    ), // CW_OPENHPSDR
     .ASMII   (1                                    ),
+    .HL2LINK (0                                    ),
+    .AK4951  (1                                    ),
     .FAST_LNA(1                                    )
   ) hermeslite_core_i (
     .pwr_clk3p3                (pwr_clk3p3           ),
@@ -166,9 +166,9 @@ module hermeslite (
     .pa_exttr_clone            (io_db1_5             ), // AK4951 Companion Board V3
     .io_ptt_in                 (io_db1_4             ), // AK4951 Companion Board V3
     .i2s_pdn                   (io_db1_6             ), // AK4951 Companion Board V3
-    .i2s_bck                   (io_lvds_txn          ), // AK4951 Companion Board V3
-    .i2s_lrck                  (io_lvds_txp          ), // AK4951 Companion Board V3
-    .i2s_miso                  (io_lvds_rxp          ), // AK4951 Companion Board V3
+    .i2s_bck                   (io_link_tx[0]        ), // AK4951 Companion Board V3
+    .i2s_lrck                  (io_link_tx[1]        ), // AK4951 Companion Board V3
+    .i2s_miso                  (io_link_rx[0]        ), // AK4951 Companion Board V3
     .i2s_mosi                  (io_db1_2             )  // AK4951 Companion Board V3
   );
 

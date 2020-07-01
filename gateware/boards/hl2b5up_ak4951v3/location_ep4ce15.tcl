@@ -1,7 +1,0 @@
-
-
-set_location_assignment CLKCTRL_G17 -to clock_ethrxint~clkctrl
-set_location_assignment CLKCTRL_G19 -to hermeslite_core_i|ethtxext_clkmux_i|auto_generated|clkctrl1
-set_location_assignment CLKCTRL_G15 -to hermeslite_core_i|ethtxint_clkmux_i|auto_generated|clkctrl1
-##set_location_assignment LCCOMB_X1_Y16_N4 -to altclkctrl:ethtxint_clkmux_i|altclkctrl_kct:auto_generated|outclk
-set_location_assignment LCCOMB_X22_Y1_N28 -to hermeslite_core:hermeslite_core_i|clock_ethrxint

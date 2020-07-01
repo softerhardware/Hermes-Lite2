@@ -176,8 +176,6 @@ assign rd_tvalid = ~rd_tvalidn;
 
 endmodule
 
-
-`ifndef AK4951
 module usiq_fifo (
   wr_clk,
   wr_tdata,
@@ -196,12 +194,16 @@ module usiq_fifo (
   rd_tlength
 );
 
+parameter AK4951 = 0;
+
+localparam TUSERWIDTH = (AK4951 == 1) ? 16 : 2;
+
 input         wr_clk;
 input [23:0]  wr_tdata;
 input         wr_tvalid;
 output        wr_tready;
 input         wr_tlast;
-input [1:0]   wr_tuser;
+input [TUSERWIDTH-1:0]   wr_tuser;
 input         wr_aclr;
 
 input         rd_clk;
@@ -209,13 +211,13 @@ output [23:0] rd_tdata;
 output        rd_tvalid;
 input         rd_tready;
 output        rd_tlast;
-output [1:0]  rd_tuser;
+output [TUSERWIDTH-1:0]  rd_tuser;
 output [10:0] rd_tlength;
 
 logic         wr_treadyn;
 logic [10:0]  wr_tlength;
 logic         rd_tvalidn;
-logic  [26:0] rd_data;
+logic  [TUSERWIDTH+24:0] rd_data;
 
 dcfifo #(
   .add_usedw_msb_bit("ON"),
@@ -223,7 +225,7 @@ dcfifo #(
   .lpm_numwords(1024),
   .lpm_showahead ("ON"),
   .lpm_type("dcfifo"),
-  .lpm_width(27),
+  .lpm_width(TUSERWIDTH+24+1),
   .lpm_widthu(11),
   .overflow_checking("ON"),
   .rdsync_delaypipe(4),
@@ -255,90 +257,9 @@ assign wr_tready = (wr_tlength > 11'd1012) ? 1'b0: 1'b1;
 assign rd_tvalid = ~rd_tvalidn;
 assign rd_tlast  = rd_data[24];
 assign rd_tdata  = rd_data[23:0];
-assign rd_tuser  = rd_data[26:25];
+assign rd_tuser  = rd_data[TUSERWIDTH+24:25];
 
 endmodule
-
-`else
-
-module usiql_fifo (
-  wr_clk,
-  wr_tdata,
-  wr_tvalid,
-  wr_tready,
-  wr_tlast,
-  wr_tuser,
-
-  rd_clk,
-  rd_tdata,
-  rd_tvalid,
-  rd_tready,
-  rd_tlast,
-  rd_tuser,
-  rd_tlength
-);
-
-input         wr_clk;
-input [23:0]  wr_tdata;
-input         wr_tvalid;
-output        wr_tready;
-input         wr_tlast;
-input [15:0]  wr_tuser;   // 16bit mic(Lch) data
-
-input         rd_clk;
-output [23:0] rd_tdata;
-output        rd_tvalid;
-input         rd_tready;
-output        rd_tlast;
-output [15:0] rd_tuser;   // 16bit mic(Lch) data
-output [10:0] rd_tlength;
-
-logic         wr_treadyn;
-logic [10:0]  wr_tlength;
-logic         rd_tvalidn;
-logic  [40:0] rd_data;
-
-dcfifo #(
-  .add_usedw_msb_bit("ON"),
-  .intended_device_family("Cyclone IV E"),
-  .lpm_numwords(1024),
-  .lpm_showahead ("ON"),
-  .lpm_type("dcfifo"),
-  .lpm_width(41),         // 24+16+1
-  .lpm_widthu(11),
-  .overflow_checking("ON"),
-  .rdsync_delaypipe(4),
-  .underflow_checking("ON"),
-  .use_eab("ON"),
-  .wrsync_delaypipe(4)
-) fifo_i (
-  .wrclk (wr_clk),
-  .wrreq (wr_tvalid),
-  .wrfull (wr_treadyn),
-  .wrempty (),
-  .wrusedw (wr_tlength),
-  .data ({wr_tuser,wr_tlast,wr_tdata}),
-
-  .rdclk (rd_clk),
-  .rdreq (rd_tready),
-  .rdfull (),
-  .rdempty (rd_tvalidn),
-  .rdusedw (rd_tlength),
-  .q (rd_data),
-
-  .aclr (1'b0),
-  .eccstatus ()
-);
-
-assign wr_tready = (wr_tlength > 11'd1012) ? 1'b0: 1'b1;
-//assign wr_tready = ~wr_treadyn;
-assign rd_tvalid = ~rd_tvalidn;
-assign rd_tlast  = rd_data[24];
-assign rd_tdata  = rd_data[23:0];
-assign rd_tuser  = rd_data[40:25]; // 16bit mic(Lch) data
-
-endmodule
-`endif
 
 
 

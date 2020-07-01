@@ -48,6 +48,15 @@ module usopenhpsdr1 (
   usethasmi_ack
 );
 
+parameter           NR = 8'h0;
+parameter           VERSION_MAJOR = 8'h0;
+parameter           VERSION_MINOR = 8'h0;
+parameter           BOARD = 5;
+parameter           BANDSCOPE_BITS = 2'b01; // See wiki protocol page
+parameter           AK4951 = 0;
+
+localparam          TUSERWIDTH = (AK4951 == 1) ? 16 : 2;
+
 input               clk;
 input               have_ip;
 input               run;
@@ -69,11 +78,9 @@ input [23:0]        us_tdata;
 input               us_tlast;
 output              us_tready;
 input               us_tvalid;
-`ifndef AK4951
-input [ 1:0]        us_tuser;
-`else
-input [15:0]        us_tuser;  // 16bit mic(Lch) data
-`endif
+
+input [TUSERWIDTH-1:0] us_tuser;
+
 input [10:0]        us_tlength;
 
 // Command slave interface
@@ -99,11 +106,7 @@ output              usethasmi_ack;
 
 
 
-parameter           NR = 8'h0;
-parameter           VERSION_MAJOR = 8'h0;
-parameter           VERSION_MINOR = 8'h0;
-parameter           BOARD = 5;
-parameter           BANDSCOPE_BITS = 2'b01; // See wiki protocol page
+
 
 
 localparam START        = 4'h0,
@@ -153,11 +156,20 @@ logic           watchdog_up_next;
 
 logic           vna = 1'b0;
 
-`ifndef AK4951
-logic           vna_mic_bit = 1'b0, vna_mic_bit_next;
-`else
-logic   [15:0]  vna_mic_bit = 16'b0, vna_mic_bit_next;
-`endif
+logic   [TUSERWIDTH-1:0]  vna_mic = 0, vna_mic_next;
+
+logic [7:0] vna_mic_msb, vna_mic_lsb;
+
+generate
+if (AK4951 == 1) begin
+  assign vna_mic_msb = vna_mic[15:8];
+  assign vna_mic_lsb = vna ? {7'h00,vna_mic[0]} : vna_mic[7:0];
+end else begin
+  assign vna_mic_msb = 8'h00;
+  assign vna_mic_lsb = vna ? {7'h00,vna_mic[0]} : 8'h00;
+end
+endgenerate
+
 
 // Command Slave State Machine
 always @(posedge clk) begin
@@ -195,7 +207,7 @@ always @ (posedge clk) begin
 
   watchdog_up <= watchdog_up_next;
 
-  vna_mic_bit <= vna_mic_bit_next;
+  vna_mic <= vna_mic_next;
 
   if (~run) begin
     ep6_seq_no <= 20'h0;
@@ -232,7 +244,7 @@ always @* begin
 
   watchdog_up_next = watchdog_up;
 
-  vna_mic_bit_next = vna_mic_bit;
+  vna_mic_next = vna_mic;
 
   // Combinational
   udp_tx_data = udp_data;
@@ -412,11 +424,9 @@ always @* begin
       byte_no_next = byte_no - 11'd1;
       round_bytes_next = round_bytes + 7'd1;
       udp_data_next = us_tdata[23:16];
-`ifndef AK4951
-      vna_mic_bit_next = us_tuser[0]; // Save mic bit for use laster with mic data
-`else
-      vna_mic_bit_next = us_tuser; // Save mic bit for use laster with mic data
-`endif
+
+      vna_mic_next = us_tuser; // Save mic bit for use later with mic data
+
       if (|byte_no[8:0]) begin
         state_next = RXDATA1;
       end else begin
@@ -456,11 +466,7 @@ always @* begin
     MIC1: begin
       byte_no_next = byte_no - 11'd1;
       round_bytes_next = round_bytes + 7'd1;
-`ifndef AK4951
-      udp_data_next = 'd0;
-`else
-      udp_data_next = vna_mic_bit[15:8];
-`endif
+      udp_data_next = vna_mic_msb;
 
       if (|byte_no[8:0]) begin
         state_next = MIC0;
@@ -472,11 +478,7 @@ always @* begin
     MIC0: begin
       byte_no_next = byte_no - 11'd1;
       round_bytes_next = 'd0;
-`ifndef AK4951
-      udp_data_next = vna ? {7'h00,vna_mic_bit} : 8'h00; // VNA, may need to be in MIC1
-`else
-      udp_data_next = vna ? {7'h00,vna_mic_bit[0]} : vna_mic_bit[7:0]; // VNA, may need to be in MIC1
-`endif
+      udp_data_next = vna_mic_lsb;
 
       if (|byte_no[8:0]) begin
         // Enough room for another round of data?
