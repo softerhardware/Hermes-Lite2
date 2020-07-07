@@ -20,6 +20,8 @@ create_generated_clock -source {radioberry_core_i|ad9866pll_inst|altpll_componen
 
 create_generated_clock -source {radioberry_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -multiply_by 25 -divide_by 192 -duty_cycle 50.00 -name clock_10_mhz {radioberry_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|clk[3]}
 
+create_generated_clock -source {radioberry_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -divide_by 1600 -duty_cycle 50.00 -name clock_48khz {radioberry_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|clk[4]}
+
 
 derive_pll_clocks
 
@@ -32,13 +34,16 @@ set_clock_groups -asynchronous \
 						-group {	pi_tx_clk } \
 						-group {	pi_spi_sck } \
 						-group { \
-									clock_153p6_mhz rffe_ad9866_clk76p8 clock_76p8MHz clock_10_mhz \
+									clock_153p6_mhz rffe_ad9866_clk76p8 clock_76p8MHz clock_10_mhz clock_48khz \
 								}
 				
 # CLOCK						
 set_false_path -from [get_ports {pi_rx_clk}]	
 set_false_path -from [get_ports {pi_tx_clk}]
-set_false_path -from [get_ports {pi_spi_sck}]				
+set_false_path -from [get_ports {pi_spi_sck}]	
+
+set_multicycle_path -from [get_clocks {clock_10_mhz}] -to [get_clocks {clock_48khz}] -setup -start 2
+set_multicycle_path -from [get_clocks {clock_10_mhz}] -to [get_clocks {clock_48khz}] -hold -start 2		
 
 # IO
 set_false_path -from [get_ports {pi_spi_mosi}]
