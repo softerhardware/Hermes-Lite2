@@ -228,6 +228,7 @@ logic [ 7:0]    udp_rx_data;
 
 logic           network_state_dhcp, network_state_fixedip;
 logic [ 1:0]    network_speed;
+logic           phy_connected;
 
 logic [47:0]    local_mac;
 
@@ -426,6 +427,7 @@ network network_inst(
   .network_state_dhcp(network_state_dhcp),
   .network_state_fixedip(network_state_fixedip),
   .network_speed(network_speed),
+  .phy_connected(phy_connected),
 
   .PHY_TX(phy_tx),
   .PHY_TX_EN(phy_tx_en),
@@ -1056,16 +1058,17 @@ if (HL2LINK == 1) begin
   );
 
   hl2link hl2link_i (
-    .clk      (clk_ad9866      ),
-    .linkrx   (linkrx          ),
-    .linktx   (linktx          ),
-    .stall_req(stall_req       ),
-    .stall_ack(stall_ack_ad9866),
-    .rst_all  (rst_all         ),
-    .rst_nco  (rst_nco         ),
-    .cmd_addr (cmd_addr        ),
-    .cmd_data (cmd_data        ),
-    .cmd_rqst (cmd_rqst_ad9866 )
+    .clk          (clk_ad9866      ),
+    .phy_connected(phy_connected   ),
+    .linkrx       (linkrx          ),
+    .linktx       (linktx          ),
+    .stall_req    (stall_req       ),
+    .stall_ack    (stall_ack_ad9866),
+    .rst_all      (rst_all         ),
+    .rst_nco      (rst_nco         ),
+    .cmd_addr     (cmd_addr        ),
+    .cmd_data     (cmd_data        ),
+    .cmd_rqst     (cmd_rqst_ad9866 )
   );
 
   //assign io_uart_txd = rst_all | rst_nco;

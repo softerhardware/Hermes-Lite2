@@ -1,14 +1,15 @@
 
 module hl2link (
-  input               clk      ,
-  input        [ 1:0] linkrx   ,
-  output logic [ 1:0] linktx   ,
-  output              stall_req,
-  input               stall_ack,
-  output logic        rst_all  ,
-  output logic        rst_nco  ,
-  input        [ 5:0] cmd_addr ,
-  input        [31:0] cmd_data ,
+  input               clk          ,
+  input               phy_connected,
+  input        [ 1:0] linkrx       ,
+  output logic [ 1:0] linktx       ,
+  output              stall_req    ,
+  input               stall_ack    ,
+  output logic        rst_all      ,
+  output logic        rst_nco      ,
+  input        [ 5:0] cmd_addr     ,
+  input        [31:0] cmd_data     ,
   input               cmd_rqst
 );
 
