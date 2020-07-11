@@ -55,6 +55,7 @@ module network (
   output        network_state_dhcp,
   output        network_state_fixedip,
   output [1:0]  network_speed,
+  output reg    phy_connected,
 
   // phy
   output [3:0]  PHY_TX,
@@ -72,7 +73,7 @@ wire [1:0] phy_speed;
 wire phy_duplex;
 wire dhcp_success;
 wire icmp_rx_enable;
-wire phy_connected = phy_duplex && (phy_speed[1] != phy_speed[0]);
+wire phy_connected_int = phy_duplex && (phy_speed[1] != phy_speed[0]);
 
 reg speed_1gb_i = 1'b0;
 //assign dhcp_timeout = (dhcp_seconds_timer == 15);
@@ -123,7 +124,7 @@ sync sync_inst2(.clock(tx_clock), .sig_in(state <= ST_PHY_SETTLE), .sig_out(tx_r
 
 always @(negedge clock_2_5MHz)
   //if connection lost, wait until reconnects
-  if ((state > ST_PHY_CONNECT) && !phy_connected) begin
+  if ((state > ST_PHY_CONNECT) && !phy_connected_int) begin
     reg_network_state_dhcp <= 1'b1;
     reg_network_state_fixedip <= 1'b1;
     state <= ST_PHY_CONNECT;
@@ -144,7 +145,7 @@ always @(negedge clock_2_5MHz)
     //clear phy initialization request
     //wait for phy to initialize and connect
     ST_PHY_CONNECT:
-      if (phy_connected) begin
+      if (phy_connected_int) begin
         dhcp_timer <= 22'd2500000; //1 second
         state <= ST_PHY_SETTLE;
         speed_1gb_i <= phy_speed[1];
@@ -699,6 +700,8 @@ rgmii_send rgmii_send_inst (
   .PHY_TX_EN(PHY_TX_EN)
 );
 
+
+always @(negedge clock_2_5MHz) phy_connected <= phy_connected_int;
 
 //-----------------------------------------------------------------------------
 //                              debug output
