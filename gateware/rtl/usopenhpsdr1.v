@@ -63,10 +63,10 @@ input               run;
 input               wide_spectrum;
 input               idhermeslite;
 input [47:0]        mac;
-input               discovery;
+input [ 1:0]        discovery;
 
 input               udp_tx_enable;
-output              udp_tx_request;
+output [1:0]        udp_tx_request;
 output [7:0]        udp_tx_data;
 output logic [10:0] udp_tx_length = 'd0;
 
@@ -160,6 +160,9 @@ logic   [TUSERWIDTH-1:0]  vna_mic = 0, vna_mic_next;
 
 logic [7:0] vna_mic_msb, vna_mic_lsb;
 
+logic [ 1:0]    discovery_state = 2'b00;
+logic           discovery_rst;
+
 generate
 if (AK4951 == 1) begin
   assign vna_mic_msb = vna_mic[15:8];
@@ -169,6 +172,13 @@ end else begin
   assign vna_mic_lsb = vna ? {7'h00,vna_mic[0]} : 8'h00;
 end
 endgenerate
+
+// Keep discovery state so as not to miss
+always @(posedge clk) begin
+  if (discovery[1]) discovery_state <= discovery;
+  else if (discovery_rst) discovery_state <= 2'b00;
+end
+
 
 
 // Command Slave State Machine
@@ -248,13 +258,15 @@ always @* begin
 
   // Combinational
   udp_tx_data = udp_data;
-  udp_tx_request = 1'b0;
+  udp_tx_request = 2'b00;
   us_tready = 1'b0;
   bs_tready = 1'b0;
 
   usethasmi_ack = 1'b0;
 
   stall_ack = 1'b0;
+
+  discovery_rst = 1'b0;
 
   case (state)
     START: begin
@@ -263,7 +275,7 @@ always @* begin
         stall_ack = 1'b1;
         ep6_seq_no_next = 20'h0;
 
-      end else if (discovery | usethasmi_erase_done | usethasmi_send_more) begin
+      end else if (discovery_state[1] | usethasmi_erase_done | usethasmi_send_more) begin
         udp_tx_length_next = 'h3c;
         state_next = DISCOVER1;
 
@@ -282,7 +294,8 @@ always @* begin
     DISCOVER1: begin
       byte_no_next = 'h3a;
       udp_tx_data = discover_data;
-      udp_tx_request = 1'b1;
+      udp_tx_request = discovery_state;
+      discovery_rst = 1'b1;
       discover_data_next = 8'hef;
       if (udp_tx_enable) state_next = DISCOVER2;
     end // DISCOVER1:
@@ -331,7 +344,7 @@ always @* begin
     WIDE1: begin
       byte_no_next = 'h406;
       udp_tx_data = wide_data;
-      udp_tx_request = 1'b1;
+      udp_tx_request = 2'b10;
       wide_data_next = 8'hef;
       if (udp_tx_enable) state_next = WIDE2;
     end
@@ -376,7 +389,7 @@ always @* begin
 
     UDP1: begin
       byte_no_next = 'h406;
-      udp_tx_request = 1'b1;
+      udp_tx_request = 2'b10;
       udp_data_next = 8'hef;
       if (udp_tx_enable) state_next = UDP2;
     end

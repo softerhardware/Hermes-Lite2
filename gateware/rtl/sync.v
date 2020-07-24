@@ -84,3 +84,23 @@ assign sig_out = ~sync_chain[0] & sync_chain[1];
 
 endmodule
 
+
+
+
+module sync_handshake (
+  input clk_indomain,
+  input clk_outdomain,
+  input sig_in,
+  output sig_out
+);
+
+
+(*preserve*) reg indomain;
+(*preserve*) reg outdomain;
+
+always @(posedge clk_indomain) indomain <= sig_in;
+always @(posedge clk_outdomain) outdomain <= indomain;
+assign sig_out = outdomain;
+
+
+endmodule
