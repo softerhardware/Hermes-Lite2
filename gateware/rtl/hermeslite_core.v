@@ -140,6 +140,10 @@ logic   [31:0]  cmd_data;
 logic           cmd_cnt;
 logic           cmd_requires_resp;
 
+logic   [5:0]   ds_cmd_addr;
+logic   [31:0]  ds_cmd_data;
+logic           ds_cmd_cnt;
+
 logic           tx_on, tx_on_iosync;
 logic           cw_on, cw_on_iosync;
 logic           cw_keydown, cw_keydown_ad9866sync;
@@ -178,11 +182,6 @@ logic  [TUSERWIDTH-1:0]   usiq_tuser;
 
 logic  [10:0]   usiq_tlength;
 
-logic           response_inp_tready;
-logic   [37:0]  response_out_tdata;
-logic           response_out_tvalid;
-logic           response_out_tready;
-
 logic           bs_tvalid;
 logic           bs_tready;
 logic [11:0]    bs_tdata;
@@ -212,11 +211,11 @@ logic           ad9866_rst;
 
 logic           run, run_sync, run_iosync, run_ad9866sync;
 logic           wide_spectrum, wide_spectrum_sync;
-logic           discovery_reply, discovery_reply_sync;
+logic [1:0]     discovery_reply, discovery_reply_sync;
 
 logic           dst_unreachable;
 
-logic           udp_tx_request;
+logic [ 1:0]    udp_tx_request;
 logic [ 7:0]    udp_tx_data;
 logic [10:0]    udp_tx_length;
 logic           udp_tx_enable;
@@ -472,9 +471,9 @@ dsopenhpsdr1 dsopenhpsdr1_i (
 
   .msec_pulse(msec_pulse_ethsync),
 
-  .cmd_addr(cmd_addr),
-  .cmd_data(cmd_data),
-  .cmd_cnt(cmd_cnt),
+  .cmd_addr(ds_cmd_addr),
+  .cmd_data(ds_cmd_data),
+  .cmd_cnt(ds_cmd_cnt),
   .cmd_resprqst(cmd_requires_resp),
 
   .dseth_tdata(dseth_tdata),
@@ -569,7 +568,8 @@ endgenerate
 ///////////////////////////////////////////////
 // Upstream ethtxint clock domain
 
-sync sync_inst1(.clock(clock_ethtxint), .sig_in(discovery_reply), .sig_out(discovery_reply_sync));
+cdc_sync #(2) sync_inst1 (.siga(discovery_reply), .rstb(1'b0), .clkb(clock_ethtxint), .sigb(discovery_reply_sync));
+//sync sync_inst1(.clock(clock_ethtxint), .sig_in(discovery_reply), .sig_out(discovery_reply_sync));
 sync sync_inst2(.clock(clock_ethtxint), .sig_in(run), .sig_out(run_sync));
 sync sync_inst3(.clock(clock_ethtxint), .sig_in(wide_spectrum), .sig_out(wide_spectrum_sync));
 
@@ -1058,17 +1058,20 @@ if (HL2LINK == 1) begin
   );
 
   hl2link hl2link_i (
-    .clk          (clk_ad9866      ),
-    .phy_connected(phy_connected   ),
-    .linkrx       (linkrx          ),
-    .linktx       (linktx          ),
-    .stall_req    (stall_req       ),
-    .stall_ack    (stall_ack_ad9866),
-    .rst_all      (rst_all         ),
-    .rst_nco      (rst_nco         ),
-    .cmd_addr     (cmd_addr        ),
-    .cmd_data     (cmd_data        ),
-    .cmd_rqst     (cmd_rqst_ad9866 )
+    .clk          (clk_ad9866        ),
+    .phy_connected(phy_connected     ),
+    .linkrx       (linkrx            ),
+    .linktx       (linktx            ),
+    .stall_req    (stall_req         ),
+    .stall_ack    (stall_ack_ad9866  ),
+    .rst_all      (rst_all           ),
+    .rst_nco      (rst_nco           ),
+    .ds_cmd_addr  (ds_cmd_addr       ),
+    .ds_cmd_data  (ds_cmd_data       ),
+    .ds_cmd_rqst  (ds_cmd_rqst_ad9866),
+    .cmd_addr     (cmd_addr          ),
+    .cmd_data     (cmd_data          ),
+    .cmd_rqst     (cmd_cnt           )
   );
 
   //assign io_uart_txd = rst_all | rst_nco;
@@ -1080,6 +1083,10 @@ end else begin
   assign stall_req_sync = 1'b0;
   assign rst_all = 1'b0;
   assign rst_nco = 1'b0;
+
+  assign cmd_addr = ds_cmd_addr;
+  assign cmd_data = ds_cmd_data;
+  assign cmd_cnt  = ds_cmd_cnt;
 end
 
 endgenerate

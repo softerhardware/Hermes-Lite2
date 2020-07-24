@@ -42,7 +42,7 @@ input               eth_broadcast;
 input               eth_valid;
 input   [ 7:0]      eth_data;
 input               eth_unreachable;
-output              eth_metis_discovery;
+output  [ 1:0]      eth_metis_discovery;
 
 output logic        run = 1'b0;
 output logic        wide_spectrum = 1'b0;
@@ -187,7 +187,7 @@ always @* begin
   cwx_saved_next = cwx_saved;
 
   // Combinational output
-  eth_metis_discovery = 1'b0;
+  eth_metis_discovery = 2'b00;
   dsethiq_tvalid = 1'b0;
   dsethlr_tvalid = 1'b0;
   watchdog_clr   = 1'b0;
@@ -203,11 +203,11 @@ always @* begin
   case (state)
     START: begin
       //framecnt_next = 1'b0;
-      if ((eth_data == 8'hef) & (eth_port == 1024)) state_next = PREAMBLE;
+      if ((eth_data == 8'hef) & (eth_port[15:1] == 512)) state_next = PREAMBLE;
     end
 
     PREAMBLE: begin
-      if ((eth_data == 8'hfe) & (eth_port == 1024)) state_next = DECODE;
+      if ((eth_data == 8'hfe) & (eth_port[15:1] == 512)) state_next = DECODE;
     end
 
     DECODE: begin
@@ -223,7 +223,7 @@ always @* begin
     end
 
     DISCOVERY: begin
-      eth_metis_discovery = 1'b1;
+      eth_metis_discovery = {1'b1,eth_port[0]};
     end
 
     ASMI_DECODE: begin
