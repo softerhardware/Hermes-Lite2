@@ -374,19 +374,29 @@ reg [47:0] run_destination_mac;
 wire ip_tx_enable = icmp_tx_active || udp_tx_active;
 wire [7:0] ip_tx_data_in = tx_is_icmp? icmp_data : udp_data;
 wire [15:0] ip_tx_length = tx_is_icmp? icmp_length : udp_length;
-wire [31:0] destination_ip = tx_is_icmp ? icmp_destination_ip : (tx_is_dhcp ? dhcp_destination_ip : (tx_is_udp1 ? udp_destination_ip_sync : run_destination_ip)); //);
+
+//reg [31:0] destination_ip;
+//always @(posedge tx_clock) destination_ip <=
+wire [31:0] destination_ip = tx_is_icmp ? icmp_destination_ip :
+  (tx_is_dhcp ? dhcp_destination_ip :
+    (tx_is_udp1 ? udp_destination_ip_sync :
+      run_destination_ip));
 
 //ip_send out
 wire [7:0] ip_tx_data;
 wire ip_tx_active;
 
 //mac_send in
-wire mac_tx_enable = arp_tx_active || ip_tx_active;
-wire [7:0] mac_tx_data_in = tx_is_arp? arp_tx_data : ip_tx_data;
+wire        mac_tx_enable   = arp_tx_active || ip_tx_active      ;
+wire [ 7:0] mac_tx_data_in  = tx_is_arp? arp_tx_data : ip_tx_data;
+
+//reg  [47:0] destination_mac                                      ;
+//always @(posedge tx_clock) destination_mac <= 
 wire [47:0] destination_mac = tx_is_arp  ? arp_destination_mac  :
-     tx_is_icmp ? icmp_destination_mac :
-     tx_is_dhcp ? dhcp_destination_mac :
-     tx_is_udp1 ? udp_destination_mac_sync : run_destination_mac;
+  tx_is_icmp ? icmp_destination_mac :
+    tx_is_dhcp ? dhcp_destination_mac :
+      tx_is_udp1 ? udp_destination_mac_sync : run_destination_mac;
+
 //mac_send out
 wire [7:0] mac_tx_data;
 wire mac_tx_active;
@@ -409,16 +419,12 @@ wire [7:0] dhcp_udp_tx_data          = tx_is_dhcp ? dhcp_tx_data          : udp_
 wire [15:0]local_port                = tx_is_dhcp ? 16'd68                : {15'd512,tx_is_udp1};
 
 
+//reg [15:0] dhcp_udp_destination_port;
+//always @(posedge tx_clock) dhcp_udp_destination_port <= 
+wire [15:0] dhcp_udp_destination_port = tx_is_dhcp ? dhcp_destination_port :
+  (tx_is_udp1 ? udp_destination_port_sync :
+    run_destination_port);
 
-// Hold destination port once run is set
-always @(posedge tx_clock)
-  if (!run) begin
-    run_destination_port <= udp_destination_port_sync;
-    run_destination_ip <= udp_destination_ip_sync;
-    run_destination_mac <= udp_destination_mac_sync;
-  end
-
-wire [15:0]dhcp_udp_destination_port = tx_is_dhcp ? dhcp_destination_port : (tx_is_udp1 ? udp_destination_port_sync : run_destination_port);
 wire dhcp_rx_active;
 wire mac_rx_active;
 
@@ -458,6 +464,13 @@ always @(posedge tx_clock)
 //-----------------------------------------------------------------------------
 //                               receive
 //-----------------------------------------------------------------------------
+
+
+wire [15:0] udp_destination_port ;
+wire [47:0] udp_destination_mac  ;
+wire [31:0] udp_destination_ip   ;
+wire        udp_destination_valid;
+
 
 always @(posedge rx_clock) begin
   rx_data <= rx_data_pipe;
@@ -504,23 +517,23 @@ ip_recv ip_recv_inst (
 
 udp_recv udp_recv_inst (
   //in
-  .clock               (rx_clock            ),
-  .run                 (run                 ),
-  .rx_enable           (udp_rx_enable       ),
-  .data                (rx_data             ),
-  .to_ip               (to_ip               ),
-  .local_ip            (local_ip            ),
-  .broadcast           (broadcast           ),
-  .remote_mac          (remote_mac          ),
-  .remote_ip           (remote_ip           ),
-
+  .clock                (rx_clock             ),
+  .run                  (run                  ),
+  .rx_enable            (udp_rx_enable        ),
+  .data                 (rx_data              ),
+  .to_ip                (to_ip                ),
+  .local_ip             (local_ip             ),
+  .broadcast            (broadcast            ),
+  .remote_mac           (remote_mac           ),
+  .remote_ip            (remote_ip            ),
   //out
-  .active              (udp_rx_active       ),
-  .dhcp_active         (dhcp_rx_active      ),
-  .to_port             (to_port             ),
-  .udp_destination_ip  (udp_destination_ip  ),
-  .udp_destination_mac (udp_destination_mac ),
-  .udp_destination_port(udp_destination_port)
+  .active               (udp_rx_active        ),
+  .dhcp_active          (dhcp_rx_active       ),
+  .to_port              (to_port              ),
+  .udp_destination_ip   (udp_destination_ip   ),
+  .udp_destination_mac  (udp_destination_mac  ),
+  .udp_destination_port (udp_destination_port ),
+  .udp_destination_valid(udp_destination_valid)
 );
 
 //-----------------------------------------------------------------------------
@@ -622,20 +635,35 @@ dhcp dhcp_inst (
 //-----------------------------------------------------------------------------
 //                                rx to tx clock domain transfers
 //-----------------------------------------------------------------------------
-wire [47:0] remote_mac_sync          ;
-wire [31:0] remote_ip_sync           ;
-wire [15:0] udp_destination_port     ;
-wire [15:0] udp_destination_port_sync;
-wire [47:0] udp_destination_mac      ;
-wire [47:0] udp_destination_mac_sync ;
-wire [31:0] udp_destination_ip       ;
-wire [31:0] udp_destination_ip_sync  ;
+wire [47:0] remote_mac_sync           ;
+wire [31:0] remote_ip_sync            ;
+reg  [15:0] udp_destination_port_sync ;
+reg  [47:0] udp_destination_mac_sync  ;
+reg  [31:0] udp_destination_ip_sync   ;
+wire        udp_destination_valid_sync;
 
-cdc_sync #(48)cdc_sync_inst1 (.siga(remote_mac), .rstb(1'b0), .clkb(tx_clock), .sigb(remote_mac_sync));
+cdc_sync #(48) cdc_sync_inst1 (.siga(remote_mac), .rstb(1'b0), .clkb(tx_clock), .sigb(remote_mac_sync));
 cdc_sync #(32) cdc_sync_inst2 (.siga(remote_ip), .rstb(1'b0), .clkb(tx_clock), .sigb(remote_ip_sync));
-cdc_sync #(32) cdc_sync_inst7 (.siga(udp_destination_ip), .rstb(1'b0), .clkb(tx_clock), .sigb(udp_destination_ip_sync));
-cdc_sync #(48) cdc_sync_inst8 (.siga(udp_destination_mac), .rstb(1'b0), .clkb(tx_clock), .sigb(udp_destination_mac_sync));
-cdc_sync #(16) cdc_sync_inst9 (.siga(udp_destination_port), .rstb(1'b0), .clkb(tx_clock), .sigb(udp_destination_port_sync));
+
+
+sync_pulse udp_destination_sync (.clock(tx_clock), .sig_in(udp_destination_valid), .sig_out(udp_destination_valid_sync));
+
+always @(posedge tx_clock) begin
+  if (udp_destination_valid_sync) begin
+    udp_destination_ip_sync   <= udp_destination_ip;
+    udp_destination_mac_sync  <= udp_destination_mac;
+    udp_destination_port_sync <= udp_destination_port;
+  end
+end
+
+// Hold destination port once run is set
+always @(posedge tx_clock)
+  if (!run) begin
+    run_destination_port <= udp_destination_port_sync;
+    run_destination_ip <= udp_destination_ip_sync;
+    run_destination_mac <= udp_destination_mac_sync;
+  end
+
 
 
 //-----------------------------------------------------------------------------

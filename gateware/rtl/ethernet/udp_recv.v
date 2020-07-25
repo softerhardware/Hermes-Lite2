@@ -20,37 +20,42 @@
 
 //  Metis code copyright 2010, 2011, 2012, 2013, 2014 Phil Harman VK6(A)PH, Alex Shovkoplyas, VE3NEA.
 
-module udp_recv(
+module udp_recv (
   //input data stream
-  input clock,
-  input run,
-  input rx_enable,
-  input [7:0] data,
-  input [31:0] to_ip,
-  input broadcast,
-  input [47:0] remote_mac,
-  input [31:0] remote_ip,
-
+  input             clock               ,
+  input             run                 ,
+  input             rx_enable           ,
+  input      [ 7:0] data                ,
+  input      [31:0] to_ip               ,
+  input             broadcast           ,
+  input      [47:0] remote_mac          ,
+  input      [31:0] remote_ip           ,
   //constant input parameter
-  input [31:0] local_ip,
-
+  input      [31:0] local_ip            ,
   //output
-  output active,
-  output dhcp_active,
-  output reg [15:0] to_port,          // port that data is being sent to.
-  output reg [31:0] udp_destination_ip,
-  output reg [47:0] udp_destination_mac,
-  output reg [15:0] udp_destination_port
-  );
+  output            active              ,
+  output            dhcp_active         ,
+  output reg [15:0] to_port             , // port that data is being sent to.
+  output     [31:0] udp_destination_ip  ,
+  output     [47:0] udp_destination_mac ,
+  output     [15:0] udp_destination_port,
+  output            udp_destination_valid
+);
 
 localparam IDLE = 4'd1, PORT = 4'd2, VERIFY = 4'd3, ST_PAYLOAD = 4'd4, ST_DONE = 4'd5;
 reg[3:0] state;
 reg [10:0] header_len, packet_len, byte_no;
-reg dhcp_data;
+reg        dhcp_data  ;
 reg [15:0] remote_port;
+reg        destination_valid = 1'b0;
 
 assign active      = rx_enable & (state == ST_PAYLOAD) & !dhcp_data;
 assign dhcp_active = rx_enable & (state == ST_PAYLOAD) & dhcp_data;
+
+assign udp_destination_ip    = remote_ip;
+assign udp_destination_mac   = remote_mac;
+assign udp_destination_port  = remote_port;
+assign udp_destination_valid = destination_valid;
 
 always @(posedge clock)
   if (rx_enable)
@@ -88,15 +93,13 @@ always @(posedge clock)
               packet_len[10:8] <= data[2:0];
             end
 
-            6: packet_len[7:0] <= data;
+            6: begin
+              packet_len[7:0] <= data;
+              destination_valid <= ~destination_valid;
+            end
 
             // skip the checksum then signal we have a udp packet available,save destination IP, MAC and port
             8: begin
-              if (!run | to_port[0]) begin
-                udp_destination_ip   <= remote_ip;
-                udp_destination_mac  <= remote_mac;
-                udp_destination_port <= remote_port;
-              end
               state <= ST_PAYLOAD;
             end
 
