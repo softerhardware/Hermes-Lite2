@@ -202,7 +202,7 @@ set_false_path -to [get_ports {io_led_*}]
 
 #set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_lvds_*}]
 #set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_lvds_*}]
-set_false_path -from [get_ports {io_lvds_*}]
+#set_false_path -from [get_ports {io_lvds_*}]
 
 #set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_cn*}]
 #set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_cn*}]
@@ -253,8 +253,12 @@ set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|networ
 set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|tx_protocol*}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
 set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|tx_protocol*}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 2
 
-set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|cdc_sync:cdc_sync_inst7|sigb[*]}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 2
-set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|cdc_sync:cdc_sync_inst7|sigb[*]}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 1
+#set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|cdc_sync:cdc_sync_inst7|sigb[*]}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 2
+#set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|cdc_sync:cdc_sync_inst7|sigb[*]}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 1
+
+set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|udp_destination_ip_sync[*]}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 2
+set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|udp_destination_ip_sync[*]}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 1
+
 
 set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|run_destination_ip[*]}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 2
 set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|run_destination_ip[*]}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 1
