@@ -22,26 +22,25 @@
 
 
 module rgmii_send (
-  input [7:0] data,
-  input tx_enable,
-  output active,
-  input clock,
-
+  input  [7:0] data     ,
+  input        tx_enable,
+  output       active   ,
+  input        clock    ,
   //hardware pins
-  output [3:0]PHY_TX,
-  output PHY_TX_EN
-  );
+  output [3:0] PHY_TX   ,
+  output       PHY_TX_EN
+);
 
 
 
 //-----------------------------------------------------------------------------
 //                            shift reg
 //-----------------------------------------------------------------------------
-localparam PREAMBLE_BYTES = 64'h55555555555555D5;
-localparam PREAMB_LEN = 4'd8;
-localparam HI_BIT = 8*PREAMB_LEN - 1;
-reg [HI_BIT:0] shift_reg;
-reg [3:0] bytes_left;
+localparam     PREAMBLE_BYTES = 64'h55555555555555D5;
+localparam     PREAMB_LEN     = 4'd8                ;
+localparam     HI_BIT         = 8*PREAMB_LEN - 1    ;
+reg [HI_BIT:0] shift_reg                            ;
+reg [     3:0] bytes_left                           ;
 
 
 
@@ -52,7 +51,7 @@ reg [3:0] bytes_left;
 //                           state machine
 //-----------------------------------------------------------------------------
 localparam ST_IDLE = 1, ST_SEND = 2, ST_GAP = 4;
-reg [2:0] state = ST_IDLE;
+reg [2:0]  state   = ST_IDLE                   ;
 
 
 wire sending = tx_enable | (state == ST_SEND);
@@ -61,44 +60,36 @@ assign active = sending | (state == ST_GAP);
 
 always @(posedge clock)
   begin
-  if (sending) shift_reg <= {shift_reg[HI_BIT-8:0], data};
-  else shift_reg <= PREAMBLE_BYTES;
+    if (sending) shift_reg <= {shift_reg[HI_BIT-8:0], data};
+    else shift_reg <= PREAMBLE_BYTES;
 
-  case (state)
-    ST_IDLE:
-      //receiving the first payload byte
-      if (tx_enable) state <= ST_SEND;
+    case (state)
+      ST_IDLE :
+        //receiving the first payload byte
+        if (tx_enable) state <= ST_SEND;
 
-    ST_SEND:
-      //receiving payload data
-      if (tx_enable) bytes_left <= PREAMB_LEN - 4'd1;
-      //purging shift register
-      else if (bytes_left != 0) bytes_left <= bytes_left - 4'd1;
-      //starting inter-frame gap
-      else begin bytes_left <= 4'd12; state <= ST_GAP; end
+      ST_SEND :
+        //receiving payload data
+        if (tx_enable) bytes_left <= PREAMB_LEN - 4'd1;
+        //purging shift register
+        else if (bytes_left != 0) bytes_left <= bytes_left - 4'd1;
+        //starting inter-frame gap
+        else begin bytes_left <= 4'd12; state <= ST_GAP; end
 
-    ST_GAP:
-      if (bytes_left != 0) bytes_left <= bytes_left - 4'd1;
-      else state <= ST_IDLE;
+      ST_GAP :
+        if (bytes_left != 0) bytes_left <= bytes_left - 4'd1;
+        else state <= ST_IDLE;
     endcase
   end
-
-
-
-
-
 
 //-----------------------------------------------------------------------------
 //                             output
 //-----------------------------------------------------------------------------
-ddio_out	ddio_out_inst (
-	.datain_h({sending, shift_reg[HI_BIT-4 -: 4]}),
-	.datain_l({sending, shift_reg[HI_BIT -: 4]}),
-	.outclock(clock),
-	.dataout({PHY_TX_EN, PHY_TX})
-	);
-
-
-
+ddio_out ddio_out_inst (
+  .datain_h({sending, shift_reg[HI_BIT-4 -: 4]}),
+  .datain_l({sending, shift_reg[HI_BIT -: 4]}  ),
+  .outclock(clock                              ),
+  .dataout ({PHY_TX_EN, PHY_TX}                )
+);
 
 endmodule
