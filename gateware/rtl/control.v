@@ -1,223 +1,96 @@
 
-module control(
+module control (
   // Internal
-  clk,
-  clk_ad9866,
-  clk_125,
-  clk_slow,
-
-  ethup,
-  have_dhcp_ip,
-  have_fixed_ip,
-  network_speed,
-  ad9866up,
-
-  rxclip,
-  rxgoodlvl,
-  rxclrstatus,
-  run,
-
-  dsiq_status,
-  dsiq_sample,
-
-  cmd_addr,
-  cmd_data,
-  cmd_rqst,
-  cmd_requires_resp,
-
-  atu_txinhibit,
-  tx_on,
-  cw_on,
-  cw_keydown,
-
-  msec_pulse,
-  qmsec_pulse,
-
-  resp_rqst,
-  resp,
-
-  static_ip,
-  alt_mac,
-  eeprom_config,
-
+  input                      clk                ,
+  input                      clk_ad9866         ,
+  input                      clk_125            ,
+  input                      clk_slow           ,
+  input                      ethup              ,
+  input                      have_dhcp_ip       ,
+  input                      have_fixed_ip      ,
+  input               [ 1:0] network_speed      ,
+  input                      ad9866up           ,
+  input                      rxclip             ,
+  input                      rxgoodlvl          ,
+  output logic               rxclrstatus          = 1'b0,
+  input                      run                ,
+  input               [ 7:0] dsiq_status        ,
+  output logic               dsiq_sample          = 1'b0,
+  input               [ 5:0] cmd_addr           ,
+  input               [31:0] cmd_data           ,
+  input                      cmd_rqst           ,
+  input                      cmd_requires_resp  ,
+  output                     atu_txinhibit      ,
+  input                      tx_on              ,
+  input                      cw_on              ,
+  output                     cw_keydown         ,
+  output logic               msec_pulse           = 1'b0,
+  output logic               qmsec_pulse          = 1'b0,
+  input                      resp_rqst          ,
+  output              [39:0] resp               ,
+  output              [31:0] static_ip          ,
+  output              [15:0] alt_mac            ,
+  output              [ 7:0] eeprom_config      ,
   // External
-  rffe_rfsw_sel,
-
-  rffe_ad9866_rst_n,
-  rffe_ad9866_sdio,
-  rffe_ad9866_sclk,
-  rffe_ad9866_sen_n,
-
+  output                     rffe_rfsw_sel      ,
+  output                     rffe_ad9866_rst_n  ,
+  output                     rffe_ad9866_sdio   ,
+  output                     rffe_ad9866_sclk   ,
+  output                     rffe_ad9866_sen_n  ,
+  input        signed [15:0] debug              ,
   // Power
-  pwr_clk3p3,
-  pwr_clk1p2,
-  pwr_envpa,
-  pwr_envop,
-  pwr_envbias,
-
-  sda1_i,
-  sda1_o,
-  sda1_t,
-  scl1_i,
-  scl1_o,
-  scl1_t,
-
-  sda2_i,
-  sda2_o,
-  sda2_t,
-  scl2_i,
-  scl2_o,
-  scl2_t,
-
-  sda3_i,
-  sda3_o,
-  sda3_t,
-  scl3_i,
-  scl3_o,
-  scl3_t,
-
+  output logic               pwr_clk3p3           = 1'b0,
+  output logic               pwr_clk1p2           = 1'b0,
+  output                     pwr_envpa          ,
+  output                     pwr_envop          ,
+  output                     pwr_envbias        ,
+  input                      sda1_i             ,
+  output                     sda1_o             ,
+  output                     sda1_t             ,
+  input                      scl1_i             ,
+  output                     scl1_o             ,
+  output                     scl1_t             ,
+  input                      sda2_i             ,
+  output                     sda2_o             ,
+  output                     sda2_t             ,
+  input                      scl2_i             ,
+  output                     scl2_o             ,
+  output                     scl2_t             ,
+  input                      sda3_i             ,
+  output                     sda3_o             ,
+  output                     sda3_t             ,
+  input                      scl3_i             ,
+  output                     scl3_o             ,
+  output                     scl3_t             ,
   // IO
-  io_led_run,
-  io_led_tx,
-  io_led_adc75,
-  io_led_adc100,
-
-  io_tx_inhibit,
-
-  io_uart_txd,
-
-  io_cw_keydown,
-
-  io_phone_tip,   // BETA2,BETA3: io_cn4_2
-  io_phone_ring,  // BETA2,BETA3: io_cn4_3
-
-  io_atu_ack,
-  io_atu_req,
-
+  output                     io_led_run         ,
+  output                     io_led_tx          ,
+  output                     io_led_adc75       ,
+  output                     io_led_adc100      ,
+  input                      io_tx_inhibit      ,
+  output                     io_uart_txd        ,
+  output                     io_cw_keydown      ,
+  input                      io_phone_tip       ,
+  input                      io_phone_ring      ,
+  input                      io_atu_ack         ,
+  output                     io_atu_req         ,
   // PA
-  pa_inttr,
-  pa_exttr,
-
-  hl2_reset,
-
-  fan_pwm,
-
-  ad9866_rst,
-
-  io_ptt_in,
-  clk_i2c_rst,
-
-  debug
-
+  output                     pa_inttr           ,
+  output                     pa_exttr           ,
+  output                     hl2_reset          ,
+  output                     fan_pwm            ,
+  output                     ad9866_rst         ,
+  input                      io_ptt_in          ,
+  output                     clk_i2c_rst        ,
+  output              [ 5:0] control_resp_addr  ,
+  output              [31:0] resp_data          ,
+  output              [ 7:0] resp_control       ,
+  output              [11:0] temp               ,
+  output              [11:0] fwdpwr             ,
+  output              [11:0] revpwr             ,
+  output              [11:0] bias               ,
+  output              [ 7:0] control_dsiq_status
 );
-
-// Internal
-input           clk;
-input           clk_ad9866;
-input           clk_125;
-input           clk_slow;
-
-input           ethup;
-input           have_dhcp_ip;
-input           have_fixed_ip;
-input  [1:0]    network_speed;
-input           ad9866up;
-
-input           rxclip;
-input           rxgoodlvl;
-output logic    rxclrstatus = 1'b0;
-input           run;
-
-input [7:0]     dsiq_status;
-output logic    dsiq_sample = 1'b0;
-
-input  [5:0]    cmd_addr;
-input  [31:0]   cmd_data;
-input           cmd_rqst;
-input           cmd_requires_resp;
-
-output          atu_txinhibit;
-input           tx_on;
-input           cw_on;
-output          cw_keydown;
-
-output logic    msec_pulse = 1'b0;
-output logic    qmsec_pulse = 1'b0;
-
-input           resp_rqst;
-output [39:0]   resp;
-
-output [31:0]   static_ip;
-output [15:0]   alt_mac;
-output [ 7:0]   eeprom_config;
-
-// External
-output          rffe_rfsw_sel;
-
-output          rffe_ad9866_rst_n;
-
-output          rffe_ad9866_sdio;
-output          rffe_ad9866_sclk;
-output          rffe_ad9866_sen_n;
-
-input signed [15:0] debug;
-
-// Power
-output logic    pwr_clk3p3 = 1'b0;
-output logic    pwr_clk1p2 = 1'b0;
-output          pwr_envpa;
-output          pwr_envop;
-output          pwr_envbias;
-
-input           sda1_i;
-output          sda1_o;
-output          sda1_t;
-input           scl1_i;
-output          scl1_o;
-output          scl1_t;
-
-input           sda2_i;
-output          sda2_o;
-output          sda2_t;
-input           scl2_i;
-output          scl2_o;
-output          scl2_t;
-
-input           sda3_i;
-output          sda3_o;
-output          sda3_t;
-input           scl3_i;
-output          scl3_o;
-output          scl3_t;
-
-// IO
-output          io_led_run;
-output          io_led_tx;
-output          io_led_adc75;
-output          io_led_adc100;
-
-input           io_tx_inhibit;
-
-output          io_uart_txd;
-output          io_cw_keydown;
-input           io_phone_tip;
-input           io_phone_ring;
-
-input           io_atu_ack;
-output          io_atu_req;
-
-// PA
-output          pa_inttr;
-output          pa_exttr;
-
-output          hl2_reset;
-
-output          fan_pwm;
-
-output          ad9866_rst;
-
-input           io_ptt_in;
-output          clk_i2c_rst;
 
 parameter     VERSION_MAJOR = 8'h0;
 parameter     UART = 0;
@@ -227,6 +100,7 @@ parameter     PSSYNC = 0;
 parameter     CW = 0;
 parameter     FAST_LNA = 0;
 parameter     AK4951 = 0;
+parameter     EXTENDED_RESP = 0;
 
 
 logic         vna = 1'b0;                    // Selects vna mode when set.
@@ -259,7 +133,6 @@ logic [1:0]   millisec_count, millisec_count_next;
 logic         ext_txinhibit, ext_cwkey, ext_ptt;
 
 logic         slow_adc_rst;
-logic         clk_i2c_rst;
 logic         clk_i2c_start;
 
 logic [15:0]  resetcounter = 16'h0000;
@@ -278,9 +151,6 @@ localparam RESP_START   = 2'b00,
            RESP_WAIT    = 2'b10;
 
 logic [1:0]   resp_state = RESP_START, resp_state_next;
-
-
-logic         cw_keydown;
 
 logic         ptt_resp = 1'b0;
 
@@ -852,5 +722,33 @@ generate
 
   endcase
 endgenerate
+
+
+generate
+  case (EXTENDED_RESP)
+    0: begin: EXTENDED_RESP_NONE
+      assign control_resp_addr   = 6'h0;
+      assign resp_data           = 32'h00;
+      assign resp_control        = 8'h00;
+      assign temperature         = 12'h000;
+      assign fwdpwr              = 12'h000;
+      assign revpwr              = 12'h000;
+      assign bias                = 12'h000;
+      assign control_dsiq_status = 8'h00;
+    end
+
+    // There are CDCs here, but we assume the data is stable ahead of time and not critical
+    1: begin: EXTENDED_RESP_1025
+      assign control_resp_addr   = resp_cmd_addr;
+      assign resp_data           = resp_cmd_data;
+      assign resp_control        = {ext_cwkey, ptt_resp, 4'b0000, clip_cnt};
+      assign temp                = temperature;
+      assign fwdpwr              = fwd_pwr;
+      assign revpwr              = rev_pwr;
+      assign bias                = bias_current;
+      assign control_dsiq_status = dsiq_status;
+    end
+    endcase
+    endgenerate
 
 endmodule

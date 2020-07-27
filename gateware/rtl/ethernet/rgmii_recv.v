@@ -21,6 +21,7 @@ module rgmii_recv (
   //input  PHY_RX_CLOCK
 );
 
+parameter SIM = 0;
 
 //-----------------------------------------------------------------------------
 //Altera application note AN 477: Designing RGMII Interfaces with FPGAs and HardCopy ASICs
@@ -41,12 +42,20 @@ wire       rxdv_wire, error;
 wire [7:0] data_wire;
 
 
-ddio_in ddio_in_inst (
-  .datain   ({PHY_DV, PHY_RX}           ),
-  .inclock  (clock                      ),
-  .dataout_l({rxdv_wire, data_wire[3:0]}),
-  .dataout_h({error, data_wire[7:4]}    )
-);
+generate
+  if (SIM==1) begin
+    assign rxdv_wire = 1'b0;
+    assign error = 1'b0;
+    assign data_wire = 8'h00;
+  end else begin
+    ddio_in ddio_in_inst (
+      .datain   ({PHY_DV, PHY_RX}           ),
+      .inclock  (clock                      ),
+      .dataout_l({rxdv_wire, data_wire[3:0]}),
+      .dataout_h({error, data_wire[7:4]}    )
+    );
+  end
+endgenerate
 
 
 
