@@ -37,7 +37,8 @@ module mac_recv (
   output            active    ,
   output reg        broadcast ,
   output reg        is_arp    ,
-  output reg [47:0] remote_mac
+  output     [47:0] remote_mac,
+  output            remote_mac_valid
 );
 
 
@@ -50,11 +51,15 @@ reg[4:0] state;
 reg [ 2:0] byte_no        ;
 reg        unicast        ;
 reg [47:0] temp_remote_mac;
+reg        temp_remote_mac_valid = 1'b0;
 
 localparam HI_MAC_BYTE = 3'd5, HI_PROTO_BYTE = 3'd1;
 localparam false       = 1'b0, true = 1'b1         ;
 
 assign active = rx_enable & (state == ST_PAYLOAD);
+
+assign remote_mac = temp_remote_mac;
+assign remote_mac_valid = temp_remote_mac_valid;
 
 
 always @(posedge clock)
@@ -89,12 +94,12 @@ always @(posedge clock)
           else byte_no <= byte_no - 3'd1;
           else if (data == 8'h06) begin
             is_arp <= true;
-            remote_mac <= temp_remote_mac;  // only update mac if protocol valid
+            temp_remote_mac_valid <= ~temp_remote_mac_valid;  // only update mac if protocol valid
             state <= ST_PAYLOAD;
           end
           else if (data == 8'h00) begin
             is_arp <= false;
-            remote_mac <= temp_remote_mac;  // only update mac if protocol vaild
+            temp_remote_mac_valid <= ~temp_remote_mac_valid;  // only update mac if protocol vaild
             state <= ST_PAYLOAD;
           end
           else state <= ST_ERROR;

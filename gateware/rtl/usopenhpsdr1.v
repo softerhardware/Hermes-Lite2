@@ -45,7 +45,16 @@ module usopenhpsdr1 (
 
   usethasmi_send_more,
   usethasmi_erase_done,
-  usethasmi_ack
+  usethasmi_ack,
+
+  resp_addr,
+  resp_data,
+  resp_control,
+  temperature,
+  fwdpwr,
+  revpwr,
+  bias,
+  dsiq_status
 );
 
 parameter           NR = 8'h0;
@@ -105,8 +114,14 @@ input               usethasmi_erase_done;
 output              usethasmi_ack;
 
 
-
-
+input   [ 5:0]      resp_addr;
+input   [31:0]      resp_data;
+input   [ 7:0]      resp_control;
+input   [11:0]      temperature;
+input   [11:0]      fwdpwr;
+input   [11:0]      revpwr;
+input   [11:0]      bias;
+input   [ 7:0]      dsiq_status;
 
 
 localparam START        = 4'h0,
@@ -313,7 +328,7 @@ always @* begin
         6'h34: discover_data_next = mac[15:8];
         6'h33: discover_data_next = mac[7:0];
         6'h32: discover_data_next = VERSION_MAJOR;
-        //6'h31: discover_data_next = IDHermesLite ? 8'h06 : 8'h01;
+        6'h31: discover_data_next = idhermeslite ? 8'h06 : 8'h01;
         // FIXME: Really needed for CW skimmer? Why so much?
         6'h30: discover_data_next = {eeprom_config[7:5],5'b0000};
         6'h2f: discover_data_next = 8'h00;
@@ -326,13 +341,29 @@ always @* begin
         6'h28: discover_data_next = NR[7:0];
         6'h27: discover_data_next = {BANDSCOPE_BITS, BOARD[5:0]};
         6'h26: discover_data_next = VERSION_MINOR;
+        // Additions mainly for port 1025 communication
+        6'h25: discover_data_next = {2'b00,resp_addr};
+        6'h24: discover_data_next = resp_data[31:24];
+        6'h23: discover_data_next = resp_data[23:16];
+        6'h22: discover_data_next = resp_data[15:8];
+        6'h21: discover_data_next = resp_data[7:0];
+        6'h20: discover_data_next = resp_control;
+        6'h1f: discover_data_next = {4'h0,temperature[11:8]};
+        6'h1e: discover_data_next = temperature[7:0];
+        6'h1d: discover_data_next = {4'h0,fwdpwr[11:8]};
+        6'h1c: discover_data_next = fwdpwr[7:0];
+        6'h1b: discover_data_next = {4'h0,revpwr[11:8]};
+        6'h1a: discover_data_next = revpwr[7:0];
+        6'h19: discover_data_next = {4'h0,bias[11:8]};
+        6'h18: discover_data_next = bias[7:0];
+        6'h17: discover_data_next = dsiq_status;
         6'h00: begin
-          discover_data_next = idhermeslite ? 8'h06 : 8'h01;
+          discover_data_next = 8'h00;
           if (usethasmi_erase_done | usethasmi_send_more) byte_no_next = 6'h00;
           else state_next = START;
         end
         default: begin
-          discover_data_next = idhermeslite ? 8'h06 : 8'h01;
+          discover_data_next = 8'h00;
         end
       endcase
 

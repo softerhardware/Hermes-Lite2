@@ -31,7 +31,7 @@ module rgmii_send (
   output       PHY_TX_EN
 );
 
-
+parameter SIM = 0;
 
 //-----------------------------------------------------------------------------
 //                            shift reg
@@ -85,11 +85,18 @@ always @(posedge clock)
 //-----------------------------------------------------------------------------
 //                             output
 //-----------------------------------------------------------------------------
-ddio_out ddio_out_inst (
-  .datain_h({sending, shift_reg[HI_BIT-4 -: 4]}),
-  .datain_l({sending, shift_reg[HI_BIT -: 4]}  ),
-  .outclock(clock                              ),
-  .dataout ({PHY_TX_EN, PHY_TX}                )
-);
+generate
+  if (SIM==1) begin
+    assign PHY_TX_EN = 1'b0;
+    assign PHY_TX = 4'h0;
+  end else begin
+    ddio_out ddio_out_inst (
+      .datain_h({sending, shift_reg[HI_BIT-4 -: 4]}),
+      .datain_l({sending, shift_reg[HI_BIT -: 4]}  ),
+      .outclock(clock                              ),
+      .dataout ({PHY_TX_EN, PHY_TX}                )
+    );
+  end
+endgenerate
 
 endmodule

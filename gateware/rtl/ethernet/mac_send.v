@@ -90,37 +90,37 @@ always @(posedge clock)
           //push header out of shr
           if (byte_no != 0)
             byte_no <= (byte_no - 6'd1);
-        //header sent, keep pushing payload into shr
-        else
-          begin
-            byte_no <= (MIN_PACKET_LEN - SHR_LEN);// - 6'd1);
-            state <= ST_PAYLOAD;
-          end
+          //header sent, keep pushing payload into shr
+          else
+            begin
+              byte_no <= (MIN_PACKET_LEN - SHR_LEN);// - 6'd1);
+              state <= ST_PAYLOAD;
+            end
 
         ST_PAYLOAD:
           //read into shr at least MIN_PACKET_LEN bytes
           if (byte_no != 0) byte_no <= byte_no - 6'd1;
-        //no more payload bytes
-        else if (!tx_enable)
-          begin
-            byte_no <= SHR_LEN-6'd2;
-            state <= ST_TAIL;
-          end
+          //no more payload bytes
+          else if (!tx_enable)
+            begin
+              byte_no <= SHR_LEN-6'd2;
+              state <= ST_TAIL;
+            end
 
         ST_TAIL:
           //purge shr
           if (byte_no != 0) byte_no <= byte_no - 6'd1;
-        //all bytes sent, append crc
-        else
-          begin
-            byte_no <= 4'd3;
-            state <= ST_CRC;
-          end
+          //all bytes sent, append crc
+          else
+            begin
+              byte_no <= 4'd3;
+              state <= ST_CRC;
+            end
 
         ST_CRC:
           //push out 4 bytes of crc
           if (byte_no != 0) byte_no <= byte_no - 6'd1;
-        else state <= ST_IDLE;
+          else state <= ST_IDLE;
       endcase
     end
 

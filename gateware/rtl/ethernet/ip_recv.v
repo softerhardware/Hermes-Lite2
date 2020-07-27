@@ -23,15 +23,16 @@
 
 module ip_recv (
   //input data stream
-  input             clock    ,
-  input             rx_enable,
-  input      [ 7:0] data     ,
-  input             broadcast,
-  input      [31:0] local_ip ,
+  input             clock          ,
+  input             rx_enable      ,
+  input      [ 7:0] data           ,
+  input             broadcast      ,
+  input      [31:0] local_ip       ,
   //output
-  output            active   ,
-  output reg        is_icmp  ,
-  output reg [31:0] remote_ip,
+  output            active         ,
+  output reg        is_icmp        ,
+  output     [31:0] remote_ip      ,
+  output            remote_ip_valid,
   output reg [31:0] to_ip
 );
 
@@ -41,6 +42,10 @@ localparam ST_IDLE = 4'd1, ST_HEADER = 4'd2, ST_PAYLOAD = 4'd4, ST_DONE = 4'd8;
 reg [ 3:0] state         ;
 reg [10:0] header_len, packet_len, byte_no;
 reg [31:0] temp_remote_ip;
+reg        temp_remote_ip_valid = 1'b0;
+
+assign remote_ip       = temp_remote_ip;
+assign remote_ip_valid = temp_remote_ip_valid;
 
 assign active = rx_enable & (state == ST_PAYLOAD);
 
@@ -76,7 +81,7 @@ always @(posedge clock)
 
             //verify broadcast - or save to_ip
             17: begin
-              remote_ip <= temp_remote_ip;
+              temp_remote_ip_valid <= ~temp_remote_ip_valid;
               if (broadcast) begin
                 if (data != 8'd255 && data != local_ip[31-:8]) state <= ST_DONE;
               end
