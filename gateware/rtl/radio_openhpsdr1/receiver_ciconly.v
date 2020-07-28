@@ -202,6 +202,7 @@ endmodule
 
 
 module receiver_nco(
+  input rst_all,
   input clock,                  //61.44 MHz
   input clock_2x,
   input [5:0] rate,             //48k....384k

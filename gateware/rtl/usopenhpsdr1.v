@@ -309,7 +309,7 @@ always @* begin
     DISCOVER1: begin
       byte_no_next = 'h3a;
       udp_tx_data = discover_data;
-      udp_tx_request = discovery_state;
+      udp_tx_request = (usethasmi_erase_done | usethasmi_send_more) ? 2'b10 : discovery_state;
       discovery_rst = 1'b1;
       discover_data_next = 8'hef;
       if (udp_tx_enable) state_next = DISCOVER2;
