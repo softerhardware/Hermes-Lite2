@@ -212,7 +212,7 @@ always @(posedge tx_clock) begin
   else tx_byte_no <= {1'b0,tx_byte_no[2:1]};
 end
 
-assign tx_active = (tx_enable | sending); // & ~fifo_empty;
+assign tx_active = (tx_enable | sending) & ~fifo_empty;
 
 assign fifo_read = (tx_byte_no == 3'h0) && sending && tx_active;
 

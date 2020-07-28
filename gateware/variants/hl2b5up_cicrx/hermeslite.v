@@ -93,20 +93,21 @@ module hermeslite (
 
 
   hermeslite_core #(
-    .BOARD   (5                                    ),
-    .IP      ({8'd0,8'd0,8'd0,8'd0}                ),
-    .MAC     ({8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd}),
-    .NR      (9                                    ),
-    .NT      (0                                    ),
-    .UART    (0                                    ),
-    .ATU     (0                                    ),
-    .FAN     (1                                    ),
-    .PSSYNC  (1                                    ),
-    .CW      (0                                    ),
-    .ASMII   (1                                    ),
-    .HL2LINK (0                                    ),
-    .AK4951  (0                                    ),
-    .FAST_LNA(1                                    )
+    .BOARD        (5                                    ),
+    .IP           ({8'd0,8'd0,8'd0,8'd0}                ),
+    .MAC          ({8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd}),
+    .NR           (10                                   ),
+    .NT           (0                                    ),
+    .UART         (0                                    ),
+    .ATU          (0                                    ),
+    .FAN          (1                                    ),
+    .PSSYNC       (1                                    ),
+    .CW           (0                                    ),
+    .ASMII        (1                                    ),
+    .HL2LINK      (0                                    ),
+    .FAST_LNA     (1                                    ),
+    .AK4951       (0                                    ),
+    .EXTENDED_RESP(0                                    )
   ) hermeslite_core_i (
     .pwr_clk3p3                (pwr_clk3p3           ),
     .pwr_clk1p2                (pwr_clk1p2           ),

@@ -727,10 +727,10 @@ endgenerate
 generate
   case (EXTENDED_RESP)
     0: begin: EXTENDED_RESP_NONE
-      assign control_resp_addr   = 6'h0;
+      assign control_resp_addr = 6'h0;
       assign resp_data           = 32'h00;
       assign resp_control        = 8'h00;
-      assign temperature         = 12'h000;
+      assign temp                = 12'h000;
       assign fwdpwr              = 12'h000;
       assign revpwr              = 12'h000;
       assign bias                = 12'h000;
