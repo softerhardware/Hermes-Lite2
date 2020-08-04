@@ -131,19 +131,24 @@ parameter       FAST_LNA = 0; // Support for fast LNA setting, TX/RX values
 parameter       AK4951 = 0;
 parameter       EXTENDED_RESP = 1;
 
+parameter       DSIQ_FIFO_DEPTH = 16384;
+
 localparam      TUSERWIDTH = (AK4951 == 1) ? 16 : 2;
 
 localparam      VERSION_MAJOR = (BOARD==2) ? 8'd52 : 8'd72;
-localparam      VERSION_MINOR = 8'd2;
+localparam      VERSION_MINOR = 8'd3;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
 logic           cmd_cnt;
-logic           cmd_requires_resp;
+logic           cmd_is_alt;
+logic           cmd_resprqst;
 
 logic   [5:0]   ds_cmd_addr;
 logic   [31:0]  ds_cmd_data;
 logic           ds_cmd_cnt;
+logic           ds_cmd_is_alt;
+logic           ds_cmd_resprqst;
 
 logic           tx_on, tx_on_iosync;
 logic           cw_on, cw_on_iosync;
@@ -188,6 +193,7 @@ logic           bs_tready;
 logic [11:0]    bs_tdata;
 
 logic           cmd_rqst_usopenhpsdr1;
+logic           cmd_rqst_dsopenhpsdr1;
 
 logic           clock_125_mhz_0_deg;
 logic           clock_125_mhz_90_deg;
@@ -212,7 +218,9 @@ logic           ad9866_rst;
 
 logic           run, run_sync, run_iosync, run_ad9866sync;
 logic           wide_spectrum, wide_spectrum_sync;
-logic [1:0]     discovery_reply, discovery_reply_sync;
+logic           discover_port;
+logic           discover_cnt;
+logic           discover_rqst_usopenhpsdr1;
 
 logic           dst_unreachable;
 
@@ -292,15 +300,15 @@ logic           rst_all, rst_nco;
 logic        clk_i2c_rst;
 logic [15:0] au_rdata   ;
 
-
-logic [ 5:0] resp_addr          ;
-logic [31:0] resp_data          ;
-logic [ 7:0] resp_control       ;
-logic [11:0] temperature        ;
-logic [11:0] fwdpwr             ;
-logic [11:0] revpwr             ;
-logic [11:0] bias               ;
-logic [ 7:0] control_dsiq_status;
+logic        alt_resp_cnt              ;
+logic        alt_resp_rqst_usopenhpsdr1;
+logic [31:0] resp_data                 ;
+logic [ 7:0] resp_control              ;
+logic [11:0] temperature               ;
+logic [11:0] fwdpwr                    ;
+logic [11:0] revpwr                    ;
+logic [11:0] bias                      ;
+logic [ 7:0] control_dsiq_status       ;
 
 
 logic signed [15:0] debug;
@@ -467,6 +475,12 @@ sync_one sync_msec_pulse_eth (
   .sig_out(msec_pulse_ethsync)
 );
 
+sync_pulse sync_pulse_dsopenhpsdr1 (
+  .clock(clock_ethrxint),
+  .sig_in(cmd_cnt),
+  .sig_out(cmd_rqst_dsopenhpsdr1)
+);
+
 dsopenhpsdr1 dsopenhpsdr1_i (
   .clk(clock_ethrxint),
   .eth_port(to_port),
@@ -474,7 +488,9 @@ dsopenhpsdr1 dsopenhpsdr1_i (
   .eth_valid(udp_rx_active),
   .eth_data(udp_rx_data),
   .eth_unreachable(dst_unreachable),
-  .eth_metis_discovery(discovery_reply),
+
+  .discover_port(discover_port),
+  .discover_cnt(discover_cnt),
 
   .run(run),
   .wide_spectrum(wide_spectrum),
@@ -483,10 +499,11 @@ dsopenhpsdr1 dsopenhpsdr1_i (
 
   .msec_pulse(msec_pulse_ethsync),
 
-  .cmd_addr(ds_cmd_addr),
-  .cmd_data(ds_cmd_data),
-  .cmd_cnt(ds_cmd_cnt),
-  .cmd_resprqst(cmd_requires_resp),
+  .ds_cmd_addr(ds_cmd_addr),
+  .ds_cmd_data(ds_cmd_data),
+  .ds_cmd_cnt(ds_cmd_cnt),
+  .ds_cmd_resprqst(ds_cmd_resprqst),
+  .ds_cmd_is_alt(ds_cmd_is_alt),
 
   .dseth_tdata(dseth_tdata),
   .dsethiq_tvalid(dsethiq_tvalid),
@@ -499,7 +516,11 @@ dsopenhpsdr1 dsopenhpsdr1_i (
   .dsethasmi_tlast(),
   .asmi_cnt(asmi_cnt),
   .dsethasmi_erase(dsethasmi_erase),
-  .dsethasmi_erase_ack(dsethasmi_erase_ack)
+  .dsethasmi_erase_ack(dsethasmi_erase_ack),
+
+  .cmd_addr(cmd_addr),
+  .cmd_data(cmd_data),
+  .cmd_rqst(cmd_rqst_dsopenhpsdr1)
 );
 
 
@@ -507,7 +528,7 @@ generate
 
 if (NT != 0) begin
 
-dsiq_fifo #(.depth(8192)) dsiq_fifo_i (
+dsiq_fifo #(.depth(DSIQ_FIFO_DEPTH)) dsiq_fifo_i (
   .wr_clk(clock_ethrxint),
   .wr_tdata({dsethiq_tuser,dseth_tdata}),
   .wr_tvalid(dsethiq_tvalid),
@@ -559,7 +580,7 @@ case (LRDATA)
   end
   2: begin // TX envelope PWM generation for ET/EER
     // need to use same fifo as the TX I/Q data to keep the envelope in sync
-    dsiq_fifo #(.depth(8192)) dslr_fifo_i (
+    dsiq_fifo #(.depth(DSIQ_FIFO_DEPTH)) dslr_fifo_i (
       .wr_clk(clock_ethrxint),
       .wr_tdata({1'b0,dseth_tdata}),
       .wr_tvalid(dsethlr_tvalid),
@@ -580,8 +601,6 @@ endgenerate
 ///////////////////////////////////////////////
 // Upstream ethtxint clock domain
 
-cdc_sync #(2) sync_inst1 (.siga(discovery_reply), .rstb(1'b0), .clkb(clock_ethtxint), .sigb(discovery_reply_sync));
-//sync sync_inst1(.clock(clock_ethtxint), .sig_in(discovery_reply), .sig_out(discovery_reply_sync));
 sync sync_inst2(.clock(clock_ethtxint), .sig_in(run), .sig_out(run_sync));
 sync sync_inst3(.clock(clock_ethtxint), .sig_in(wide_spectrum), .sig_out(wide_spectrum_sync));
 
@@ -591,7 +610,17 @@ sync_pulse sync_pulse_usopenhpsdr1 (
   .sig_out(cmd_rqst_usopenhpsdr1)
 );
 
+sync_pulse sync_discover_usopenhpsdr1 (
+  .clock(clock_ethtxint),
+  .sig_in(discover_cnt),
+  .sig_out(discover_rqst_usopenhpsdr1)
+);
 
+sync_pulse sync_resp_usopenhpsdr1 (
+  .clock(clock_ethtxint),
+  .sig_in(alt_resp_cnt),
+  .sig_out(alt_resp_rqst_usopenhpsdr1)
+);
 
 usopenhpsdr1 #(
   .NR(NR),
@@ -606,7 +635,9 @@ usopenhpsdr1 #(
   .wide_spectrum(wide_spectrum_sync),
   .idhermeslite(io_id_hermeslite),
   .mac(local_mac),
-  .discovery(discovery_reply_sync),
+
+  .discover_port(discover_port),
+  .discover_rqst(discover_rqst_usopenhpsdr1),
 
   .udp_tx_enable(udp_tx_enable),
   .udp_tx_request(udp_tx_request),
@@ -644,7 +675,7 @@ usopenhpsdr1 #(
   .usethasmi_erase_done(usethasmi_erase_done),
   .usethasmi_ack(usethasmi_ack),
 
-  .resp_addr(resp_addr),
+  .alt_resp_rqst(alt_resp_rqst_usopenhpsdr1),
   .resp_data(resp_data),
   .resp_control(resp_control),
   .temperature(temperature),
@@ -827,7 +858,13 @@ radio_i
 ///////////////////////////////////////////////
 // IO clock domain
 
-sync_pulse syncio_cmd_rqst (
+
+// clk_ctrl at 2.5MHz, 1Gbs ethernet at 125 MHz, implies 50 ethernet ticks
+// Worst case is a bit more than 50 ethernet ticks
+// Add up all the overheads and we have at 8+20+22+4+12+UDP length minimum
+// space between commands
+
+sync_pulse #(.DEPTH(2)) syncio_cmd_rqst (
   .clock(clk_ctrl),
   .sig_in(cmd_cnt),
   .sig_out(cmd_rqst_io)
@@ -904,7 +941,8 @@ control #(
   .cmd_addr           (cmd_addr              ),
   .cmd_data           (cmd_data              ),
   .cmd_rqst           (cmd_rqst_io           ),
-  .cmd_requires_resp  (cmd_requires_resp     ),
+  .cmd_is_alt         (cmd_is_alt            ),
+  .cmd_requires_resp  (cmd_resprqst          ),
 
   .atu_txinhibit      (atu_txinhibit         ),
   .tx_on              (tx_on_iosync          ),
@@ -990,7 +1028,7 @@ control #(
   .clk_i2c_rst        (clk_i2c_rst           ),
   .io_ptt_in          (io_ptt_in             ),
 
-  .control_resp_addr  (resp_addr             ),
+  .alt_resp_cnt       (alt_resp_cnt          ),
   .resp_data          (resp_data             ),
   .resp_control       (resp_control          ),
   .temp               (temperature           ),
@@ -1089,20 +1127,24 @@ if (HL2LINK == 1) begin
   );
 
   hl2link hl2link_i (
-    .clk          (clk_ad9866        ),
-    .phy_connected(phy_connected     ),
-    .linkrx       (linkrx            ),
-    .linktx       (linktx            ),
-    .stall_req    (stall_req         ),
-    .stall_ack    (stall_ack_ad9866  ),
-    .rst_all      (rst_all           ),
-    .rst_nco      (rst_nco           ),
-    .ds_cmd_addr  (ds_cmd_addr       ),
-    .ds_cmd_data  (ds_cmd_data       ),
-    .ds_cmd_rqst  (ds_cmd_rqst_ad9866),
-    .cmd_addr     (cmd_addr          ),
-    .cmd_data     (cmd_data          ),
-    .cmd_rqst     (cmd_cnt           )
+    .clk            (clk_ad9866        ),
+    .phy_connected  (phy_connected     ),
+    .linkrx         (linkrx            ),
+    .linktx         (linktx            ),
+    .stall_req      (stall_req         ),
+    .stall_ack      (stall_ack_ad9866  ),
+    .rst_all        (rst_all           ),
+    .rst_nco        (rst_nco           ),
+    .ds_cmd_addr    (ds_cmd_addr       ),
+    .ds_cmd_data    (ds_cmd_data       ),
+    .ds_cmd_rqst    (ds_cmd_rqst_ad9866),
+    .ds_cmd_resprqst(ds_cmd_resprqst   ),
+    .ds_cmd_is_alt  (ds_cmd_is_alt     ),
+    .cmd_addr       (cmd_addr          ),
+    .cmd_data       (cmd_data          ),
+    .cmd_rqst       (cmd_cnt           ),
+    .cmd_resprqst   (cmd_resprqst      ),
+    .cmd_is_alt     (cmd_is_alt        )
   );
 
   //assign io_uart_txd = rst_all | rst_nco;
@@ -1112,12 +1154,14 @@ if (HL2LINK == 1) begin
 end else begin
   assign linktx = 2'b00;
   assign stall_req_sync = 1'b0;
-  assign rst_all = 1'b0;
-  assign rst_nco = 1'b0;
+  assign rst_all        = 1'b0;
+  assign rst_nco        = 1'b0;
 
-  assign cmd_addr = ds_cmd_addr;
-  assign cmd_data = ds_cmd_data;
-  assign cmd_cnt  = ds_cmd_cnt;
+  assign cmd_addr     = ds_cmd_addr;
+  assign cmd_data     = ds_cmd_data;
+  assign cmd_cnt      = ds_cmd_cnt;
+  assign cmd_is_alt   = ds_cmd_is_alt;
+  assign cmd_resprqst = ds_cmd_resprqst;
 end
 
 endgenerate

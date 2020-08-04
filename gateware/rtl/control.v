@@ -19,6 +19,7 @@ module control (
   input               [ 5:0] cmd_addr           ,
   input               [31:0] cmd_data           ,
   input                      cmd_rqst           ,
+  input                      cmd_is_alt         ,
   input                      cmd_requires_resp  ,
   output                     atu_txinhibit      ,
   input                      tx_on              ,
@@ -82,7 +83,7 @@ module control (
   output                     ad9866_rst         ,
   input                      io_ptt_in          ,
   output                     clk_i2c_rst        ,
-  output              [ 5:0] control_resp_addr  ,
+  output logic               alt_resp_cnt = 1'b0,
   output              [31:0] resp_data          ,
   output              [ 7:0] resp_control       ,
   output              [11:0] temp               ,
@@ -145,10 +146,10 @@ logic         led_d2, led_d3, led_d4, led_d5;
 
 logic         resp_cnt = 1'b0;
 
-localparam RESP_START   = 2'b00,
-           RESP_ACK     = 2'b01,
-           RESP_READ    = 2'b11,
-           RESP_WAIT    = 2'b10;
+localparam RESP_START    = 2'b00,
+           RESP_ACK      = 2'b01,
+           RESP_READ     = 2'b11,
+           RESP_WAIT     = 2'b10;
 
 logic [1:0]   resp_state = RESP_START, resp_state_next;
 
@@ -362,7 +363,7 @@ ad9866ctrl #(.FAST_LNA(FAST_LNA)) ad9866ctrl_i (
 
 
 
-// Response state machine
+//  Main Response state machine
 always @ (posedge clk) begin
   resp_state <= resp_state_next;
   resp_cmd_addr <= resp_cmd_addr_next;
@@ -381,7 +382,7 @@ always @* begin
 
   case (resp_state)
     RESP_START: begin
-      if (cmd_rqst & cmd_requires_resp) begin
+      if (cmd_rqst & cmd_requires_resp & ~cmd_is_alt) begin
         // Save data for response
         resp_cmd_addr_next = cmd_addr;
         resp_cmd_data_next = cmd_data;
@@ -432,7 +433,6 @@ always @* begin
 
   endcase
 end
-
 
 assign ptt_resp = cw_on | ext_ptt;
 
@@ -724,31 +724,102 @@ generate
 endgenerate
 
 
-generate
-  case (EXTENDED_RESP)
-    0: begin: EXTENDED_RESP_NONE
-      assign control_resp_addr = 6'h0;
-      assign resp_data           = 32'h00;
-      assign resp_control        = 8'h00;
-      assign temp                = 12'h000;
-      assign fwdpwr              = 12'h000;
-      assign revpwr              = 12'h000;
-      assign bias                = 12'h000;
-      assign control_dsiq_status = 8'h00;
+generate if (EXTENDED_RESP==1) begin
+
+logic [31:0]  alt_resp_cmd_data = 32'h00, alt_resp_cmd_data_next;
+
+
+localparam ALT_RESP_START   = 2'b00,
+           ALT_RESP_CHECK   = 2'b01,
+           ALT_RESP_READ    = 2'b11,
+           ALT_RESP_RQST    = 2'b10;
+
+logic [1:0] alt_resp_state = ALT_RESP_START, alt_resp_state_next;
+logic alt_resp_cnt_next;
+
+//  alt Response state machine
+always @ (posedge clk) begin
+  alt_resp_state <= alt_resp_state_next;
+  alt_resp_cmd_data <= alt_resp_cmd_data_next;
+  alt_resp_cnt <= alt_resp_cnt_next;
+end
+
+// FSM Combinational
+always @* begin
+  // Next State
+  alt_resp_state_next = alt_resp_state;
+  alt_resp_cmd_data_next = alt_resp_cmd_data;
+  alt_resp_cnt_next = alt_resp_cnt;
+
+  case (alt_resp_state)
+    ALT_RESP_START: begin
+      if (cmd_rqst & cmd_is_alt) begin
+        // Save data for response
+        alt_resp_cmd_data_next = cmd_data;
+        alt_resp_state_next  = ALT_RESP_CHECK;
+      end
     end
 
-    // There are CDCs here, but we assume the data is stable ahead of time and not critical
-    1: begin: EXTENDED_RESP_1025
-      assign control_resp_addr   = resp_cmd_addr;
-      assign resp_data           = resp_cmd_data;
-      assign resp_control        = {ext_cwkey, ptt_resp, 4'b0000, clip_cnt};
-      assign temp                = temperature;
-      assign fwdpwr              = fwd_pwr;
-      assign revpwr              = rev_pwr;
-      assign bias                = bias_current;
-      assign control_dsiq_status = dsiq_status;
+    ALT_RESP_CHECK: begin
+      // Always error if i2c or ad9866 is busy, maybe condition on command
+      if (~(cmd_ack_i2c & cmd_ack_ad9866)) begin
+        alt_resp_state_next = ALT_RESP_START;
+      end else begin
+        alt_resp_state_next = ALT_RESP_READ;
+      end
     end
-    endcase
-    endgenerate
+
+    ALT_RESP_READ: begin
+      // If there is a read, the ack will be low here until the read is ready
+      if (~(cmd_ack_i2c & cmd_ack_ad9866)) begin
+        if (~cmd_ack_i2c) begin
+          alt_resp_cmd_data_next = cmd_resp_data_i2c;
+        end else if (~cmd_ack_ad9866) begin
+          alt_resp_cmd_data_next = cmd_resp_data_i2c; // FIXME: suppor read cmd_resp_data_ad9866
+        end
+      end else begin
+        alt_resp_state_next = ALT_RESP_RQST;
+      end
+    end
+
+    ALT_RESP_RQST: begin
+      alt_resp_cnt_next = ~alt_resp_cnt;
+      // Make request for alt response
+      alt_resp_state_next = ALT_RESP_START;
+    end
+
+    default: begin
+      resp_state_next = ALT_RESP_START;
+    end
+
+  endcase
+end
+
+// There are CDCs here, but we assume the data is stable ahead of time and not critical
+assign resp_data           = alt_resp_cmd_data;
+assign resp_control        = {ext_cwkey, ptt_resp, 4'b0000, clip_cnt};
+assign temp                = temperature;
+assign fwdpwr              = fwd_pwr;
+assign revpwr              = rev_pwr;
+assign bias                = bias_current;
+assign control_dsiq_status = dsiq_status;
+
+
+
+
+// No extended response
+end else begin
+
+  assign alt_resp_cnt        = 1'b0;
+  assign resp_data           = 32'h00;
+  assign resp_control        = 8'h00;
+  assign temp                = 12'h000;
+  assign fwdpwr              = 12'h000;
+  assign revpwr              = 12'h000;
+  assign bias                = 12'h000;
+  assign control_dsiq_status = 8'h00;
+
+end
+endgenerate
 
 endmodule
