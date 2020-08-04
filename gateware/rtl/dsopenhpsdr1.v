@@ -1,73 +1,39 @@
 // OpenHPSDR downstream (PC->Card) protocol unpacker
 
 module dsopenhpsdr1 (
-  clk,
-  eth_port,
-  eth_broadcast,
-  eth_valid,
-  eth_data,
-  eth_unreachable,
-  eth_metis_discovery,
-
-  run,
-  wide_spectrum,
-
-  watchdog_up,
-
-  msec_pulse,
-
-  cmd_addr,
-  cmd_data,
-  cmd_cnt,
-  cmd_resprqst,
-
-  dseth_tdata,
-  dsethiq_tvalid,
-  dsethiq_tlast,
-  dsethiq_tuser,
-  dsethlr_tvalid,
-  dsethlr_tlast,
-
-  dsethasmi_tvalid,
-  dsethasmi_tlast,
-  asmi_cnt,
-  dsethasmi_erase,
-  dsethasmi_erase_ack
+  input               clk                ,
+  input        [15:0] eth_port           ,
+  input               eth_broadcast      ,
+  input               eth_valid          ,
+  input        [ 7:0] eth_data           ,
+  input               eth_unreachable    ,
+  output logic        discover_port        = 1'b0,
+  output logic        discover_cnt         = 1'b0,
+  output logic        run                  = 1'b0,
+  output logic        wide_spectrum        = 1'b0,
+  input               watchdog_up        ,
+  input               msec_pulse         ,
+  output logic [ 5:0] ds_cmd_addr          = 6'h0,
+  output logic [31:0] ds_cmd_data          = 32'h00,
+  output logic        ds_cmd_cnt           = 1'b0,
+  output logic        ds_cmd_resprqst      = 1'b0,
+  output logic        ds_cmd_is_alt        = 1'b0,
+  output       [ 7:0] dseth_tdata        ,
+  output              dsethiq_tvalid     ,
+  output              dsethiq_tlast      ,
+  output              dsethiq_tuser      ,
+  output              dsethlr_tvalid     ,
+  output              dsethlr_tlast      ,
+  //output              dsethlr_tuser,
+  output              dsethasmi_tvalid   ,
+  output              dsethasmi_tlast    ,
+  output logic [13:0] asmi_cnt             = 14'h000,
+  output              dsethasmi_erase    ,
+  input               dsethasmi_erase_ack,
+  input        [ 5:0] cmd_addr           ,
+  input        [31:0] cmd_data           ,
+  input               cmd_rqst
 );
-
-input               clk;
-
-input   [15:0]      eth_port;
-input               eth_broadcast;
-input               eth_valid;
-input   [ 7:0]      eth_data;
-input               eth_unreachable;
-output  [ 1:0]      eth_metis_discovery;
-
-output logic        run = 1'b0;
-output logic        wide_spectrum = 1'b0;
-
-input               watchdog_up;
-
-input               msec_pulse;
-
-output logic  [5:0] cmd_addr = 6'h0;
-output logic [31:0] cmd_data = 32'h00;
-output logic        cmd_cnt = 1'b0;
-output logic        cmd_resprqst = 1'b0;
-
-output        [7:0] dseth_tdata;
-output              dsethiq_tvalid;
-output              dsethiq_tlast;
-output              dsethiq_tuser;
-output              dsethlr_tvalid;
-output              dsethlr_tlast;
-//output              dsethlr_tuser;
-output              dsethasmi_tvalid;
-output              dsethasmi_tlast;
-output logic [13:0] asmi_cnt = 14'h000;
-output              dsethasmi_erase;
-input               dsethasmi_erase_ack;
 
 
 localparam START        = 'h00,
@@ -105,89 +71,88 @@ localparam START        = 'h00,
            PUSHQ0       = 'h1f;
 
 
-logic   [ 5:0]  state = START;
-logic   [ 5:0]  state_next;
-
-logic   [ 7:0]  pushcnt = 8'h00;
-logic   [ 7:0]  pushcnt_next;
-
+logic [5:0] state        = START;
+logic [5:0] state_next          ;
+logic [7:0] pushcnt      = 8'h00;
+logic [7:0] pushcnt_next        ;
 //logic           framecnt = 1'b0;
 //logic           framecnt_next;
+logic        run_next                     ;
+logic        wide_spectrum_next           ;
+logic [ 5:0] ds_cmd_addr_next             ;
+logic [31:0] ds_cmd_data_next             ;
+logic        ds_cmd_cnt_next              ;
+logic        ds_cmd_ptt_next              ;
+logic        ds_cmd_resprqst_next         ;
+logic        ds_cmd_is_alt_next           ;
 
-logic           run_next;
-logic           wide_spectrum_next;
+logic        ds_cmd_rqst                  ;
+logic        ds_cmd_ptt                   ;
+logic        watchdog_clr                 ;
+logic [ 9:0] watchdog_cnt         = 10'h00;
+logic [13:0] asmi_cnt_next                ;
+logic [ 8:0] msec_cnt                     ;
+logic        msec_cnt_not_zero            ;
+logic        pushiq                       ;
+logic        cwx                  = 1'b0  ;
+logic        cwx_next                     ;
+logic        cwx_saved            = 1'b0  ;
+logic        cwx_saved_next               ;
+logic        cwx_enable           = 1'b0  ;
 
-logic   [5:0]   cmd_addr_next;
-logic   [31:0]  cmd_data_next;
-logic           cmd_cnt_next;
-logic           cmd_ptt_next;
-logic           cmd_resprqst_next;
-logic           cmd_rqst;
-logic           cmd_ptt;
-
-logic           watchdog_clr;
-
-logic   [ 9:0]  watchdog_cnt = 10'h00;
-
-logic   [13:0]  asmi_cnt_next;
-
-logic  [ 8:0]   msec_cnt;
-logic           msec_cnt_not_zero;
-logic           pushiq;
-
-logic           cwx = 1'b0;
-logic           cwx_next;
-
-logic           cwx_saved = 1'b0;
-logic           cwx_saved_next;
-
-logic           cwx_enable = 1'b0;
+logic [ 1:0] discover_port_next;
+logic        discover_cnt_next;
 
 // State
-always @ (posedge clk) begin
-  pushcnt <= pushcnt_next;
-  //framecnt <= framecnt_next;
-  cmd_resprqst <= cmd_resprqst_next;
-  cmd_addr <= cmd_addr_next;
-  cmd_ptt <= cmd_ptt_next;
-  cmd_data <= cmd_data_next;
-  cmd_cnt <= cmd_cnt_next;
-  asmi_cnt <= asmi_cnt_next;
-  cwx <= cwx_next;
-  cwx_saved <= cwx_saved_next;
+always @(posedge clk) begin
+  pushcnt         <= pushcnt_next;
+  ds_cmd_resprqst <= ds_cmd_resprqst_next;
+  ds_cmd_addr     <= ds_cmd_addr_next;
+  ds_cmd_ptt      <= ds_cmd_ptt_next;
+  ds_cmd_data     <= ds_cmd_data_next;
+  ds_cmd_cnt      <= ds_cmd_cnt_next;
+  ds_cmd_is_alt   <= ds_cmd_is_alt_next;
+  discover_port   <= discover_port_next;
+  discover_cnt    <= discover_cnt_next;
+  asmi_cnt        <= asmi_cnt_next;
+  cwx             <= cwx_next;
+  cwx_saved       <= cwx_saved_next;
+
   if ((eth_unreachable) | &watchdog_cnt) begin
-    state <= START;
-    run <= 1'b0;
+    state         <= START;
+    run           <= 1'b0;
     wide_spectrum <= 1'b0;
   end else if (~eth_valid) begin
     state <= START;
   end else begin
-    state <= state_next;
-    run <= run_next;
+    state         <= state_next;
+    run           <= run_next;
     wide_spectrum <= wide_spectrum_next;
   end
 end
 
 // FSM Combinational
-always @* begin
-
+always @(*) begin
   // Next State
   state_next = START;
   run_next = run;
   wide_spectrum_next = wide_spectrum;
   pushcnt_next = pushcnt;
   //framecnt_next = framecnt;
-  cmd_resprqst_next = cmd_resprqst;
-  cmd_addr_next = cmd_addr;
-  cmd_ptt_next = cmd_ptt;
-  cmd_data_next = cmd_data;
-  cmd_cnt_next = cmd_cnt;
+  ds_cmd_resprqst_next = ds_cmd_resprqst;
+  ds_cmd_addr_next = ds_cmd_addr;
+  ds_cmd_ptt_next = ds_cmd_ptt;
+  ds_cmd_data_next = ds_cmd_data;
+  ds_cmd_cnt_next = ds_cmd_cnt;
+  ds_cmd_is_alt_next = ds_cmd_is_alt;
   asmi_cnt_next = asmi_cnt;
   cwx_next = cwx;
   cwx_saved_next = cwx_saved;
 
+  discover_port_next = discover_port;
+  discover_cnt_next = discover_cnt;
+
   // Combinational output
-  eth_metis_discovery = 2'b00;
   dsethiq_tvalid = 1'b0;
   dsethlr_tvalid = 1'b0;
   watchdog_clr   = 1'b0;
@@ -215,6 +180,7 @@ always @* begin
       else if (eth_data == 8'h04) state_next = RUNSTOP;
       else if (eth_data == 8'h02) state_next = DISCOVERY;
       else if (eth_data == 8'h03) state_next = ASMI_DECODE;
+      else if ((eth_data == 8'h05) & eth_port[0] & ~eth_broadcast) state_next = CMDCTRL;
     end
 
     RUNSTOP: begin
@@ -223,7 +189,8 @@ always @* begin
     end
 
     DISCOVERY: begin
-      eth_metis_discovery = {1'b1,eth_port[0]};
+      discover_port_next = eth_port[0];
+      discover_cnt_next  = ~discover_cnt;
     end
 
     ASMI_DECODE: begin
@@ -307,31 +274,36 @@ always @* begin
     end
 
     CMDCTRL: begin
-      cmd_resprqst_next = eth_data[7];
-      cmd_addr_next = eth_data[6:1];
-      cmd_ptt_next = eth_data[0];
+      ds_cmd_resprqst_next = eth_data[7];
+      ds_cmd_addr_next = eth_data[6:1];
+      ds_cmd_ptt_next = eth_data[0];
       state_next = CMDDATA3;
     end
 
     CMDDATA3: begin
-      cmd_data_next = {eth_data,cmd_data[23:0]};
+      ds_cmd_data_next = {eth_data,ds_cmd_data[23:0]};
       state_next = CMDDATA2;
     end
 
     CMDDATA2: begin
-      cmd_data_next = {cmd_data[31:24],eth_data,cmd_data[15:0]};
+      ds_cmd_data_next = {ds_cmd_data[31:24],eth_data,ds_cmd_data[15:0]};
       state_next = CMDDATA1;
     end
 
     CMDDATA1: begin
-      cmd_data_next = {cmd_data[31:16],eth_data,cmd_data[7:0]};
+      ds_cmd_data_next = {ds_cmd_data[31:16],eth_data,ds_cmd_data[7:0]};
       state_next = CMDDATA0;
     end
 
     CMDDATA0: begin
-      cmd_data_next = {cmd_data[31:8],eth_data};
-      cmd_cnt_next = ~cmd_cnt;
-      state_next = PUSHL1;
+      ds_cmd_data_next = {ds_cmd_data[31:8],eth_data};
+      ds_cmd_is_alt_next = eth_port[0];
+      ds_cmd_cnt_next = ~ds_cmd_cnt;
+      if (eth_port[0]) begin
+        state_next = START;
+      end else begin
+        state_next = PUSHL1;
+      end
     end
 
     PUSHL1: begin
@@ -357,7 +329,7 @@ always @* begin
     end
 
     PUSHI1: begin
-      dsethiq_tuser  = cmd_ptt;
+      dsethiq_tuser  = ds_cmd_ptt;
       dsethiq_tvalid = pushiq;
       state_next = PUSHI0;
     end
@@ -377,7 +349,7 @@ always @* begin
     PUSHQ0: begin
       dsethiq_tvalid = pushiq;
       dsethiq_tlast  = 1'b1;
-      cwx_next = cwx_saved & cwx_enable & ~cmd_ptt;
+      cwx_next = cwx_saved & cwx_enable & ~ds_cmd_ptt;
       if (&pushcnt[5:0]) begin
         if (~pushcnt[6]) begin
           //framecnt_next = 1'b1;
@@ -394,8 +366,6 @@ always @* begin
 end
 
 assign dseth_tdata = eth_data;
-
-assign cmd_rqst = cmd_cnt ^ cmd_cnt_next;
 
 // Only enable CWX when keyer is internal
 always @(posedge clk) begin
@@ -421,7 +391,7 @@ end
 
 assign msec_cnt_not_zero = |msec_cnt;
 
-assign pushiq = msec_cnt_not_zero | cmd_ptt;
+assign pushiq = msec_cnt_not_zero | ds_cmd_ptt;
 
 // CWX spacing hang
 always @(posedge clk) begin

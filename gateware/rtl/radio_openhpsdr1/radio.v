@@ -764,7 +764,7 @@ logic signed [15:0] tx_q;
 logic signed [15:0] txsum;
 logic signed [15:0] txsumq;
 
-logic [ 6:0]  tx_qmsectimer_next, tx_qmsectimer = 7'h00;
+logic [ 8:0]  tx_qmsectimer_next, tx_qmsectimer = 9'h00;
 logic [18:0]  tx_cwlevel_next, tx_cwlevel = 19'h0;
 
 logic cwx;
@@ -788,7 +788,7 @@ logic [10:0] accumdelay                ;
 logic        accumdelay_incr           ;
 logic        accumdelay_decr           ;
 logic        accumdelay_notzero        ;
-logic [ 4:0] tx_buffer_latency  = 5'h0a; // Default to 10ms
+logic [ 6:0] tx_buffer_latency  = 7'h0a; // Default to 10ms
 logic [ 4:0] ptt_hang_time      = 5'h04; // Default to 4 ms
 
 localparam MAX_CWLEVEL = 19'h4d800; //(16'h4d80 << 4);
@@ -806,7 +806,7 @@ always @(posedge clk) begin
     if (cmd_addr == 6'h10) begin
       cw_hang_time <= {cmd_data[31:24], cmd_data[17:16]};
     end else if (cmd_addr == 6'h17) begin
-      tx_buffer_latency <= cmd_data[4:0];
+      tx_buffer_latency <= cmd_data[6:0];
       ptt_hang_time <= cmd_data[12:8];
     end
   end
@@ -860,8 +860,8 @@ always @* begin
     PRETX: begin
       tx_tready = 1'b0; //Stall data to fill FIFO unless in CWX mode
       accumdelay_incr = fir_tready; // Count samples accumulated
-      if (tx_qmsectimer != 7'h00) begin
-        if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 7'h01;
+      if (tx_qmsectimer != 9'h00) begin
+        if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 9'h01;
         if (~(ext_keydown | cwx | ptt)) tx_state_next = NOTX;
       end else begin
         if (cwx | ext_keydown) tx_state_next = CWTX;
@@ -873,14 +873,14 @@ always @* begin
       if (ext_keydown) begin
         tx_state_next = CWTX;
       end else if (ptt) begin
-        tx_qmsectimer_next = {ptt_hang_time, 2'b00};
+        tx_qmsectimer_next = {2'b00, ptt_hang_time, 2'b00};
         if (fir_tready) begin
           tx_fir_i_next = tx_tdata[31:16];
           tx_fir_q_next = tx_tdata[15:0];
         end
       end else begin
-        if (tx_qmsectimer != 7'h00) begin
-          if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 7'h01;
+        if (tx_qmsectimer != 9'h00) begin
+          if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 9'h01;
         end else begin
           tx_state_next = NOTX;
         end
@@ -896,8 +896,8 @@ always @* begin
         tx_qmsectimer_next = {tx_buffer_latency, 2'b00};
       end else begin
         // Extend CW on to match tx_buffer_latency if ext key
-        if (tx_qmsectimer != 7'h00) begin
-          if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 7'h01;
+        if (tx_qmsectimer != 9'h00) begin
+          if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 9'h01;
         end else if (tx_cwlevel != 19'h00) tx_cwlevel_next = tx_cwlevel - 19'h01;
         else begin
           tx_qmsectimer_next = {tx_buffer_latency, 2'b00};
@@ -911,8 +911,8 @@ always @* begin
       cw_on = 1'b1;
       if (ext_keydown | cwx) begin
         // delay ext CW by tx_buffer_latency
-        if (tx_qmsectimer != 7'h00) begin
-          if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 7'h01;
+        if (tx_qmsectimer != 9'h00) begin
+          if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 9'h01;
         end else begin
           tx_qmsectimer_next = {tx_buffer_latency, 2'b00};
           tx_cwlevel_next = 19'h0;
