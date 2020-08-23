@@ -141,7 +141,7 @@ class HermesLite:
       Returns a response."""
     if isinstance(cmd,int):
       cmd = struct.pack('!L',cmd)
-    res = self._send(bytes([0xef,0xfe,0x05,addr<<1]+cmd+([0x0]*52)))
+    res = self._send(bytes([0xef,0xfe,0x05,addr<<1])+cmd+bytes([0x0]*52))
     if res:
       self.wrcache[addr] = cmd
     return res
