@@ -400,9 +400,9 @@ class HermesLite:
     self.write_eprom(0x0c,b0)
     self.write_eprom(0x0d,b1)
 
-  def update_gateware(self,filename):
+  def update_gateware(self,filename,filename_checks=True):
     """Program gateware with .rbf file"""
-    if filename.split(".")[1] != "rbf":
+    if filename_checks and filename.split(".")[1] != "rbf":
       print("ERROR: File {} must have .rbf extension.".format(filename))
       return
     if not os.path.exists(filename):
@@ -415,7 +415,7 @@ class HermesLite:
     if resp.type != 2:
       print("ERROR: HL2 must not be running for gateware update. Response type was {}.".format(resp.type))
       return
-    if "hl2b{}".format(resp.board_id) not in filename:
+    if filename_checks and "hl2b{}".format(resp.board_id) not in filename:
       print("ERROR: Running HL2 board ID of {0} does not match filename {1}".format(resp.board_id,filename))
       return
     with open(filename, "rb") as fp:
@@ -427,7 +427,7 @@ class HermesLite:
       ## Based on Quisk code by Jim N2ADR
       blocks = (size + 255) // 256
       print("Erase old program...")
-      resp = self._send(bytes([0xef,0xfe,0x03,0x02]+([0x00]*60)),port=1024,timeout=10.0,attempts=1)
+      resp = self._send(bytes([0xef,0xfe,0x03,0x02]+([0x00]*56)),port=1024,timeout=10.0,attempts=1)
       if resp == None:
         print("ERROR: No response from HL2 for erase.")
         return
@@ -453,16 +453,25 @@ class HermesLite:
     print("")
     print("SUCCESS: Wait for HL2 to restart.")
 
-  def update_gateware_github(self,version='stable/latest/hl2b5up_main/hl2b5up_main.rbf',delete=True):
+  def update_gateware_github(self,version='',delete=True):
     """Update the gateware given a version string. Version set to 'stable/20200529_71p3/hl2b5up_main/hl2b5up_main.rbf'
     will update to that stable version."""
     urlroot = "https://github.com/softerhardware/Hermes-Lite2/raw/master/gateware/bitfiles/"
+    if version == '':
+      try:
+        with urllib.request.urlopen(urlroot+'stable/latest') as response:
+          version = 'stable/'+str(response.read(),'utf-8','ignore')+'/hl2b5up_main/hl2b5up_main.rbf'
+      except urllib.error.HTTPError:
+          print("ERROR: Unable to retrieve latest information.")
+          return
+
     u = urlroot+version
     try:
       with urllib.request.urlopen(u) as response:
         with tempfile.NamedTemporaryFile(delete=delete) as tmp_file:
             shutil.copyfileobj(response, tmp_file)
-            self.update_gateware(tmp_file.name)
+            print("Copied {0} to {1}".format(u,tmp_file.name))
+            self.update_gateware(tmp_file.name,filename_checks=False)
     except urllib.error.HTTPError:
       print("ERROR: Bad URL {}.".format(u))
 
