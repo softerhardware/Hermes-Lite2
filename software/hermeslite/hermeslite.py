@@ -1,4 +1,5 @@
-import socket, select, struct, collections, time
+import socket, select, struct, collections, time, os
+import shutil, tempfile, urllib.request
 
 ## The one response type received from the HL2
 Response = collections.namedtuple('Response',
@@ -73,7 +74,7 @@ def discover():
   sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
   sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
   sock.setblocking(0)
-  msg = bytes([0xEF,0xFE,0x02]+(0*[0]))
+  msg = bytes([0xEF,0xFE,0x02]+(57*[0]))
   sock.sendto(msg, ('255.255.255.255', 1025))
 
   responses = []
@@ -83,7 +84,24 @@ def discover():
       data, address = sock.recvfrom(60)
       print("Discover response from %s:%d" %(address[0], address[1]))
       r = decode(data)
-      if r: responses.append((address[0],r))
+      if r: responses.append((address,r))
+    else:
+      ## Timeout so no more units to discover
+      break
+
+  if responses != []: return responses
+
+  ## Try port 1024 if no responses so gateware update can at least work
+  print("Trying port 1024. Only gateware update will work on units without port 1025 enabled.")
+  sock.sendto(msg, ('255.255.255.255', 1024))
+
+  while True:
+    ready = select.select([sock], [], [], 1.0)
+    if ready[0]:
+      data, address = sock.recvfrom(60)
+      print("Discover response from %s:%d" %(address[0], address[1]))
+      r = decode(data)
+      if r: responses.append((address,r))
     else:
       ## Timeout so no more units to discover
       break
@@ -94,23 +112,25 @@ def discover():
 
 class HermesLite:
   # Hermes-Lite object
-  def __init__(self,ip,timeout=2.0):
+  def __init__(self,ip_port):
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     self.sock.setblocking(0)
-    self.ip_port = (ip,1025)
-    self.timeout = timeout
+    self.ip = ip_port[0]
+    self.port = ip_port[1]
     self.wrcache = {}
 
-  def _send(self,msg):
+  def _send(self,msg,port=None,timeout=2.0,attempts=3):
     """Low level send to HL2."""
-    attempts = 3
+    if port == None: port = self.port
     while attempts > 0:
-      self.sock.sendto(msg, self.ip_port)
-      ready = select.select([self.sock], [], [], self.timeout)
+      self.sock.sendto(msg, (self.ip,port))
+      ready = select.select([self.sock], [], [], timeout)
       if ready[0]:
         data, ip_port = self.sock.recvfrom(60)
-        if ip_port != self.ip_port: continue
+        if ip_port != (self.ip,port):
+          print("Wrong ip_port",ip_port,self.ip,port)
+          continue
         return decode(data)
       attempts -= 1
       print("Retrying send")
@@ -121,18 +141,14 @@ class HermesLite:
       Returns a response."""
     if isinstance(cmd,int):
       cmd = struct.pack('!L',cmd)
-    res = self._send(bytes([0xef,0xfe,0x05,addr<<1])+cmd)
+    res = self._send(bytes([0xef,0xfe,0x05,addr<<1])+cmd+([0x0]*52))
     if res:
       self.wrcache[addr] = cmd
+    return res
 
   def response(self):
     """Retrieve a response without sending address and command."""
-    return self._send(bytes([0xef,0xfe,0x02,0x0,0x0,0x0,0x0,0x0]))
-
-  def config_txbuffer(self,latency=10,ptt_hang=4):
-    """Set buffer latency and ptt hang time in ms."""
-    cmd = bytes([0x00,0x00,int(ptt_hang)&0x1f,int(latency)&0x7f])
-    return self.command(0x17,cmd)
+    return self._send(bytes([0xef,0xfe,0x02]+([0x0]*57)))
 
   def write_versa5(self,addr,data):
     """Write to Versa5 clock chip via i2c."""
@@ -145,7 +161,7 @@ class HermesLite:
     cmd = bytes([0x06,0xea,addr,data])
     return self.command(0x3c,cmd)
 
-  def read_versa5(self,addr,fullrepsonse=False):
+  def read_versa5(self,addr,fullresponse=False):
     """Read from Versa5 clock chip via i2c."""
     time.sleep(0.002)
     addr = addr & 0xff
@@ -234,6 +250,221 @@ class HermesLite:
     self.write_versa5(0x17,0x04) ## Change top multiplier to 0x44
     self.write_versa5(0x18,0x40)
 
+  def enable_txlna(self,gain=-12):
+    """Set and enable the hardware managed LNA for TX"""
+    gain = -12 if gain < -12 else gain
+    gain = 48 if gain > 48 else gain
+    gain = (gain + 12) | 0xc0
+    cmd = bytes([0x00,0x00,gain,0x00])
+    return self.command(0x0e,cmd)
+
+  def disable_txlna(self,gain=-12):
+    """Disable the hardware managed LNA for TX"""
+    cmd = bytes([0x00,0x00,0x00,0x00])
+    return self.command(0x0e,cmd)
+
+  def set_cwhangtime(self,hangtime=10):
+    """Set CW hang time 0 to 1023 ms"""
+    hangtime = hangtime & 0x3ff
+    return self.command(0x10,hangtime)
+
+  def config_txbuffer(self,latency=10,ptt_hang=4):
+    """Set buffer latency and ptt hang time in ms."""
+    cmd = bytes([0x00,0x00,int(ptt_hang)&0x1f,int(latency)&0x7f])
+    return self.command(0x17,cmd)
+
+  def write_eeprom(self, addr, data):
+    """Write values into the MCP4662 EEPROM registers"""
+    ## For example, to set a fixed IP of 192.168.33.20
+    ## hw.WriteEEPROM(8,192)
+    ## hw.WriteEEPROM(9,168)
+    ## hw.WriteEEPROM(10,33)
+    ## hw.WriteEEPROM(11,20)
+    ## To set the last two values of the MAC to 55:66
+    ## hw.WriteEEPROM(12,55)
+    ## hw.WriteEEPROM(13,66)
+    ## To enable the fixed IP and alternate MAC, and favor DHCP
+    ## hw.WriteEEPROM(6, 0x80 | 0x40 | 0x20)
+    ## See https://github.com/softerhardware/Hermes-Lite2/wiki/Protocol
+    time.sleep(0.002)
+    data = data & 0x0ff
+    addr = (addr << 4) & 0x0ff
+    ## i2caddr is 7 bits, no read write
+    ## Bit 8 is set to indicate stop to HL2
+    ## i2caddr = 0x80 | (0xd4 >> 1) ## ea
+    cmd = bytes([0x06,0xac,addr,data])
+    return self.command(0x3d,cmd)
+
+  def read_eeprom(self, addr, fullresponse=False):
+    """Read values from the MCP4662 EEPROM registers"""
+    time.sleep(0.002)
+    addr = ((addr << 4) & 0xff) | 0x0c
+    cmd = bytes([0x07,0xac,addr,0x00])
+    res = self.command(0x3d,cmd)
+    if fullresponse:
+      return res
+    else:
+      return (res.response_data >> 8) & 0x0ff
+
+  def read_bias(self):
+    """Read configuration setting for bias0 and bias1"""
+    bias0 = self.read_eeprom(0x2)
+    bias1 = self.read_eeprom(0x3)
+    print("Bias0={0} Bias1={1}".format(bias0,bias1))
+    return bias0,bias1
+
+  def get_use_eeprom_ip(self):
+    """Get the current use_eeprom_ip flag"""
+    res = self.read_eeprom(0x6)
+    return (res & 0x80) != 0
+
+  def set_use_eeprom_ip(self):
+    """Set the use_eeprom_ip flag"""
+    res = self.read_eeprom(0x6)
+    res = res | 0x80
+    self.write_eeprom(0x6,res)
+
+  def clear_use_eeprom_ip(self):
+    """Clear the use_eeprom_ip flag"""
+    res = self.read_eeprom(0x6)
+    res = res & 0x7f
+    self.write_eeprom(0x6,res)
+
+  def get_use_eeprom_mac(self):
+    """Get the current use_eeprom_mac flag"""
+    res = self.read_eeprom(0x6)
+    return (res & 0x40) != 0
+
+  def set_use_eeprom_mac(self):
+    """Set the use_eeprom_mac flag"""
+    res = self.read_eeprom(0x6)
+    res = res | 0x40
+    self.write_eeprom(0x6,res)
+
+  def clear_use_eeprom_mac(self):
+    """Clear the use_eeprom_mac flag"""
+    res = self.read_eeprom(0x6)
+    res = res & 0xbf
+    self.write_eeprom(0x6,res)
+
+  def get_favor_dhcp(self):
+    """Get the current favor_dhcp flag"""
+    res = self.read_eeprom(0x6)
+    return (res & 0x20) != 0
+
+  def set_favor_dhcp(self):
+    """Set the favor_dhcp flag"""
+    res = self.read_eeprom(0x6)
+    res = res | 0x20
+    self.write_eeprom(0x6,res)
+
+  def clear_favor_dhcp(self):
+    """Clear the favor_dhcp flag"""
+    res = self.read_eeprom(0x6)
+    res = res & 0xdf
+    self.write_eeprom(0x6,res)
+
+  def get_eeprom_ip(self):
+    """Get fixed IP"""
+    b0 = self.read_eeprom(0x08)
+    b1 = self.read_eeprom(0x09)
+    b2 = self.read_eeprom(0x0a)
+    b3 = self.read_eeprom(0x0b)
+    eeprom_ip = "%d:%d:%d:%d" % (b0,b1,b2,b3)
+    return eeprom_ip
+
+  def set_eeprom_ip(self,ip="0.0.0.0"):
+    """Set fixed IP. ip is string like '192.168.33.1'"""
+    ip = ip.split('.')
+    b0 = int(ip[0])
+    b1 = int(ip[1])
+    b2 = int(ip[2])
+    b3 = int(ip[3])
+    self.write_eprom(0x08,b0)
+    self.write_eprom(0x09,b1)
+    self.write_eprom(0x0a,b2)
+    self.write_eprom(0x0b,b3)
+
+  def get_eeprom_mac(self):
+    """Read last two digits of alternate MAC"""
+    b0 = self.read_eeprom(0x0c)
+    b1 = self.read_eeprom(0x0d)
+    eeprom_altmac = "%02x:%02x" % (b0,b1)
+    return eeprom_altmac
+
+  def set_eeprom_mac(self,mac="0:0"):
+    """Set last two digits of alternate MAC. mac is hex string like 'bf:10'"""
+    mac = mac.split(':')
+    b0 = int(mac[0])
+    b1 = int(mac[1])
+    self.write_eprom(0x0c,b0)
+    self.write_eprom(0x0d,b1)
+
+  def update_gateware(self,filename):
+    """Program gateware with .rbf file"""
+    if filename.split(".")[1] != "rbf":
+      print("ERROR: File {} must have .rbf extension.".format(filename))
+      return
+    if not os.path.exists(filename):
+      print("ERROR: Could not open file {}.".format(filename))
+      return
+    resp = self.response()
+    if resp == None:
+      print("ERROR: No HL2 found.")
+      return
+    if resp.type != 2:
+      print("ERROR: HL2 must not be running for gateware update. Response type was {}.".format(resp.type))
+      return
+    if "hl2b{}".format(resp.board_id) not in filename:
+      print("ERROR: Running HL2 board ID of {0} does not match filename {1}".format(resp.board_id,filename))
+      return
+    with open(filename, "rb") as fp:
+      if fp.read(36) != bytes(([0xff]*32)+[0x6a,0xf7,0xf7,0xf7]):
+        print("ERROR: Unexpected file header. Make sure you are using a valid .rbf file.")
+        return
+      fp.seek(0)
+      size = os.stat(filename).st_size
+      ## Based on Quisk code by Jim N2ADR
+      blocks = (size + 255) // 256
+      print("Erase old program...")
+      resp = self._send(bytes([0xef,0xfe,0x03,0x02]+([0x00]*60)),port=1024,timeout=10.0,attempts=1)
+      if resp == None:
+        print("ERROR: No response from HL2 for erase.")
+        return
+      if resp.type != 3:
+        print("ERROR: Unexpected response type {} for erase".format(resp.type))
+        return
+      print("Programming.",end="",flush=True)
+      cmd = bytes([0xef,0xfe,0x03,0x01,(blocks>>24)&0xff,(blocks>>16)&0xff,(blocks>>8)&0xff,blocks&0xff])
+      for block in range(blocks):
+        print(".",end="",flush=True)
+        prog = fp.read(256)
+        if block == blocks - 1: # last block may have an odd number of bytes
+          prog = prog + bytearray(b"\xFF" * (256 - len(prog)))
+        if len(prog) != 256:
+          print ("ERROR: Read wrong number of bytes for block.", block)
+          return
+        resp = self._send(cmd+prog,port=1024,timeout=10.0,attempts=1)
+        if resp == None:
+          print("ERROR: No response from HL2 for block {}.".format(block))
+          return
+        if resp.type != 4:
+          print("ERROR: Unspected response type {} for program.".format(resp.type))
+    print("")
+    print("SUCCESS: Wait for HL2 to restart.")
+
+  def update_gateware_github(self,version='stable/latest/hl2b5up_main/hl2b5up_main.rbf',delete=True):
+    """Update the gateware given a version string. Version set to 'stable/20200529_71p3/hl2b5up_main/hl2b5up_main.rbf'
+    will update to that stable version."""
+    urlroot = "https://github.com/softerhardware/Hermes-Lite2/raw/master/gateware/bitfiles/"
+    u = urlroot+version
+    try:
+      with urllib.request.urlopen(u) as response:
+        with tempfile.NamedTemporaryFile(delete=delete) as tmp_file:
+            shutil.copyfileobj(response, tmp_file)
+            self.update_gateware(tmp_file.name)
+    except urllib.error.HTTPError:
+      print("ERROR: Bad URL {}.".format(u))
 
 if __name__ == "__main__":
   responses = discover()
@@ -241,4 +472,3 @@ if __name__ == "__main__":
     hl = HermesLite(responses[0][0])
   else:
     print("No Hermes-Lite discovered")
-
