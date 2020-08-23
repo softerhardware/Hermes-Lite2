@@ -17,7 +17,7 @@ Future installation may use [pypl](https://pypi.org/). Future use may be from a 
 
 The code below will set the TX buffer latency to 20ms and the PTT hang time to 5ms.
 ```python
-hl.configure_txbuffer(20,5)
+hl.config_txbuffer(20,5)
 ```
 
 The TX buffer latency is how much time of samples to save in the TX buffer before beginning to transmit. You need to keep some samples in the buffer to smooth out any network UDP packet jitter. Start at 0 TX buffer latency (and 0 PTT hang time) and increase the latency until you find a value whic h stops any relay clicks.
@@ -27,8 +27,49 @@ The PTT hang time is how much time to wait when the TX buffer is empty before re
 # Use External Clock Input on CL1 of 76.8MHz
 
 ```python
-hl.configure_txbuffer(20,5)
-```hl.enable_cl1_direct()
+hl.enable_cl1_direct()
+```
+
+# Update Gateware
+
+## From File
+```python
+hl.update_gateware('somegatewarefileyoudownloaded.rbf')
+```
+
+## Latest Stable github hl2b5up
+```python
+hl.update_gateware_github()
+```
+
+## Specific github Version
+```python
+hl.update_gateware_github('testing/20200803_72p3/hl2b5up_main/hl2b5up_main.rbf')
+```
+
+# EEPROM MAC
+
+```python
+hl.set_eeprom_mac('ba:19')
+hl.get_eeprom_mac()
+hl.set_use_eeprom_mac()
+##hl.clear_use_eeprom_mac()  ##Uncomment to disable eeprom_mac
+```
+
+# EEPROM IP
+
+```python
+hl.set_eeprom_ip('192.168.33.222')
+hl.get_eeprom_ip()
+hl.set_use_eeprom_ip()
+##hl.clear_use_eeprom_ip()  ##Uncomment to disable eeprom_ip
+```
+
+# EEPROM Favor DHCP
+
+```python
+hl.set_favor_dhcp()
+##hl.clear_favor_dhcp()  ##Uncomment to disable favor of dhcp
 ```
 
 
