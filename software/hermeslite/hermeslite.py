@@ -141,7 +141,7 @@ class HermesLite:
       Returns a response."""
     if isinstance(cmd,int):
       cmd = struct.pack('!L',cmd)
-    res = self._send(bytes([0xef,0xfe,0x05,addr<<1])+cmd+([0x0]*52))
+    res = self._send(bytes([0xef,0xfe,0x05,addr<<1]+cmd+([0x0]*52)))
     if res:
       self.wrcache[addr] = cmd
     return res
@@ -380,10 +380,10 @@ class HermesLite:
     b1 = int(ip[1])
     b2 = int(ip[2])
     b3 = int(ip[3])
-    self.write_eprom(0x08,b0)
-    self.write_eprom(0x09,b1)
-    self.write_eprom(0x0a,b2)
-    self.write_eprom(0x0b,b3)
+    self.write_eeprom(0x08,b0)
+    self.write_eeprom(0x09,b1)
+    self.write_eeprom(0x0a,b2)
+    self.write_eeprom(0x0b,b3)
 
   def get_eeprom_mac(self):
     """Read last two digits of alternate MAC"""
@@ -397,8 +397,8 @@ class HermesLite:
     mac = mac.split(':')
     b0 = int(mac[0])
     b1 = int(mac[1])
-    self.write_eprom(0x0c,b0)
-    self.write_eprom(0x0d,b1)
+    self.write_eeprom(0x0c,b0)
+    self.write_eeprom(0x0d,b1)
 
   def update_gateware(self,filename,filename_checks=True):
     """Program gateware with .rbf file"""
