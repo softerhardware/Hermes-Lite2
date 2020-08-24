@@ -108,6 +108,13 @@ def discover():
 
   return responses
 
+def discover_first():
+  """Discover all HL2 units and return the first HL2 found."""
+  responses = discover()
+  if responses != []:
+    return HermesLite(responses[0][0])
+  else:
+    print("No Hermes-Lite discovered")
 
 
 class HermesLite:
@@ -370,7 +377,7 @@ class HermesLite:
     b1 = self.read_eeprom(0x09)
     b2 = self.read_eeprom(0x0a)
     b3 = self.read_eeprom(0x0b)
-    eeprom_ip = "%d:%d:%d:%d" % (b0,b1,b2,b3)
+    eeprom_ip = "%d.%d.%d.%d" % (b0,b1,b2,b3)
     return eeprom_ip
 
   def set_eeprom_ip(self,ip="0.0.0.0"):
@@ -476,8 +483,5 @@ class HermesLite:
       print("ERROR: Bad URL {}.".format(u))
 
 if __name__ == "__main__":
-  responses = discover()
-  if responses != []:
-    hl = HermesLite(responses[0][0])
-  else:
-    print("No Hermes-Lite discovered")
+  hl = discover_first()
+
