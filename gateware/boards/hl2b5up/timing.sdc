@@ -344,3 +344,10 @@ set_false_path -to [get_ports {rffe_ad9866_pga*}]
 set_multicycle_path -from [get_clocks {clock_153p6MHz}] -to [get_clocks {clock_76p8MHz}] -setup -start 2
 set_multicycle_path -from [get_clocks {clock_153p6MHz}] -to [get_clocks {clock_76p8MHz}] -hold -start 2
 
+
+## For hl2link
+
+set_multicycle_path -from {hermeslite_core:hermeslite_core_i|hl2link_app:hl2link_app_i|cmd_data[*]} -to {hermeslite_core:hermeslite_core_i|radio:radio_i|freqcompp[*][*]} -setup -end 2
+set_multicycle_path -from {hermeslite_core:hermeslite_core_i|hl2link_app:hl2link_app_i|cmd_data[*]} -to {hermeslite_core:hermeslite_core_i|radio:radio_i|freqcompp[*][*]} -hold -end 1
+
+

@@ -136,7 +136,7 @@ parameter       DSIQ_FIFO_DEPTH = 16384;
 localparam      TUSERWIDTH = (AK4951 == 1) ? 16 : 2;
 
 localparam      VERSION_MAJOR = (BOARD==2) ? 8'd52 : 8'd72;
-localparam      VERSION_MINOR = 8'd3;
+localparam      VERSION_MINOR = 8'd4;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
@@ -296,6 +296,7 @@ logic           atu_txinhibit, atu_txinhibit_ad9866ync;
 logic           stall_req, stall_req_sync;
 logic           stall_ack, stall_ack_ad9866;
 logic           rst_all, rst_nco;
+logic           link_running, link_running_iosync;
 
 logic        clk_i2c_rst;
 logic [15:0] au_rdata   ;
@@ -895,6 +896,12 @@ sync syncio_run (
   .sig_out(run_iosync)
 );
 
+sync syncio_link_running (
+  .clock(clk_ctrl),
+  .sig_in(link_running),
+  .sig_out(link_running_iosync)
+);
+
 sync syncio_tx_on (
   .clock(clk_ctrl),
   .sig_in(tx_on),
@@ -934,6 +941,7 @@ control #(
   .rxgoodlvl          (rxgoodlvl_iosync      ),
   .rxclrstatus        (rxclrstatus           ),
   .run                (run_iosync            ),
+  .link_running       (link_running_iosync   ),
 
   .dsiq_status        (dsiq_status           ),
   .dsiq_sample        (dsiq_sample           ),
@@ -1007,6 +1015,7 @@ control #(
   .io_tx_inhibit      (io_tx_inhibit         ),
 
   .io_uart_txd        (io_uart_txd           ),
+  //.io_uart_txd        (                      ),
   .io_cw_keydown      (io_cw_keydown         ),
 
   .io_phone_tip       (io_phone_tip          ),
@@ -1114,6 +1123,14 @@ endgenerate
 generate
 if (HL2LINK == 1) begin
 
+  logic ds_cmd_rqst_ad9866;
+
+  sync_pulse sync_pulse_ad9866 (
+    .clock(clk_ad9866),
+    .sig_in(ds_cmd_cnt),
+    .sig_out(ds_cmd_rqst_ad9866)
+  );
+
   sync sync_stall_ack (
     .clock(clk_ad9866),
     .sig_in(stall_ack),
@@ -1126,7 +1143,7 @@ if (HL2LINK == 1) begin
     .sig_out(stall_req_sync)
   );
 
-  hl2link hl2link_i (
+  hl2link_app hl2link_app_i (
     .clk            (clk_ad9866        ),
     .phy_connected  (phy_connected     ),
     .linkrx         (linkrx            ),
@@ -1135,6 +1152,7 @@ if (HL2LINK == 1) begin
     .stall_ack      (stall_ack_ad9866  ),
     .rst_all        (rst_all           ),
     .rst_nco        (rst_nco           ),
+    .running        (link_running      ),
     .ds_cmd_addr    (ds_cmd_addr       ),
     .ds_cmd_data    (ds_cmd_data       ),
     .ds_cmd_rqst    (ds_cmd_rqst_ad9866),
@@ -1142,12 +1160,12 @@ if (HL2LINK == 1) begin
     .ds_cmd_is_alt  (ds_cmd_is_alt     ),
     .cmd_addr       (cmd_addr          ),
     .cmd_data       (cmd_data          ),
-    .cmd_rqst       (cmd_cnt           ),
+    .cmd_cnt        (cmd_cnt           ),
     .cmd_resprqst   (cmd_resprqst      ),
     .cmd_is_alt     (cmd_is_alt        )
   );
 
-  //assign io_uart_txd = rst_all | rst_nco;
+  //assign io_uart_txd = cmd_cnt;
 
 
 
@@ -1162,6 +1180,7 @@ end else begin
   assign cmd_cnt      = ds_cmd_cnt;
   assign cmd_is_alt   = ds_cmd_is_alt;
   assign cmd_resprqst = ds_cmd_resprqst;
+  assign link_running = 1'b0;
 end
 
 endgenerate
