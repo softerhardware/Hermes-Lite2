@@ -104,7 +104,7 @@ module hermeslite (
     .PSSYNC       (1                                    ),
     .CW           (1                                    ),
     .ASMII        (1                                    ),
-    .HL2LINK      (0                                    ),
+    .HL2LINK      (1                                    ),
     .AK4951       (0                                    ),
     .FAST_LNA     (1                                    ),
     .EXTENDED_RESP(1                                    )

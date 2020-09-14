@@ -14,6 +14,7 @@ module control (
   input                      rxgoodlvl          ,
   output logic               rxclrstatus          = 1'b0,
   input                      run                ,
+  input                      link_running       ,
   input               [ 7:0] dsiq_status        ,
   output logic               dsiq_sample          = 1'b0,
   input               [ 5:0] cmd_addr           ,
@@ -321,16 +322,16 @@ end
 
 // Solid when connected to software
 // Blinking to indicate good ethernet clock
-assign io_led_run = run ? ~run : ~(ethup & led_count[8]);
+assign io_led_run = (link_running | run) ? 1'b0 : ~(ethup & led_count[8]);
 
 // Blinking indicates fixed ip, solid indicates dhcp
-assign io_led_tx = run ? ~int_tx_on : ~((have_fixed_ip & led_count[8]) | have_dhcp_ip);
+assign io_led_tx = (link_running | run) ? ~int_tx_on : ~((have_fixed_ip & led_count[8]) | have_dhcp_ip);
 
 // Blinks if 100 Mbps, solid if 1Gbs, off otherwise
-assign io_led_adc75 = run ? led_d4 : ~(((network_speed == 2'b01) & led_count[8]) | network_speed == 2'b10);
+assign io_led_adc75 = (link_running | run) ? led_d4 : ~(((network_speed == 2'b01) & led_count[8]) | network_speed == 2'b10);
 
 // Lights if ad9866 is up and the  clock is less than 80 MHz
-assign io_led_adc100 = run ? led_d5 : ~(ad9866up & good_fast_clk);
+assign io_led_adc100 = (link_running | run) ? led_d5 : ~(ad9866up & good_fast_clk);
 
 // Clear status
 always @(posedge clk) rxclrstatus <= ~rxclrstatus;
