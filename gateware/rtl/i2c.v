@@ -167,11 +167,14 @@ always @* begin
       else if (cmd_rqst) begin
         case (cmd_addr)
           6'h39: begin
-            if (cmd_data[0]) state_next = STATE_CL2ON6;
-            else if (cmd_data[26]) state_next = STATE_CL2ON0;
-            else if (cmd_data[27]) state_next = STATE_CL2OFF0;
-            else if (cmd_data[28]) state_next = STATE_CL1ON0;
-            else if (cmd_data[29]) state_next = STATE_CL1OFF0;
+            case (cmd_data[3:0])
+              4'h8: state_next = STATE_CL2ON6;
+              4'ha: state_next = STATE_CL2OFF0;
+              4'hb: state_next = STATE_CL2ON0;
+              4'hc: state_next = STATE_CL1OFF0;
+              4'hd: state_next = STATE_CL1ON0;
+              default: state_next = STATE_IDLE;
+            endcase
           end
 
           default: state_next = STATE_IDLE;
