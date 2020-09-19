@@ -6,19 +6,21 @@ module hl2link_app (
   output logic [ 1:0] linktx         ,
   output              stall_req      ,
   input               stall_ack      ,
-  output logic        rst_all        ,
-  output logic        rst_nco        ,
+  output logic        rst_all          = 1'b0,
+  output logic        rst_nco          = 1'b0,
   output logic        running        ,
   input        [ 5:0] ds_cmd_addr    ,
   input        [31:0] ds_cmd_data    ,
   input               ds_cmd_rqst    ,
   input               ds_cmd_resprqst,
   input               ds_cmd_is_alt  ,
+  input        [ 1:0] ds_cmd_mask    ,
   output logic [ 5:0] cmd_addr         = 6'h00,
   output logic [31:0] cmd_data         = 32'h0000,
   output logic        cmd_cnt          = 1'b0,
   output logic        cmd_resprqst     = 1'b0,
-  output logic        cmd_is_alt       = 1'b0
+  output logic        cmd_is_alt       = 1'b0,
+  input               cmd_rqst
 );
 
 logic master_sel = 1'b0;
@@ -42,16 +44,30 @@ assign send_tuser  = 2'b01;
 assign recv_tready = 1'b1;
 
 assign stall_req = 1'b0;
-assign rst_all   = 1'b0;
-assign rst_nco   = 1'b0;
 
-
-// hl2link control registers
+// hl2link master control - only accessible via ethernet
 always @(posedge clk) begin
-  if (ds_cmd_rqst & ds_cmd_addr == 6'h39) begin
-    master_sel <= ds_cmd_data[31];
+  if (ds_cmd_rqst & ds_cmd_addr == 6'h39 & ds_cmd_data[11]) begin
+    case (ds_cmd_data[8])
+      1'h0: master_sel <= 1'b0;
+      1'h1: master_sel <= 1'b1;
+    endcase
+  end 
+end
+
+// hl2link global control - synchronized with slave
+always @(posedge clk) begin
+  if (cmd_rqst & cmd_addr == 6'h39 & cmd_data[7]) begin
+    case (cmd_data[4])
+      1'h0: rst_all <= 1'b1;
+      1'h1: rst_nco <= 1'b1;
+    endcase
+  end else begin
+    rst_all <= 1'b0;
+    rst_nco <= 1'b0;
   end
 end
+
 
 
 // Command FSM
@@ -100,7 +116,7 @@ always @* begin
       end else if (cl1on_rqst) begin
         cmd_state_next = CMD_SLVCLK1ON0;
       end else if (ds_cmd_rqst) begin
-        send_tvalid       = 1'b1;
+        send_tvalid       = ds_cmd_mask[1]; // Only send to remote if mask set
         cmd_data_next     = ds_cmd_data;
         cmd_addr_next     = ds_cmd_addr;
         cmd_resprqst_next = ds_cmd_resprqst;
@@ -115,7 +131,7 @@ always @* begin
     end
 
     CMD_MST1 : begin
-      cmd_cnt_next   = ~cmd_cnt;
+      cmd_cnt_next   = ds_cmd_mask[0] ? ~cmd_cnt : cmd_cnt; // Only send to master if mask set
       cmd_state_next = CMD_IDLE;
     end
 
@@ -130,7 +146,7 @@ always @* begin
 
     CMD_SLVCLK1ON0 : begin
       // Create command to turn cl1on, sync with i2c.v
-      cmd_data_next     = 32'h1000_0000;
+      cmd_data_next     = 32'h0000_000d;
       cmd_addr_next     = 6'h39;
       cmd_resprqst_next = 1'b0;
       cmd_is_alt_next   = 1'b0;

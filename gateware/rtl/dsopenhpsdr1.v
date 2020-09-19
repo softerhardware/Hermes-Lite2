@@ -18,6 +18,7 @@ module dsopenhpsdr1 (
   output logic        ds_cmd_cnt           = 1'b0,
   output logic        ds_cmd_resprqst      = 1'b0,
   output logic        ds_cmd_is_alt        = 1'b0,
+  output logic [ 1:0] ds_cmd_mask          = 2'b11,
   output       [ 7:0] dseth_tdata        ,
   output              dsethiq_tvalid     ,
   output              dsethiq_tlast      ,
@@ -77,14 +78,15 @@ logic [7:0] pushcnt      = 8'h00;
 logic [7:0] pushcnt_next        ;
 //logic           framecnt = 1'b0;
 //logic           framecnt_next;
-logic        run_next                     ;
-logic        wide_spectrum_next           ;
-logic [ 5:0] ds_cmd_addr_next             ;
-logic [31:0] ds_cmd_data_next             ;
-logic        ds_cmd_cnt_next              ;
-logic        ds_cmd_ptt_next              ;
-logic        ds_cmd_resprqst_next         ;
-logic        ds_cmd_is_alt_next           ;
+logic        run_next            ;
+logic        wide_spectrum_next  ;
+logic [ 5:0] ds_cmd_addr_next    ;
+logic [31:0] ds_cmd_data_next    ;
+logic        ds_cmd_cnt_next     ;
+logic        ds_cmd_ptt_next     ;
+logic        ds_cmd_resprqst_next;
+logic        ds_cmd_is_alt_next  ;
+logic [ 1:0] ds_cmd_mask_next    ;
 
 logic        ds_cmd_rqst                  ;
 logic        ds_cmd_ptt                   ;
@@ -112,6 +114,7 @@ always @(posedge clk) begin
   ds_cmd_data     <= ds_cmd_data_next;
   ds_cmd_cnt      <= ds_cmd_cnt_next;
   ds_cmd_is_alt   <= ds_cmd_is_alt_next;
+  ds_cmd_mask     <= ds_cmd_mask_next;
   discover_port   <= discover_port_next;
   discover_cnt    <= discover_cnt_next;
   asmi_cnt        <= asmi_cnt_next;
@@ -145,6 +148,7 @@ always @(*) begin
   ds_cmd_data_next = ds_cmd_data;
   ds_cmd_cnt_next = ds_cmd_cnt;
   ds_cmd_is_alt_next = ds_cmd_is_alt;
+  ds_cmd_mask_next = ds_cmd_mask;
   asmi_cnt_next = asmi_cnt;
   cwx_next = cwx;
   cwx_saved_next = cwx_saved;
@@ -270,7 +274,8 @@ always @(*) begin
 
     SYNC0: begin
       pushcnt_next = 6'h00;
-      if (eth_data == 8'h7f) state_next = CMDCTRL;
+      if (eth_data[7:2] == 6'h1f) state_next = CMDCTRL;
+      ds_cmd_mask_next = eth_data[1:0];
     end
 
     CMDCTRL: begin

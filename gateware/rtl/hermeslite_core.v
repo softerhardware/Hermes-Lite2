@@ -148,6 +148,7 @@ logic   [5:0]   ds_cmd_addr;
 logic   [31:0]  ds_cmd_data;
 logic           ds_cmd_cnt;
 logic           ds_cmd_is_alt;
+logic   [1:0]   ds_cmd_mask;
 logic           ds_cmd_resprqst;
 
 logic           tx_on, tx_on_iosync;
@@ -505,6 +506,7 @@ dsopenhpsdr1 dsopenhpsdr1_i (
   .ds_cmd_cnt(ds_cmd_cnt),
   .ds_cmd_resprqst(ds_cmd_resprqst),
   .ds_cmd_is_alt(ds_cmd_is_alt),
+  .ds_cmd_mask(ds_cmd_mask),
 
   .dseth_tdata(dseth_tdata),
   .dsethiq_tvalid(dsethiq_tvalid),
@@ -1158,11 +1160,13 @@ if (HL2LINK == 1) begin
     .ds_cmd_rqst    (ds_cmd_rqst_ad9866),
     .ds_cmd_resprqst(ds_cmd_resprqst   ),
     .ds_cmd_is_alt  (ds_cmd_is_alt     ),
+    .ds_cmd_mask    (ds_cmd_mask       ),
     .cmd_addr       (cmd_addr          ),
     .cmd_data       (cmd_data          ),
     .cmd_cnt        (cmd_cnt           ),
     .cmd_resprqst   (cmd_resprqst      ),
-    .cmd_is_alt     (cmd_is_alt        )
+    .cmd_is_alt     (cmd_is_alt        ),
+    .cmd_rqst       (cmd_rqst_ad9866   )
   );
 
   //assign io_uart_txd = cmd_cnt;
