@@ -8,7 +8,10 @@ module hl2link_app (
   input               stall_ack      ,
   output logic        rst_all          = 1'b0,
   output logic        rst_nco          = 1'b0,
-  output logic        running        ,
+  output              running        ,
+  output logic        master_sel       = 1'b0,
+  output       [23:0] rx_data        ,
+  output logic        rx_data_valid    = 1'b0,
   input        [ 5:0] ds_cmd_addr    ,
   input        [31:0] ds_cmd_data    ,
   input               ds_cmd_rqst    ,
@@ -22,8 +25,6 @@ module hl2link_app (
   output logic        cmd_is_alt       = 1'b0,
   input               cmd_rqst
 );
-
-logic master_sel = 1'b0;
 
 logic        send_tvalid;
 logic [37:0] send_tdata ;
@@ -44,6 +45,13 @@ assign send_tuser  = 2'b01;
 assign recv_tready = 1'b1;
 
 assign stall_req = 1'b0;
+
+assign rx_data = recv_tdata[23:0];
+
+always @(posedge clk) begin
+  rx_data_valid <= recv_tdone | recv_tready;
+end 
+
 
 // hl2link master control - only accessible via ethernet
 always @(posedge clk) begin
