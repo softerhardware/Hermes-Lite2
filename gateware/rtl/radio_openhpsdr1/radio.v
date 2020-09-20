@@ -6,6 +6,11 @@ module radio (
   rst_all,
   rst_nco,
 
+  link_running,
+  link_master,
+  link_rx_data,
+  link_rx_data_valid,
+
   run,
   qmsec_pulse,
   ext_keydown,
@@ -84,52 +89,45 @@ localparam RATE384 =  RATE192 >> 1;
 
 localparam CALCTYPE = (NR > 6) ? 0 : 3;
 
-input             clk;
-input             clk_2x;
-
-input             rst_all;
-input             rst_nco;
-
-input             run;
-input             qmsec_pulse;
-input             ext_keydown;
-output            tx_on;
-output            cw_on;
-
-input             clk_envelope;
-output            tx_envelope_pwm_out;
-output            tx_envelope_pwm_out_inv;
-
-input   [31:0]    tx_tdata;
-input             tx_tlast;
-output            tx_tready;
-input             tx_tvalid;
-input   [ 3:0]    tx_tuser;
-
-input   [31:0]    lr_tdata;
-input   [ 2:0]    lr_tid;
-input             lr_tlast;
-output            lr_tready;
-input             lr_tvalid;
-
-output  [11:0]    tx_data_dac;
-
-input   [11:0]    rx_data_adc;
-
-output  [23:0]    rx_tdata;
-output            rx_tlast;
-input             rx_tready;
-output            rx_tvalid;
-output  [ 1:0]    rx_tuser;
-
-
+input         clk                    ;
+input         clk_2x                 ;
+input         rst_all                ;
+input         rst_nco                ;
+input         link_running           ;
+input         link_master            ;
+input  [23:0] link_rx_data           ;
+input         link_rx_data_valid     ;
+input         run                    ;
+input         qmsec_pulse            ;
+input         ext_keydown            ;
+output        tx_on                  ;
+output        cw_on                  ;
+input         clk_envelope           ;
+output        tx_envelope_pwm_out    ;
+output        tx_envelope_pwm_out_inv;
+input  [31:0] tx_tdata               ;
+input         tx_tlast               ;
+output        tx_tready              ;
+input         tx_tvalid              ;
+input  [ 3:0] tx_tuser               ;
+input  [31:0] lr_tdata               ;
+input  [ 2:0] lr_tid                 ;
+input         lr_tlast               ;
+output        lr_tready              ;
+input         lr_tvalid              ;
+output [11:0] tx_data_dac            ;
+input  [11:0] rx_data_adc            ;
+output [23:0] rx_tdata               ;
+output        rx_tlast               ;
+input         rx_tready              ;
+output        rx_tvalid              ;
+output [ 1:0] rx_tuser               ;
 // Command slave interface
-input   [5:0]     cmd_addr;
-input   [31:0]    cmd_data;
-input             cmd_rqst;
-output            cmd_ack;
-
-output signed [15:0] debug_out;
+input  [ 5:0]        cmd_addr ;
+input  [31:0]        cmd_data ;
+input                cmd_rqst ;
+output               cmd_ack  ;
+output [15:0]        debug_out;
 
 
 logic [ 1:0]        tx_predistort = 2'b00;
@@ -171,8 +169,8 @@ logic [23:0]  rx_data_q [0:9];
 logic         rx_data_rdy [0:9];
 
 logic [63:0]  freqcomp;
-logic [31:0]  freqcompp [0:3];
-logic [4:0]   chanp [0:3];
+logic [31:0]  freqcompp [0:2];
+logic [3:0]   chanp [0:2];
 
 
 logic [31:0]  rx_phase [0:9];    // The Rx phase calculated from the frequency sent by the PC.
@@ -180,6 +178,8 @@ logic [31:0]  tx_phase0;
 
 logic signed [17:0]   mixdata_i [0:9];
 logic signed [17:0]   mixdata_q [0:9];
+
+logic [3:0] nco_index;
 
 logic [33:0] debug;
 
@@ -298,6 +298,46 @@ end
 // is guarded by CDC handshake
 assign freqcomp = cmd_data * M2 + M3;
 
+// Map address to phase index
+always @* begin
+  if (link_running) begin
+    case(cmd_addr[4:0])
+      5'h01   : nco_index = 4'hf; // TX
+      5'h02   : nco_index = 4'h0;
+      5'h03   : nco_index = 4'h0;
+      5'h04   : nco_index = 4'h1;
+      5'h05   : nco_index = 4'h1;
+      5'h06   : nco_index = 4'h2;
+      5'h07   : nco_index = 4'h2;
+      5'h08   : nco_index = 4'h3;
+      5'h12   : nco_index = 4'h3;
+      5'h13   : nco_index = 4'h4;
+      5'h14   : nco_index = 4'h4;
+      5'h15   : nco_index = 4'h5;
+      5'h16   : nco_index = 4'h5;
+      default : nco_index = 4'hx;
+    endcase
+  end else begin
+    case(cmd_addr[4:0])
+      5'h01   : nco_index = 4'hf; // TX
+      5'h02   : nco_index = 4'h0;
+      5'h03   : nco_index = 4'h1;
+      5'h04   : nco_index = 4'h2;
+      5'h05   : nco_index = 4'h3;
+      5'h06   : nco_index = 4'h4;
+      5'h07   : nco_index = 4'h5;
+      5'h08   : nco_index = 4'h6;
+      5'h12   : nco_index = 4'h7;
+      5'h13   : nco_index = 4'h8;
+      5'h14   : nco_index = 4'h9;
+      5'h15   : nco_index = 4'ha;
+      5'h16   : nco_index = 4'hb;
+      default : nco_index = 4'hx;
+    endcase
+  end
+end
+
+
 // Pipeline freqcomp
 always @ (posedge clk) begin
   // Pipeline to allow 2 cycles for multiply
@@ -305,23 +345,21 @@ always @ (posedge clk) begin
     freqcompp[0] <= freqcomp[56:25];
     freqcompp[1] <= freqcomp[56:25];
     freqcompp[2] <= freqcomp[56:25];
-    freqcompp[3] <= freqcomp[56:25];
-    chanp[0] <= cmd_addr[4:0];
-    chanp[1] <= cmd_addr[4:0];
-    chanp[2] <= cmd_addr[4:0];
-    chanp[3] <= cmd_addr[4:0];
+    chanp[0] <= nco_index;
+    chanp[1] <= nco_index;
+    chanp[2] <= nco_index;
   end
 end
 
 // TX0 and RX0
 always @ (posedge clk) begin
   if (cmd_state == CMD_FREQ3) begin
-    if (chanp[0] == 5'h01) begin
+    if (chanp[0] == 4'hf) begin
       tx_phase0 <= freqcompp[0];
       if (!duplex && (last_chan == 4'b0000)) rx_phase[0] <= freqcompp[0];
     end
 
-    if (chanp[0] == 5'h02) begin
+    if (chanp[0] == 4'h0) begin
       if (!duplex && (last_chan == 4'b0000)) rx_phase[0] <= tx_phase0;
       else rx_phase[0] <= freqcompp[0];
     end
@@ -333,9 +371,7 @@ generate
   for (c = 1; c < NR; c = c + 1) begin: RXIFFREQ
     always @ (posedge clk) begin
       if (cmd_state == CMD_FREQ3) begin
-        if (chanp[c/8] == ((c < 7) ? c+2 : c+11)) begin
-          rx_phase[c] <= freqcompp[c/8];
-        end
+        if (chanp[c/4] == c) rx_phase[c] <= freqcompp[c/4];
       end
     end
   end
@@ -631,13 +667,15 @@ endgenerate
 
 // Send RX data upstream
 localparam
-  RXUS_WAIT1  = 2'b00,
-  RXUS_I      = 2'b10,
-  RXUS_Q      = 2'b11,
-  RXUS_WAIT0  = 2'b01;
+  RXUS_WAIT1  = 3'b000,
+  RXUS_I      = 3'b010,
+  RXUS_Q      = 3'b011,
+  RXUSLM_I    = 3'b110,
+  RXUSLM_Q    = 3'b111,
+  RXUS_WAIT0  = 3'b001;
 
-logic [1:0]   rxus_state = RXUS_WAIT1;
-logic [1:0]   rxus_state_next;
+logic [2:0]   rxus_state = RXUS_WAIT1;
+logic [2:0]   rxus_state_next;
 
 always @(posedge clk) begin
   if (rst_all) begin
@@ -684,7 +722,34 @@ always @* begin
         rxus_state_next = RXUS_WAIT0;
       end else begin
         chan_next = chan + 4'h1;
-        rxus_state_next = RXUS_I;
+        if (link_running & link_master) rxus_state_next = RXUSLM_I;
+        else rxus_state_next = RXUS_I;
+      end
+    end
+
+    RXUSLM_I: begin
+      rx_tvalid = 1'b1;
+      rx_tdata = link_rx_data;
+      rx_tuser = 2'b00; // Bit 0 will appear as left mic LSB in VNA mode, add VNA here
+      if (link_rx_data_valid) begin
+        rx_tvalid = 1'b1;
+        rxus_state_next = RXUSLM_Q;
+      end
+    end
+
+    RXUSLM_Q: begin
+      
+      rx_tdata = link_rx_data;
+
+      if (link_rx_data_valid) begin
+        rx_tvalid = 1'b1;
+        if (chan == last_chan) begin
+          rx_tlast = 1'b1;
+          rxus_state_next = RXUS_WAIT0;
+        end else begin
+          chan_next = chan + 4'h1;
+          rxus_state_next = RXUS_I;
+        end
       end
     end
 

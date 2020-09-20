@@ -294,10 +294,14 @@ logic           msec_pulse, msec_pulse_ethsync;
 
 logic           atu_txinhibit, atu_txinhibit_ad9866ync;
 
-logic           stall_req, stall_req_sync;
-logic           stall_ack, stall_ack_ad9866;
-logic           rst_all, rst_nco;
-logic           link_running, link_running_iosync;
+logic        stall_req, stall_req_sync;
+logic        stall_ack, stall_ack_ad9866;
+logic        rst_all, rst_nco;
+logic        link_running, link_running_iosync;
+logic        link_master       ;
+logic [23:0] link_rx_data      ;
+logic        link_rx_data_valid;
+
 
 logic        clk_i2c_rst;
 logic [15:0] au_rdata   ;
@@ -311,7 +315,6 @@ logic [11:0] fwdpwr                    ;
 logic [11:0] revpwr                    ;
 logic [11:0] bias                      ;
 logic [ 7:0] control_dsiq_status       ;
-
 
 logic signed [15:0] debug;
 
@@ -811,6 +814,11 @@ radio_i
   .rst_all(rst_all),
   .rst_nco(rst_nco),
 
+  .link_running(link_running),
+  .link_master(link_master),
+  .link_rx_data(link_rx_data),
+  .link_rx_data_valid(link_rx_data_valid),
+
   .run(run_ad9866sync),
   .qmsec_pulse(qmsec_pulse_ad9866sync),
   .ext_keydown(cw_keydown_ad9866sync),
@@ -1155,6 +1163,9 @@ if (HL2LINK == 1) begin
     .rst_all        (rst_all           ),
     .rst_nco        (rst_nco           ),
     .running        (link_running      ),
+    .master_sel     (link_master       ),
+    .rx_data        (link_rx_data      ),
+    .rx_data_valid  (link_rx_data_valid),
     .ds_cmd_addr    (ds_cmd_addr       ),
     .ds_cmd_data    (ds_cmd_data       ),
     .ds_cmd_rqst    (ds_cmd_rqst_ad9866),
@@ -1179,12 +1190,15 @@ end else begin
   assign rst_all        = 1'b0;
   assign rst_nco        = 1'b0;
 
-  assign cmd_addr     = ds_cmd_addr;
-  assign cmd_data     = ds_cmd_data;
-  assign cmd_cnt      = ds_cmd_cnt;
-  assign cmd_is_alt   = ds_cmd_is_alt;
-  assign cmd_resprqst = ds_cmd_resprqst;
-  assign link_running = 1'b0;
+  assign cmd_addr           = ds_cmd_addr;
+  assign cmd_data           = ds_cmd_data;
+  assign cmd_cnt            = ds_cmd_cnt;
+  assign cmd_is_alt         = ds_cmd_is_alt;
+  assign cmd_resprqst       = ds_cmd_resprqst;
+  assign link_running       = 1'b0;
+  assign link_master        = 1'b0;
+  assign link_rx_data       = 24'hXXXXXX;
+  assign link_rx_data_valid = 1'b1;
 end
 
 endgenerate
