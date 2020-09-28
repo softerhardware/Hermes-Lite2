@@ -10,8 +10,11 @@ module hl2link_app (
   output logic        rst_nco          = 1'b0,
   output              running        ,
   output logic        master_sel       = 1'b0,
-  output       [23:0] rx_data        ,
-  output logic        rx_data_valid    = 1'b0,
+  output       [23:0] lm_data        ,
+  output logic        lm_valid         = 1'b0,
+  input        [23:0] ls_data        ,
+  input               ls_valid       ,
+  output              ls_done        ,
   input        [ 5:0] ds_cmd_addr    ,
   input        [31:0] ds_cmd_data    ,
   input               ds_cmd_rqst    ,
@@ -27,6 +30,7 @@ module hl2link_app (
 );
 
 logic        send_tvalid;
+logic        cmd_send_tvalid;
 logic [37:0] send_tdata ;
 logic [ 1:0] send_tuser ;
 logic        send_tready;
@@ -40,18 +44,21 @@ logic        recv_tdone ;
 
 logic cl1on_ack, cl1on_rqst;
 
-assign send_tdata  = {ds_cmd_addr,ds_cmd_data};
-assign send_tuser  = 2'b01;
+assign send_tdata  = master_sel ? {ds_cmd_addr,ds_cmd_data} : {ls_data,ds_cmd_data[13:0]};
+assign send_tuser  = master_sel ? 2'b01 : 2'b10;
+assign send_tvalid = master_sel ? cmd_send_tvalid : ls_valid;
+
 assign recv_tready = 1'b1;
 
 assign stall_req = 1'b0;
 
-assign rx_data = recv_tdata[23:0];
+assign lm_data = recv_tdata[23:0];
 
 always @(posedge clk) begin
-  rx_data_valid <= recv_tdone | recv_tready;
+  lm_valid <= recv_tdone;
 end 
 
+assign ls_done = recv_tdone;
 
 // hl2link master control - only accessible via ethernet
 always @(posedge clk) begin
@@ -114,7 +121,7 @@ always @* begin
   cmd_resprqst_next = cmd_resprqst;
   cmd_is_alt_next   = cmd_is_alt;
 
-  send_tvalid = 1'b0;
+  cmd_send_tvalid = 1'b0;
   cl1on_ack   = 1'b0;
 
   case(cmd_state)
@@ -124,7 +131,7 @@ always @* begin
       end else if (cl1on_rqst) begin
         cmd_state_next = CMD_SLVCLK1ON0;
       end else if (ds_cmd_rqst) begin
-        send_tvalid       = ds_cmd_mask[1]; // Only send to remote if mask set
+        cmd_send_tvalid   = ds_cmd_mask[1]; // Only send to remote if mask set
         cmd_data_next     = ds_cmd_data;
         cmd_addr_next     = ds_cmd_addr;
         cmd_resprqst_next = ds_cmd_resprqst;
@@ -169,7 +176,6 @@ always @* begin
 
   endcase
 end
-
 
 hl2link hl2link_i (
   .clk        (clk        ),

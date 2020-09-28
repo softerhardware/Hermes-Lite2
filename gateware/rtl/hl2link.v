@@ -81,7 +81,7 @@ always @* begin
         linktx_next      = send_tuser;
         rsend_tdata_next = send_tdata;
         if (send_tuser == 2'b01)      send_cnt_next = 5'h12; // Command word 38 bits
-        else if (send_tuser == 2'b10) send_cnt_next = 5'h0c; // RX sample 2+24 bits
+        else if (send_tuser == 2'b10) send_cnt_next = 5'h0b; // RX sample 24 bits
         else if (send_tuser == 2'b11) send_cnt_next = 5'h0f; // TX IQ sample 16+16 bits
         send_state_next = SEND_WORK;
       end
@@ -228,7 +228,7 @@ always @* begin
     RECV_IDLE: begin
       recv_tvalid = 1'b1;
       if (linkrx_int == 2'b01)      recv_cnt_next = 5'h12; // Command word 38 bits
-      else if (linkrx_int == 2'b10) recv_cnt_next = 5'h0c; // RX sample 2+24 bits
+      else if (linkrx_int == 2'b10) recv_cnt_next = 5'h0b; // RX sample 2+24 bits
       else if (linkrx_int == 2'b11) recv_cnt_next = 5'h0f; // TX IQ sample 16+16 bits
 
       if (linkrx_int != 2'b00) begin

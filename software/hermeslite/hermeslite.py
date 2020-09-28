@@ -18,6 +18,8 @@ wideband_type \
 response_data \
 ext_cw_key \
 tx_on \
+link_running \
+link_master \
 adc_clip_cnt \
 temperature \
 fwd_pwr \
@@ -51,6 +53,8 @@ def decode(r):
   temp = r[0x1b]
   ext_cw_key = (temp & 0x80) != 0
   tx_on     = (temp & 0x40) != 0
+  link_running = (temp & 0x20) != 0
+  link_master = (temp & 0x10) != 0
   adc_clip_cnt = temp & 0x03
   temperature = struct.unpack('!H',r[0x1c:0x1e])[0]
   # For best accuracy, 3.26 should be a user's measured 3.3V supply voltage.
@@ -64,8 +68,8 @@ def decode(r):
   txfifo_recovery = (temp & 0x80) != 0
   txfifo_msbs = (temp & 0x7f)
   return Response(t,mac,gateware,radio_id,use_eeprom_ip,use_eeprom_mac,favor_dhcp,eeprom_ip,eeprom_mac,
-    receivers,board_id,wideband_type,response_data,ext_cw_key,tx_on,adc_clip_cnt,temperature,
-    fwd_pwr,rev_pwr,bias,txfifo_recovery,txfifo_msbs)
+    receivers,board_id,wideband_type,response_data,ext_cw_key,tx_on,link_running,link_master,
+    adc_clip_cnt,temperature,fwd_pwr,rev_pwr,bias,txfifo_recovery,txfifo_msbs)
 
 
 def discover():
@@ -181,7 +185,7 @@ class HermesLite:
 
   def reset_versa5(self):
     """Force reset of both PLL counters to synchronize clocks"""
-    cmd = bytes([0x00,0x00,0x00,0x00])
+    cmd = bytes([0x00,0x00,0x00,0x08])
     return self.command(0x39,cmd)
 
   def enable_cl2_copy_ad9866(self):
@@ -256,6 +260,18 @@ class HermesLite:
     self.write_versa5(0x10,0x80) ## Enable xtal input only
     self.write_versa5(0x17,0x04) ## Change top multiplier to 0x44
     self.write_versa5(0x18,0x40)
+
+  def synchronize_radios(self):
+    self.command(bytes[0x00,0x00,0x00,0x0b])
+    time.sleep(0.2)
+    self.command(bytes[0x00,0x00,0x09,0x00])
+    time.sleep(0.2)
+    self.command(bytes[0x00,0x00,0x00,0x80])
+    time.sleep(0.2)
+    self.command(bytes[0x00,0x81,0x00,0x00])
+    ## Send frequency updates 
+    time.sleep(0.2)
+    self.command(bytes[0x00,0x00,0x00,0x90])
 
   def enable_txlna(self,gain=-12):
     """Set and enable the hardware managed LNA for TX"""

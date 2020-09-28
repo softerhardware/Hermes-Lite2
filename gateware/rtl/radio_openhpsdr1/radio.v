@@ -8,8 +8,11 @@ module radio (
 
   link_running,
   link_master,
-  link_rx_data,
-  link_rx_data_valid,
+  lm_data,
+  lm_valid,
+
+  ls_valid,
+  ls_done,
 
   run,
   qmsec_pulse,
@@ -95,8 +98,10 @@ input         rst_all                ;
 input         rst_nco                ;
 input         link_running           ;
 input         link_master            ;
-input  [23:0] link_rx_data           ;
-input         link_rx_data_valid     ;
+input  [23:0] lm_data                ;
+input         lm_valid               ;
+output        ls_valid               ;
+input         ls_done                ;
 input         run                    ;
 input         qmsec_pulse            ;
 input         ext_keydown            ;
@@ -149,6 +154,7 @@ logic  [ 3:0]       last_chan_next;
 
 logic  [ 3:0]       chan = 4'h0;
 logic  [ 3:0]       chan_next;
+logic  [ 3:0]       chan_index = 4'h0;
 
 logic               duplex = 1'b0;
 logic               duplex_next;
@@ -300,23 +306,40 @@ assign freqcomp = cmd_data * M2 + M3;
 
 // Map address to phase index
 always @* begin
-  if (link_running) begin
+  if (link_running & link_master) begin
     case(cmd_addr[4:0])
       5'h01   : nco_index = 4'hf; // TX
       5'h02   : nco_index = 4'h0;
-      5'h03   : nco_index = 4'h0;
+      5'h03   : nco_index = 4'he;
       5'h04   : nco_index = 4'h1;
-      5'h05   : nco_index = 4'h1;
+      5'h05   : nco_index = 4'he;
       5'h06   : nco_index = 4'h2;
-      5'h07   : nco_index = 4'h2;
+      5'h07   : nco_index = 4'he;
       5'h08   : nco_index = 4'h3;
-      5'h12   : nco_index = 4'h3;
+      5'h12   : nco_index = 4'he;
       5'h13   : nco_index = 4'h4;
-      5'h14   : nco_index = 4'h4;
+      5'h14   : nco_index = 4'he;
       5'h15   : nco_index = 4'h5;
-      5'h16   : nco_index = 4'h5;
-      default : nco_index = 4'hx;
+      5'h16   : nco_index = 4'he;
+      default : nco_index = 4'he;
     endcase
+  end else if (link_running & ~link_master) begin
+    case(cmd_addr[4:0])
+      5'h01   : nco_index = 4'he; // TX
+      5'h02   : nco_index = 4'he;
+      5'h03   : nco_index = 4'h0;
+      5'h04   : nco_index = 4'he;
+      5'h05   : nco_index = 4'h1;
+      5'h06   : nco_index = 4'he;
+      5'h07   : nco_index = 4'h2;
+      5'h08   : nco_index = 4'he;
+      5'h12   : nco_index = 4'h3;
+      5'h13   : nco_index = 4'he;
+      5'h14   : nco_index = 4'h4;
+      5'h15   : nco_index = 4'he;
+      5'h16   : nco_index = 4'h5;
+      default : nco_index = 4'he;
+    endcase    
   end else begin
     case(cmd_addr[4:0])
       5'h01   : nco_index = 4'hf; // TX
@@ -668,11 +691,14 @@ endgenerate
 // Send RX data upstream
 localparam
   RXUS_WAIT1  = 3'b000,
-  RXUS_I      = 3'b010,
+  RXUS_I      = 3'b001,
   RXUS_Q      = 3'b011,
-  RXUSLM_I    = 3'b110,
-  RXUSLM_Q    = 3'b111,
-  RXUS_WAIT0  = 3'b001;
+  RXUS_WAIT0  = 3'b010,
+  RXUSLM_I    = 3'b111,
+  RXUSLM_Q    = 3'b110,
+  RXUSLS_I    = 3'b100,
+  RXUSLS_Q    = 3'b101;
+
 
 logic [2:0]   rxus_state = RXUS_WAIT1;
 logic [2:0]   rxus_state_next;
@@ -698,26 +724,31 @@ always @* begin
   rx_tvalid = 1'b0;
   rx_tuser  = 2'b00;
 
+  ls_valid = 1'b0;
+
+  chan_index = link_running ? (chan >> 1) : chan;
+
   case(rxus_state)
     RXUS_WAIT1: begin
       chan_next = 4'h0;
-      if (rx_data_rdy[0] & rx_tready) begin
-        rxus_state_next = RXUS_I;
+      if (rx_data_rdy[0]) begin
+        if (link_running & ~link_master) rxus_state_next = RXUSLS_I;
+        else if (rx_tready) rxus_state_next = RXUS_I;
       end
     end
 
     RXUS_I: begin
       rx_tvalid = 1'b1;
-      rx_tdata = rx_data_i[chan];
+      rx_tdata = rx_data_i[chan_index];
       rx_tuser = 2'b00; // Bit 0 will appear as left mic LSB in VNA mode, add VNA here
       rxus_state_next = RXUS_Q;
     end
 
     RXUS_Q: begin
       rx_tvalid = 1'b1;
-      rx_tdata = rx_data_q[chan];
+      rx_tdata = rx_data_q[chan_index];
 
-      if (chan == last_chan) begin
+      if (chan >= last_chan) begin
         rx_tlast = 1'b1;
         rxus_state_next = RXUS_WAIT0;
       end else begin
@@ -728,22 +759,18 @@ always @* begin
     end
 
     RXUSLM_I: begin
-      rx_tvalid = 1'b1;
-      rx_tdata = link_rx_data;
-      rx_tuser = 2'b00; // Bit 0 will appear as left mic LSB in VNA mode, add VNA here
-      if (link_rx_data_valid) begin
+      rx_tdata = lm_data;
+      if (lm_valid) begin
         rx_tvalid = 1'b1;
         rxus_state_next = RXUSLM_Q;
       end
     end
 
     RXUSLM_Q: begin
-      
-      rx_tdata = link_rx_data;
-
-      if (link_rx_data_valid) begin
+      rx_tdata = lm_data;
+      if (lm_valid) begin
         rx_tvalid = 1'b1;
-        if (chan == last_chan) begin
+        if (chan >= last_chan) begin
           rx_tlast = 1'b1;
           rxus_state_next = RXUS_WAIT0;
         end else begin
@@ -759,6 +786,32 @@ always @* begin
         rxus_state_next = RXUS_WAIT1;
       end
     end
+
+    RXUSLS_I: begin
+      if (chan >= last_chan) begin
+        rxus_state_next = RXUS_WAIT0;
+      end else begin
+        ls_valid = 1'b1;
+        rx_tdata = rx_data_i[chan_index];
+        if (ls_done) rxus_state_next = RXUSLS_Q;
+      end
+    end
+
+    RXUSLS_Q: begin
+      ls_valid = 1'b1;
+      rx_tdata = rx_data_q[chan_index];
+
+      if (ls_done) begin
+        if (chan >= last_chan) begin
+          rxus_state_next = RXUS_WAIT0;
+        end else begin
+          chan_next = chan + 4'h2;
+          rxus_state_next = RXUSLS_I;
+        end
+      end
+    end
+
+
 
   endcase // rxus_state
 end
