@@ -298,9 +298,11 @@ logic        stall_req, stall_req_sync;
 logic        stall_ack, stall_ack_ad9866;
 logic        rst_all, rst_nco;
 logic        link_running, link_running_iosync;
-logic        link_master       ;
-logic [23:0] link_rx_data      ;
-logic        link_rx_data_valid;
+logic        link_master ;
+logic [23:0] lm_data     ;
+logic        lm_valid    ;
+logic        ls_valid    ;
+logic        ls_done     ;
 
 
 logic        clk_i2c_rst;
@@ -683,7 +685,7 @@ usopenhpsdr1 #(
 
   .alt_resp_rqst(alt_resp_rqst_usopenhpsdr1),
   .resp_data(resp_data),
-  .resp_control(resp_control),
+  .resp_control({resp_control[7:6],link_running,link_master,resp_control[3:0]}),
   .temperature(temperature),
   .fwdpwr(fwdpwr),
   .revpwr(revpwr),
@@ -816,8 +818,10 @@ radio_i
 
   .link_running(link_running),
   .link_master(link_master),
-  .link_rx_data(link_rx_data),
-  .link_rx_data_valid(link_rx_data_valid),
+  .lm_data(lm_data),
+  .lm_valid(lm_valid),
+  .ls_valid(ls_valid),
+  .ls_done(ls_done),
 
   .run(run_ad9866sync),
   .qmsec_pulse(qmsec_pulse_ad9866sync),
@@ -1164,8 +1168,11 @@ if (HL2LINK == 1) begin
     .rst_nco        (rst_nco           ),
     .running        (link_running      ),
     .master_sel     (link_master       ),
-    .rx_data        (link_rx_data      ),
-    .rx_data_valid  (link_rx_data_valid),
+    .lm_data        (lm_data           ),
+    .lm_valid       (lm_valid          ),
+    .ls_valid       (ls_valid          ),
+    .ls_done        (ls_done           ),
+    .ls_data        (rx_tdata          ),
     .ds_cmd_addr    (ds_cmd_addr       ),
     .ds_cmd_data    (ds_cmd_data       ),
     .ds_cmd_rqst    (ds_cmd_rqst_ad9866),
@@ -1197,8 +1204,8 @@ end else begin
   assign cmd_resprqst       = ds_cmd_resprqst;
   assign link_running       = 1'b0;
   assign link_master        = 1'b0;
-  assign link_rx_data       = 24'hXXXXXX;
-  assign link_rx_data_valid = 1'b1;
+  assign lm_data       = 24'hXXXXXX;
+  assign lm_valid = 1'b1;
 end
 
 endgenerate
