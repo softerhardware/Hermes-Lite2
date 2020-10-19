@@ -70,6 +70,8 @@ parameter         QS1R = 0;
 
 parameter         DEBUGRX = 0;
 
+parameter         HL2LINK = 0;
+
 // B57 = 2^57.   M2 = B57/OSC
 // 61440000
 //localparam M2 = 32'd2345624805;
@@ -132,7 +134,7 @@ input  [ 5:0]        cmd_addr ;
 input  [31:0]        cmd_data ;
 input                cmd_rqst ;
 output               cmd_ack  ;
-output [15:0]        debug_out;
+output logic [15:0]  debug_out;
 
 
 logic [ 1:0]        tx_predistort = 2'b00;
@@ -188,6 +190,9 @@ logic signed [17:0]   mixdata_q [0:9];
 logic [3:0] nco_index;
 
 logic [33:0] debug;
+
+logic [5:0]  synced_receivers   = 6'h00;
+
 
 genvar c;
 
@@ -326,18 +331,18 @@ always @* begin
   end else if (link_running & ~link_master) begin
     case(cmd_addr[4:0])
       5'h01   : nco_index = 4'he; // TX
-      5'h02   : nco_index = 4'he;
-      5'h03   : nco_index = 4'h0;
-      5'h04   : nco_index = 4'he;
-      5'h05   : nco_index = 4'h1;
-      5'h06   : nco_index = 4'he;
-      5'h07   : nco_index = 4'h2;
-      5'h08   : nco_index = 4'he;
-      5'h12   : nco_index = 4'h3;
-      5'h13   : nco_index = 4'he;
-      5'h14   : nco_index = 4'h4;
-      5'h15   : nco_index = 4'he;
-      5'h16   : nco_index = 4'h5;
+      5'h02   : nco_index = {~synced_receivers[0],3'h0};
+      5'h03   : nco_index = { synced_receivers[0],3'h0};
+      5'h04   : nco_index = {~synced_receivers[1],3'h1};
+      5'h05   : nco_index = { synced_receivers[1],3'h1};
+      5'h06   : nco_index = {~synced_receivers[2],3'h2};
+      5'h07   : nco_index = { synced_receivers[2],3'h2};
+      5'h08   : nco_index = {~synced_receivers[3],3'h3};
+      5'h12   : nco_index = { synced_receivers[3],3'h3};
+      5'h13   : nco_index = {~synced_receivers[4],3'h4};
+      5'h14   : nco_index = { synced_receivers[4],3'h4};
+      5'h15   : nco_index = {~synced_receivers[5],3'h5};
+      5'h16   : nco_index = { synced_receivers[5],3'h5};
       default : nco_index = 4'he;
     endcase    
   end else begin
@@ -536,7 +541,7 @@ if (NR >= 3) begin: RECEIVER2
 end
 
 if (NR >= 4) begin: RECEIVER3
-  receiver_nco #(.CICRATE(CICRATE)) receiver_3 (
+  receiver_nco #(.CICRATE(CICRATE), .REGISTER_OUTPUT(HL2LINK)) receiver_3 (
     .rst_all(rst_all),
     .clock(clk),
     .clock_2x(clk_2x),
@@ -566,7 +571,7 @@ if (NR >= 5) begin: MIX4_5
 end
 
 if (NR >= 5) begin: RECEIVER4
-  receiver_nco #(.CICRATE(CICRATE)) receiver_4 (
+  receiver_nco #(.CICRATE(CICRATE), .REGISTER_OUTPUT(HL2LINK)) receiver_4 (
     .rst_all(rst_all),
     .clock(clk),
     .clock_2x(clk_2x),
@@ -580,7 +585,7 @@ if (NR >= 5) begin: RECEIVER4
 end
 
 if (NR >= 6) begin: RECEIVER5
-  receiver_nco #(.CICRATE(CICRATE)) receiver_5 (
+  receiver_nco #(.CICRATE(CICRATE), .REGISTER_OUTPUT(HL2LINK)) receiver_5 (
     .rst_all(rst_all),
     .clock(clk),
     .clock_2x(clk_2x),
@@ -611,7 +616,7 @@ if (NR >= 7) begin: MIX6_7
 end
 
 if (NR >= 7) begin: RECEIVER6
-  receiver_nco #(.CICRATE(CICRATE)) receiver_6 (
+  receiver_nco #(.CICRATE(CICRATE), .REGISTER_OUTPUT(HL2LINK)) receiver_6 (
     .rst_all(rst_all),
     .clock(clk),
     .clock_2x(clk_2x),
@@ -625,7 +630,7 @@ if (NR >= 7) begin: RECEIVER6
 end
 
 if (NR >= 8) begin: RECEIVER7
-  receiver_nco #(.CICRATE(CICRATE)) receiver_7 (
+  receiver_nco #(.CICRATE(CICRATE), .REGISTER_OUTPUT(HL2LINK)) receiver_7 (
     .rst_all(rst_all),
     .clock(clk),
     .clock_2x(clk_2x),
@@ -656,7 +661,7 @@ if (NR >= 9) begin: MIX8_9
 end
 
 if (NR >= 9) begin: RECEIVER8
-  receiver_nco #(.CICRATE(CICRATE)) receiver_8 (
+  receiver_nco #(.CICRATE(CICRATE), .REGISTER_OUTPUT(HL2LINK)) receiver_8 (
     .rst_all(rst_all),
     .clock(clk),
     .clock_2x(clk_2x),
@@ -670,7 +675,7 @@ if (NR >= 9) begin: RECEIVER8
 end
 
 if (NR >= 10) begin: RECEIVER9
-  receiver_nco #(.CICRATE(CICRATE)) receiver_9 (
+  receiver_nco #(.CICRATE(CICRATE), .REGISTER_OUTPUT(HL2LINK)) receiver_9 (
     .rst_all(rst_all),
     .clock(clk),
     .clock_2x(clk_2x),
@@ -760,7 +765,9 @@ always @* begin
 
     RXUSLM_I: begin
       rx_tdata = lm_data;
-      if (lm_valid) begin
+      if (rx_data_rdy[0]) begin
+        rxus_state_next = RXUS_WAIT0; // Escape
+      end else if (lm_valid) begin
         rx_tvalid = 1'b1;
         rxus_state_next = RXUSLM_Q;
       end
@@ -768,7 +775,9 @@ always @* begin
 
     RXUSLM_Q: begin
       rx_tdata = lm_data;
-      if (lm_valid) begin
+      if (rx_data_rdy[0]) begin
+        rxus_state_next= RXUS_WAIT0; // Escape
+      end else if (lm_valid) begin
         rx_tvalid = 1'b1;
         if (chan >= last_chan) begin
           rx_tlast = 1'b1;
@@ -788,8 +797,8 @@ always @* begin
     end
 
     RXUSLS_I: begin
-      if (chan >= last_chan) begin
-        rxus_state_next = RXUS_WAIT0;
+      if ((chan >= last_chan) | rx_data_rdy[0]) begin
+        rxus_state_next = RXUS_WAIT0; // Escape
       end else begin
         ls_valid = 1'b1;
         rx_tdata = rx_data_i[chan_index];
@@ -801,7 +810,9 @@ always @* begin
       ls_valid = 1'b1;
       rx_tdata = rx_data_q[chan_index];
 
-      if (ls_done) begin
+      if (rx_data_rdy[0]) begin
+        rxus_state_next = RXUS_WAIT0; // Escape
+      end else if (ls_done) begin
         if (chan >= last_chan) begin
           rxus_state_next = RXUS_WAIT0;
         end else begin
@@ -926,6 +937,8 @@ always @(posedge clk) begin
     end else if (cmd_addr == 6'h17) begin
       tx_buffer_latency <= cmd_data[6:0];
       ptt_hang_time <= cmd_data[12:8];
+    end else if (cmd_addr == 6'h39 & cmd_data[23]) begin
+      synced_receivers <= cmd_data[21:16];
     end
   end
 end
@@ -1390,10 +1403,19 @@ always @ (posedge clk) begin
   adcpipe[4] <= rx_data_adc_pipe;
 end
 
-assign debug_out = 16'd0;
+assign debug_out[15:4] = 12'd0;
+
+always @(posedge clk) begin
+  debug_out[0] <= rx_data_rdy[0];
+  debug_out[1] <= lm_valid;
+  debug_out[2] <= ls_valid;
+  debug_out[3] <= ls_done;
+end
+
 
 end
 endgenerate
+
 
 
 

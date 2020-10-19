@@ -44,6 +44,8 @@ logic        recv_tdone ;
 
 logic cl1on_ack, cl1on_rqst;
 
+logic rst_link = 1'b0;
+
 assign send_tdata  = master_sel ? {ds_cmd_addr,ds_cmd_data} : {ls_data,ds_cmd_data[13:0]};
 assign send_tuser  = master_sel ? 2'b01 : 2'b10;
 assign send_tvalid = master_sel ? cmd_send_tvalid : ls_valid;
@@ -58,7 +60,7 @@ always @(posedge clk) begin
   lm_valid <= recv_tdone;
 end 
 
-assign ls_done = recv_tdone;
+assign ls_done = send_tdone;
 
 // hl2link master control - only accessible via ethernet
 always @(posedge clk) begin
@@ -72,14 +74,19 @@ end
 
 // hl2link global control - synchronized with slave
 always @(posedge clk) begin
-  if (cmd_rqst & cmd_addr == 6'h39 & cmd_data[7]) begin
-    case (cmd_data[4])
-      1'h0: rst_all <= 1'b1;
-      1'h1: rst_nco <= 1'b1;
-    endcase
+  if (cmd_rqst & cmd_addr == 6'h39) begin
+    if (cmd_data[7]) begin
+      case (cmd_data[4])
+        1'h0: rst_all <= 1'b1;
+        1'h1: rst_nco <= 1'b1;
+      endcase
+    end
+    // Reset link if exiting master
+    if (cmd_data[11] & ~cmd_data[8]) rst_link <=  1'b1;
   end else begin
-    rst_all <= 1'b0;
-    rst_nco <= 1'b0;
+    rst_all <=  1'b0;
+    rst_nco <=  1'b0;
+    rst_link <= 1'b0;
   end
 end
 
@@ -126,9 +133,9 @@ always @* begin
 
   case(cmd_state)
     CMD_IDLE : begin
-      if ((recv_tuser == 2'b01) & recv_tdone) begin
+      if ((recv_tuser == 2'b01) & recv_tdone & ~master_sel) begin
         cmd_state_next = CMD_SLV0;
-      end else if (cl1on_rqst) begin
+      end else if (cl1on_rqst & ~master_sel) begin
         cmd_state_next = CMD_SLVCLK1ON0;
       end else if (ds_cmd_rqst) begin
         cmd_send_tvalid   = ds_cmd_mask[1]; // Only send to remote if mask set
@@ -146,7 +153,7 @@ always @* begin
     end
 
     CMD_MST1 : begin
-      cmd_cnt_next   = ds_cmd_mask[0] ? ~cmd_cnt : cmd_cnt; // Only send to master if mask set
+      cmd_cnt_next   = (ds_cmd_mask[0] | ~running) ? ~cmd_cnt : cmd_cnt; // Only send to master if mask set
       cmd_state_next = CMD_IDLE;
     end
 
@@ -179,7 +186,7 @@ end
 
 hl2link hl2link_i (
   .clk        (clk        ),
-  .rst        (1'b0       ),
+  .rst        (rst_link   ),
   .linkrx     (linkrx     ),
   .linktx     (linktx     ),
   .running    (running    ),

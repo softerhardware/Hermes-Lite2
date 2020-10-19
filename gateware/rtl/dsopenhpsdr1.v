@@ -86,7 +86,7 @@ logic        ds_cmd_cnt_next     ;
 logic        ds_cmd_ptt_next     ;
 logic        ds_cmd_resprqst_next;
 logic        ds_cmd_is_alt_next  ;
-logic [ 1:0] ds_cmd_mask_next    ;
+logic [ 1:0] ds_cmd_mask_next     = 2'b11 ;
 
 logic        ds_cmd_rqst                  ;
 logic        ds_cmd_ptt                   ;
@@ -104,6 +104,9 @@ logic        cwx_enable           = 1'b0  ;
 
 logic [ 1:0] discover_port_next;
 logic        discover_cnt_next;
+
+logic watchdog_disable = 1'b0;
+logic runstop_watchdog_valid = 1'b0;
 
 // State
 always @(posedge clk) begin
@@ -169,6 +172,8 @@ always @(*) begin
   dsethasmi_tlast  = 1'b0;
   dsethasmi_erase  = 1'b0;
 
+  runstop_watchdog_valid = 1'b0;
+
   case (state)
     START: begin
       //framecnt_next = 1'b0;
@@ -184,12 +189,13 @@ always @(*) begin
       else if (eth_data == 8'h04) state_next = RUNSTOP;
       else if (eth_data == 8'h02) state_next = DISCOVERY;
       else if (eth_data == 8'h03) state_next = ASMI_DECODE;
-      else if ((eth_data == 8'h05) & eth_port[0] & ~eth_broadcast) state_next = CMDCTRL;
+      else if ((eth_data == 8'h05) & eth_port[0] & ~eth_broadcast) state_next = SYNC0;
     end
 
     RUNSTOP: begin
       run_next = eth_data[0];
       wide_spectrum_next = eth_data[1];
+      runstop_watchdog_valid = 1'b1;
     end
 
     DISCOVERY: begin
@@ -376,8 +382,12 @@ assign dseth_tdata = eth_data;
 always @(posedge clk) begin
   if (cmd_rqst) begin
     if (cmd_addr == 6'h0f) begin
-        cwx_enable <= cmd_data[24];
+      cwx_enable <= cmd_data[24];
+    end else if ((cmd_addr == 6'h39) & (cmd_data[27])) begin
+      watchdog_disable <= cmd_data[24];
     end
+  end else if (runstop_watchdog_valid) begin
+    watchdog_disable <= eth_data[7]; // Bit 7 can be used to disable watchdog
   end
 end
 
@@ -386,7 +396,7 @@ end
 // Watch dog logic, stop if sending too much
 // without receiving packets
 always @(posedge clk) begin
-  if (~run | watchdog_clr) begin
+  if (~run | watchdog_clr | watchdog_disable) begin
     watchdog_cnt <= 10'h00;
   end else if (watchdog_up) begin
     watchdog_cnt <= watchdog_cnt + 10'h01;

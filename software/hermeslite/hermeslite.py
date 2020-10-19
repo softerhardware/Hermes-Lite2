@@ -152,7 +152,8 @@ class HermesLite:
       Returns a response."""
     if isinstance(cmd,int):
       cmd = struct.pack('!L',cmd)
-    res = self._send(bytes([0xef,0xfe,0x05,addr<<1])+cmd+bytes([0x0]*52))
+    ## send to both units for now
+    res = self._send(bytes([0xef,0xfe,0x05,0x7f,addr<<1])+cmd+bytes([0x0]*52))
     if res:
       self.wrcache[addr] = cmd
     return res
@@ -262,16 +263,23 @@ class HermesLite:
     self.write_versa5(0x18,0x40)
 
   def synchronize_radios(self):
-    self.command(bytes[0x00,0x00,0x00,0x0b])
+    ## Enable clock output on CL2 of master
+    self.command(0x39,bytes([0x00,0x00,0x00,0x0b]))
     time.sleep(0.2)
-    self.command(bytes[0x00,0x00,0x09,0x00])
+    ## Establish link from master to secondary unit
+    self.command(0x39,bytes([0x00,0x00,0x09,0x00]))
     time.sleep(0.2)
-    self.command(bytes[0x00,0x00,0x00,0x80])
+    ## Reset all pipelines in both units
+    self.command(0x39,bytes([0x00,0x00,0x00,0x80]))
     time.sleep(0.2)
-    self.command(bytes[0x00,0x81,0x00,0x00])
-    ## Send frequency updates 
+    ## Syncronize Rx1 on both units (RX1 from secondary is in place of RX2 on master)
+    self.command(0x39,bytes([0x00,0x81,0x00,0x00]))
     time.sleep(0.2)
-    self.command(bytes[0x00,0x00,0x00,0x90])
+    ## Make sure RX1 and RX2 are at the same frequency before NCO reset
+    self.command(0x02,14074000)
+    time.sleep(0.2)
+    ## Reset the NCOs
+    self.command(0x39,bytes([0x00,0x00,0x00,0x90]))
 
   def enable_txlna(self,gain=-12):
     """Set and enable the hardware managed LNA for TX"""

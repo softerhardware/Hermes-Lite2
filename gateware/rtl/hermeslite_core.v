@@ -93,7 +93,8 @@ module hermeslite_core (
   //
   output       fan_pwm                   ,
   input  [1:0] linkrx                    ,
-  output [1:0] linktx
+  output [1:0] linktx                    ,
+  output [3:0] debug_out
 );
 
 
@@ -318,8 +319,8 @@ logic [11:0] revpwr                    ;
 logic [11:0] bias                      ;
 logic [ 7:0] control_dsiq_status       ;
 
-logic signed [15:0] debug;
-
+logic [15:0] debug;
+assign debug_out = debug[3:0];
 
 /////////////////////////////////////////////////////
 // Clocks
@@ -806,7 +807,8 @@ radio #(
   .NR(NR),
   .NT(NT),
   .LRDATA(LRDATA),
-  .CLK_FREQ(CLK_FREQ)
+  .CLK_FREQ(CLK_FREQ),
+  .HL2LINK(HL2LINK)
 )
 radio_i
 (
@@ -910,12 +912,6 @@ sync syncio_run (
   .sig_out(run_iosync)
 );
 
-sync syncio_link_running (
-  .clock(clk_ctrl),
-  .sig_in(link_running),
-  .sig_out(link_running_iosync)
-);
-
 sync syncio_tx_on (
   .clock(clk_ctrl),
   .sig_in(tx_on),
@@ -940,127 +936,127 @@ control #(
   .EXTENDED_RESP(EXTENDED_RESP)
 ) control_i (
   // Internal
-  .clk                (clk_ctrl              ),
-  .clk_ad9866         (clk_ad9866            ), // Just for measurement
-  .clk_125            (clock_125_mhz_0_deg   ),
-  .clk_slow           (clk_ad9866_slow       ),
-
-  .ethup              (ethup                 ),
-  .have_dhcp_ip       (~network_state_dhcp   ),
-  .have_fixed_ip      (~network_state_fixedip),
-  .network_speed      (network_speed         ),
-  .ad9866up           (ad9866up              ),
-
-  .rxclip             (rxclip_iosync         ),
-  .rxgoodlvl          (rxgoodlvl_iosync      ),
-  .rxclrstatus        (rxclrstatus           ),
-  .run                (run_iosync            ),
-  .link_running       (link_running_iosync   ),
-
-  .dsiq_status        (dsiq_status           ),
-  .dsiq_sample        (dsiq_sample           ),
-
-  .cmd_addr           (cmd_addr              ),
-  .cmd_data           (cmd_data              ),
-  .cmd_rqst           (cmd_rqst_io           ),
-  .cmd_is_alt         (cmd_is_alt            ),
-  .cmd_requires_resp  (cmd_resprqst          ),
-
-  .atu_txinhibit      (atu_txinhibit         ),
-  .tx_on              (tx_on_iosync          ),
-  .cw_on              (cw_on_iosync          ),
-  .cw_keydown         (cw_keydown            ),
-
-
-  .msec_pulse         (msec_pulse            ),
-  .qmsec_pulse        (qmsec_pulse           ),
-
-  .resp_rqst          (resp_rqst_iosync      ),
-  .resp               (resp                  ),
-
-  .static_ip          (static_ip             ),
-  .alt_mac            (alt_mac               ),
-  .eeprom_config      (eeprom_config         ),
-
+  .clk                (clk_ctrl                   ),
+  .clk_ad9866         (clk_ad9866                 ), // Just for measurement
+  .clk_125            (clock_125_mhz_0_deg        ),
+  .clk_slow           (clk_ad9866_slow            ),
+  
+  .ethup              (ethup                      ),
+  .have_dhcp_ip       (~network_state_dhcp        ),
+  .have_fixed_ip      (~network_state_fixedip     ),
+  .network_speed      (network_speed              ),
+  .ad9866up           (ad9866up                   ),
+  
+  .rxclip             (rxclip_iosync              ),
+  .rxgoodlvl          (rxgoodlvl_iosync           ),
+  .rxclrstatus        (rxclrstatus                ),
+  .run                (run_iosync                 ),
+  .link_running       (link_running & ~link_master),
+  
+  .dsiq_status        (dsiq_status                ),
+  .dsiq_sample        (dsiq_sample                ),
+  
+  .cmd_addr           (cmd_addr                   ),
+  .cmd_data           (cmd_data                   ),
+  .cmd_rqst           (cmd_rqst_io                ),
+  .cmd_is_alt         (cmd_is_alt                 ),
+  .cmd_requires_resp  (cmd_resprqst               ),
+  
+  .atu_txinhibit      (atu_txinhibit              ),
+  .tx_on              (tx_on_iosync               ),
+  .cw_on              (cw_on_iosync               ),
+  .cw_keydown         (cw_keydown                 ),
+  
+  
+  .msec_pulse         (msec_pulse                 ),
+  .qmsec_pulse        (qmsec_pulse                ),
+  
+  .resp_rqst          (resp_rqst_iosync           ),
+  .resp               (resp                       ),
+  
+  .static_ip          (static_ip                  ),
+  .alt_mac            (alt_mac                    ),
+  .eeprom_config      (eeprom_config              ),
+  
   // External
-  .rffe_rfsw_sel      (rffe_rfsw_sel         ),
-
+  .rffe_rfsw_sel      (rffe_rfsw_sel              ),
+  
   // AD9866
-  .rffe_ad9866_rst_n  (rffe_ad9866_rst_n     ),
-
-  .rffe_ad9866_sdio   (rffe_ad9866_sdio      ),
-  .rffe_ad9866_sclk   (rffe_ad9866_sclk      ),
-  .rffe_ad9866_sen_n  (rffe_ad9866_sen_n     ),
-
+  .rffe_ad9866_rst_n  (rffe_ad9866_rst_n          ),
+  
+  .rffe_ad9866_sdio   (rffe_ad9866_sdio           ),
+  .rffe_ad9866_sclk   (rffe_ad9866_sclk           ),
+  .rffe_ad9866_sen_n  (rffe_ad9866_sen_n          ),
+  
   // Power
-  .pwr_clk3p3         (pwr_clk3p3            ),
-  .pwr_clk1p2         (pwr_clk1p2            ),
-  .pwr_envpa          (pwr_envpa             ),
-  .pwr_envop          (pwr_envop             ),
-  .pwr_envbias        (pwr_envbias           ),
-
-  .sda1_i             (sda1_i                ),
-  .sda1_o             (sda1_o                ),
-  .sda1_t             (sda1_t                ),
-  .scl1_i             (scl1_i                ),
-  .scl1_o             (scl1_o                ),
-  .scl1_t             (scl1_t                ),
-
-  .sda2_i             (sda2_i                ),
-  .sda2_o             (sda2_o                ),
-  .sda2_t             (sda2_t                ),
-  .scl2_i             (scl2_i                ),
-  .scl2_o             (scl2_o                ),
-  .scl2_t             (scl2_t                ),
-
-  .sda3_i             (sda3_i                ),
-  .sda3_o             (sda3_o                ),
-  .sda3_t             (sda3_t                ),
-  .scl3_i             (scl3_i                ),
-  .scl3_o             (scl3_o                ),
-  .scl3_t             (scl3_t                ),
-
+  .pwr_clk3p3         (pwr_clk3p3                 ),
+  .pwr_clk1p2         (pwr_clk1p2                 ),
+  .pwr_envpa          (pwr_envpa                  ),
+  .pwr_envop          (pwr_envop                  ),
+  .pwr_envbias        (pwr_envbias                ),
+  
+  .sda1_i             (sda1_i                     ),
+  .sda1_o             (sda1_o                     ),
+  .sda1_t             (sda1_t                     ),
+  .scl1_i             (scl1_i                     ),
+  .scl1_o             (scl1_o                     ),
+  .scl1_t             (scl1_t                     ),
+  
+  .sda2_i             (sda2_i                     ),
+  .sda2_o             (sda2_o                     ),
+  .sda2_t             (sda2_t                     ),
+  .scl2_i             (scl2_i                     ),
+  .scl2_o             (scl2_o                     ),
+  .scl2_t             (scl2_t                     ),
+  
+  .sda3_i             (sda3_i                     ),
+  .sda3_o             (sda3_o                     ),
+  .sda3_t             (sda3_t                     ),
+  .scl3_i             (scl3_i                     ),
+  .scl3_o             (scl3_o                     ),
+  .scl3_t             (scl3_t                     ),
+  
   // IO
-  .io_led_run         (io_led_run            ),
-  .io_led_tx          (io_led_tx             ),
-  .io_led_adc75       (io_led_adc75          ),
-  .io_led_adc100      (io_led_adc100         ),
-
-  .io_tx_inhibit      (io_tx_inhibit         ),
-
-  .io_uart_txd        (io_uart_txd           ),
+  .io_led_run         (io_led_run                 ),
+  .io_led_tx          (io_led_tx                  ),
+  .io_led_adc75       (io_led_adc75               ),
+  .io_led_adc100      (io_led_adc100              ),
+  
+  .io_tx_inhibit      (io_tx_inhibit              ),
+  
+  .io_uart_txd        (io_uart_txd                ),
   //.io_uart_txd        (                      ),
-  .io_cw_keydown      (io_cw_keydown         ),
-
-  .io_phone_tip       (io_phone_tip          ),
-  .io_phone_ring      (io_phone_ring         ),
-
-  .io_atu_ack         (io_atu_ack            ),
-  .io_atu_req         (io_atu_req            ),
-
+  .io_cw_keydown      (io_cw_keydown              ),
+  
+  .io_phone_tip       (io_phone_tip               ),
+  .io_phone_ring      (io_phone_ring              ),
+  
+  .io_atu_ack         (io_atu_ack                 ),
+  .io_atu_req         (io_atu_req                 ),
+  
   // PA
-  .pa_inttr           (pa_inttr              ),
-  .pa_exttr           (pa_exttr              ),
-
-  .hl2_reset          (hl2_reset             ),
-
-  .fan_pwm            (fan_pwm               ),
-
-  .ad9866_rst         (ad9866_rst            ),
-
-  .clk_i2c_rst        (clk_i2c_rst           ),
-  .io_ptt_in          (io_ptt_in             ),
-
-  .alt_resp_cnt       (alt_resp_cnt          ),
-  .resp_data          (resp_data             ),
-  .resp_control       (resp_control          ),
-  .temp               (temperature           ),
-  .fwdpwr             (fwdpwr                ),
-  .revpwr             (revpwr                ),
-  .bias               (bias                  ),
-  .control_dsiq_status(control_dsiq_status   ),
-
-  .debug              (debug                 )
+  .pa_inttr           (pa_inttr                   ),
+  .pa_exttr           (pa_exttr                   ),
+  
+  .hl2_reset          (hl2_reset                  ),
+  
+  .fan_pwm            (fan_pwm                    ),
+  
+  .ad9866_rst         (ad9866_rst                 ),
+  
+  .clk_i2c_rst        (clk_i2c_rst                ),
+  .io_ptt_in          (io_ptt_in                  ),
+  
+  .alt_resp_cnt       (alt_resp_cnt               ),
+  .resp_data          (resp_data                  ),
+  .resp_control       (resp_control               ),
+  .temp               (temperature                ),
+  .fwdpwr             (fwdpwr                     ),
+  .revpwr             (revpwr                     ),
+  .bias               (bias                       ),
+  .control_dsiq_status(control_dsiq_status        ),
+  
+  .debug              (16'h0000) //(debug                      )
 );
 
 
