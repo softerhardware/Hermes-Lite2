@@ -37,20 +37,19 @@ module receiver_nco(
   input signed [17:0] mixdata_I,
   input signed [17:0] mixdata_Q,  
   output out_strobe,
-  output [23:0] out_data_I,
-  output [23:0] out_data_Q,
+  output reg [23:0] out_data_I,
+  output reg [23:0] out_data_Q,
   output [33:0] debug
   );
 
   parameter CICRATE = 5;
 
+  parameter REGISTER_OUTPUT = 0;
+
 // gain adjustment, Hermes reduced by 6dB to match previous receiver code.
 // Hermes-Lite gain reduced to calibrate QtRadio
 wire signed [23:0] out_data_I2;
 wire signed [23:0] out_data_Q2;
-assign out_data_I = out_data_I2; //>>> 3);
-assign out_data_Q = out_data_Q2; //>>> 3);
-
   
 // Receive CIC filters followed by FIR filter
 wire decimA_avail, decimB_avail;
@@ -123,5 +122,30 @@ firX8R8 fir2 (
   .y_real(out_data_I2),
   .y_imag(out_data_Q2)
   );
+
+generate
+
+//assign out_data_I = out_data_I2; //>>> 3);
+//assign out_data_Q = out_data_Q2; //>>> 3);
+
+if (REGISTER_OUTPUT == 1) begin
+
+  always @(posedge clock) begin
+    out_data_I <= out_data_I2;
+    out_data_Q <= out_data_Q2;
+  end
+
+end else begin
+
+  always @(*) begin
+    out_data_I = out_data_I2;
+    out_data_Q = out_data_Q2;
+  end
+
+end
+
+endgenerate
+
+
 
 endmodule
