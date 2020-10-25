@@ -524,7 +524,7 @@ endgenerate
 
 generate case (FAN)
   0: begin: NOFAN // No FAN
-
+  
     assign fan_pwm = 1'b0;
     assign temp_enabletx = 1'b1;
 
@@ -620,9 +620,67 @@ generate case (FAN)
       endcase
     end
   end
+  
+  2: begin: BAND_DATA
+
+   // Enough freq resolution to define bands
+   localparam FREQ_2MHZ  = 10'h001f;	//  2.03162 MHz
+   localparam FREQ_4MHZ  = 10'h003e;	//  4.06323 MHz
+   localparam FREQ_6MHZ  = 10'h005c;	//  6.02931 MHz
+   localparam FREQ_8MHZ  = 10'h007a;	//  7.99539 MHz
+   localparam FREQ_12MHZ = 10'h00b7;	// 11.9931  MHz
+   localparam FREQ_16MHZ = 10'h00f4;	// 15.9908  MHz
+   localparam FREQ_20MHZ = 10'h0131;	// 19.9885  MHz
+   localparam FREQ_23MHZ = 10'h015e;	// 22.9376  MHZ
+   localparam FREQ_25MHZ = 10'h017e;	// 25.0348  MHz
+	
+	localparam DAC_VOLT   = 2400;		// mV
+	localparam DAC_BITS   = 12;
+   
+   localparam VOLT_160M  = ( 230*(2**DAC_BITS))/DAC_VOLT;	
+   localparam VOLT_80M   = ( 460*(2**DAC_BITS))/DAC_VOLT;
+   localparam VOLT_60M   = ( 690*(2**DAC_BITS))/DAC_VOLT;
+   localparam VOLT_40M   = ( 920*(2**DAC_BITS))/DAC_VOLT;
+   localparam VOLT_30M   = (1150*(2**DAC_BITS))/DAC_VOLT;
+   localparam VOLT_20M   = (1380*(2**DAC_BITS))/DAC_VOLT;
+   localparam VOLT_17M   = (1610*(2**DAC_BITS))/DAC_VOLT;
+   localparam VOLT_15M   = (1840*(2**DAC_BITS))/DAC_VOLT;
+   localparam VOLT_12M   = (2070*(2**DAC_BITS))/DAC_VOLT;
+   localparam VOLT_10M   = (2300*(2**DAC_BITS))/DAC_VOLT;
+   				
+   logic [(DAC_BITS-1):0] volt_cnt;
+   logic [(DAC_BITS-1):0] volt_mark;
+   logic [31:0] freq = 32'h00000000;
+   
+   always @(posedge clk) begin
+   	if (cmd_rqst & (cmd_addr == 6'h01)) begin
+   	  freq <= cmd_data;
+   	  end
+   end
+   
+   // PWM counter
+   always @ (posedge clk) begin
+   	volt_cnt <= volt_cnt + 1'b1;
+   	fan_pwm = (volt_mark > volt_cnt);	
+   end
+   
+   // Frequency checking
+   always @* begin
+   
+   	 if        (freq[25:16] >= FREQ_25MHZ) volt_mark = VOLT_10M;
+   		else if (freq[25:16] >= FREQ_23MHZ) volt_mark = VOLT_12M;
+   		else if (freq[25:16] >= FREQ_20MHZ) volt_mark = VOLT_15M;
+   		else if (freq[25:16] >= FREQ_16MHZ) volt_mark = VOLT_17M;
+   		else if (freq[25:16] >= FREQ_12MHZ) volt_mark = VOLT_20M;
+   		else if (freq[25:16] >= FREQ_8MHZ) volt_mark = VOLT_30M;
+   		else if (freq[25:16] >= FREQ_6MHZ) volt_mark = VOLT_40M;
+   		else if (freq[25:16] >= FREQ_4MHZ) volt_mark = VOLT_60M;
+   		else if (freq[25:16] >= FREQ_2MHZ) volt_mark = VOLT_80M;
+   		else volt_mark = VOLT_160M;
+   	 end
+   end
 endcase
 endgenerate
-
 
 generate
   case (UART)
