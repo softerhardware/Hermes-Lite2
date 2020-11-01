@@ -100,7 +100,7 @@ module hermeslite (
     .NT           (1                                    ),
     .UART         (1                                    ),
     .ATU          (1                                    ),
-    .FAN          (2                                    ),
+    .FAN          (1                                    ),
     .PSSYNC       (1                                    ),
     .CW           (1                                    ),
     .ASMII        (1                                    ),
