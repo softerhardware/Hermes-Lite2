@@ -523,7 +523,7 @@ endgenerate
 
 
 generate case (FAN)
-  0: begin: NOFAN // No FAN
+  0: begin: NOFAN // No FAN or Band Volts
   
     assign fan_pwm = 1'b0;
     assign temp_enabletx = 1'b1;
@@ -552,11 +552,18 @@ generate case (FAN)
                FAN_MEDSPEED     = 3'b011,
                FAN_FULLSPEED    = 3'b010,
                FAN_OVERHEAT     = 3'b110;
+					
+    logic band_volts_enabled = 1'b0;					
 
+    logic fan_output = 1'b0;
     logic [15:0] fan_cnt;
     logic [2:0] fan_state_next, fan_state = FAN_OFF;
     logic [1:0] tupvote_next, tupvote;
     logic [1:0] tdnvote_next, tdnvote;
+	 
+	 always @(posedge clk)
+      if (cmd_rqst & (cmd_addr == 6'h00))
+        band_volts_enabled <= cmd_data[11];
 
     // Fan state machine
     always @ (posedge clk) begin
@@ -576,109 +583,119 @@ generate case (FAN)
       tupvote_next = (tupvote == 2'b00) ? tupvote : tupvote - 2'b01;
       tdnvote_next = (tdnvote == 2'b00) ? tdnvote : tdnvote - 2'b01;
 
-      // Combo
-      fan_pwm = 1'b0;
-      temp_enabletx = 1'b1;
+      if (band_volts_enabled == 0) begin 
+        // Combo
+        fan_output = 1'b0;
+        temp_enabletx = 1'b1;
 
-      case (fan_state)
-        FAN_OFF: begin
-          if (temperature > TEMP_37C) tupvote_next = tupvote + 2'b01;
-          if (&tupvote) fan_state_next = FAN_LOWSPEED;
-          fan_pwm = 1'b0;
-        end
+        case (fan_state)
+          FAN_OFF: begin
+            if (temperature > TEMP_37C) tupvote_next = tupvote + 2'b01;
+            if (&tupvote) fan_state_next = FAN_LOWSPEED;
+            fan_output = 1'b0;
+          end
 
-        FAN_LOWSPEED: begin
-          if (temperature > TEMP_40C) tupvote_next = tupvote + 2'b01;
-          else if (temperature < TEMP_35C) tdnvote_next = tdnvote + 2'b01;
-          if (&tupvote) fan_state_next = FAN_MEDSPEED;
-          else if (&tdnvote) fan_state_next = FAN_OFF;
-          fan_pwm = fan_cnt[15]; // on 50% of time
-        end
+          FAN_LOWSPEED: begin
+            if (temperature > TEMP_40C) tupvote_next = tupvote + 2'b01;
+            else if (temperature < TEMP_35C) tdnvote_next = tdnvote + 2'b01;
+            if (&tupvote) fan_state_next = FAN_MEDSPEED;
+            else if (&tdnvote) fan_state_next = FAN_OFF;
+            fan_output = fan_cnt[15]; // on 50% of time
+          end
 
-        FAN_MEDSPEED: begin
-          if (temperature > TEMP_45C) tupvote_next = tupvote + 2'b01;
-          else if (temperature < TEMP_37C) tdnvote_next = tdnvote + 2'b01;
-          if (&tupvote) fan_state_next = FAN_FULLSPEED;
-          else if (&tdnvote) fan_state_next = FAN_LOWSPEED;
-          fan_pwm = fan_cnt[15] | fan_cnt[14]; // on 75% of time
-        end
+          FAN_MEDSPEED: begin
+            if (temperature > TEMP_45C) tupvote_next = tupvote + 2'b01;
+            else if (temperature < TEMP_37C) tdnvote_next = tdnvote + 2'b01;
+            if (&tupvote) fan_state_next = FAN_FULLSPEED;
+            else if (&tdnvote) fan_state_next = FAN_LOWSPEED;
+            fan_output = fan_cnt[15] | fan_cnt[14]; // on 75% of time
+          end
 
-        FAN_FULLSPEED: begin
-          if (temperature > TEMP_55C) tupvote_next = tupvote + 2'b01;
-          else if (temperature < TEMP_40C) tdnvote_next = tdnvote + 2'b01;
-          if (&tupvote) fan_state_next = FAN_OVERHEAT;
-          else if (&tdnvote) fan_state_next = FAN_MEDSPEED;
-          fan_pwm = 1'b1; // on 100% of time
-        end
+          FAN_FULLSPEED: begin
+            if (temperature > TEMP_55C) tupvote_next = tupvote + 2'b01;
+            else if (temperature < TEMP_40C) tdnvote_next = tdnvote + 2'b01;
+            if (&tupvote) fan_state_next = FAN_OVERHEAT;
+            else if (&tdnvote) fan_state_next = FAN_MEDSPEED;
+            fan_output = 1'b1; // on 100% of time
+          end
 
-        FAN_OVERHEAT: begin
-          if (temperature < TEMP_50C) tdnvote_next = tdnvote + 2'b01;
-          if (&tdnvote) fan_state_next = FAN_FULLSPEED;
-          fan_pwm = 1'b1;
-          temp_enabletx = 1'b0;
-        end
-      endcase
+          FAN_OVERHEAT: begin
+            if (temperature < TEMP_50C) tdnvote_next = tdnvote + 2'b01;
+            if (&tdnvote) fan_state_next = FAN_FULLSPEED;
+            fan_output = 1'b1;
+            temp_enabletx = 1'b0;
+          end
+        endcase
+      end
     end
-  end
-  
-  2: begin: BAND_DATA
-
-   // Enough freq resolution to define bands
-   localparam FREQ_2MHZ  = 10'h001f;	//  2.03162 MHz
-   localparam FREQ_4MHZ  = 10'h003e;	//  4.06323 MHz
-   localparam FREQ_6MHZ  = 10'h005c;	//  6.02931 MHz
-   localparam FREQ_8MHZ  = 10'h007a;	//  7.99539 MHz
-   localparam FREQ_12MHZ = 10'h00b7;	// 11.9931  MHz
-   localparam FREQ_16MHZ = 10'h00f4;	// 15.9908  MHz
-   localparam FREQ_20MHZ = 10'h0131;	// 19.9885  MHz
-   localparam FREQ_23MHZ = 10'h015e;	// 22.9376  MHZ
-   localparam FREQ_25MHZ = 10'h017e;	// 25.0348  MHz
+    
+    //MI0BOT: Addition of Band Volts using Fan PWM output. Selection via "Dither" bit
+ 
+    // Enough freq resolution to define bands
+    localparam FREQ_2MHZ  = 10'h001f;	//  2.03162 MHz
+    localparam FREQ_4MHZ  = 10'h003e;	//  4.06323 MHz
+    localparam FREQ_6MHZ  = 10'h005c;	//  6.02931 MHz
+    localparam FREQ_8MHZ  = 10'h007a;	//  7.99539 MHz
+    localparam FREQ_12MHZ = 10'h00b7;	// 11.9931  MHz
+    localparam FREQ_16MHZ = 10'h00f4;	// 15.9908  MHz
+    localparam FREQ_20MHZ = 10'h0131;	// 19.9885  MHz
+    localparam FREQ_23MHZ = 10'h015e;	// 22.9376  MHZ
+    localparam FREQ_25MHZ = 10'h017e;	// 25.0348  MHz
 	
-	localparam DAC_VOLT   = 2400;		// mV
-	localparam DAC_BITS   = 12;
+	  localparam DAC_VOLT   = 2400;		// Power voltage in mV
+	  localparam DAC_BITS   = 12;
    
-   localparam VOLT_160M  = ( 230*(2**DAC_BITS))/DAC_VOLT;	
-   localparam VOLT_80M   = ( 460*(2**DAC_BITS))/DAC_VOLT;
-   localparam VOLT_60M   = ( 690*(2**DAC_BITS))/DAC_VOLT;
-   localparam VOLT_40M   = ( 920*(2**DAC_BITS))/DAC_VOLT;
-   localparam VOLT_30M   = (1150*(2**DAC_BITS))/DAC_VOLT;
-   localparam VOLT_20M   = (1380*(2**DAC_BITS))/DAC_VOLT;
-   localparam VOLT_17M   = (1610*(2**DAC_BITS))/DAC_VOLT;
-   localparam VOLT_15M   = (1840*(2**DAC_BITS))/DAC_VOLT;
-   localparam VOLT_12M   = (2070*(2**DAC_BITS))/DAC_VOLT;
-   localparam VOLT_10M   = (2300*(2**DAC_BITS))/DAC_VOLT;
+    localparam VOLT_160M  = ( 230*(2**DAC_BITS))/DAC_VOLT;	// Band voltage required in mV
+    localparam VOLT_80M   = ( 460*(2**DAC_BITS))/DAC_VOLT;
+    localparam VOLT_60M   = ( 690*(2**DAC_BITS))/DAC_VOLT;
+    localparam VOLT_40M   = ( 920*(2**DAC_BITS))/DAC_VOLT;
+    localparam VOLT_30M   = (1150*(2**DAC_BITS))/DAC_VOLT;
+    localparam VOLT_20M   = (1380*(2**DAC_BITS))/DAC_VOLT;
+    localparam VOLT_17M   = (1610*(2**DAC_BITS))/DAC_VOLT;
+    localparam VOLT_15M   = (1840*(2**DAC_BITS))/DAC_VOLT;
+    localparam VOLT_12M   = (2070*(2**DAC_BITS))/DAC_VOLT;
+    localparam VOLT_10M   = (2300*(2**DAC_BITS))/DAC_VOLT;
+    
+    logic band_volts_output = 1'b0;
    				
-   logic [(DAC_BITS-1):0] volt_cnt;
-   logic [(DAC_BITS-1):0] volt_mark;
-   logic [31:0] freq = 32'h00000000;
+    logic [(DAC_BITS-1):0] volt_cnt;
+    logic [(DAC_BITS-1):0] volt_mark;
+    logic [31:0] freq = 32'h00000000;
    
-   always @(posedge clk) begin
+    always @(posedge clk) begin
    	if (cmd_rqst & (cmd_addr == 6'h01)) begin
    	  freq <= cmd_data;
    	  end
-   end
+    end
    
-   // PWM counter
-   always @ (posedge clk) begin
-   	volt_cnt <= volt_cnt + 1'b1;
-   	fan_pwm = (volt_mark > volt_cnt);	
-   end
-   
-   // Frequency checking
-   always @* begin
-   
-   	 if        (freq[25:16] >= FREQ_25MHZ) volt_mark = VOLT_10M;
-   		else if (freq[25:16] >= FREQ_23MHZ) volt_mark = VOLT_12M;
-   		else if (freq[25:16] >= FREQ_20MHZ) volt_mark = VOLT_15M;
-   		else if (freq[25:16] >= FREQ_16MHZ) volt_mark = VOLT_17M;
-   		else if (freq[25:16] >= FREQ_12MHZ) volt_mark = VOLT_20M;
-   		else if (freq[25:16] >= FREQ_8MHZ) volt_mark = VOLT_30M;
-   		else if (freq[25:16] >= FREQ_6MHZ) volt_mark = VOLT_40M;
-   		else if (freq[25:16] >= FREQ_4MHZ) volt_mark = VOLT_60M;
-   		else if (freq[25:16] >= FREQ_2MHZ) volt_mark = VOLT_80M;
-   		else volt_mark = VOLT_160M;
-   	 end
-   end
+      // PWM counter
+    always @ (posedge clk) begin
+      if (band_volts_enabled == 1) begin 
+        volt_cnt <= volt_cnt + 1'b1;
+        band_volts_output = (volt_mark > volt_cnt);	
+      end
+    end
+    
+ 
+    // Frequency checking
+    always @* begin
+      if      (freq[25:16] >= FREQ_25MHZ) volt_mark = VOLT_10M;
+      else if (freq[25:16] >= FREQ_23MHZ) volt_mark = VOLT_12M;
+      else if (freq[25:16] >= FREQ_20MHZ) volt_mark = VOLT_15M;
+      else if (freq[25:16] >= FREQ_16MHZ) volt_mark = VOLT_17M;
+      else if (freq[25:16] >= FREQ_12MHZ) volt_mark = VOLT_20M;
+      else if (freq[25:16] >= FREQ_8MHZ) volt_mark = VOLT_30M;
+      else if (freq[25:16] >= FREQ_6MHZ) volt_mark = VOLT_40M;
+      else if (freq[25:16] >= FREQ_4MHZ) volt_mark = VOLT_60M;
+      else if (freq[25:16] >= FREQ_2MHZ) volt_mark = VOLT_80M;
+      else volt_mark = VOLT_160M;
+      
+      if (band_volts_enabled == 1)  
+        fan_pwm = band_volts_output;
+      else
+        fan_pwm = fan_output;
+    end
+  end
 endcase
 endgenerate
 
