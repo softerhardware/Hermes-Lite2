@@ -642,7 +642,7 @@ generate case (FAN)
     localparam FREQ_23MHZ = 10'h015e;	// 22.9376  MHZ
     localparam FREQ_25MHZ = 10'h017e;	// 25.0348  MHz
 	
-	  localparam DAC_VOLT   = 2400;		// Power voltage in mV
+	  localparam DAC_VOLT   = 3300;		// Power voltage in mV
 	  localparam DAC_BITS   = 12;
    
     localparam VOLT_160M  = ( 230*(2**DAC_BITS))/DAC_VOLT;	// Band voltage required in mV
