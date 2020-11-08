@@ -78,6 +78,8 @@ logic [ 3:0] state              = START                  ;
 logic [ 3:0] state_next                                  ;
 logic [10:0] byte_no            = 11'h00                 ;
 logic [10:0] byte_no_next                                ;
+logic [ 5:0] dbyte_no           = 6'h0                   ;
+logic [ 5:0] dbyte_no_next                               ;
 logic [10:0] udp_tx_length_next                          ;
 logic [19:0] ep6_seq_no         = 20'h0                  ;
 logic [19:0] ep6_seq_no_next                             ;
@@ -138,6 +140,7 @@ always @ (posedge clk) begin
   state <= state_next;
 
   byte_no <= byte_no_next;
+  dbyte_no <= dbyte_no_next;
   discover_data <= discover_data_next;
   wide_data <= wide_data_next;
   udp_data <= udp_data_next;
@@ -172,6 +175,7 @@ always @* begin
   state_next = state;
 
   byte_no_next = byte_no;
+  dbyte_no_next = dbyte_no;
   discover_data_next = discover_data;
   wide_data_next = wide_data;
   udp_data_next = udp_data;
@@ -227,7 +231,7 @@ always @* begin
     end
 
     DISCOVER1: begin
-      byte_no_next = 'h3a;
+      dbyte_no_next = 'h3a;
       udp_tx_data = discover_data;
       udp_tx_request = (usethasmi_erase_done | usethasmi_send_more) ? 2'b10 : discover_state;
       discover_rst = 1'b1;
@@ -236,9 +240,9 @@ always @* begin
     end // DISCOVER1:
 
     DISCOVER2: begin
-      byte_no_next = byte_no - 11'd1;
+      dbyte_no_next = dbyte_no - 6'd1;
       udp_tx_data = discover_data;
-      case (byte_no[5:0])
+      case (dbyte_no)
         6'h3a: discover_data_next = 8'hfe;
         6'h39: discover_data_next = usethasmi_erase_done ? 8'h03 : (usethasmi_send_more ? 8'h04 : (run ? 8'h03 : 8'h02));
         6'h38: discover_data_next = mac[47:40];
@@ -278,7 +282,7 @@ always @* begin
         6'h17: discover_data_next = dsiq_status;
         6'h00: begin
           discover_data_next = 8'h00;
-          if (usethasmi_erase_done | usethasmi_send_more) byte_no_next = 6'h00;
+          if (usethasmi_erase_done | usethasmi_send_more) dbyte_no_next = 6'h00;
           else state_next = START;
         end
         default: begin
@@ -287,7 +291,7 @@ always @* begin
       endcase
 
       // Always acknowledge
-      usethasmi_ack = byte_no[5:0] <= 6'h38;
+      usethasmi_ack = dbyte_no <= 6'h38;
     end
 
     // start sending UDP/IP data
