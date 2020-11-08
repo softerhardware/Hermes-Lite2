@@ -162,6 +162,17 @@ class HermesLite:
     """Retrieve a response without sending address and command."""
     return self._send(bytes([0xef,0xfe,0x02]+([0x0]*57)))
 
+  def write_ad9866(self,addr,data):
+    """Write to Versa5 clock chip via i2c."""
+    time.sleep(0.002)
+    data = data & 0x0ff
+    addr = addr & 0x0ff
+    cmd = bytes([0x06,addr,0x0,data])
+    return self.command(0x3b,cmd)
+
+  def enable_ad9866_2xclk(self):
+    return self.write_ad9866(0x04,0x36)
+
   def write_versa5(self,addr,data):
     """Write to Versa5 clock chip via i2c."""
     time.sleep(0.002)
