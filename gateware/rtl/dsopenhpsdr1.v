@@ -91,15 +91,14 @@ logic [ 1:0] ds_cmd_mask_next     = 2'b11 ;
 logic        ds_cmd_rqst                  ;
 logic        ds_cmd_ptt                   ;
 logic        watchdog_clr                 ;
-logic [ 9:0] watchdog_cnt         = 10'h00;
+logic [11:0] watchdog_cnt         = 12'h00;
 logic [13:0] asmi_cnt_next                ;
 logic [ 8:0] msec_cnt                     ;
 logic        msec_cnt_not_zero            ;
-logic        pushiq                       ;
-logic        cwx                  = 1'b0  ;
-logic        cwx_next                     ;
-logic        cwx_saved            = 1'b0  ;
-logic        cwx_saved_next               ;
+logic        cwx_pushiq           = 1'b0  ;
+logic        cwx_pushiq_next              ;
+logic [ 1:0] cwx_saved            = 2'b00 ;
+logic [ 1:0] cwx_saved_next               ;
 logic        cwx_enable           = 1'b0  ;
 
 logic [ 1:0] discover_port_next;
@@ -121,7 +120,7 @@ always @(posedge clk) begin
   discover_port   <= discover_port_next;
   discover_cnt    <= discover_cnt_next;
   asmi_cnt        <= asmi_cnt_next;
-  cwx             <= cwx_next;
+  cwx_pushiq      <= cwx_pushiq_next;
   cwx_saved       <= cwx_saved_next;
 
   if ((eth_unreachable) | &watchdog_cnt) begin
@@ -153,7 +152,7 @@ always @(*) begin
   ds_cmd_is_alt_next = ds_cmd_is_alt;
   ds_cmd_mask_next = ds_cmd_mask;
   asmi_cnt_next = asmi_cnt;
-  cwx_next = cwx;
+  cwx_pushiq_next = cwx_pushiq;
   cwx_saved_next = cwx_saved;
 
   discover_port_next = discover_port;
@@ -292,6 +291,7 @@ always @(*) begin
     end
 
     CMDDATA3: begin
+      cwx_pushiq_next = ~ds_cmd_ptt & cwx_enable & msec_cnt_not_zero;
       ds_cmd_data_next = {eth_data,ds_cmd_data[23:0]};
       state_next = CMDDATA2;
     end
@@ -341,26 +341,27 @@ always @(*) begin
 
     PUSHI1: begin
       dsethiq_tuser  = ds_cmd_ptt;
-      dsethiq_tvalid = pushiq;
+      dsethiq_tvalid = ds_cmd_ptt | cwx_pushiq;
       state_next = PUSHI0;
     end
 
     PUSHI0: begin
-      dsethiq_tuser  = cwx;
-      cwx_saved_next = eth_data[0];
-      dsethiq_tvalid = pushiq;
+      dsethiq_tuser  = cwx_saved[0];
+      dsethiq_tvalid = ds_cmd_ptt | cwx_pushiq;
       state_next = PUSHQ1;
+      cwx_saved_next = {eth_data[3],eth_data[0]};
     end
 
     PUSHQ1: begin
-      dsethiq_tvalid = pushiq;
+      dsethiq_tuser = cwx_saved[1];
+      dsethiq_tvalid = ds_cmd_ptt | cwx_pushiq;
       state_next = PUSHQ0;
     end
 
     PUSHQ0: begin
-      dsethiq_tvalid = pushiq;
+      dsethiq_tvalid = ds_cmd_ptt | cwx_pushiq;
       dsethiq_tlast  = 1'b1;
-      cwx_next = cwx_saved & cwx_enable & ~ds_cmd_ptt;
+      cwx_pushiq_next = (~ds_cmd_ptt & cwx_enable) & (|cwx_saved | msec_cnt_not_zero);
       if (&pushcnt[5:0]) begin
         if (~pushcnt[6]) begin
           //framecnt_next = 1'b1;
@@ -397,20 +398,19 @@ end
 // without receiving packets
 always @(posedge clk) begin
   if (~run | watchdog_clr | watchdog_disable) begin
-    watchdog_cnt <= 10'h00;
+    watchdog_cnt <= 12'h00;
   end else if (watchdog_up) begin
-    watchdog_cnt <= watchdog_cnt + 10'h01;
+    watchdog_cnt <= watchdog_cnt + 12'h01;
   end
 end
 
 
 assign msec_cnt_not_zero = |msec_cnt;
 
-assign pushiq = msec_cnt_not_zero | ds_cmd_ptt;
-
 // CWX spacing hang
 always @(posedge clk) begin
-  if (cwx) msec_cnt <= 9'd500;
+  if (ds_cmd_ptt | ~cwx_enable) msec_cnt <= 9'd0;
+  else if (|cwx_saved) msec_cnt <= 9'd500;
   else if (msec_cnt_not_zero & msec_pulse) msec_cnt <= msec_cnt - 1;
 end
 

@@ -896,7 +896,8 @@ logic signed [15:0] txsumq;
 logic [ 8:0]  tx_qmsectimer_next, tx_qmsectimer = 9'h00;
 logic [18:0]  tx_cwlevel_next, tx_cwlevel = 19'h0;
 
-logic cwx;
+logic cwx_keydown;
+logic cwx_keyup;
 logic ptt;
 logic fir_tready;
 
@@ -954,8 +955,9 @@ always @(posedge clk) begin
 end
 
 always @* begin
-  cwx = tx_tuser[2] & tx_tvalid;
-  ptt = tx_tuser[3] & tx_tvalid;
+  cwx_keyup   = tx_tuser[1] & tx_tvalid;
+  cwx_keydown = tx_tuser[2] & tx_tvalid;
+  ptt         = tx_tuser[3] & tx_tvalid;
 
 
   tx_state_next      = tx_state;
@@ -964,8 +966,8 @@ always @* begin
   tx_fir_i_next      = tx_fir_i;
   tx_fir_q_next      = tx_fir_q;
 
-  tx_on = 1'b1;
-  cw_on = 1'b0;
+  tx_on     = 1'b1;
+  cw_on     = 1'b0;
   tx_cw_key = 1'b0;
   tx_tready = fir_tready; // Empty FIFO
 
@@ -974,33 +976,35 @@ always @* begin
 
   case (tx_state)
 
-    NOTX: begin
-      tx_fir_i_next = 16'h00;
-      tx_fir_q_next = 16'h00;
-      tx_cwlevel_next = 19'h00;
+    NOTX : begin
+      tx_fir_i_next      = 16'h00;
+      tx_fir_q_next      = 16'h00;
+      tx_cwlevel_next    = 19'h00;
       tx_qmsectimer_next = {tx_buffer_latency, 2'b00};
-      tx_on = 1'b0;
+      tx_on              = 1'b0;
 
       // Free accumulated samples to maintain time coherency in tape recorder mode
       accumdelay_decr = ~fir_tready;
-      tx_tready = accumdelay_notzero | fir_tready;
+      tx_tready       = accumdelay_notzero | fir_tready;
 
-      if (ext_keydown | cwx | ptt) tx_state_next = PRETX;
+      if (ext_keydown | cwx_keydown | cwx_keyup | ptt) tx_state_next = PRETX;
     end
 
-    PRETX: begin
-      tx_tready = 1'b0; //Stall data to fill FIFO unless in CWX mode
+    PRETX : begin
+      tx_tready       = 1'b0; //Stall data to fill FIFO unless in CWX mode
       accumdelay_incr = fir_tready; // Count samples accumulated
       if (tx_qmsectimer != 9'h00) begin
         if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 9'h01;
-        if (~(ext_keydown | cwx | ptt)) tx_state_next = NOTX;
+        if (~(ext_keydown | cwx_keydown | cwx_keyup | ptt)) tx_state_next = NOTX;
       end else begin
-        if (cwx | ext_keydown) tx_state_next = CWTX;
-        else tx_state_next = PTTTX;
+        if (ext_keydown) tx_state_next = CWTX;
+        else if (ptt) tx_state_next = PTTTX;
+        else if (cwx_keydown | cwx_keyup) tx_state_next = CWTX;
+        else tx_state_next = NOTX;
       end
     end
 
-    PTTTX: begin
+    PTTTX : begin
       if (ext_keydown) begin
         tx_state_next = CWTX;
       end else if (ptt) begin
@@ -1018,10 +1022,10 @@ always @* begin
       end
     end
 
-    CWTX: begin
-      cw_on = 1'b1;
+    CWTX : begin
+      cw_on     = 1'b1;
       tx_cw_key = 1'b1;
-      if (ext_keydown | cwx) begin
+      if (ext_keydown | cwx_keydown) begin
         // Shape CW on
         if (tx_cwlevel != MAX_CWLEVEL) tx_cwlevel_next = tx_cwlevel + 19'h01;
         tx_qmsectimer_next = {tx_buffer_latency, 2'b00};
@@ -1030,24 +1034,24 @@ always @* begin
         if (tx_qmsectimer != 9'h00) begin
           if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 9'h01;
         end else if (tx_cwlevel != 19'h00) tx_cwlevel_next = tx_cwlevel - 19'h01;
-        else begin
+        else if (~cwx_keyup) begin
           tx_qmsectimer_next = {tx_buffer_latency, 2'b00};
-          tx_cwlevel_next = {7'b0000000, cw_hang_time, 2'b00};
-          tx_state_next = CWHANG;
+          tx_cwlevel_next    = {7'b0000000, cw_hang_time, 2'b00};
+          tx_state_next      = CWHANG;
         end
       end
     end
 
-    CWHANG: begin
+    CWHANG : begin
       cw_on = 1'b1;
-      if (ext_keydown | cwx) begin
+      if (ext_keydown | cwx_keydown) begin
         // delay ext CW by tx_buffer_latency
         if (tx_qmsectimer != 9'h00) begin
           if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 9'h01;
         end else begin
           tx_qmsectimer_next = {tx_buffer_latency, 2'b00};
-          tx_cwlevel_next = 19'h0;
-          tx_state_next = CWTX;
+          tx_cwlevel_next    = 19'h0;
+          tx_state_next      = CWTX;
         end
       end else begin
         if (tx_cwlevel != 19'h0) begin
