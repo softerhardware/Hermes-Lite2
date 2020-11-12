@@ -31,7 +31,6 @@ module radioberry (
 	input wire 		pi_rx_clk,
 	output wire 	pi_rx_samples,
 	output [3:0] 	pi_rx_data,
-	output 			pi_rx_last,
 	
 	//TX IQ data
 	input wire 		pi_tx_clk,
@@ -72,7 +71,6 @@ module radioberry (
 	.pi_rx_clk					(pi_rx_clk),
 	.pi_rx_samples				(pi_rx_samples),
 	.pi_rx_data					(pi_rx_data),
-	.pi_rx_last					(pi_rx_last),
 	.pi_tx_clk					(pi_tx_clk),
 	.pi_tx_data					(pi_tx_data),
 	.io_phone_tip				(io_phone_tip),

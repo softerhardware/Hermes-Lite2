@@ -19,9 +19,7 @@ set_location_assignment PIN_44 -to pi_rx_data[2]
 #//BCM20
 set_location_assignment PIN_43 -to pi_rx_data[1]	
 #//BCM21
-set_location_assignment PIN_42 -to pi_rx_data[0]	
-#//BCM23
-set_location_assignment PIN_39 -to pi_rx_last		
+set_location_assignment PIN_42 -to pi_rx_data[0]			
 
 #TX
 #//BCM4

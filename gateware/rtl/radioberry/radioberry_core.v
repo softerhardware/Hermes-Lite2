@@ -29,7 +29,6 @@ module radioberry_core(
 	input 	 		pi_rx_clk,
 	output 			pi_rx_samples,
 	output [3:0] 	pi_rx_data,
-	output 			pi_rx_last,
 	
 	//TX IQ data
 	input wire 		pi_tx_clk,
@@ -52,8 +51,8 @@ parameter       CW = 0; // CW Support
 parameter       FAST_LNA = 0; 
 parameter       AK4951 = 0; 
 
-localparam      VERSION_MAJOR = 8'd71;
-localparam      VERSION_MINOR = 8'd4;
+localparam      VERSION_MAJOR = 8'd72;
+localparam      VERSION_MINOR = 8'd1;
 
 
 logic   [5:0]   cmd_addr;
@@ -139,9 +138,9 @@ assign pi_rx_samples = (usiq_tlength > 11'd256) ? 1'b1: 1'b0;
 logic last;
 logic rx_rd_req;
 logic rd_req;
-ddr_mux ddr_mux_rx_inst(.clk(pi_rx_clk), .reset(reset), .rd_req(rx_rd_req), .in_data(usiq_tdata), .in_last(last), .out_last(pi_rx_last),  .out_data(pi_rx_data));
+ddr_mux ddr_mux_rx_inst(.clk(pi_rx_clk), .rd_req(rx_rd_req), .in_data(usiq_tdata), .out_data(pi_rx_data));
 
-sync_one sync_one_inst(.clock(clk_internal), .sig_in(rx_rd_req), .sig_out(rd_req));
+sync_one sync_one_inst(.clock(clk_internal), .sig_in(rx_rd_req ^ usiq_tvalid), .sig_out(rd_req));
 
 usiq_fifo usiq_fifo_i (
   .wr_clk(clk_ad9866),
