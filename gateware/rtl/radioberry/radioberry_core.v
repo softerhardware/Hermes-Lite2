@@ -37,7 +37,13 @@ module radioberry_core(
 	// Radioberry IO
 	input           io_phone_tip,
 	input           io_phone_ring,
-	output 			io_ptt_out
+	output 			io_ptt_out,
+	
+	// Local CW using pihpsdr
+	input 			io_cwl,
+	input 			io_cwr,
+	output 			pi_cwl,
+	output 			pi_cwr
 );
 
 // PARAMETERS
@@ -52,7 +58,7 @@ parameter       FAST_LNA = 0;
 parameter       AK4951 = 0; 
 
 localparam      VERSION_MAJOR = 8'd72;
-localparam      VERSION_MINOR = 8'd1;
+localparam      VERSION_MINOR = 8'd2;
 
 
 logic   [5:0]   cmd_addr;
@@ -397,5 +403,9 @@ control #(.CW(CW)) control_i (
 	
 	.pa_exttr(io_ptt_out)
   );
+
+// cw assignment.  
+assign pi_cwl = io_cwl;
+assign pi_cwr = io_cwr;
 
 endmodule
