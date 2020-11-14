@@ -39,7 +39,13 @@ module radioberry (
 	// Radioberry IO
 	input           io_phone_tip,
 	input           io_phone_ring,
-	output 			io_ptt_out
+	output 			io_ptt_out,
+	
+	// Local CW using pihpsdr
+	input 			io_cwl,
+	input 			io_cwr,
+	output 			pi_cwl,
+	output 			pi_cwr
 );
 
 
@@ -75,7 +81,11 @@ module radioberry (
 	.pi_tx_data					(pi_tx_data),
 	.io_phone_tip				(io_phone_tip),
 	.io_phone_ring				(io_phone_ring),
-	.io_ptt_out					(io_ptt_out)
+	.io_ptt_out					(io_ptt_out),
+	.io_cwl						(io_cwl),
+	.io_cwr						(io_cwr),
+	.pi_cwl						(pi_cwl),
+	.pi_cwr						(pi_cwr)
   );
 
 endmodule

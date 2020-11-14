@@ -38,6 +38,13 @@ set_location_assignment PIN_144 -to io_ptt_out
 set_location_assignment PIN_120 -to io_phone_tip
 set_location_assignment PIN_121 -to io_phone_ring
 
+#CW 
+set_location_assignment PIN_141 -to io_cwl
+set_location_assignment PIN_142 -to io_cwr
+set_location_assignment PIN_13  -to pi_cwl
+set_location_assignment PIN_39  -to pi_cwr
+
+
 #RF-Frontend
 set_location_assignment PIN_111 -to rffe_ad9866_mode
 set_location_assignment PIN_114 -to rffe_ad9866_rst_n
@@ -84,4 +91,6 @@ set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to *
 
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_phone_tip
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_ptt_out
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_cwl
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_cwr
 

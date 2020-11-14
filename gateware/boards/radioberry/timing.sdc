@@ -56,7 +56,8 @@ set_false_path -to [get_ports {pi_tx_samples}]
 set_false_path -from [get_ports {pi_tx_data[*]}]
 set_false_path -from [get_ports {io_phone_*}]
 set_false_path -to [get_ports {io_ptt_out}]
-
+set_false_path -from [get_ports {io_cw*}]
+set_false_path -to [get_ports {pi_cw*}]
 
 
 ## AD9866 RX Path
