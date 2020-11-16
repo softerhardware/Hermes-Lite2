@@ -58,7 +58,7 @@ parameter       FAST_LNA = 0;
 parameter       AK4951 = 0; 
 
 localparam      VERSION_MAJOR = 8'd72;
-localparam      VERSION_MINOR = 8'd2;
+localparam      VERSION_MINOR = 8'd3;
 
 
 logic   [5:0]   cmd_addr;
@@ -108,6 +108,9 @@ logic           msec_pulse;
 
 logic           run, run_iosync, run_ad9866sync;
 
+logic [3:0] 	channels;
+logic 			reset_channels, reset_channels_ad9866sync;
+
 logic 			cwx;
 
 logic [7:0]		resp;
@@ -136,6 +139,14 @@ always @* begin
 	cmd_data = spi0_recv[31: 0];
 end
 
+always @(posedge clk_internal) 
+begin
+	if ((cmd_addr == 6'h00) && (cmd_data[6:3] != channels[3:0])) begin
+		channels[3:0] <= cmd_data[6:3];
+		reset_channels <= 1;
+	end else reset_channels <= 0;
+end
+
 //------------------------------------------------------------------------------
 //                           Radioberry RX Stream Handler
 //------------------------------------------------------------------------------
@@ -155,7 +166,7 @@ usiq_fifo usiq_fifo_i (
   .wr_tready(rx_tready),
   .wr_tlast(rx_tlast),
   .wr_tuser(rx_tuser),
-  .wr_aclr(1'b0),
+  .wr_aclr(reset_channels),
 
   .rd_clk(clk_internal), 
   .rd_tdata(usiq_tdata), 
@@ -215,6 +226,12 @@ ad9866pll ad9866pll_inst (
 
 sync_pulse sync_pulse_ad9866 (
   .clock(clk_ad9866),
+  .sig_in(reset_channels),
+  .sig_out(reset_channels_ad9866sync)
+);
+
+sync_pulse sync_channel_reset_ad9866 (
+  .clock(clk_ad9866),
   .sig_in(cmd_cnt),
   .sig_out(cmd_rqst_ad9866)
 );
@@ -242,7 +259,6 @@ sync sync_run_ad9866 (
   .sig_in(run),
   .sig_out(run_ad9866sync)
 );
-
 
 ad9866 #(.FAST_LNA(FAST_LNA)) ad9866_i (
   .clk(clk_ad9866),
@@ -289,6 +305,8 @@ radio_i
 (
   .clk(clk_ad9866),
   .clk_2x(clk_ad9866_2x),
+  
+  .rst_channels(reset_channels_ad9866sync),
 
   .rst_all(1'b0),
   .rst_nco(1'b0),
