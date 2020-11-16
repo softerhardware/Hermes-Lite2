@@ -39,7 +39,7 @@ set_global_assignment -name VERILOG_FILE ../../rtl/nco/finerom.v
 set_global_assignment -name VERILOG_FILE ../../rtl/nco/sincos.v
 set_global_assignment -name VERILOG_FILE ../../rtl/nco/nco2.v
 set_global_assignment -name VERILOG_FILE ../../rtl/nco/mix2.v
-set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver_nco.v
+#set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver_nco.v
 
 set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver2/recv2_cic.v
 set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver2/recv2_cordic.v

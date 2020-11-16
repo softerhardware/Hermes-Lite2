@@ -1,31 +1,32 @@
 # -------------------------------------------------------------------------- #
 #
-# Copyright (C) 2018  Intel Corporation. All rights reserved.
-# Your use of Intel Corporation's design tools, logic functions 
-# and other software and tools, and its AMPP partner logic 
-# functions, and any output files from any of the foregoing 
-# (including device programming or simulation files), and any 
-# associated documentation or information are expressly subject 
-# to the terms and conditions of the Intel Program License 
+# Copyright (C) 2016  Intel Corporation. All rights reserved.
+# Your use of Intel Corporation's design tools, logic functions
+# and other software and tools, and its AMPP partner logic
+# functions, and any output files from any of the foregoing
+# (including device programming or simulation files), and any
+# associated documentation or information are expressly subject
+# to the terms and conditions of the Intel Program License
 # Subscription Agreement, the Intel Quartus Prime License Agreement,
-# the Intel FPGA IP License Agreement, or other applicable license
-# agreement, including, without limitation, that your use is for
-# the sole purpose of programming logic devices manufactured by
-# Intel and sold by Intel or its authorized distributors.  Please
-# refer to the applicable agreement for further details.
+# the Intel MegaCore Function License Agreement, or other
+# applicable license agreement, including, without limitation,
+# that your use is for the sole purpose of programming logic
+# devices manufactured by Intel and sold by Intel or its
+# authorized distributors.  Please refer to the applicable
+# agreement for further details.
 #
 # -------------------------------------------------------------------------- #
 #
 # Quartus Prime
-# Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
-# Date created = 11:57:11  December 22, 2019
+# Version 16.1.0 Build 196 10/24/2016 SJ Lite Edition
+# Date created = 21:27:00  December 21, 2016
 #
 # -------------------------------------------------------------------------- #
 #
 # Notes:
 #
 # 1) The default values for assignments are stored in the file:
-#		radioberry_assignment_defaults.qdf
+#		top_assignment_defaults.qdf
 #    If this file doesn't exist, see file:
 #		assignment_defaults.qdf
 #
@@ -35,7 +36,7 @@
 #
 # -------------------------------------------------------------------------- #
 
-set_global_assignment -name DEVICE 10CL016YE144C8G
+set_global_assignment -name DEVICE 10CL025YE144C8G
 
 set_global_assignment -name VERILOG_MACRO "USE_ALTSYNCRAM=1"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY build
@@ -43,7 +44,7 @@ source ../../boards/radioberry/general.tcl
 source ../../boards/radioberry/pins.tcl
 source ../../boards/radioberry/files.tcl
 
-set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver_nco.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver_4000.v
 
 set_global_assignment -name VERILOG_FILE ./radioberry.v
 set_global_assignment -name TOP_LEVEL_ENTITY radioberry
@@ -51,4 +52,5 @@ set_global_assignment -name SDC_FILE ../../boards/radioberry/timing.sdc
 
 
 set_global_assignment -name LAST_QUARTUS_VERSION "20.1.0 Lite Edition"
+
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

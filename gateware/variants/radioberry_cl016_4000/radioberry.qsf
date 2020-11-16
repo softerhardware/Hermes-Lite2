@@ -43,7 +43,7 @@ source ../../boards/radioberry/general.tcl
 source ../../boards/radioberry/pins.tcl
 source ../../boards/radioberry/files.tcl
 
-set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver_nco.v
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver_4000.v
 
 set_global_assignment -name VERILOG_FILE ./radioberry.v
 set_global_assignment -name TOP_LEVEL_ENTITY radioberry
