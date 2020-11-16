@@ -2,6 +2,8 @@ module radio (
 
   clk,
   clk_2x,
+  
+  rst_channels,
 
   rst_all,
   rst_nco,
@@ -96,6 +98,7 @@ localparam CALCTYPE = (NR > 6) ? 0 : 3;
 
 input         clk                    ;
 input         clk_2x                 ;
+input         rst_channels           ;
 input         rst_all                ;
 input         rst_nco                ;
 input         link_running           ;
@@ -709,7 +712,7 @@ logic [2:0]   rxus_state = RXUS_WAIT1;
 logic [2:0]   rxus_state_next;
 
 always @(posedge clk) begin
-  if (rst_all) begin
+  if (rst_all || rst_channels) begin
     rxus_state <= RXUS_WAIT1;
     chan <= 4'h0;
   end else begin
