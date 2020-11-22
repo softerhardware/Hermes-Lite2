@@ -7,11 +7,11 @@ This is an experimental release with added debug instrumentation to look at issu
 
  * Start your HL2 software and set to one receiver at 384kHz. A higher sample rate and larger number of receivers will send more debug packets per second for higher debug resolution but larger debug file sizes.
  * In Hermes-Lite2/software/hermeslite, use "python3 -i debug.py" to start the debug tool in an interactive Python shell.
- * When ready to make measurements, enter "hl.vcd()"
+ * When ready to make measurements, enter "d.vcd()"
  * Enable TX via the HL2 software, usually via tune for 1 second on.
  * In the python terminal, enter "ctrl-c" to stop the debug capture.
  * This debug tool generates a value change dump or debug.vcd file. View it using [GTKwave](http://gtkwave.sourceforge.net/) "gtkwave debug.vcd debug.gtkw"
- * You can start debug capture again in the python terminal with "hl.vcd()"
+ * You can start debug capture again in the python terminal with "d.vcd()"
 
 ### Notes
 
