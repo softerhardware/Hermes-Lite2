@@ -137,7 +137,7 @@ parameter       DSIQ_FIFO_DEPTH = 16384;
 localparam      TUSERWIDTH = (AK4951 == 1) ? 16 : 2;
 
 localparam      VERSION_MAJOR = (BOARD==2) ? 8'd52 : 8'd72;
-localparam      VERSION_MINOR = 8'd5;
+localparam      VERSION_MINOR = 8'd6;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
@@ -151,6 +151,7 @@ logic           ds_cmd_cnt;
 logic           ds_cmd_is_alt;
 logic   [1:0]   ds_cmd_mask;
 logic           ds_cmd_resprqst;
+logic           ds_cmd_ptt;
 
 logic           tx_on, tx_on_iosync;
 logic           cw_on, cw_on_iosync;
@@ -163,6 +164,7 @@ logic           dsiq_tready;    // controls reading of fifo
 logic           dsiq_tvalid;
 logic           dsiq_sample, dsiq_sample_ad9866sync;
 logic   [7:0]   dsiq_status;
+logic           dsiq_twait;
 
 logic           dsethiq_tvalid;
 logic           dsethiq_tlast;
@@ -318,6 +320,8 @@ logic [11:0] fwdpwr                    ;
 logic [11:0] revpwr                    ;
 logic [11:0] bias                      ;
 logic [ 7:0] control_dsiq_status       ;
+logic        ds_pkt_cnt                ;
+logic        ds_pkt_usopenhpsdr1       ;
 
 logic [15:0] debug;
 assign debug_out = debug[3:0];
@@ -513,6 +517,7 @@ dsopenhpsdr1 dsopenhpsdr1_i (
   .ds_cmd_resprqst(ds_cmd_resprqst),
   .ds_cmd_is_alt(ds_cmd_is_alt),
   .ds_cmd_mask(ds_cmd_mask),
+  .ds_cmd_ptt(ds_cmd_ptt),
 
   .dseth_tdata(dseth_tdata),
   .dsethiq_tvalid(dsethiq_tvalid),
@@ -526,6 +531,8 @@ dsopenhpsdr1 dsopenhpsdr1_i (
   .asmi_cnt(asmi_cnt),
   .dsethasmi_erase(dsethasmi_erase),
   .dsethasmi_erase_ack(dsethasmi_erase_ack),
+
+  .ds_pkt_cnt(ds_pkt_cnt),
 
   .cmd_addr(cmd_addr),
   .cmd_data(cmd_data),
@@ -631,6 +638,12 @@ sync_pulse sync_resp_usopenhpsdr1 (
   .sig_out(alt_resp_rqst_usopenhpsdr1)
 );
 
+sync_pulse sync_pkt_cnt_usopenhpsdr1 (
+  .clock(clock_ethtxint),
+  .sig_in(ds_pkt_cnt),
+  .sig_out(ds_pkt_usopenhpsdr1)
+);
+
 usopenhpsdr1 #(
   .NR(NR),
   .VERSION_MAJOR(VERSION_MAJOR),
@@ -684,9 +697,12 @@ usopenhpsdr1 #(
   .usethasmi_erase_done(usethasmi_erase_done),
   .usethasmi_ack(usethasmi_ack),
 
+  .ds_cmd_ptt(ds_cmd_ptt),
+  .ds_pkt(ds_pkt_usopenhpsdr1),
+  .ds_wait(dsiq_twait),
   .alt_resp_rqst(alt_resp_rqst_usopenhpsdr1),
   .resp_data(resp_data),
-  .resp_control({resp_control[7:6],link_running,link_master,resp_control[3:0]}),
+  .resp_control(resp_control),
   .temperature(temperature),
   .fwdpwr(fwdpwr),
   .revpwr(revpwr),
@@ -838,6 +854,7 @@ radio_i
   .tx_tready(dsiq_tready),
   .tx_tvalid(dsiq_tvalid),
   .tx_tuser({dsiq_tdata[8],dsiq_tdata[17],dsiq_tdata[26],dsiq_tdata[35]}),
+  .tx_twait(dsiq_twait),
 
   .tx_data_dac(tx_data),
 

@@ -19,6 +19,7 @@ module dsopenhpsdr1 (
   output logic        ds_cmd_resprqst      = 1'b0,
   output logic        ds_cmd_is_alt        = 1'b0,
   output logic [ 1:0] ds_cmd_mask          = 2'b11,
+  output logic        ds_cmd_ptt           = 1'b0,
   output       [ 7:0] dseth_tdata        ,
   output              dsethiq_tvalid     ,
   output              dsethiq_tlast      ,
@@ -31,6 +32,7 @@ module dsopenhpsdr1 (
   output logic [13:0] asmi_cnt             = 14'h000,
   output              dsethasmi_erase    ,
   input               dsethasmi_erase_ack,
+  output logic        ds_pkt_cnt         ,
   input        [ 5:0] cmd_addr           ,
   input        [31:0] cmd_data           ,
   input               cmd_rqst
@@ -89,7 +91,7 @@ logic        ds_cmd_is_alt_next  ;
 logic [ 1:0] ds_cmd_mask_next     = 2'b11 ;
 
 logic        ds_cmd_rqst                  ;
-logic        ds_cmd_ptt                   ;
+logic        ds_pkt_cnt_next              ;
 logic        watchdog_clr                 ;
 logic [11:0] watchdog_cnt         = 12'h00;
 logic [13:0] asmi_cnt_next                ;
@@ -101,7 +103,7 @@ logic [ 1:0] cwx_saved            = 2'b00 ;
 logic [ 1:0] cwx_saved_next               ;
 logic        cwx_enable           = 1'b0  ;
 
-logic [ 1:0] discover_port_next;
+logic        discover_port_next;
 logic        discover_cnt_next;
 
 logic watchdog_disable = 1'b0;
@@ -122,6 +124,7 @@ always @(posedge clk) begin
   asmi_cnt        <= asmi_cnt_next;
   cwx_pushiq      <= cwx_pushiq_next;
   cwx_saved       <= cwx_saved_next;
+  ds_pkt_cnt      <= ds_pkt_cnt_next;
 
   if ((eth_unreachable) | &watchdog_cnt) begin
     state         <= START;
@@ -154,6 +157,7 @@ always @(*) begin
   asmi_cnt_next = asmi_cnt;
   cwx_pushiq_next = cwx_pushiq;
   cwx_saved_next = cwx_saved;
+  ds_pkt_cnt_next = ds_pkt_cnt;
 
   discover_port_next = discover_port;
   discover_cnt_next = discover_cnt;
@@ -264,6 +268,8 @@ always @(*) begin
     SEQNO0: begin
       // Decrement watchdog on begin of data packet
       watchdog_clr = 1'b1;
+      // Count packets received
+      ds_pkt_cnt_next = ~ds_pkt_cnt;
       state_next = SYNC2;
     end
 
@@ -385,7 +391,8 @@ always @(posedge clk) begin
     if (cmd_addr == 6'h0f) begin
       cwx_enable <= cmd_data[24];
     end else if ((cmd_addr == 6'h39) & (cmd_data[27])) begin
-      watchdog_disable <= cmd_data[24];
+      if (cmd_data[26:24] == 3'h1) watchdog_disable <= 1'b1;
+      else if (cmd_data[26:24] == 3'h0) watchdog_disable <= 1'b0;      
     end
   end else if (runstop_watchdog_valid) begin
     watchdog_disable <= eth_data[7]; // Bit 7 can be used to disable watchdog

@@ -35,6 +35,9 @@ module usopenhpsdr1 (
   input        [          15:0] alt_mac             ,
   input        [           7:0] eeprom_config       ,
   output logic                  watchdog_up           = 1'b0,
+  input                         ds_cmd_ptt          ,
+  input                         ds_pkt              ,
+  input                         ds_wait             ,
   input                         usethasmi_send_more ,
   input                         usethasmi_erase_done,
   output                        usethasmi_ack       ,
@@ -54,6 +57,7 @@ parameter           VERSION_MINOR = 8'h0;
 parameter           BOARD = 5;
 parameter           BANDSCOPE_BITS = 2'b01; // See wiki protocol page
 parameter           AK4951 = 0;
+parameter           EXTENDED_DEBUG_RESP = 1;
 
 localparam          TUSERWIDTH = (AK4951 == 1) ? 16 : 2;
 
@@ -100,6 +104,16 @@ logic [           7:0] vna_mic_msb, vna_mic_lsb;
 logic [           1:0] discover_state                            ;
 logic                  discover_rst                              ;
 
+logic [6:0] tx_buffer_latency = 7'h0a ; // Default to 10ms
+logic [4:0] ptt_hang_time     = 5'h04 ; // Default to 4 ms
+logic [9:0] cw_hang_time      = 10'h00;
+logic [7:0] pkt_cnt           = 8'h00 ;
+logic [1:0] sample_rate       = 2'h0  ;
+logic [3:0] receivers         = 4'h0  ;
+logic       force_discover            ;
+logic       force_discover_en = 1'b0  ;
+logic       cmd_ptt           = 1'b0  ;
+logic       tx_wait           = 1'b0  ;
 
 
 generate
@@ -130,6 +144,7 @@ always @(posedge clk) begin
 
   if (discover_rqst & ~discover_state[1]) discover_state <= {1'b1,discover_port};
   else if (alt_resp_rqst & ~discover_state[1]) discover_state <= 2'b11;
+  else if (force_discover) discover_state <= 2'b11;
   else if (discover_rst) discover_state <= 2'b00;
 
 end
@@ -206,6 +221,7 @@ always @* begin
   stall_ack = 1'b0;
 
   discover_rst = 1'b0;
+  force_discover = 1'b0;
 
   case (state)
     START: begin
@@ -234,9 +250,11 @@ always @* begin
       dbyte_no_next = 'h3a;
       udp_tx_data = discover_data;
       udp_tx_request = (usethasmi_erase_done | usethasmi_send_more) ? 2'b10 : discover_state;
-      discover_rst = 1'b1;
       discover_data_next = 8'hef;
-      if (udp_tx_enable) state_next = DISCOVER2;
+      if (udp_tx_enable) begin
+        discover_rst = 1'b1;
+        state_next = DISCOVER2;
+      end
     end // DISCOVER1:
 
     DISCOVER2: begin
@@ -280,6 +298,12 @@ always @* begin
         6'h19: discover_data_next = {4'h0,bias[11:8]};
         6'h18: discover_data_next = bias[7:0];
         6'h17: discover_data_next = dsiq_status;
+        6'h16: discover_data_next = pkt_cnt;
+        6'h15: discover_data_next = {1'b0,tx_buffer_latency};
+        6'h14: discover_data_next = cw_hang_time[7:0];
+        6'h13: discover_data_next = {cw_hang_time[9:8],1'b0,ptt_hang_time};
+        6'h12: discover_data_next = {sample_rate,cmd_ptt,tx_wait,receivers};
+
         6'h00: begin
           discover_data_next = 8'h00;
           if (usethasmi_erase_done | usethasmi_send_more) dbyte_no_next = 6'h00;
@@ -345,6 +369,7 @@ always @* begin
       byte_no_next = 'h406;
       udp_tx_request = 2'b10;
       udp_data_next = 8'hef;
+      force_discover = force_discover_en;
       if (udp_tx_enable) state_next = UDP2;
     end
 
@@ -468,6 +493,47 @@ always @* begin
 
   endcase // state
 end // always @*
+
+
+
+generate if (EXTENDED_DEBUG_RESP==1) begin
+
+  always @(posedge clk) begin
+    if (cmd_rqst) begin
+      if (cmd_addr == 6'h00) begin
+        sample_rate <= cmd_data[25:24];
+        receivers <= cmd_data[6:3];
+      end else if (cmd_addr == 6'h10) begin
+        cw_hang_time <= {cmd_data[31:24], cmd_data[17:16]};
+      end else if (cmd_addr == 6'h17) begin
+        tx_buffer_latency <= cmd_data[6:0];
+        ptt_hang_time <= cmd_data[12:8];
+      end else if ((cmd_addr == 6'h39) & (cmd_data[27])) begin
+        if (cmd_data[26:24] == 3'h3) force_discover_en <= 1'b1;
+        else if (cmd_data[26:24] == 3'h2) force_discover_en <= 1'b0;
+      end
+    end
+  end
+
+  always @(posedge clk) begin
+    cmd_ptt <= ds_cmd_ptt;
+    tx_wait <= ds_wait;
+    if (ds_pkt) pkt_cnt <= pkt_cnt + 8'h01;
+  end
+
+end else begin
+
+  assign tx_wait           = 1'b0;
+  assign cmd_ptt           = 1'b0;
+  assign cw_hang_time      = 10'h00;
+  assign ptt_hang_time     = 5'h00;
+  assign tx_buffer_latency = 7'h00;
+  assign pkt_cnt           = 8'h00;
+  assign receivers         = 4'h0;
+  assign sample_rate       = 2'h0;
+
+end
+endgenerate
 
 
 endmodule

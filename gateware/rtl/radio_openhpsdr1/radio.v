@@ -29,6 +29,7 @@ module radio (
   tx_tready,
   tx_tvalid,
   tx_tuser,
+  tx_twait,
 
   tx_data_dac,
 
@@ -120,6 +121,7 @@ input         tx_tlast               ;
 output        tx_tready              ;
 input         tx_tvalid              ;
 input  [ 3:0] tx_tuser               ;
+output        tx_twait               ;
 input  [31:0] lr_tdata               ;
 input  [ 2:0] lr_tid                 ;
 input         lr_tlast               ;
@@ -974,6 +976,8 @@ always @* begin
   tx_cw_key = 1'b0;
   tx_tready = fir_tready; // Empty FIFO
 
+  tx_twait  = 1'b0;
+
   accumdelay_incr = 1'b0;
   accumdelay_decr = 1'b0;
 
@@ -994,6 +998,7 @@ always @* begin
     end
 
     PRETX : begin
+      tx_twait        = 1'b1;
       tx_tready       = 1'b0; //Stall data to fill FIFO unless in CWX mode
       accumdelay_incr = fir_tready; // Count samples accumulated
       if (tx_qmsectimer != 9'h00) begin
