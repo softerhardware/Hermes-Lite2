@@ -1,0 +1,33 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Sun Nov 22 00:06:09 2020
+[*]
+[dumpfile] "/home/shaynal/Hermes-Lite2/software/hermeslite/debug.vcd"
+[dumpfile_mtime] "Sat Nov 21 23:48:39 2020"
+[dumpfile_size] 254559
+[savefile] "/home/shaynal/Hermes-Lite2/software/hermeslite/debug.gtkw"
+[timestart] 0
+[size] 1920 1176
+[pos] -451 -280
+*-23.825167 1000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 212
+[signals_width] 218
+[sst_expanded] 1
+[sst_vpaned_height] 349
+@420
+hl.ptt_hang_time
+hl.tx_buffer_latency
+hl.pkt_cnt
+@28
+hl.cmd_ptt
+hl.tx_on
+hl.tx_wait
+@8029
+hl.txfifo_ms
+@20000
+-
+-
+@28
+hl.txfifo_recovery
+[pattern_trace] 1
+[pattern_trace] 0

@@ -17,16 +17,19 @@ board_id \
 wideband_type \
 response_data \
 ext_cw_key \
+ptt_resp \
+pa_exttr \
+pa_inttr \
 tx_on \
-link_running \
-link_master \
+cw_on \
 adc_clip_cnt \
 temperature \
 fwd_pwr \
 rev_pwr \
 bias \
 txfifo_recovery \
-txfifo_msbs')
+txfifo_msbs \
+rem')
 
 
 def decode(r):
@@ -52,9 +55,11 @@ def decode(r):
   response_data = struct.unpack('!L',r[0x17:0x1b])[0]
   temp = r[0x1b]
   ext_cw_key = (temp & 0x80) != 0
-  tx_on     = (temp & 0x40) != 0
-  link_running = (temp & 0x20) != 0
-  link_master = (temp & 0x10) != 0
+  ptt_resp = (temp & 0x40) != 0
+  pa_exttr = (temp & 0x20) != 0
+  pa_inttr = (temp & 0x10) != 0
+  tx_on = (temp & 0x08) != 0
+  cw_on = (temp & 0x04) != 0
   adc_clip_cnt = temp & 0x03
   temperature = struct.unpack('!H',r[0x1c:0x1e])[0]
   # For best accuracy, 3.26 should be a user's measured 3.3V supply voltage.
@@ -67,9 +72,10 @@ def decode(r):
   temp = r[0x24]
   txfifo_recovery = (temp & 0x80) != 0
   txfifo_msbs = (temp & 0x7f)
+
   return Response(t,mac,gateware,radio_id,use_eeprom_ip,use_eeprom_mac,favor_dhcp,eeprom_ip,eeprom_mac,
-    receivers,board_id,wideband_type,response_data,ext_cw_key,tx_on,link_running,link_master,
-    adc_clip_cnt,temperature,fwd_pwr,rev_pwr,bias,txfifo_recovery,txfifo_msbs)
+    receivers,board_id,wideband_type,response_data,ext_cw_key,ptt_resp,pa_exttr,pa_inttr,tx_on,cw_on,
+    adc_clip_cnt,temperature,fwd_pwr,rev_pwr,bias,txfifo_recovery,txfifo_msbs,r[0x25:])
 
 
 def discover():
@@ -147,13 +153,28 @@ class HermesLite:
       print("Retrying send")
     return None
 
+  def _recv(self,port=None,timeout=2.0):
+    """Low level receive from HL2."""
+    if port == None: port = self.port
+
+    ready = select.select([self.sock], [], [], timeout)
+    if ready[0]:
+      data, ip_port = self.sock.recvfrom(60)
+      if ip_port != (self.ip,port):
+        print("Wrong ip_port",ip_port,self.ip,port)
+        return None
+      else:
+        return decode(data)
+    else:
+      return None
+
   def command(self,addr,cmd):
     """Send command at address to HL2, cmd may be bytes or number.
       Returns a response."""
     if isinstance(cmd,int):
       cmd = struct.pack('!L',cmd)
     ## send to both units for now
-    res = self._send(bytes([0xef,0xfe,0x05,0x7f,addr<<1])+cmd+bytes([0x0]*52))
+    res = self._send(bytes([0xef,0xfe,0x05,0x7f,addr<<1])+cmd+bytes([0x0]*51))
     if res:
       self.wrcache[addr] = cmd
     return res
@@ -163,7 +184,7 @@ class HermesLite:
     return self._send(bytes([0xef,0xfe,0x02]+([0x0]*57)))
 
   def write_ad9866(self,addr,data):
-    """Write to Versa5 clock chip via i2c."""
+    """Write to AD9866 via SPI."""
     time.sleep(0.002)
     data = data & 0x0ff
     addr = addr & 0x0ff
