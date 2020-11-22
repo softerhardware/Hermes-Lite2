@@ -681,10 +681,13 @@ sync_pulse udp_destination_sync (.clock(tx_clock), .sig_in(udp_destination_valid
 
 always @(posedge tx_clock) begin
   if (udp_destination_valid_sync) begin
-    udp_destination_ip_sync   <= udp_destination_ip;
-    udp_destination_mac_sync  <= udp_destination_mac;
-    udp_destination_port_sync <= udp_destination_port;
-    if (!run) begin
+    // Alternate port 1025 info
+    if (to_port[0]) begin
+      udp_destination_ip_sync   <= udp_destination_ip;
+      udp_destination_mac_sync  <= udp_destination_mac;
+      udp_destination_port_sync <= udp_destination_port;
+    end
+    else if (~run) begin
       run_destination_ip <= udp_destination_ip;
       run_destination_mac <= udp_destination_mac;
       run_destination_port <= udp_destination_port;

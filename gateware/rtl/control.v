@@ -873,7 +873,7 @@ end
 
 // There are CDCs here, but we assume the data is stable ahead of time and not critical
 assign resp_data           = alt_resp_cmd_data;
-assign resp_control        = {ext_cwkey, ptt_resp, 4'b0000, clip_cnt};
+assign resp_control        = {ext_cwkey, ptt_resp, pa_exttr, pa_inttr, tx_on, cw_on, clip_cnt};
 assign temp                = temperature;
 assign fwdpwr              = fwd_pwr;
 assign revpwr              = rev_pwr;
