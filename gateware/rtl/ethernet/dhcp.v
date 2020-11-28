@@ -98,16 +98,12 @@ always @ (posedge tx_clock)
           byte_no <= 9'b1;
           dhcp_tx_request <= 1'b0;
           send_discovery <= 1'b0;
-          if (local_ip[31:16] == 16'b0) 
-            have_local_ip = 1'b0
+          if (ip_accept[31:16] == 16'b0) 
+            have_local_ip = 1'b0;
           else
-            have_local_ip = 1'b1
-          if (state_reset) begin
-            is_renewal <= 1'b0;
-            state_reset <= 1'b0;
-          end
+            have_local_ip = 1'b1;
           if (tx_enable) begin
-            if (is_renewal)
+            if (is_renewal && !state_reset)
               state <= DHCPRENEW;
             else
               state <= DHCPDISCOVER;
@@ -119,9 +115,9 @@ always @ (posedge tx_clock)
         begin
           xid_done <= 1'b1;
           if (have_local_ip) 
-            length <= DIS_TX_LEN;
-          else
             length <= DIS_TX_LEN_REQ;
+          else
+            length <= DIS_TX_LEN;
           dhcp_tx_request <= 1'b1;
           if (udp_tx_enable) begin
             tx_data <= 8'h01;          // tx_data needs to be available before udp_tx_active
@@ -237,6 +233,9 @@ always @ (posedge rx_clock)
   begin
     if (state == DHCPSEND) rx_send_request <= 1'b0;   // Only clear send request when tx has seen it
 
+    if (state_reset) begin
+      is_renewal <= 1'b0;
+    end
     if (dhcp_rx_active && rx_enable)
       case (rx_state)
         RX_IDLE:
