@@ -28,6 +28,7 @@ module dhcp (
   input      [ 7:0] rx_data              ,
   input             rx_enable            ,
   input             dhcp_rx_active       ,
+  input             state_reset          ,
   //rx out
   output reg [31:0] lease                , // DHCP supplied lease time in seconds
   output reg [31:0] server_ip            , // IP address of DHCP server
@@ -58,6 +59,7 @@ localparam TX_IDLE = 8'd0, DHCPDISCOVER = 8'd1, DHCPSEND = 8'd2, DHCPOFFER = 8'd
 localparam RX_IDLE = 8'd0, RX_OFFER_ACK = 8'd1, RX_DONE = 8'd2                                                         ;
 
 localparam DIS_TX_LEN   = 16'd244; // length of discover message
+localparam DIS_TX_LEN_REQ = 16'd250; // length of discover message with requested IP
 localparam REQ_TX_LEN   = 16'd256; // length of request message for boot (starting) state
 localparam RENEW_TX_LEN = 16'd250; // length of request message for lease renewal
 
@@ -71,6 +73,8 @@ reg [47:0] destination_mac = 48'hFFFFFFFFFFFF;
 reg [31:0] destination_ip  = 32'hFFFFFFFF    ;
 assign dhcp_destination_mac = destination_mac;
 assign dhcp_destination_ip  = destination_ip;
+
+reg         have_local_ip;
 
 reg  [15:0] xid_sum     ; // random-ish number, constant after the first DHCP Discover
 reg         xid_done = 0;
@@ -94,6 +98,14 @@ always @ (posedge tx_clock)
           byte_no <= 9'b1;
           dhcp_tx_request <= 1'b0;
           send_discovery <= 1'b0;
+          if (local_ip[31:16] == 16'b0) 
+            have_local_ip = 1'b0
+          else
+            have_local_ip = 1'b1
+          if (state_reset) begin
+            is_renewal <= 1'b0;
+            state_reset <= 1'b0;
+          end
           if (tx_enable) begin
             if (is_renewal)
               state <= DHCPRENEW;
@@ -106,7 +118,10 @@ always @ (posedge tx_clock)
       DHCPDISCOVER:
         begin
           xid_done <= 1'b1;
-          length <= DIS_TX_LEN;
+          if (have_local_ip) 
+            length <= DIS_TX_LEN;
+          else
+            length <= DIS_TX_LEN_REQ;
           dhcp_tx_request <= 1'b1;
           if (udp_tx_enable) begin
             tx_data <= 8'h01;          // tx_data needs to be available before udp_tx_active
@@ -169,13 +184,13 @@ always @ (posedge tx_clock)
                 240: tx_data <= 8'h35;
                 241: tx_data <= 8'h01;
                 242: tx_data <= send_discovery ? 8'h01 : 8'h03;
-                243: tx_data <= send_discovery ? 8'hFF : 8'h32;  // send discovery ends here
+                243: tx_data <= send_discovery && !have_local_ip ? 8'hFF : 8'h32;  // send discovery ends here
                 244: tx_data <= 8'h04;                // start of REQUEST
                 245: tx_data <= ip_accept[31:24];    // Requested IP
                 246: tx_data <= ip_accept[23:16];
                 247: tx_data <= ip_accept[15:8];
                 248: tx_data <= ip_accept[7:0];
-                249: tx_data <= is_renewal ? 8'hFF : 8'h36;    // Renewal Request ends here
+                249: tx_data <= is_renewal || send_discovery ? 8'hFF : 8'h36;    // Renewal Request ends here
                 250: tx_data <= 8'h04;    // Original Request requires the Server Identifier
                 251: tx_data <= remote_ip[31:24];
                 252: tx_data <= remote_ip[23:16];

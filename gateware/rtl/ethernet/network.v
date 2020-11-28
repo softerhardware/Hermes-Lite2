@@ -112,6 +112,7 @@ reg reg_network_state_dhcp = 1'b1;           // this is used in network.v to hol
 reg reg_network_state_fixedip = 1'b1;
 reg [3:0] state = ST_START;
 reg [21:0] dhcp_timer;
+reg dhcp_reset;
 reg dhcp_tx_enable;
 reg [17:0] dhcp_renew_timer;  // holds number of seconds before DHCP IP address must be renewed
 reg [3:0] dhcp_seconds_timer;   // number of seconds since the DHCP request started
@@ -149,6 +150,7 @@ always @(negedge clock_2_5MHz)
     ST_PHY_CONNECT:
       if (phy_connected_int) begin
         dhcp_timer <= (SIM==1) ? 22'h01 : 22'd2500000; //1 second
+        dhcp_reset <= 1'b1;           // reset the DHCP engine
         state <= ST_PHY_SETTLE;
         speed_1gb_i <= phy_speed[1];
       end
@@ -638,6 +640,7 @@ dhcp dhcp_inst (
   .tx_clock             (tx_clock             ),
   .udp_tx_enable        (udp_tx_enable        ),
   .tx_enable            (dhcp_tx_enable       ),
+  .state_reset          (dhcp_reset           ),
   .udp_tx_active        (udp_tx_active        ),
   .remote_mac           (remote_mac_sync      ), // MAC address of DHCP server
   .remote_ip            (remote_ip_sync       ), // IP address of DHCP server
