@@ -22,73 +22,90 @@ module cic_s1(
   input in_strobe,
   input  out_strobe,
   input signed [17:0] in_data,
-  output signed [19:0] out_data
+  output signed [17:0] out_data
 );
+
 
 // generated file
 
-// CIC: INTEG_COMB N=3 R=10 M=1 Bin=18 Bout=20
-// growth 10 = ceil(N=3 * log2(R=10)=3)
-// Bin 18 + growth 10 = acc_max 28
+// CIC: INTEG_COMB N=4 R=16 M=1 Bin=18 Bout=18
+// growth 16 = ceil(N=4 * log2(R=16)=4)
+// Bin 18 + growth 16 = acc_max 34
 
-wire signed [27:0] integrator0_data;
-wire signed [27:0] integrator1_data;
-wire signed [26:0] integrator2_data;
-wire signed [24:0] integrator3_data;
-wire signed [24:0] comb0_data;
-wire signed [23:0] comb1_data;
-wire signed [22:0] comb2_data;
-wire signed [21:0] comb3_data;
+wire signed [32:0] integrator0_data;
+wire signed [32:0] integrator1_data;
+wire signed [29:0] integrator2_data;
+wire signed [26:0] integrator3_data;
+wire signed [23:0] integrator4_data;
+wire signed [23:0] comb0_data;
+wire signed [22:0] comb1_data;
+wire signed [21:0] comb2_data;
+wire signed [20:0] comb3_data;
+wire signed [19:0] comb4_data;
 
 // important that "in" be declared signed by wrapper code
 // so this assignment will sign-extend:
 assign integrator0_data = in_data;
 
-cic_integrator #(.WIDTH(28)) cic_integrator1_inst(
+cic_integrator #(.WIDTH(33)) cic_integrator1_inst(
   .clock(clock),
   .strobe(in_strobe),
-  .in_data(integrator0_data[27 -:28]),  // trunc 0 bits
+  .in_data(integrator0_data[32 -:33]),  // trunc 0 bits
   .out_data(integrator1_data)
 );
 
-cic_integrator #(.WIDTH(27)) cic_integrator2_inst(
+cic_integrator #(.WIDTH(30)) cic_integrator2_inst(
   .clock(clock),
   .strobe(in_strobe),
-  .in_data(integrator1_data[27 -:27]),  // trunc 1 bits
+  .in_data(integrator1_data[32 -:30]),  // trunc 3 bits
   .out_data(integrator2_data)
 );
 
-cic_integrator #(.WIDTH(25)) cic_integrator3_inst(
+cic_integrator #(.WIDTH(27)) cic_integrator3_inst(
   .clock(clock),
   .strobe(in_strobe),
-  .in_data(integrator2_data[26 -:25]),  // trunc 2 bits
+  .in_data(integrator2_data[29 -:27]),  // trunc 3 bits
   .out_data(integrator3_data)
 );
 
-assign comb0_data = integrator3_data;
+cic_integrator #(.WIDTH(24)) cic_integrator4_inst(
+  .clock(clock),
+  .strobe(in_strobe),
+  .in_data(integrator3_data[26 -:24]),  // trunc 3 bits
+  .out_data(integrator4_data)
+);
 
-cic_comb #(.WIDTH(24)) cic_comb1_inst(
+assign comb0_data = integrator4_data;
+
+cic_comb #(.WIDTH(23)) cic_comb1_inst(
   .clock(clock),
   .strobe(out_strobe),
-  .in_data(comb0_data[24 -:24]),  // trunc 1 bits
+  .in_data(comb0_data[23 -:23]),  // trunc 1 bits
   .out_data(comb1_data)
 );
 
-cic_comb #(.WIDTH(23)) cic_comb2_inst(
+cic_comb #(.WIDTH(22)) cic_comb2_inst(
   .clock(clock),
   .strobe(out_strobe),
-  .in_data(comb1_data[23 -:23]),  // trunc 1 bits
+  .in_data(comb1_data[22 -:22]),  // trunc 1 bits
   .out_data(comb2_data)
 );
 
-cic_comb #(.WIDTH(22)) cic_comb3_inst(
+cic_comb #(.WIDTH(21)) cic_comb3_inst(
   .clock(clock),
   .strobe(out_strobe),
-  .in_data(comb2_data[22 -:22]),  // trunc 1 bits
+  .in_data(comb2_data[21 -:21]),  // trunc 1 bits
   .out_data(comb3_data)
 );
 
-assign out_data = comb3_data[21 -:20]; // trunc 2 bits
+cic_comb #(.WIDTH(20)) cic_comb4_inst(
+  .clock(clock),
+  .strobe(out_strobe),
+  .in_data(comb3_data[20 -:20]),  // trunc 1 bits
+  .out_data(comb4_data)
+);
+
+assign out_data = comb4_data[19 -:18];  // trunc 2 bits
 
 endmodule
 
@@ -97,106 +114,90 @@ module cic_s2(
   input clock,
   input in_strobe,
   input  out_strobe,
-  input signed [19:0] in_data,
+  input signed [17:0] in_data,
   output signed [23:0] out_data
 );
 
 // generated file
 
-// CIC: INTEG_COMB N=5 R=20 M=1 Bin=20 Bout=24
-// growth 22 = ceil(N=5 * log2(R=20)=4)
-// Bin 20 + growth 22 = acc_max 42
+// CIC: INTEG_COMB N=4 R=25 M=1 Bin=18 Bout=24
+// growth 19 = ceil(N=4 * log2(R=25)=5)
+// Bin 18 + growth 19 = acc_max 37
 
-wire signed [41:0] integrator0_data;
-wire signed [41:0] integrator1_data;
-wire signed [40:0] integrator2_data;
-wire signed [36:0] integrator3_data;
-wire signed [33:0] integrator4_data;
-wire signed [30:0] integrator5_data;
-wire signed [30:0] comb0_data;
-wire signed [29:0] comb1_data;
-wire signed [28:0] comb2_data;
-wire signed [27:0] comb3_data;
-wire signed [26:0] comb4_data;
-wire signed [26:0] comb5_data;
+wire signed [36:0] integrator0_data;
+wire signed [36:0] integrator1_data;
+wire signed [36:0] integrator2_data;
+wire signed [33:0] integrator3_data;
+wire signed [29:0] integrator4_data;
+wire signed [29:0] comb0_data;
+wire signed [28:0] comb1_data;
+wire signed [27:0] comb2_data;
+wire signed [26:0] comb3_data;
+wire signed [25:0] comb4_data;
 
 // important that "in" be declared signed by wrapper code
 // so this assignment will sign-extend:
 assign integrator0_data = in_data;
 
-cic_integrator #(.WIDTH(42)) cic_integrator1_inst(
+cic_integrator #(.WIDTH(37)) cic_integrator1_inst(
   .clock(clock),
   .strobe(in_strobe),
-  .in_data(integrator0_data[41 -:42]),  // trunc 0 bits
+  .in_data(integrator0_data[36 -:37]),  // trunc 0 bits
   .out_data(integrator1_data)
 );
 
-cic_integrator #(.WIDTH(41)) cic_integrator2_inst(
+cic_integrator #(.WIDTH(37)) cic_integrator2_inst(
   .clock(clock),
   .strobe(in_strobe),
-  .in_data(integrator1_data[41 -:41]),  // trunc 1 bits
+  .in_data(integrator1_data[36 -:37]),  // trunc 0 bits
   .out_data(integrator2_data)
 );
 
-cic_integrator #(.WIDTH(37)) cic_integrator3_inst(
+cic_integrator #(.WIDTH(34)) cic_integrator3_inst(
   .clock(clock),
   .strobe(in_strobe),
-  .in_data(integrator2_data[40 -:37]),  // trunc 4 bits
+  .in_data(integrator2_data[36 -:34]),  // trunc 3 bits
   .out_data(integrator3_data)
 );
 
-cic_integrator #(.WIDTH(34)) cic_integrator4_inst(
+cic_integrator #(.WIDTH(30)) cic_integrator4_inst(
   .clock(clock),
   .strobe(in_strobe),
-  .in_data(integrator3_data[36 -:34]),  // trunc 3 bits
+  .in_data(integrator3_data[33 -:30]),  // trunc 4 bits
   .out_data(integrator4_data)
 );
 
-cic_integrator #(.WIDTH(31)) cic_integrator5_inst(
-  .clock(clock),
-  .strobe(in_strobe),
-  .in_data(integrator4_data[33 -:31]),  // trunc 3 bits
-  .out_data(integrator5_data)
-);
+assign comb0_data = integrator4_data;
 
-assign comb0_data = integrator5_data;
-
-cic_comb #(.WIDTH(30)) cic_comb1_inst(
+cic_comb #(.WIDTH(29)) cic_comb1_inst(
   .clock(clock),
   .strobe(out_strobe),
-  .in_data(comb0_data[30 -:30]),  // trunc 1 bits
+  .in_data(comb0_data[29 -:29]),  // trunc 1 bits
   .out_data(comb1_data)
 );
 
-cic_comb #(.WIDTH(29)) cic_comb2_inst(
+cic_comb #(.WIDTH(28)) cic_comb2_inst(
   .clock(clock),
   .strobe(out_strobe),
-  .in_data(comb1_data[29 -:29]),  // trunc 1 bits
+  .in_data(comb1_data[28 -:28]),  // trunc 1 bits
   .out_data(comb2_data)
 );
 
-cic_comb #(.WIDTH(28)) cic_comb3_inst(
+cic_comb #(.WIDTH(27)) cic_comb3_inst(
   .clock(clock),
   .strobe(out_strobe),
-  .in_data(comb2_data[28 -:28]),  // trunc 1 bits
+  .in_data(comb2_data[27 -:27]),  // trunc 1 bits
   .out_data(comb3_data)
 );
 
-cic_comb #(.WIDTH(27)) cic_comb4_inst(
+cic_comb #(.WIDTH(26)) cic_comb4_inst(
   .clock(clock),
   .strobe(out_strobe),
-  .in_data(comb3_data[27 -:27]),  // trunc 1 bits
+  .in_data(comb3_data[26 -:26]),  // trunc 1 bits
   .out_data(comb4_data)
 );
 
-cic_comb #(.WIDTH(27)) cic_comb5_inst(
-  .clock(clock),
-  .strobe(out_strobe),
-  .in_data(comb4_data[26 -:27]),  // trunc 0 bits
-  .out_data(comb5_data)
-);
-
-assign out_data = comb5_data[26 -:24]; // trunc 3 bits
+assign out_data = comb4_data[25 -:24];  // trunc 2 bits
 
 endmodule
 
@@ -215,10 +216,10 @@ module receiver_nco(
   );
 
   parameter CICRATE = 5;
-
+  parameter REGISTER_OUTPUT = 0;
 
 // Receive CIC filters followed by FIR filter
-wire signed [19:0] decimA_real, decimA_imag;
+wire signed [17:0] decimA_real, decimA_imag;
 wire signed [23:0] data_I, data_Q;
 
 reg strobe1, strobe2;
@@ -229,7 +230,7 @@ reg [4:0] cnt2;
 assign debug = 34'h0;
 
 always @(posedge clock) begin
-  if (cnt1 == 4'h9) begin
+  if (cnt1 == 4'd15) begin
     cnt1 <= 4'h0;
     strobe1 <= 1'b1;
   end else begin
@@ -240,7 +241,7 @@ end
 
 always @(posedge clock) begin
   if (strobe1) begin
-    if (cnt2 == 5'd19) begin
+    if (cnt2 == 5'd24) begin
       cnt2 <= 5'h0;
       strobe2 <= 1'b1;
     end else begin
