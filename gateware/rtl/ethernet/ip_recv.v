@@ -33,7 +33,8 @@ module ip_recv (
   output reg        is_icmp        ,
   output     [31:0] remote_ip      ,
   output            remote_ip_valid,
-  output reg [31:0] to_ip
+  output reg [31:0] to_ip	   ,
+  output reg        to_ip_is_me
 );
 
 
@@ -85,28 +86,47 @@ always @(posedge clock)
               if (broadcast) begin
                 if (data != 8'd255 && data != local_ip[31-:8]) state <= ST_DONE;
               end
-              else  to_ip[31-:8] <= data;  // save the ip address this packet is addressed to
+              else begin
+	        to_ip[31-:8] <= data;  // save the ip address this packet is addressed to
+                if (data != local_ip[31-:8]) 
+		  to_ip_is_me <= 1'b0;
+		else 
+		  to_ip_is_me <= 1'b1;
+	      end
             end
 
             18: if (broadcast) begin
               if (data != 8'd255 && data != local_ip[23-:8]) state <= ST_DONE;
             end
-            else  to_ip[23-:8] <= data;
+	    else begin
+	      to_ip[23-:8] <= data;
+              if (data != local_ip[23-:8]) 
+		to_ip_is_me <= 1'b0;
+	    end
 
             19: if (broadcast) begin
               if (data != 8'd255 && data != local_ip[15-:8]) state <= ST_DONE;
             end
-            else  to_ip[15-:8] <= data;
+            else begin
+	      to_ip[15-:8] <= data;
+              if (data != local_ip[15-:8]) 
+		to_ip_is_me <= 1'b0;
+	    end
 
             20:   if (broadcast) begin
               if(data != 8'd255) state <= ST_DONE;
-              else if (byte_no == header_len) begin
-                byte_no <= 11'd1;
-                state <= ST_PAYLOAD;
+	      else begin
+		to_ip_is_me <= 1'b1;
+		if (byte_no == header_len) begin
+                  byte_no <= 11'd1;
+                  state <= ST_PAYLOAD;
+		end
               end
             end
             else begin
               to_ip[7-:8] <= data;
+              if (data != local_ip[7-:8]) 
+		to_ip_is_me <= 1'b0;
               if (byte_no == header_len) begin
                 byte_no <= 11'd1;
                 state <= ST_PAYLOAD;

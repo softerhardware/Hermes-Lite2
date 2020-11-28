@@ -169,6 +169,7 @@ always @(negedge clock_2_5MHz)
           state <= ST_DHCP_REQUEST;
         end
       end
+      dhcp_reset <= 1'b0;           // reset the DHCP engine
       dhcp_timer <= dhcp_timer - 22'b1;          //no time out yet, count down
     end
 
@@ -366,7 +367,7 @@ wire [7:0] arp_tx_data;
 wire [47:0] arp_destination_mac;
 
 // icmp in
-assign  icmp_rx_enable = ip_rx_active && rx_is_icmp;
+assign  icmp_rx_enable = ip_rx_active && rx_is_icmp && to_ip_is_me;
 wire icmp_tx_enable = tx_start && tx_is_icmp;
 //icmp out
 wire icmp_tx_request;
@@ -527,7 +528,8 @@ ip_recv ip_recv_inst (
   .rx_enable      (ip_rx_enable   ),
   .broadcast      (broadcast      ),
   .data           (rx_data        ),
-  .to_ip          (to_ip          )
+  .to_ip          (to_ip          ),
+  .to_ip_is_me    (to_ip_is_me    )
 );
 
 udp_recv udp_recv_inst (
