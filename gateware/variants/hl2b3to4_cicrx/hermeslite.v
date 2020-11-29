@@ -96,7 +96,7 @@ module hermeslite (
     .BOARD   (3                                    ),
     .IP      ({8'd0,8'd0,8'd0,8'd0}                ),
     .MAC     ({8'h00,8'h1c,8'hc0,8'ha2,8'h23,8'hdd}),
-    .NR      (9                                    ),
+    .NR      (10                                   ),
     .NT      (0                                    ),
     .UART    (0                                    ),
     .ATU     (0                                    ),

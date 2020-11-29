@@ -131,13 +131,14 @@ parameter       FAST_LNA = 0; // Support for fast LNA setting, TX/RX values
 
 parameter       AK4951 = 0;
 parameter       EXTENDED_RESP = 1;
+parameter       EXTENDED_DEBUG_RESP = 0;
 
 parameter       DSIQ_FIFO_DEPTH = 16384;
 
 localparam      TUSERWIDTH = (AK4951 == 1) ? 16 : 2;
 
 localparam      VERSION_MAJOR = (BOARD==2) ? 8'd52 : 8'd72;
-localparam      VERSION_MINOR = 8'd6;
+localparam      VERSION_MINOR = 8'd7;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
@@ -649,7 +650,8 @@ usopenhpsdr1 #(
   .VERSION_MAJOR(VERSION_MAJOR),
   .VERSION_MINOR(VERSION_MINOR),
   .BOARD(BOARD),
-  .AK4951(AK4951)
+  .AK4951(AK4951),
+  .EXTENDED_DEBUG_RESP(EXTENDED_DEBUG_RESP)
 ) usopenhpsdr1_i (
   .clk(clock_ethtxint),
   .have_ip(~(network_state_dhcp & network_state_fixedip)), // network_state is on sync 2.5 MHz domain
