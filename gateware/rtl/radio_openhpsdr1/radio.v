@@ -1403,16 +1403,17 @@ end
 
 end else begin
 
-logic [11:0] rx_data_adc_pipe;
+//logic [11:0] rx_data_adc_pipe;
 
   // Pipeline for adc fanout
 always @ (posedge clk) begin
-  rx_data_adc_pipe <= rx_data_adc;
+  //rx_data_adc_pipe <= rx_data_adc;
   adcpipe[0] <= rx_data_adc; //_pipe;
   adcpipe[1] <= rx_data_adc; //_pipe;
   adcpipe[2] <= rx_data_adc; //_pipe;
   adcpipe[3] <= rx_data_adc; //_pipe;
-  adcpipe[4] <= rx_data_adc_pipe;
+  //adcpipe[4] <= rx_data_adc_pipe;
+  adcpipe[4] <= rx_data_adc;
 end
 
 assign debug_out[15:4] = 12'd0;
