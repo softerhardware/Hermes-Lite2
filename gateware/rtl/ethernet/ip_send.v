@@ -86,10 +86,7 @@ always @(posedge clock)
     else shift_reg <= tx_bits;
 
     //send while payload is coming
-    if (tx_enable) begin 
-      byte_no <= HDR_LEN - 5'd1; 
-      sending <= true; 
-    end
+    if (tx_enable) begin byte_no <= HDR_LEN - 5'd1; sending <= true; end
     else if (byte_no == 1) begin
       // Advance the id just before we send the entire packet header
       ip_id[15:0] <= ip_id[15:0] + 16'd1;

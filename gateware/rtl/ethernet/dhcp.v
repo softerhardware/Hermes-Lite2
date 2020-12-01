@@ -74,7 +74,7 @@ reg [31:0] destination_ip  = 32'hFFFFFFFF    ;
 assign dhcp_destination_mac = destination_mac;
 assign dhcp_destination_ip  = destination_ip;
 
-reg         have_local_ip;
+reg         have_previous_lease;
 
 reg  [15:0] xid_sum     ; // random-ish number, constant after the first DHCP Discover
 reg         xid_done = 0;
@@ -99,9 +99,9 @@ always @ (posedge tx_clock)
           dhcp_tx_request <= 1'b0;
           send_discovery <= 1'b0;
           if (ip_accept[31:16] == 16'b0) 
-            have_local_ip = 1'b0;
+            have_previous_lease = 1'b0;
           else
-            have_local_ip = 1'b1;
+            have_previous_lease = 1'b1;
           if (tx_enable) begin
             if (is_renewal)
               state <= DHCPRENEW;
@@ -114,7 +114,7 @@ always @ (posedge tx_clock)
       DHCPDISCOVER:
         begin
           xid_done <= 1'b1;
-          if (have_local_ip) 
+          if (have_previous_lease) 
             length <= DIS_TX_LEN_REQ;
           else
             length <= DIS_TX_LEN;
@@ -180,7 +180,7 @@ always @ (posedge tx_clock)
                 240: tx_data <= 8'h35;
                 241: tx_data <= 8'h01;
                 242: tx_data <= send_discovery ? 8'h01 : 8'h03;
-                243: tx_data <= send_discovery && !have_local_ip ? 8'hFF : 8'h32;  // send discovery ends here
+                243: tx_data <= send_discovery && !have_previous_lease ? 8'hFF : 8'h32;  // send discovery ends here
                 244: tx_data <= 8'h04;                // start of REQUEST
                 245: tx_data <= ip_accept[31:24];    // Requested IP
                 246: tx_data <= ip_accept[23:16];
