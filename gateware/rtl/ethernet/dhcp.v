@@ -28,7 +28,6 @@ module dhcp (
   input      [ 7:0] rx_data              ,
   input             rx_enable            ,
   input             dhcp_rx_active       ,
-  input             state_reset          ,
   //rx out
   output reg [31:0] lease                , // DHCP supplied lease time in seconds
   output reg [31:0] server_ip            , // IP address of DHCP server
@@ -40,6 +39,7 @@ module dhcp (
   input             udp_tx_active        ,
   input      [47:0] remote_mac           ,
   input      [31:0] remote_ip            ,
+  input      [31:0] local_ip             ,
   input      [ 3:0] dhcp_seconds_timer   ,
   //tx out
   output reg        dhcp_tx_request      ,
@@ -103,7 +103,7 @@ always @ (posedge tx_clock)
           else
             have_local_ip = 1'b1;
           if (tx_enable) begin
-            if (is_renewal && !state_reset)
+            if (is_renewal)
               state <= DHCPRENEW;
             else
               state <= DHCPDISCOVER;
@@ -161,10 +161,10 @@ always @ (posedge tx_clock)
                 8: tx_data <= 8'd0;
                 9: tx_data <= {4'd0, dhcp_seconds_timer};
                 10: tx_data <= 8'd0;    // 2 zeros
-                12: tx_data <= is_renewal ? ip_accept[31:24] : 8'd0;    // ciaddr
-                13: tx_data <= is_renewal ? ip_accept[23:16] : 8'd0;
-                14: tx_data <= is_renewal ? ip_accept[15:8]  : 8'd0;
-                15: tx_data <= is_renewal ? ip_accept[7:0]   : 8'd0;
+                12: tx_data <= is_renewal ? local_ip[31:24] : 8'd0;    // ciaddr
+                13: tx_data <= is_renewal ? local_ip[23:16] : 8'd0;
+                14: tx_data <= is_renewal ? local_ip[15:8]  : 8'd0;
+                15: tx_data <= is_renewal ? local_ip[7:0]   : 8'd0;
                 16: tx_data <= 8'd0;    // 12 zeros
                 28: tx_data <= local_mac[47:40];    // chaddr
                 29: tx_data <= local_mac[39:32];
@@ -233,9 +233,6 @@ always @ (posedge rx_clock)
   begin
     if (state == DHCPSEND) rx_send_request <= 1'b0;   // Only clear send request when tx has seen it
 
-    if (state_reset) begin
-      is_renewal <= 1'b0;
-    end
     if (dhcp_rx_active && rx_enable)
       case (rx_state)
         RX_IDLE:
