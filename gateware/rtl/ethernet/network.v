@@ -364,7 +364,7 @@ wire [7:0] arp_tx_data;
 wire [47:0] arp_destination_mac;
 
 // icmp in
-assign  icmp_rx_enable = ip_rx_active && rx_is_icmp;
+assign  icmp_rx_enable = ip_rx_active && rx_is_icmp && to_ip_is_me;
 wire icmp_tx_enable = tx_start && tx_is_icmp;
 //icmp out
 wire icmp_tx_request;
@@ -525,7 +525,8 @@ ip_recv ip_recv_inst (
   .rx_enable      (ip_rx_enable   ),
   .broadcast      (broadcast      ),
   .data           (rx_data        ),
-  .to_ip          (to_ip          )
+  .to_ip          (to_ip          ),
+  .to_ip_is_me    (to_ip_is_me    )
 );
 
 udp_recv udp_recv_inst (
@@ -642,6 +643,7 @@ dhcp dhcp_inst (
   .remote_mac           (remote_mac_sync      ), // MAC address of DHCP server
   .remote_ip            (remote_ip_sync       ), // IP address of DHCP server
   .dhcp_seconds_timer   (dhcp_seconds_timer   ),
+  .local_ip             (local_ip           ),
 
   // tx_out
   .dhcp_tx_request      (dhcp_tx_request      ),
