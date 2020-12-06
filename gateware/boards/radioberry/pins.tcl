@@ -1,8 +1,7 @@
 set_location_assignment PIN_53 -to rffe_ad9866_clk76p8
 
 #SPI
-set_location_assignment PIN_50 -to pi_spi_ce[1]
-set_location_assignment PIN_51 -to pi_spi_ce[0]
+set_location_assignment PIN_51 -to pi_spi_ce
 set_location_assignment PIN_59 -to pi_spi_miso
 set_location_assignment PIN_60 -to pi_spi_mosi
 set_location_assignment PIN_58 -to pi_spi_sck
@@ -32,6 +31,9 @@ set_location_assignment PIN_32 -to pi_tx_data[2]
 set_location_assignment PIN_33 -to pi_tx_data[1]	
 #//BCM12
 set_location_assignment PIN_49 -to pi_tx_data[0]
+#//BCM7
+set_location_assignment PIN_50 -to pi_tx_samples
+
 
 #Radioberry IO
 set_location_assignment PIN_144 -to io_ptt_out
@@ -41,7 +43,9 @@ set_location_assignment PIN_121 -to io_phone_ring
 #CW 
 set_location_assignment PIN_141 -to io_cwl
 set_location_assignment PIN_142 -to io_cwr
+#//BCM13
 set_location_assignment PIN_13  -to pi_cwl
+#//BCM23
 set_location_assignment PIN_39  -to pi_cwr
 
 

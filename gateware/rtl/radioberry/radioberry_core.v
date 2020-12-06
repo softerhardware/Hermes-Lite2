@@ -33,6 +33,7 @@ module radioberry_core(
 	//TX IQ data
 	input wire 		pi_tx_clk,
 	input [3:0] 	pi_tx_data,
+	output 			pi_tx_samples,
  
 	// Radioberry IO
 	input           io_phone_tip,
@@ -56,9 +57,10 @@ parameter       VNA = 0;
 parameter       CW = 0; // CW Support
 parameter       FAST_LNA = 0; 
 parameter       AK4951 = 0; 
+parameter       DSIQ_FIFO_DEPTH = 16384;
 
 localparam      VERSION_MAJOR = 8'd72;
-localparam      VERSION_MINOR = 8'd3;
+localparam      VERSION_MINOR = 8'd4;
 
 
 logic   [5:0]   cmd_addr;
@@ -180,32 +182,20 @@ usiq_fifo usiq_fifo_i (
 //------------------------------------------------------------------------------
 //                           Radioberry TX Stream Handler
 //------------------------------------------------------------------------------
-logic [7:0] tx_data_assembled;
-logic [3:0] tx_data_n;
+logic [3:0] tx_data_msb;
 
-always @ (posedge pi_tx_clk) tx_data_assembled <= {pi_tx_data, tx_data_n};
-always @ (negedge pi_tx_clk) tx_data_n <= pi_tx_data;
-logic [1:0] tx_last;
-always @ (posedge pi_tx_clk)  tx_last <= tx_last + 1'b1;
-logic txlast;
-assign txlast = (tx_last == 0) ? 1'b1: 1'b0;
+always @ (posedge pi_tx_clk) tx_data_msb <= pi_tx_data;
 
-logic wr_req;
-sync_one sync_tx_one_inst(.clock(clk_ad9866), .sig_in(pi_tx_clk), .sig_out(wr_req));
-
-dsiq_fifo #(.depth(8192)) dsiq_fifo_i (
-  .wr_clk(clk_ad9866),
-  .wr_tdata({1'b0, tx_data_assembled}),
-  .wr_tvalid(wr_req),
-  .wr_tready(),
-  .wr_tlast(txlast),
-
-  .rd_clk(clk_ad9866),
-  .rd_tdata(dsiq_tdata),
-  .rd_tvalid(dsiq_tvalid),
-  .rd_tready(dsiq_tready),
-  .rd_sample(1'b0),
-  .rd_status(),
+tx_iq_fifo #(.depth(DSIQ_FIFO_DEPTH)) tx_iq_fifo_i(
+	.wr_clk(~pi_tx_clk),
+	.wr_tdata({1'b0, tx_data_msb, pi_tx_data}),
+	.wr_tvalid(!reset),
+	.wr_allowed(pi_tx_samples),
+	
+	.rd_clk(clk_ad9866),
+	.rd_tdata(dsiq_tdata),
+	.rd_tvalid(dsiq_tvalid),
+	.rd_tready(dsiq_tready)
 );
 
 //------------------------------------------------------------------------------
