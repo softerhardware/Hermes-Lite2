@@ -105,7 +105,8 @@ always @* begin
     SEND_MLINK0: begin
       running     = 1'b0;
       linktx_next = 2'b10;
-      if (linkrx_stable == 2'b01 & timer_pulse) begin
+      if (~master_sel) send_state_next = SEND_SLINK0;
+      else if (linkrx_stable == 2'b01 & timer_pulse) begin
         send_state_next = SEND_MLINK1;
       end
     end
@@ -113,36 +114,41 @@ always @* begin
     SEND_MLINK1: begin
       running     = 1'b0;
       linktx_next = 2'b01;
-      case(linkrx_stable)
-        2'b01 : begin
-          if (timer_pulse) send_state_next = SEND_MLINK0;
-        end
-        2'b10 : begin
-          if (timer_pulse) send_state_next = SEND_MLINK2;
-        end
-        default : send_state_next = SEND_MLINK0;
-      endcase
+      if (~master_sel) send_state_next = SEND_SLINK0;
+      else
+        case(linkrx_stable)
+          2'b01 : begin
+            if (timer_pulse) send_state_next = SEND_MLINK0;
+          end
+          2'b10 : begin
+            if (timer_pulse) send_state_next = SEND_MLINK2;
+          end
+          default : send_state_next = SEND_MLINK0;
+        endcase
     end
 
     SEND_MLINK2: begin
       running     = 1'b0;
       linktx_next = 2'b11;
-      case(linkrx_stable)
-        2'b10 : begin
-          if (timer_pulse) send_state_next = SEND_MLINK0;
-        end
-        2'b11 : begin
-          if (timer_pulse) send_state_next = SEND_MLINK3;
-        end
-        default : send_state_next = SEND_MLINK0;
-      endcase
+      if (~master_sel) send_state_next = SEND_SLINK0;
+      else
+        case(linkrx_stable)
+          2'b10 : begin
+            if (timer_pulse) send_state_next = SEND_MLINK0;
+          end
+          2'b11 : begin
+            if (timer_pulse) send_state_next = SEND_MLINK3;
+          end
+          default : send_state_next = SEND_MLINK0;
+        endcase
     end
 
     // If this far then assume connected, wait for slave to finish sync
     SEND_MLINK3: begin
       running     = 1'b0;
       linktx_next = 2'b00;
-      if (linkrx_stable == 2'b00) begin
+      if (~master_sel) send_state_next = SEND_SLINK0;
+      else if (linkrx_stable == 2'b00) begin
         send_state_next = SEND_IDLE;
       end
     end
@@ -183,7 +189,14 @@ always @* begin
       cl1on_rqst  = 1'b1;
       linktx_next = 2'b11;
       if (master_sel) send_state_next = SEND_MLINK0;
-      else if (cl1on_ack & (linkrx_stable == 2'b00)) send_state_next = SEND_IDLE;
+      else
+        case(linkrx_stable)
+          2'b00 : begin
+            if (cl1on_ack) send_state_next = SEND_IDLE;
+          end
+          2'b11 : send_state_next = SEND_SLINK3;
+          default : send_state_next = SEND_SLINK0;
+        endcase
     end
 
     default: send_state_next = SEND_SLINK0;

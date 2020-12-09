@@ -81,8 +81,8 @@ always @(posedge clk) begin
         1'h1: rst_nco <= 1'b1;
       endcase
     end
-    // Reset link if exiting master
-    if (cmd_data[11] & ~cmd_data[8]) rst_link <=  1'b1;
+    // reset link if master switching off, or not master and switching off cl1
+    if ((cmd_data[11] & ~cmd_data[8]) | (~master_sel & cmd_data[3:0]==4'hc)) rst_link <=  1'b1;
   end else begin
     rst_all <=  1'b0;
     rst_nco <=  1'b0;
@@ -180,6 +180,8 @@ always @* begin
       cl1on_ack = 1'b1;
       if (~cl1on_rqst) cmd_state_next = CMD_IDLE;
     end
+
+    default: cmd_state_next = CMD_IDLE;
 
   endcase
 end
