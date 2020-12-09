@@ -168,7 +168,7 @@ class HermesLite:
     else:
       return None
 
-  def command(self,addr,cmd):
+  def command(self,addr,cmd,sleep=0.2):
     """Send command at address to HL2, cmd may be bytes or number.
       Returns a response."""
     if isinstance(cmd,int):
@@ -177,6 +177,7 @@ class HermesLite:
     res = self._send(bytes([0xef,0xfe,0x05,0x7f,addr<<1])+cmd+bytes([0x0]*51))
     if res:
       self.wrcache[addr] = cmd
+    time.sleep(sleep)
     return res
 
   def response(self):
@@ -297,21 +298,24 @@ class HermesLite:
   def synchronize_radios(self):
     ## Enable clock output on CL2 of master
     self.command(0x39,bytes([0x00,0x00,0x00,0x0b]))
-    time.sleep(0.2)
     ## Establish link from master to secondary unit
     self.command(0x39,bytes([0x00,0x00,0x09,0x00]))
-    time.sleep(0.2)
     ## Reset all pipelines in both units
     self.command(0x39,bytes([0x00,0x00,0x00,0x80]))
-    time.sleep(0.2)
     ## Syncronize Rx1 on both units (RX1 from secondary is in place of RX2 on master)
     self.command(0x39,bytes([0x00,0x81,0x00,0x00]))
-    time.sleep(0.2)
     ## Make sure RX1 and RX2 are at the same frequency before NCO reset
     self.command(0x02,14074000)
-    time.sleep(0.2)
     ## Reset the NCOs
     self.command(0x39,bytes([0x00,0x00,0x00,0x90]))
+
+  def desynchronize_radios(self):
+    ## Both units disable CL1
+    self.command(0x39,bytes([0x00,0x00,0x00,0x0c]))
+    ## Disable master
+    self.command(0x39,bytes([0x00,0x00,0x08,0x00]))
+    ## Disable clock output on CL2 of master
+    self.command(0x39,bytes([0x00,0x00,0x00,0x0a]))
 
   def enable_txlna(self,gain=-12):
     """Set and enable the hardware managed LNA for TX"""
