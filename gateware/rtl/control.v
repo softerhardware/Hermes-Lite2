@@ -103,6 +103,7 @@ parameter     CW = 0;
 parameter     FAST_LNA = 0;
 parameter     AK4951 = 0;
 parameter     EXTENDED_RESP = 0;
+parameter     BYPASS_VERSA = 0;
 
 
 logic         vna = 1'b0;                    // Selects vna mode when set.
@@ -348,7 +349,7 @@ assign rffe_rfsw_sel = ~vna & pa_enable;
 
 
 // AD9866 Ctrl
-ad9866ctrl #(.FAST_LNA(FAST_LNA)) ad9866ctrl_i (
+ad9866ctrl #(.FAST_LNA(FAST_LNA), .BYPASS_VERSA(BYPASS_VERSA)) ad9866ctrl_i (
   .clk(clk),
   .rst(ad9866_rst),
 
