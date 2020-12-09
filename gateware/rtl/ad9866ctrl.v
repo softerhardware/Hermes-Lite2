@@ -47,6 +47,7 @@ input             cmd_rqst;
 output logic      cmd_ack = 1'b0;
 
 parameter         FAST_LNA = 0;
+parameter         BYPASS_VERSA = 0;
 
 
 // SPI
@@ -87,7 +88,7 @@ initial begin
   initarray[1] = {1'b0,8'h00}; // Address 0x01,
   initarray[2] = {1'b0,8'h00}; // Address 0x02,
   initarray[3] = {1'b0,8'h00}; // Address 0x03,
-  initarray[4] = {1'b0,8'h00}; // Address 0x04,
+  initarray[4] = (BYPASS_VERSA == 1) ? {1'b1,8'h36} : {1'b0,8'h00}; // Address 0x04,
   initarray[5] = {1'b0,8'h00}; // Address 0x05,
   initarray[6] = {1'b1,8'h54}; // Address 0x06, Disable clkout2
   initarray[7] = {1'b1,8'h30}; // Address 0x07, Initiate DC offset calibration and RX filter on, 21 to 20 to disable RX filter

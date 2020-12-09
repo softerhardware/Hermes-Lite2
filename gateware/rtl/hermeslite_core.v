@@ -135,10 +135,12 @@ parameter       EXTENDED_DEBUG_RESP = 0;
 
 parameter       DSIQ_FIFO_DEPTH = 16384;
 
+parameter       BYPASS_VERSA = 0;
+
 localparam      TUSERWIDTH = (AK4951 == 1) ? 16 : 2;
 
 localparam      VERSION_MAJOR = (BOARD==2) ? 8'd52 : 8'd72;
-localparam      VERSION_MINOR = 8'd7;
+localparam      VERSION_MINOR = 8'd8;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
@@ -952,7 +954,8 @@ control #(
   .CW           (CW           ),
   .FAST_LNA     (FAST_LNA     ),
   .AK4951       (AK4951       ),
-  .EXTENDED_RESP(EXTENDED_RESP)
+  .EXTENDED_RESP(EXTENDED_RESP),
+  .BYPASS_VERSA (BYPASS_VERSA )
 ) control_i (
   // Internal
   .clk                (clk_ctrl                   ),
