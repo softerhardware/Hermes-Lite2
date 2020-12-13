@@ -4,6 +4,7 @@ module i2c (
     input  logic         clk,
     input  logic         rst,
     input  logic         init_start,
+    input  logic         lost_clock,
 
     // Command slave interface
     input  logic [5:0]   cmd_addr,
@@ -88,14 +89,14 @@ localparam [7:0]
   STATE_EEPROM7      = {3'b010,5'b00110};
 
 localparam [7:0]
-  STATE_AK4951W0     = {3'b100,5'b00001},
-  STATE_AK4951W1     = {3'b100,5'b00010},
-  STATE_AK4951W2     = {3'b100,5'b00100},
-  STATE_AK4951W3     = {3'b100,5'b01000},
-  STATE_AK4951W4     = {3'b100,5'b10000},
-  STATE_AK4951W5     = {3'b100,5'b10001},
-  STATE_AK4951W6     = {3'b100,5'b01010},
-  STATE_AK4951W7     = {3'b100,5'b00110};
+  STATE_AK4951S0     = {3'b100,5'b00001},
+  STATE_AK4951S1     = {3'b100,5'b00010},
+  STATE_AK4951S2     = {3'b100,5'b00100},
+  STATE_AK4951S3     = {3'b100,5'b01000},
+  STATE_AK4951S4     = {3'b100,5'b10000},
+  STATE_AK4951S5     = {3'b100,5'b10001},
+  STATE_AK4951S6     = {3'b100,5'b01010},
+  STATE_AK4951S7     = {3'b100,5'b00110};
 
 localparam [7:0]
   STATE_IDLE         = {3'b000,5'b00000};
@@ -164,6 +165,7 @@ always @* begin
     // Sequences called while running
     STATE_IDLE: begin
       if (~init_start) state_next = STATE_CLINIT0;
+      else if (lost_clock) state_next = STATE_CL1OFF0;
       else if (cmd_rqst) begin
         case (cmd_addr)
           6'h39: begin

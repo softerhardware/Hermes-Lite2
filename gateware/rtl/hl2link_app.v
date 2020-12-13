@@ -26,7 +26,9 @@ module hl2link_app (
   output logic        cmd_cnt          = 1'b0,
   output logic        cmd_resprqst     = 1'b0,
   output logic        cmd_is_alt       = 1'b0,
-  input               cmd_rqst
+  input               cmd_rqst       ,
+  input               hl2link_rst_req,
+  output              hl2link_rst_ack
 );
 
 logic        send_tvalid;
@@ -62,30 +64,30 @@ end
 
 assign ls_done = send_tdone;
 
-// hl2link master control - only accessible via ethernet
-always @(posedge clk) begin
-  if (ds_cmd_rqst & ds_cmd_addr == 6'h39 & ds_cmd_data[11]) begin
-    case (ds_cmd_data[8])
-      1'h0: master_sel <= 1'b0;
-      1'h1: master_sel <= 1'b1;
-    endcase
-  end 
-end
 
 // hl2link global control - synchronized with slave
 always @(posedge clk) begin
+
+  // Only allow master selection from ethernet
+  if (ds_cmd_rqst & ds_cmd_addr == 6'h39 & (ds_cmd_data[11:8] == 4'b1001)) begin
+    master_sel <= 1'b1;
+  end
+
   if (cmd_rqst & cmd_addr == 6'h39) begin
     if (cmd_data[7]) begin
       case (cmd_data[4])
-        1'h0: rst_all <= 1'b1;
-        1'h1: rst_nco <= 1'b1;
+        1'h0 : rst_all <= 1'b1;
+        1'h1 : rst_nco <= 1'b1;
       endcase
     end
-    // reset link if master switching off, or not master and switching off cl1
-    if ((cmd_data[11] & ~cmd_data[8]) | (~master_sel & cmd_data[3:0]==4'hc)) rst_link <=  1'b1;
+    // reset link if master switching off
+    if (cmd_data[11:8] == 4'b1000) begin
+      master_sel <= 1'b0;
+      rst_link   <= 1'b1;
+    end
   end else begin
-    rst_all <=  1'b0;
-    rst_nco <=  1'b0;
+    rst_all  <= 1'b0;
+    rst_nco  <= 1'b0;
     rst_link <= 1'b0;
   end
 end
@@ -187,26 +189,27 @@ always @* begin
 end
 
 hl2link hl2link_i (
-  .clk        (clk        ),
-  .rst        (rst_link   ),
-  .linkrx     (linkrx     ),
-  .linktx     (linktx     ),
-  .running    (running    ),
-  .master_sel (master_sel ),
-  .cl1on_ack  (cl1on_ack  ),
-  .cl1on_rqst (cl1on_rqst ),
+  .clk            (clk                                       ),
+  .rst            (rst_link | (~master_sel & hl2link_rst_req)),
+  .linkrx         (linkrx                                    ),
+  .linktx         (linktx                                    ),
+  .running        (running                                   ),
+  .master_sel     (master_sel                                ),
+  .cl1on_ack      (cl1on_ack                                 ),
+  .cl1on_rqst     (cl1on_rqst                                ),
+  .hl2link_rst_ack(hl2link_rst_ack                           ),
   // Send interface
-  .send_tvalid(send_tvalid),
-  .send_tdata (send_tdata ),
-  .send_tuser (send_tuser ),
-  .send_tready(send_tready),
-  .send_tdone (send_tdone ),
+  .send_tvalid    (send_tvalid                               ),
+  .send_tdata     (send_tdata                                ),
+  .send_tuser     (send_tuser                                ),
+  .send_tready    (send_tready                               ),
+  .send_tdone     (send_tdone                                ),
   // Receive interface
-  .recv_tvalid(recv_tvalid),
-  .recv_tdata (recv_tdata ),
-  .recv_tuser (recv_tuser ),
-  .recv_tready(recv_tready),
-  .recv_tdone (recv_tdone )
+  .recv_tvalid    (recv_tvalid                               ),
+  .recv_tdata     (recv_tdata                                ),
+  .recv_tuser     (recv_tuser                                ),
+  .recv_tready    (recv_tready                               ),
+  .recv_tdone     (recv_tdone                                )
 );
 
 

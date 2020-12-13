@@ -1,26 +1,27 @@
 `timescale 1ns/1ns
 
 module hl2link (
-  input               clk        ,
-  input               rst        ,
-  input        [ 1:0] linkrx     ,
-  output logic [ 1:0] linktx     ,
-  output logic        running    ,
-  input               master_sel ,
-  input               cl1on_ack  ,
-  output              cl1on_rqst ,
+  input               clk            ,
+  input               rst            ,
+  input        [ 1:0] linkrx         ,
+  output logic [ 1:0] linktx         ,
+  output logic        running        ,
+  input               master_sel     ,
+  input               cl1on_ack      ,
+  output              cl1on_rqst     ,
   // Send interface
-  input               send_tvalid,
-  input        [37:0] send_tdata ,
-  input        [ 1:0] send_tuser ,
-  output logic        send_tready,
-  output logic        send_tdone ,
+  input               send_tvalid    ,
+  input        [37:0] send_tdata     ,
+  input        [ 1:0] send_tuser     ,
+  output logic        send_tready    ,
+  output logic        send_tdone     ,
   // Receive interface
-  output logic        recv_tvalid,
-  output logic [37:0] recv_tdata ,
-  output logic [ 1:0] recv_tuser ,
-  input               recv_tready,
-  output logic        recv_tdone
+  output logic        recv_tvalid    ,
+  output logic [37:0] recv_tdata     ,
+  output logic [ 1:0] recv_tuser     ,
+  input               recv_tready    ,
+  output logic        recv_tdone     ,
+  output              hl2link_rst_ack
 );
 
 
@@ -73,6 +74,7 @@ always @* begin
   send_tdone  = 1'b0;
   running     = 1'b1;
   cl1on_rqst  = 1'b0;
+  hl2link_rst_ack = 1'b0;
 
   case(send_state)
     SEND_IDLE : begin
@@ -154,7 +156,8 @@ always @* begin
     end
 
     SEND_SLINK0: begin
-      running     = 1'b0;
+      running         = 1'b0;
+      hl2link_rst_ack = 1'b1;
       if (master_sel) send_state_next = SEND_MLINK0;
       else if (linkrx_stable == 2'b10) send_state_next = SEND_SLINK1;
     end

@@ -326,6 +326,8 @@ logic [ 7:0] control_dsiq_status       ;
 logic        ds_pkt_cnt                ;
 logic        ds_pkt_usopenhpsdr1       ;
 
+logic        hl2link_rst_req, hl2link_rst_ack;
+
 logic [15:0] debug;
 assign debug_out = debug[3:0];
 
@@ -1077,6 +1079,9 @@ control #(
   .revpwr             (revpwr                     ),
   .bias               (bias                       ),
   .control_dsiq_status(control_dsiq_status        ),
+
+  .hl2link_rst_req    (hl2link_rst_req            ),
+  .hl2link_rst_ack    (hl2link_rst_ack            ),
   
   .debug              (16'h0000) //(debug                      )
 );
@@ -1202,7 +1207,9 @@ if (HL2LINK == 1) begin
     .cmd_cnt        (cmd_cnt           ),
     .cmd_resprqst   (cmd_resprqst      ),
     .cmd_is_alt     (cmd_is_alt        ),
-    .cmd_rqst       (cmd_rqst_ad9866   )
+    .cmd_rqst       (cmd_rqst_ad9866   ),
+    .hl2link_rst_req(hl2link_rst_req   ),
+    .hl2link_rst_ack(hl2link_rst_ack   )
   );
 
   //assign io_uart_txd = cmd_cnt;

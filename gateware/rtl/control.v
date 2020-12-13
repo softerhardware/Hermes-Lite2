@@ -40,6 +40,8 @@ module control (
   output                     rffe_ad9866_sclk   ,
   output                     rffe_ad9866_sen_n  ,
   input        signed [15:0] debug              ,
+  output logic               hl2link_rst_req    ,
+  input                      hl2link_rst_ack    ,
   // Power
   output logic               pwr_clk3p3           = 1'b0,
   output logic               pwr_clk1p2           = 1'b0,
@@ -228,6 +230,7 @@ i2c i2c_i (
   .clk(clk),
   .rst(clk_i2c_rst),
   .init_start(clk_i2c_start),
+  .lost_clock(lost_clock),
 
   .cmd_addr(cmd_addr),
   .cmd_data(cmd_data),
@@ -316,9 +319,21 @@ always @(posedge clk_ad9866) begin
 end
 
 logic good_fast_clk;
+logic next_good_fast_clk;
+logic lost_clock;
+assign next_good_fast_clk = ~(&fast_clk_cnt);
 always @(posedge clk) begin
   // Compute when 00
-  if (qmillisec_count[1:0] == 2'b00) good_fast_clk <= ~(&fast_clk_cnt);
+  if (qmillisec_count[1:0] == 2'b00) begin
+    good_fast_clk <= next_good_fast_clk;
+    lost_clock <= good_fast_clk & ~next_good_fast_clk;
+    hl2link_rst_req <= good_fast_clk & ~next_good_fast_clk;
+  end else if (hl2link_rst_ack) begin
+    lost_clock <= 1'b0;
+    hl2link_rst_req <= 1'b0;
+  end else begin
+    lost_clock <= 1'b0;
+  end
 end
 
 // Solid when connected to software
