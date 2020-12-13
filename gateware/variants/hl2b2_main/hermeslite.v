@@ -87,7 +87,7 @@ module hermeslite (
 );
 
   assign pwr_clkvpa = 1'b0;
-  assign rffe_ad9866_pga5 = 6'h00;
+  assign rffe_ad9866_pga[4:0] = 5'h00;
 
   hermeslite_core #(
     .BOARD   (2                                    ),
@@ -103,7 +103,8 @@ module hermeslite (
     .ASMII   (1                                    ),
     .HL2LINK (1                                    ),
     .AK4951  (0                                    ),
-    .FAST_LNA(1                                    )
+    .FAST_LNA(1                                    ),
+    .EXTENDED_RESP(1                               )
   ) hermeslite_core_i (
     .pwr_clk3p3                (pwr_clk3p3           ),
     .pwr_clk1p2                (pwr_clk1p2           ),
@@ -135,7 +136,7 @@ module hermeslite (
     .rffe_ad9866_clk76p8       (rffe_ad9866_clk76p8  ),
     .rffe_rfsw_sel             (rffe_rfsw_sel        ),
     .rffe_ad9866_mode          (                     ),
-    .rffe_ad9866_pga5          (rffe_ad9866_pga5     ),
+    .rffe_ad9866_pga5          (rffe_ad9866_pga[5]   ),
     .io_led_run                (io_led_d2            ),
     .io_led_tx                 (io_led_d3            ),
     .io_led_adc75              (io_led_d4            ),

@@ -45,6 +45,7 @@ source ../../boards/hl2b5up/veth_2p5.tcl
 source ../../boards/hl2b5up/vlvds_2p5.tcl
 source ../../boards/hl2b5up/configurable_io.tcl
 source ../../boards/hl2b5up/location.tcl
+source ../../boards/hl2b3to4/location_10rx.tcl
 source ../../boards/hl2b5up/files.tcl
 set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver_ciconly.v
 

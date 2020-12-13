@@ -45,6 +45,7 @@ source ../../boards/hl2b5up/veth_2p5.tcl
 source ../../boards/hl2b5up/vlvds_2p5.tcl
 source ../../boards/hl2b5up/configurable_io.tcl
 source ../../boards/hl2b5up/location.tcl
+
 source ../../boards/hl2b5up/files.tcl
 set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver_nco.v
 
@@ -52,5 +53,5 @@ set_global_assignment -name VERILOG_FILE ./hermeslite.v
 set_global_assignment -name TOP_LEVEL_ENTITY hermeslite
 set_global_assignment -name SDC_FILE ../../boards/hl2b5up/timing.sdc
 
-set_global_assignment -name LAST_QUARTUS_VERSION "19.1.0 Lite Edition"
+set_global_assignment -name LAST_QUARTUS_VERSION "20.1.1 Lite Edition"
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

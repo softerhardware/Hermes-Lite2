@@ -57,9 +57,12 @@ create_clock -name virt_ad9866_rxclk_rx -period 153.6MHz
 
 create_generated_clock -source {hermeslite_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -duty_cycle 50.00 -name clock_76p8MHz {hermeslite_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|clk[0]}
 
-create_generated_clock -source {hermeslite_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -multiply_by 2 -duty_cycle 50.00 -name clock_153p6_mhz {hermeslite_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|clk[1]}
+create_generated_clock -source {hermeslite_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -multiply_by 2 -duty_cycle 50.00 -name clock_153p6MHz {hermeslite_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|clk[1]}
 
-create_generated_clock -source {hermeslite_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -multiply_by 16 -divide_by 5 -duty_cycle 50.00 -name clock_245p76_mhz {hermeslite_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|clk[2]}
+create_generated_clock -source {hermeslite_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -multiply_by 16 -divide_by 5 -duty_cycle 50.00 -name clock_245p76MHz {hermeslite_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|clk[2]}
+
+create_generated_clock -source {hermeslite_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -divide_by 1600 -duty_cycle 50.00 -name clock_48khz {hermeslite_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|clk[3]}
+
 
 derive_clock_uncertainty
 
@@ -75,7 +78,7 @@ set_clock_groups -asynchronous -group { \
 		clock_ethrxintslow \
 		clock_ethrxintfast \
 	} -group { \
-		clock_153p6_mhz rffe_ad9866_clk76p8 clock_76p8MHz \
+		clock_153p6MHz rffe_ad9866_clk76p8 clock_76p8MHz clock_245p76MHz clock_48khz \
 	}
 
 
@@ -199,7 +202,7 @@ set_false_path -to [get_ports {io_led_*}]
 
 #set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_lvds_*}]
 #set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_lvds_*}]
-set_false_path -from [get_ports {io_lvds_*}]
+#set_false_path -from [get_ports {io_lvds_*}]
 
 #set_input_delay -clock clock_76p8MHz -max 3 [get_ports {io_cn*}]
 #set_input_delay -clock clock_76p8MHz -min 2 [get_ports {io_cn*}]
@@ -250,8 +253,12 @@ set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|networ
 set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|tx_protocol*}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
 set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|tx_protocol*}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 2
 
-set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|cdc_sync:cdc_sync_inst7|sigb[*]}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 2
-set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|cdc_sync:cdc_sync_inst7|sigb[*]}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 1
+#set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|cdc_sync:cdc_sync_inst7|sigb[*]}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 2
+#set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|cdc_sync:cdc_sync_inst7|sigb[*]}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 1
+
+set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|udp_destination_ip_sync[*]}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 2
+set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|udp_destination_ip_sync[*]}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 1
+
 
 set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|run_destination_ip[*]}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 2
 set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|run_destination_ip[*]}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -hold -start 1
@@ -313,6 +320,7 @@ set_output_delay -add_delay -min -clock virt_ad9866_rxclk_tx -1.3 [get_ports {rf
 set_output_delay -add_delay -max -clock virt_ad9866_rxclk_tx 1.4 [get_ports {rffe_ad9866_pga5}]
 set_output_delay -add_delay -min -clock virt_ad9866_rxclk_tx -1.3 [get_ports {rffe_ad9866_pga5}]
 
+
 set_output_delay -add_delay -max -clock virt_ad9866_rxclk_tx 1.4 [get_ports {rffe_ad9866_tx[*]}]
 set_output_delay -add_delay -min -clock virt_ad9866_rxclk_tx -1.3 [get_ports {rffe_ad9866_tx[*]}]
 
@@ -333,6 +341,11 @@ set_false_path -to [get_ports {rffe_ad9866_pga*}]
 
 ## Multicycle for FIR
 
-set_multicycle_path -from [get_clocks {clock_153p6_mhz}] -to [get_clocks {clock_76p8MHz}] -setup -start 2
-set_multicycle_path -from [get_clocks {clock_153p6_mhz}] -to [get_clocks {clock_76p8MHz}] -hold -start 2
+set_multicycle_path -from [get_clocks {clock_153p6MHz}] -to [get_clocks {clock_76p8MHz}] -setup -start 2
+set_multicycle_path -from [get_clocks {clock_153p6MHz}] -to [get_clocks {clock_76p8MHz}] -hold -start 2
 
+
+## For hl2link
+
+set_multicycle_path -from {hermeslite_core:hermeslite_core_i|hl2link_app:hl2link_app_i|cmd_data[*]} -to {hermeslite_core:hermeslite_core_i|radio:radio_i|freqcompp[*][*]} -setup -end 2
+set_multicycle_path -from {hermeslite_core:hermeslite_core_i|hl2link_app:hl2link_app_i|cmd_data[*]} -to {hermeslite_core:hermeslite_core_i|radio:radio_i|freqcompp[*][*]} -hold -end 1
