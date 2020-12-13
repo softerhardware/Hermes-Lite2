@@ -923,8 +923,8 @@ logic [10:0] accumdelay                ;
 logic        accumdelay_incr           ;
 logic        accumdelay_decr           ;
 logic        accumdelay_notzero        ;
-logic [ 6:0] tx_buffer_latency  = 7'h0a; // Default to 10ms
-logic [ 4:0] ptt_hang_time      = 5'h04; // Default to 4 ms
+logic [ 6:0] tx_buffer_latency  = 7'h14; // Default to 20ms
+logic [ 4:0] ptt_hang_time      = 5'h0c; // Default to 12ms
 
 localparam MAX_CWLEVEL = 19'h4d800; //(16'h4d80 << 4);
 localparam MIN_CWLEVEL = 19'h0;
