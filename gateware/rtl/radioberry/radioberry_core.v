@@ -60,7 +60,7 @@ parameter       AK4951 = 0;
 parameter       DSIQ_FIFO_DEPTH = 16384;
 
 localparam      VERSION_MAJOR = 8'd72;
-localparam      VERSION_MINOR = 8'd4;
+localparam      VERSION_MINOR = 8'd5;
 
 
 logic   [5:0]   cmd_addr;
@@ -112,6 +112,7 @@ logic           run, run_iosync, run_ad9866sync;
 
 logic [3:0] 	channels;
 logic 			reset_channels, reset_channels_ad9866sync;
+logic			reset, reset_ad9866sync;
 
 logic 			cwx;
 
@@ -120,7 +121,6 @@ logic [7:0]		resp;
 //------------------------------------------------------------------------------
 //                           Radioberry Software Reset Handler
 //------------------------------------------------------------------------------
-wire reset;
 reset_handler reset_handler_inst(.clock(clk_internal), .reset(reset));
 
 //------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ assign pi_rx_samples = (usiq_tlength > 11'd256) ? 1'b1: 1'b0;
 logic last;
 logic rx_rd_req;
 logic rd_req;
-ddr_mux ddr_mux_rx_inst(.clk(pi_rx_clk), .rd_req(rx_rd_req), .in_data(usiq_tdata), .out_data(pi_rx_data));
+ddr_mux ddr_mux_rx_inst(.clk(pi_rx_clk), .reset(~usiq_tvalid), .rd_req(rx_rd_req), .in_data(usiq_tdata), .out_data(pi_rx_data));
 
 sync_one sync_one_inst(.clock(clk_internal), .sig_in(rx_rd_req ^ usiq_tvalid), .sig_out(rd_req));
 
@@ -168,7 +168,7 @@ usiq_fifo usiq_fifo_i (
   .wr_tready(rx_tready),
   .wr_tlast(rx_tlast),
   .wr_tuser(rx_tuser),
-  .wr_aclr(reset_channels),
+  .wr_aclr(reset_channels_ad9866sync | reset_ad9866sync),
 
   .rd_clk(clk_internal), 
   .rd_tdata(usiq_tdata), 
@@ -250,11 +250,17 @@ sync sync_run_ad9866 (
   .sig_out(run_ad9866sync)
 );
 
+sync sync_reset_ad9866 (
+  .clock(clk_ad9866),
+  .sig_in(reset),
+  .sig_out(reset_ad9866sync)
+);
+
 ad9866 #(.FAST_LNA(FAST_LNA)) ad9866_i (
   .clk(clk_ad9866),
   .clk_2x(clk_ad9866_2x),
   
-  .rst(reset),
+  .rst(reset_ad9866sync),
 
   .tx_data(tx_data),
   .rx_data(rx_data),
@@ -296,7 +302,7 @@ radio_i
   .clk(clk_ad9866),
   .clk_2x(clk_ad9866_2x),
   
-  .rst_channels(reset_channels_ad9866sync),
+  .rst_channels(reset_channels_ad9866sync | reset_ad9866sync),
 
   .rst_all(1'b0),
   .rst_nco(1'b0),

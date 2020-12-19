@@ -45,10 +45,16 @@ set_false_path -from [get_ports {pi_spi_sck}]
 set_multicycle_path -from [get_clocks {clock_10_mhz}] -to [get_clocks {clock_48khz}] -setup -start 2
 set_multicycle_path -from [get_clocks {clock_10_mhz}] -to [get_clocks {clock_48khz}] -hold -start 2		
 
+set_multicycle_path -from [get_clocks {clock_10_mhz}] -to [get_clocks {clock_76p8MHz}] -setup -start 2
+set_multicycle_path -from [get_clocks {clock_10_mhz}] -to [get_clocks {clock_76p8MHz}] -hold -start 2	
+	
+set_multicycle_path -from [get_clocks {clock_76p8MHz}] -to [get_clocks {clock_10_mhz}] -setup -start 2
+set_multicycle_path -from [get_clocks {clock_76p8MHz}] -to [get_clocks {clock_10_mhz}] -hold -start 2		
+
 # IO
 set_false_path -from [get_ports {pi_spi_mosi}]
 set_false_path -to [get_ports {pi_spi_miso}]
-set_false_path -from [get_ports {pi_spi_ce[*]}]
+set_false_path -from [get_ports {pi_spi_ce}]
 set_false_path -to [get_ports {pi_rx_samples}]
 set_false_path -to [get_ports {pi_rx_last}]
 set_false_path -to [get_ports {pi_rx_data[*]}]
