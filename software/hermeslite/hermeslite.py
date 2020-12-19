@@ -310,8 +310,6 @@ class HermesLite:
     self.command(0x39,bytes([0x00,0x00,0x00,0x90]))
 
   def desynchronize_radios(self):
-    ## Both units disable CL1
-    self.command(0x39,bytes([0x00,0x00,0x00,0x0c]))
     ## Disable master
     self.command(0x39,bytes([0x00,0x00,0x08,0x00]))
     ## Disable clock output on CL2 of master
@@ -462,8 +460,8 @@ class HermesLite:
   def set_eeprom_mac(self,mac="0:0"):
     """Set last two digits of alternate MAC. mac is hex string like 'bf:10'"""
     mac = mac.split(':')
-    b0 = int(mac[0])
-    b1 = int(mac[1])
+    b0 = int(mac[0],16)
+    b1 = int(mac[1],16)
     self.write_eeprom(0x0c,b0)
     self.write_eeprom(0x0d,b1)
 
