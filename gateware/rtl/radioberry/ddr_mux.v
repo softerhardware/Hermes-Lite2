@@ -10,11 +10,13 @@
 
 module ddr_mux(
 	 clk, 
+	 reset,
 	 rd_req,
 	 in_data,
 	 out_data);
 
 	input clk;
+	input reset;
 	output rd_req;
 	input [23:0] in_data;
 	output [3:0] out_data;
@@ -27,13 +29,18 @@ module ddr_mux(
 								
 	always @(negedge clk)
 	begin
-		rd_req <= 1;
-		mux_sel <= mux_sel +1;
-		if (mux_sel == 2) begin
-		  mux_sel <= 0;
-		  rd_req <= 0;
-		  data <= in_data;
-		end;
+		if (reset) begin
+			mux_sel <= 0;  
+			rd_req <= 0;
+		end else begin
+			rd_req <= 1;
+			mux_sel <= mux_sel +1;
+			if (mux_sel == 2) begin
+			  mux_sel <= 0;
+			  rd_req <= 0;
+			  data <= in_data;
+			end;
+		end
 	end
 
 	always @(mux_sel)
