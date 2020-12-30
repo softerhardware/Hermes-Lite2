@@ -25,7 +25,7 @@ module radioberry (
 	input 			pi_spi_sck, 
 	input 			pi_spi_mosi, 
 	output 			pi_spi_miso, 
-	input [1:0] 	pi_spi_ce,
+	input 		 	pi_spi_ce,
 	
 	//RX IQ data
 	input wire 		pi_rx_clk,
@@ -35,6 +35,7 @@ module radioberry (
 	//TX IQ data
 	input wire 		pi_tx_clk,
 	input [3:0]  	pi_tx_data,  
+	output 			pi_tx_samples,
  
 	// Radioberry IO
 	input           io_phone_tip,
@@ -50,7 +51,7 @@ module radioberry (
 
 
   radioberry_core #(
-    .NR   		(4                                  ),
+    .NR   		(6                                  ),
     .NT   		(0                                  ),
     .UART 		(0                                  ),
     .ATU  		(0                                  ),
@@ -79,6 +80,7 @@ module radioberry (
 	.pi_rx_data					(pi_rx_data),
 	.pi_tx_clk					(pi_tx_clk),
 	.pi_tx_data					(pi_tx_data),
+	.pi_tx_samples				(pi_tx_samples),
 	.io_phone_tip				(io_phone_tip),
 	.io_phone_ring				(io_phone_ring),
 	.io_ptt_out					(io_ptt_out),
