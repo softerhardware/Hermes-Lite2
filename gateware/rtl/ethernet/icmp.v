@@ -56,6 +56,7 @@ localparam
 reg[5:0] state = ST_IDLE;
 reg [ 2:0] byte_no;
 reg [31:0] sum    ;
+reg [4:0] skip;
 
 wire fifo_full, sending_sync;
 
@@ -74,7 +75,10 @@ always @(posedge rx_clock)
             destination_mac <= remote_mac;
             destination_ip <= remote_ip;
             // detection of ICMP dest/port unreachable packet
-            if (rx_data == 8'h03) state <= ST_UNREACHABLE;
+	    if (rx_data == 8'h03) begin
+	      state <= ST_UNREACHABLE;
+	      skip <= 5'd28;
+            end
             else
               state <= (rx_data == 8'h08) ? ST_HEADER : ST_DONE;
           end // if (rx_enable)
@@ -116,9 +120,16 @@ always @(posedge rx_clock)
 
     // Detection of ICMP dest/port unreachable packet
     ST_UNREACHABLE:
+      // skip to the contained UDP header and verify that the source port is
+      // 1024.
       begin
-        dst_unreachable <= 1'b1;
-        state <= ST_DONE;
+	if (skip > 1) skip <= skip - 5'd1;
+	else if (skip == 1 && rx_data == 8'h04) skip <= 0;
+	else if (skip == 0 && rx_data == 8'h00) begin
+	  dst_unreachable <= 1'b1;
+	  state <= ST_DONE;
+	end
+	else state <= ST_DONE;
       end
   endcase
 
