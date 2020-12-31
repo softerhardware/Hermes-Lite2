@@ -121,7 +121,7 @@ always @(posedge rx_clock)
     // Detection of ICMP dest/port unreachable packet
     ST_UNREACHABLE:
       // skip to the contained UDP header and verify that the source port is
-      // 1024.
+      // 1024 - represented as h04, h00   -- ports are in network byte order.
       begin
         if (skip > 1) skip <= skip - 5'd1;
         else if (skip == 1 && rx_data == 8'h04) skip <= 0;
