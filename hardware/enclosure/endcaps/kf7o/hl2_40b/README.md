@@ -31,6 +31,7 @@ The BOM below lists possible options for the IO end plate. The builder should ch
 | C1-C4 | 4 | [0.1uF 0805](https://www.digikey.com/product-detail/en/kemet/C0805C104Z5VACTU/399-1177-1-ND/411452) |
 | D1, D2 | 2 | [1N4148](https://www.digikey.com/product-detail/en/micro-commercial-co/1N4148W-TP/1N4148WTPMSCT-ND/717311) |
 | FB1 | 1 | [0805 Power Line](https://www.digikey.com/product-detail/en/laird-signal-integrity-products/HI0805R800R-10/240-2395-1-ND/806755) |
+| FAN | 1 | 30mm DC Fan matched with power supply voltage (11-16VDC) |
 
 
 # Assembly
@@ -60,6 +61,16 @@ For Icom AH-4 ATU use, it is recommended that two bidirectional IO channels are 
 Below is a picture of assembled fan control components. Note that a 2 pin header is installed for J4. That pads of J4 are large enough that the fan wires can be soldered directly to the PCB. Also, it may be found necessary to solder a larger capacitor to J4 to smooth out the PWM-generated voltage. The J4 pin/pad farthest from Q1 is ground.
 
 ![](../pictures/endplates4.jpg)
+
+## FAN Wiring
+
+For pin information, see [Rear IO strip](https://github.com/softerhardware/Hermes-Lite2/wiki/IO#rear-io-strip-diagram), [HL2 IO](https://github.com/softerhardware/Hermes-Lite2/wiki/IO) and [J2 Connection Diagram](https://github.com/softerhardware/Hermes-Lite2/tree/master/hardware/enclosure/endcaps/kf7o/hl2_40b#j2-connection-diagram).
+
+| HL2 to IO Endplate | IO Endplate Components |
+| ------------------ | ---------------------- |
+| DB1-4 FAN to J2-5 FAN | Q1, Q2, R1, R18, C4, C5 |
+| Rear IO Vsup to J2-7 Vsup | C2 |
+| Rear IO GND to J2-11 GND | |
 
 The fan algorithm in the HL2 behaves as follows. When the HL2 is first powered on, the fan will briefly turn on. This helps verify that the fan is working.
 
@@ -118,7 +129,7 @@ For pin information, see [Rear IO strip](https://github.com/softerhardware/Herme
  | DB1-14 | 0V |
  | ACC1-1 | 12V |
  | ACC1-3 | ACC1-1 +/- 0.5V |
- | ACC1-7 | 5V |
+ | ACC1-7 | 5V (only when ATU is connected to HL2) |
  | ACC1-9 | 0V |
 
 ## Operation
