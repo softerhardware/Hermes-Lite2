@@ -1,12 +1,64 @@
 import numpy as np
 import ft8d
+import collections
+import time
+import socket
+from maidenhead import maiden2distanceheading
+
+ft8_spot = collections.namedtuple("ft8_spot", "sync xsnr xdt freq msgcall msggrid msg37")
+
+class ft8_spots(object):
+  def __init__(self,hostname,jobtime,ts,dial,beams):
+    self.hostname = hostname
+    self.jobtime = jobtime
+    self.ts = ts
+    self.dial = dial
+    self.beams = beams
+
+  def short_info(self):
+    return "{0} {1} {2} {3} {4}".format(
+      self.hostname,self.jobtime,self.ts,self.dial,len(self.beams))
+
+  def basic_info(self):
+    base = set()
+    mixed = set()
+    for beam,spots in self.beams.items():
+      if beam == ((0,0),) or beam == ((1,0),):
+        for spot in spots: base.add(spot.msg37)
+      else:
+        for spot in spots: mixed.add(spot.msg37)
+    unique = len(mixed - base)
+    missed = len(base - mixed)
+    total  = len(base | mixed)
+    return "host={0} jobtime={1} ts={2} dial={3} beams={4} unique={5} missed={6} total={7}".format(
+      self.hostname,self.jobtime,self.ts,self.dial,len(self.beams),unique,missed,total)
+
+  def update_stats(self,locations,stats,bins):
+
+    for beam,spots in self.beams.items():
+      for spot in spots:
+        knownlocation = None
+        if spot.msggrid != '':
+          if spot.msgcall != '': locations[spot.msgcall] = spot.msggrid
+          knownlocation = spot.msggrid
+        elif spot.msgcall != '' and spot.msgcall in locations:
+          knownlocation = locations[spot.msgcall]
+
+        if knownlocation != None:
+          d,h = maiden2distanceheading(knownlocation)
+          h = int(h/bins) ## Reduce number of headings and bin ranges of headings
+          if h not in stats: stats[h] = {}
+
+          if beam not in stats[h]: stats[h][beam] = (0,0)
+
+          totspots,totsnr = stats[h][beam]
+
+          stats[h][beam] = (totspots+1,totsnr+spot.xsnr+27)
 
 
-#import collections
 
-## Rotation
-#Job = collections.namedtuple("Job", "ts dial beams iq")
-#Spot = collections.namedtuple("Spot", "ts dial")
+
+
 
 
 class ft8(object):
@@ -34,6 +86,7 @@ class ft8(object):
     spots = {}
     ndepth=3
     lsubtract = True
+    ft8spots = []
 
     for ipass in range(5):
 
@@ -81,27 +134,33 @@ class ft8(object):
               newspot = True
               spots[msg37] = True
 
-              print("{0:6.1f} {1:5d} {2:6.2f} {3:6d} {4:20s} {5:20s}".format(
-                min(sync,999.0),int(round(xsnr)),xdt,
-                int(round(f1)),msgcall,msggrid))
+              s = ft8_spot(min(sync,999.0),int(round(xsnr)),xdt,
+                int(round(f1-2000+self.dial)),msgcall.strip(),msggrid.strip(),msg37)
+              ft8spots.append(s)
 
       ## Early exits to save time
       #if not newspot: break
       if not newspot and ipass == 0: break
       if not newspot and ipass >= 2: break
-    return ipass
+    return ft8spots
 
   def decode(self):
 
     apsym = np.zeros((58,), dtype=np.intc)
     apsym[0] = 99
     apsym[29] = 99
+    resbeams = {}
+    hostname = socket.gethostname()
+
+    jobtime = time.time()
 
     for beam in self.beams:
       iq = [(self.iq[r[0]] if r[1] == 0 else (self.iq[r[0]]*np.exp(-1j*(r[1]/360)*2*np.pi)))
         for r in beam]
       iq = sum(iq)/len(beam)
-      print("BEAM",beam)
-      ip = self._decode1(iq,apsym)
-      print("IPASS",ip)
+      ft8spots = self._decode1(iq,apsym)
+      resbeams[beam] = ft8spots
 
+    jobtime = time.time() - jobtime
+
+    return ft8_spots(hostname,jobtime,self.ts,self.dial,resbeams)
