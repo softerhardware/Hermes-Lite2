@@ -1,0 +1,54 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module ft8d ! in 
+    interface  ! in :ft8d
+        subroutine ft8b(dd0,newdat,nqsoprogress,nfqso,nftx,ndepth,lapon,lapcqonly,napwid,lsubtract,nagain,ncontest,iaptype,f1,xdt,xbase,apsym,nharderrors,dmin,nbadcrc,ipass,msg37,msgcall,msggrid,xsnr) ! in :ft8d:ft8b.f90
+            use crc
+            use packjt77
+            complex dimension(60000),intent(in) :: dd0
+            logical intent(in) :: newdat
+            integer intent(in) :: nqsoprogress
+            integer intent(in) :: nfqso
+            integer intent(in) :: nftx
+            integer intent(in) :: ndepth
+            logical intent(in) :: lapon
+            logical intent(in) :: lapcqonly
+            integer intent(in) :: napwid
+            logical intent(in) :: lsubtract
+            logical intent(in) :: nagain
+            integer intent(in) :: ncontest
+            integer intent(in) :: iaptype
+            real intent(in) :: f1
+            real intent(in) :: xdt
+            real intent(in) :: xbase
+            integer dimension(58),intent(in) :: apsym
+            integer intent(out) :: nharderrors
+            real intent(out) :: dmin
+            integer intent(out) :: nbadcrc
+            integer intent(out) :: ipass
+            character*37 intent(out) :: msg37
+            character*13 intent(out) :: msgcall
+            character*4 intent(out) :: msggrid
+            real intent(out) :: xsnr            
+        end subroutine ft8b
+        function bessi0(x) ! in :ft8d:ft8b.f90
+            real :: x
+            real :: bessi0
+        end function bessi0
+        subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand,sbase) ! in :ft8d:sync8.f90
+            complex dimension(60000),intent(in) :: dd
+            integer intent(in) :: nfa
+            integer intent(in) :: nfb
+            real intent(in) :: syncmin
+            integer intent(in) :: nfqso
+            real dimension(1280,372.0),intent(out) :: s
+            real dimension(3,500),intent(out) :: candidate
+            integer intent(out) :: ncand
+            real dimension(1280),intent(out) :: sbase
+        end subroutine sync8
+    end interface 
+end python module ft8d
+
+! This file was auto-generated with f2py (version:2).
+! See http://cens.ioc.ee/projects/f2py2e/
