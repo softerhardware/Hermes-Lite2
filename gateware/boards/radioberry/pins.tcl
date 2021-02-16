@@ -36,7 +36,10 @@ set_location_assignment PIN_50 -to pi_tx_samples
 
 
 #Radioberry IO
-set_location_assignment PIN_144 -to io_ptt_out
+set_location_assignment PIN_144 -to io_pa_exttr
+set_location_assignment PIN_143 -to io_pa_inttr
+set_location_assignment PIN_136 -to io_pwr_envpa
+set_location_assignment PIN_137 -to io_pwr_envbias
 set_location_assignment PIN_120 -to io_phone_tip
 set_location_assignment PIN_121 -to io_phone_ring
 
@@ -94,7 +97,10 @@ set_instance_assignment -name FAST_OUTPUT_REGISTER ON 	-to rffe_ad9866_txquiet_n
 set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to *
 
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_phone_tip
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_ptt_out
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_pa_exttr
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_pa_inttr
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_pwr_envpa
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_pwr_envbias
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_cwl
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_cwr
 
