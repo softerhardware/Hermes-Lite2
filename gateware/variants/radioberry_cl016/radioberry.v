@@ -40,13 +40,18 @@ module radioberry (
 	// Radioberry IO
 	input           io_phone_tip,
 	input           io_phone_ring,
-	output 			io_ptt_out,
+	output 			io_pa_exttr,
+	output       	io_pa_inttr,
 	
 	// Local CW using pihpsdr
 	input 			io_cwl,
 	input 			io_cwr,
 	output 			pi_cwl,
-	output 			pi_cwr
+	output 			pi_cwr,
+	
+	// Power
+	output			io_pwr_envpa,
+	output			io_pwr_envbias
 );
 
 
@@ -56,7 +61,8 @@ module radioberry (
     .UART 		(0                                  ),
     .ATU  		(0                                  ),
 	.VNA  		(0									),
-	.CW   		(1									)
+	.CW   		(1									),
+	.FPGA_TYPE  (1									)
   ) radioberry_core_i (
  
     .rffe_ad9866_rst_n         (rffe_ad9866_rst_n    ),
@@ -83,11 +89,14 @@ module radioberry (
 	.pi_tx_samples				(pi_tx_samples),
 	.io_phone_tip				(io_phone_tip),
 	.io_phone_ring				(io_phone_ring),
-	.io_ptt_out					(io_ptt_out),
+	.io_pa_exttr				(io_pa_exttr),
+	.io_pa_inttr				(io_pa_inttr),
 	.io_cwl						(io_cwl),
 	.io_cwr						(io_cwr),
 	.pi_cwl						(pi_cwl),
-	.pi_cwr						(pi_cwr)
+	.pi_cwr						(pi_cwr),
+	.io_pwr_envpa				(io_pwr_envpa),
+	.io_pwr_envbias				(io_pwr_envbias)
   );
 
 endmodule

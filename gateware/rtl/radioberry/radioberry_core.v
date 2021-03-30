@@ -38,13 +38,18 @@ module radioberry_core(
 	// Radioberry IO
 	input           io_phone_tip,
 	input           io_phone_ring,
-	output 			io_ptt_out,
+	output 			io_pa_exttr,
+	output       	io_pa_inttr,
 	
 	// Local CW using pihpsdr
 	input 			io_cwl,
 	input 			io_cwr,
 	output 			pi_cwl,
-	output 			pi_cwr
+	output 			pi_cwr,
+	
+	// Power
+	output			io_pwr_envpa,
+	output			io_pwr_envbias
 );
 
 // PARAMETERS
@@ -59,8 +64,9 @@ parameter       FAST_LNA = 0;
 parameter       AK4951 = 0; 
 parameter       DSIQ_FIFO_DEPTH = 16384;
 
-localparam      VERSION_MAJOR = 8'd72;
-localparam      VERSION_MINOR = 8'd5;
+parameter 		FPGA_TYPE = 2'b10; //CL016 = 2'b01 ; CL025 = 2'b10
+localparam      VERSION_MAJOR = 8'd73;
+localparam      VERSION_MINOR = 8'd0;
 
 
 logic   [5:0]   cmd_addr;
@@ -118,6 +124,8 @@ logic 			cwx;
 
 logic [7:0]		resp;
 
+logic			temp_enabletx; 
+
 //------------------------------------------------------------------------------
 //                           Radioberry Software Reset Handler
 //------------------------------------------------------------------------------
@@ -128,12 +136,13 @@ reset_handler reset_handler_inst(.clock(clk_internal), .reset(reset));
 //------------------------------------------------------------------------------
 wire [47:0] spi0_recv;
 
-spi_slave spi_slave_inst(.rstb(!reset),.ten(1'b1),.tdata({resp, 24'h0, VERSION_MAJOR, VERSION_MINOR}),.mlb(1'b1),.ss(pi_spi_ce[0]),.sck(pi_spi_sck),.sdin(pi_spi_mosi), .sdout(pi_spi_miso),.done(pi_spi_done),.rdata(spi0_recv));
+spi_slave spi_slave_inst(.rstb(!reset),.ten(1'b1),.tdata({resp, 22'h0, FPGA_TYPE, VERSION_MAJOR, VERSION_MINOR}),.mlb(1'b1),.ss(pi_spi_ce[0]),.sck(pi_spi_sck),.sdin(pi_spi_mosi), .sdout(pi_spi_miso),.done(pi_spi_done),.rdata(spi0_recv));
 
 always @ (posedge pi_spi_done) 	cmd_cnt <= ~cmd_cnt_next; 
 		
 always @* begin
 	cmd_cnt_next = cmd_cnt;
+	temp_enabletx = spi0_recv[42];
 	cwx_enabled = spi0_recv[41];
 	run = spi0_recv[40];
 	cmd_ptt = spi0_recv[32];
@@ -415,7 +424,14 @@ control #(.CW(CW)) control_i (
 	
 	.resp(resp),
 	
-	.pa_exttr(io_ptt_out)
+	.pa_temp_enabletx(temp_enabletx),
+	
+	.pa_exttr(io_pa_exttr),
+	.pa_inttr(io_pa_inttr),
+	
+	.pwr_envpa(io_pwr_envpa), 
+	.pwr_envbias(io_pwr_envbias)
+	
   );
 
 // cw assignment.  
