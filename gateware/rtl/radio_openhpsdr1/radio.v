@@ -16,6 +16,7 @@ module radio (
   ls_valid,
   ls_done,
 
+  ds_cmd_ptt,
   run,
   qmsec_pulse,
   ext_keydown,
@@ -108,6 +109,7 @@ input  [23:0] lm_data                ;
 input         lm_valid               ;
 output        ls_valid               ;
 input         ls_done                ;
+input         ds_cmd_ptt             ;
 input         run                    ;
 input         qmsec_pulse            ;
 input         ext_keydown            ;
@@ -1025,7 +1027,8 @@ always @* begin
         if (tx_qmsectimer != 9'h00) begin
           if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 9'h01;
         end else begin
-          tx_state_next = NOTX;
+          // Exit only if software has sent ds_cmd_ptt or watchdog has expired
+          if (~ds_cmd_ptt) tx_state_next = NOTX;
         end
       end
     end
