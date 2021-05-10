@@ -28,7 +28,8 @@ module hl2link_app (
   output logic        cmd_is_alt       = 1'b0,
   input               cmd_rqst       ,
   input               hl2link_rst_req,
-  output              hl2link_rst_ack
+  output              hl2link_rst_ack,
+  output              link_error
 );
 
 logic        send_tvalid;
@@ -43,10 +44,13 @@ logic [37:0] recv_tdata ;
 logic [ 1:0] recv_tuser ;
 logic        recv_tready;
 logic        recv_tdone ;
+logic        recv_error ;
 
 logic cl1on_ack, cl1on_rqst;
 
 logic rst_link = 1'b0;
+
+assign link_error = recv_error;
 
 assign send_tdata  = master_sel ? {ds_cmd_addr,ds_cmd_data} : {ls_data,ds_cmd_data[13:0]};
 assign send_tuser  = master_sel ? 2'b01 : 2'b10;
@@ -60,7 +64,7 @@ assign lm_data = recv_tdata[23:0];
 
 always @(posedge clk) begin
   lm_valid <= recv_tdone;
-end 
+end
 
 assign ls_done = send_tdone;
 
@@ -135,11 +139,11 @@ always @* begin
 
   case(cmd_state)
     CMD_IDLE : begin
-      if ((recv_tuser == 2'b01) & recv_tdone & ~master_sel) begin
+      if ((recv_tuser == 2'b01) & recv_tdone & ~recv_error & ~master_sel) begin
         cmd_state_next = CMD_SLV0;
       end else if (cl1on_rqst & ~master_sel) begin
         cmd_state_next = CMD_SLVCLK1ON0;
-      end else if (ds_cmd_rqst) begin
+      end else if ((ds_cmd_rqst & ~running) | (ds_cmd_rqst & running & master_sel)) begin
         cmd_send_tvalid   = ds_cmd_mask[1]; // Only send to remote if mask set
         cmd_data_next     = ds_cmd_data;
         cmd_addr_next     = ds_cmd_addr;
@@ -147,6 +151,9 @@ always @* begin
         cmd_is_alt_next   = ds_cmd_is_alt;
         cmd_state_next    = running ? CMD_MST0 : CMD_MST1;
       end
+
+
+
     end
 
     // Delay to sync issue with slave
@@ -209,7 +216,8 @@ hl2link hl2link_i (
   .recv_tdata     (recv_tdata                                ),
   .recv_tuser     (recv_tuser                                ),
   .recv_tready    (recv_tready                               ),
-  .recv_tdone     (recv_tdone                                )
+  .recv_tdone     (recv_tdone                                ),
+  .recv_error     (recv_error                                )
 );
 
 
