@@ -65,8 +65,8 @@ always @(posedge clk) begin
     // enable tune if
     // PA on and not disable TR in low power mode
     // PA off and disable TR in low power mode
-    enable <= cmd_data[20] & cmd_data[19];
-    reset  <= cmd_data[18];
+    enable <= cmd_data[20] ;
+    reset  <= cmd_data[21] ;
   end
 end
 

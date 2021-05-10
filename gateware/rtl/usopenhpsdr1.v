@@ -48,7 +48,8 @@ module usopenhpsdr1 (
   input        [          11:0] fwdpwr              ,
   input        [          11:0] revpwr              ,
   input        [          11:0] bias                ,
-  input        [           7:0] dsiq_status
+  input        [           7:0] dsiq_status         ,
+  input                         master_link_running
 );
 
 parameter           NR = 8'h0;
@@ -280,7 +281,7 @@ always @* begin
         6'h2b: discover_data_next = static_ip[7:0];
         6'h2a: discover_data_next = alt_mac[15:8];
         6'h29: discover_data_next = alt_mac[7:0];
-        6'h28: discover_data_next = resp_control[5] ? {NR[6:0],1'b0} : NR;
+        6'h28: discover_data_next = master_link_running ? {NR[6:0],1'b0} : NR;
         6'h27: discover_data_next = {BANDSCOPE_BITS, BOARD[5:0]};
         6'h26: discover_data_next = VERSION_MINOR;
         // Additions mainly for port 1025 communication

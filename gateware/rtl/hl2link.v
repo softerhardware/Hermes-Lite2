@@ -21,6 +21,7 @@ module hl2link (
   output logic [ 1:0] recv_tuser     ,
   input               recv_tready    ,
   output logic        recv_tdone     ,
+  output logic        recv_error     ,
   output              hl2link_rst_ack
 );
 
@@ -34,6 +35,7 @@ logic [1:0] linkrx_stable = 2'b00;
 localparam
   SEND_IDLE   = 4'b0000,
   SEND_WORK   = 4'b0001,
+  SEND_CHECK  = 4'b0011,
   SEND_SYNC1  = 4'b0111,
   SEND_SYNC2  = 4'b0110,
   SEND_MLINK0 = 4'b1010,
@@ -54,12 +56,15 @@ logic [ 4:0] send_cnt_next                 ;
 logic [37:0] rsend_tdata                   ;
 logic [37:0] rsend_tdata_next              ;
 logic        timer_pulse                   ;
+logic        send_crc         = 1'b0       ;
+logic        send_crc_next                 ;
 
 always @(posedge clk) begin
   send_state  <= rst ? SEND_SLINK0 : send_state_next;
   linktx      <= linktx_next;
   rsend_tdata <= rsend_tdata_next;
   send_cnt    <= send_cnt_next;
+  send_crc    <= send_crc_next;
 end
 
 assign timer_pulse = (send_cnt == 5'h00);
@@ -69,6 +74,7 @@ always @* begin
   linktx_next      = 2'b00;
   rsend_tdata_next = rsend_tdata;
   send_cnt_next    = send_cnt - 5'h01;
+  send_crc_next    = send_crc;
 
   send_tready = 1'b0;
   send_tdone  = 1'b0;
@@ -79,6 +85,7 @@ always @* begin
   case(send_state)
     SEND_IDLE : begin
       send_tready = 1'b1;
+      send_crc_next = 1'b0;
       if (send_tvalid & (send_tuser != 2'b00)) begin
         linktx_next      = send_tuser;
         rsend_tdata_next = send_tdata;
@@ -92,8 +99,15 @@ always @* begin
       linktx_next      = rsend_tdata[37:36];
       send_cnt_next    = send_cnt - 5'h01;
       rsend_tdata_next = {rsend_tdata[35:0],2'bXX};
-      if (timer_pulse) send_state_next = SEND_SYNC1;
+      if (^rsend_tdata[37:36]) send_crc_next = ~send_crc;
+      if (timer_pulse) send_state_next = SEND_CHECK;
     end
+
+    SEND_CHECK : begin
+      linktx_next      = {send_crc,1'b1};
+      send_state_next  = SEND_SYNC1;
+    end
+
     // Wait so that send_tready will be synchronized with recv_tvalid in other HL2
     SEND_SYNC1 : begin
       send_state_next = SEND_SYNC2;
@@ -211,15 +225,18 @@ end
 
 // Receive FSM
 localparam
-  RECV_IDLE  = 1'b0,
-  RECV_WORK  = 1'b1;
+  RECV_IDLE  = 2'b00,
+  RECV_WORK  = 2'b01,
+  RECV_CHECK = 2'b11;
 
-logic        recv_state      = RECV_IDLE;
-logic        recv_state_next            ;
+logic [ 1:0] recv_state      = RECV_IDLE;
+logic [ 1:0] recv_state_next            ;
 logic [37:0] recv_tdata_next            ;
 logic [ 1:0] recv_tuser_next            ;
 logic [ 4:0] recv_cnt        = 5'h00    ;
 logic [ 4:0] recv_cnt_next              ;
+logic        recv_crc        = 1'b0     ;
+logic        recv_crc_next              ;
 
 always @(posedge clk) begin
   recv_state    <= running ? recv_state_next : RECV_IDLE;
@@ -229,6 +246,7 @@ always @(posedge clk) begin
   recv_tdata    <= recv_tdata_next;
   recv_tuser    <= recv_tuser_next;
   recv_cnt      <= recv_cnt_next;
+  recv_crc      <= recv_crc_next;
 end
 
 always @* begin
@@ -236,13 +254,16 @@ always @* begin
   recv_tdata_next = recv_tdata;
   recv_tuser_next = recv_tuser;
   recv_cnt_next   = recv_cnt;
+  recv_crc_next   = recv_crc;
 
   recv_tvalid     = 1'b0;
   recv_tdone      = 1'b0;
+  recv_error      = 1'b0;
 
   case(recv_state)
     RECV_IDLE: begin
-      recv_tvalid = 1'b1;
+      recv_tvalid   = 1'b1;
+      recv_crc_next = 1'b0;
       if (linkrx_int == 2'b01)      recv_cnt_next = 5'h12; // Command word 38 bits
       else if (linkrx_int == 2'b10) recv_cnt_next = 5'h0b; // RX sample 2+24 bits
       else if (linkrx_int == 2'b11) recv_cnt_next = 5'h0f; // TX IQ sample 16+16 bits
@@ -256,10 +277,16 @@ always @* begin
       recv_tdata_next = {recv_tdata[35:0],linkrx_int};
       recv_cnt_next   = recv_cnt - 5'h01;
       if (recv_cnt == 5'h00) begin
-        recv_tdone = 1'b1;
-        recv_state_next = RECV_IDLE;
+        recv_state_next = RECV_CHECK;
       end
+      if (^linkrx_int) recv_crc_next = ~recv_crc;  
     end
+    RECV_CHECK: begin
+      recv_tdone = 1'b1;
+      recv_error = linkrx_int != {recv_crc,1'b1};
+      recv_state_next = RECV_IDLE;
+    end
+    default: recv_state_next = RECV_IDLE;
   endcase
 end
 
