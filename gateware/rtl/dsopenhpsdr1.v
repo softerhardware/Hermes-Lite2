@@ -114,7 +114,6 @@ always @(posedge clk) begin
   pushcnt         <= pushcnt_next;
   ds_cmd_resprqst <= ds_cmd_resprqst_next;
   ds_cmd_addr     <= ds_cmd_addr_next;
-  ds_cmd_ptt      <= ds_cmd_ptt_next;
   ds_cmd_data     <= ds_cmd_data_next;
   ds_cmd_cnt      <= ds_cmd_cnt_next;
   ds_cmd_is_alt   <= ds_cmd_is_alt_next;
@@ -130,12 +129,15 @@ always @(posedge clk) begin
     state         <= START;
     run           <= 1'b0;
     wide_spectrum <= 1'b0;
+	ds_cmd_ptt    <= 1'b0;
   end else if (~eth_valid) begin
     state <= START;
+    ds_cmd_ptt    <= ds_cmd_ptt_next;
   end else begin
     state         <= state_next;
     run           <= run_next;
     wide_spectrum <= wide_spectrum_next;
+    ds_cmd_ptt    <= ds_cmd_ptt_next;
   end
 end
 

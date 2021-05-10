@@ -139,8 +139,8 @@ parameter       BYPASS_VERSA = 0;
 
 localparam      TUSERWIDTH = (AK4951 == 1) ? 16 : 2;
 
-localparam      VERSION_MAJOR = (BOARD==2) ? 8'd52 : 8'd72;
-localparam      VERSION_MINOR = 8'd8;
+localparam      VERSION_MAJOR = (BOARD==2) ? 8'd52 : 8'd73;
+localparam      VERSION_MINOR = 8'd0;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
@@ -851,6 +851,7 @@ radio_i
   .ls_valid(ls_valid),
   .ls_done(ls_done),
 
+  .ds_cmd_ptt(ds_cmd_ptt), // Not working about async here since psuedo static
   .run(run_ad9866sync),
   .qmsec_pulse(qmsec_pulse_ad9866sync),
   .ext_keydown(cw_keydown_ad9866sync),
