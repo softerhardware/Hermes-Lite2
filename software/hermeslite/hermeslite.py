@@ -1,5 +1,5 @@
 import socket, select, struct, collections, time, os
-import shutil, tempfile, urllib.request
+import shutil, tempfile, urllib.request, netifaces
 
 ## The one response type received from the HL2
 Response = collections.namedtuple('Response',
@@ -77,55 +77,71 @@ def decode(r):
     receivers,board_id,wideband_type,response_data,ext_cw_key,ptt_resp,pa_exttr,pa_inttr,tx_on,cw_on,
     adc_clip_cnt,temperature,fwd_pwr,rev_pwr,bias,txfifo_recovery,txfifo_msbs,r[0x25:])
 
-
-def discover():
-  """Discover available HL2s."""
+def discover_by_port(ifaddr=None, port=1025):
+  """Discover available HL2s on one interface/NIC for one UDP port."""
   sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
   sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
   sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
   sock.setblocking(0)
+  if ifaddr != None: sock.bind((ifaddr,port)) 
   msg = bytes([0xEF,0xFE,0x02]+(57*[0]))
-  sock.sendto(msg, ('255.255.255.255', 1025))
-
+  sock.sendto(msg, ('255.255.255.255', port))
   responses = []
   while True:
     ready = select.select([sock], [], [], 1.0)
     if ready[0]:
       data, address = sock.recvfrom(60)
+      if ifaddr and ifaddr == address[0]: continue
       print("Discover response from %s:%d" %(address[0], address[1]))
       r = decode(data)
       if r: responses.append((address,r))
     else:
       ## Timeout so no more units to discover
       break
+  return responses
 
+def discover(ifaddr=None):
+  """Discover available HL2s on one interface/NIC and return their responses."""
+  responses = discover_by_port(ifaddr, 1025)
   if responses != []: return responses
-
   ## Try port 1024 if no responses so gateware update can at least work
   print("Trying port 1024. Only gateware update will work on units without port 1025 enabled.")
-  sock.sendto(msg, ('255.255.255.255', 1024))
+  return discover_by_port(ifaddr, 1024)
 
-  while True:
-    ready = select.select([sock], [], [], 1.0)
-    if ready[0]:
-      data, address = sock.recvfrom(60)
-      print("Discover response from %s:%d" %(address[0], address[1]))
-      r = decode(data)
-      if r: responses.append((address,r))
-    else:
-      ## Timeout so no more units to discover
-      break
-
+def discover_all():
+  """Discover all HL2s on all interfaces and return list of their responses."""
+  # Use AF_INET because HL2 only supports IPv4 and not IPv6 
+  PROTO = netifaces.AF_INET   
+  # Fetch list of network interfaces, remove 'lo' if present
+  ifaces = [iface for iface in netifaces.interfaces() if iface != 'lo']
+  # Get (address, name) tuples for all addresses for each remaining interface
+  if_addrs = [(netifaces.ifaddresses(iface), iface) for iface in ifaces]
+  # Keep interfaces with IPv4 addresses, drop others
+  if_addrs = [(t[0][PROTO], t[1]) for t in if_addrs if PROTO in t[0]]
+  # Keep the value of the 'addr' field from interfaces that have them
+  iface_addrs = [(d['addr'], t[1]) for t in if_addrs for d in t[0] \
+    if 'addr' in d]
+  # Keep interfaces that do not have 127.0.0.1 as an address (loopback)
+  iface_addrs = [ t for t in iface_addrs if t[0] != '127.0.0.1']
+  # Do discovery on all remaining interfaces that have IP addresses
+  responses = []
+  for ifa in iface_addrs: 
+    print("\nPerforming discovery: interface %s, IP %s" % (ifa[1],ifa[0]))
+    d = discover(ifaddr=ifa[0])
+    if d != []:
+      for r in d:
+        print('Discovered radio: IP %s MAC %s GW %s #RX %d' % 
+          (r[0][0],r[1].mac,r[1].gateware,r[1].receivers))
+        responses.append(r)
   return responses
 
 def discover_first():
-  """Discover all HL2 units and return the first HL2 found."""
-  responses = discover()
+  """Discover all HL2s on all interfaces and return the first HL2 found."""
+  responses = discover_all()
   if responses != []:
     return HermesLite(responses[0][0])
   else:
-    print("No Hermes-Lite discovered")
-
+    return None
 
 class HermesLite:
   # Hermes-Lite object
@@ -542,4 +558,3 @@ class HermesLite:
 
 if __name__ == "__main__":
   hl = discover_first()
-
