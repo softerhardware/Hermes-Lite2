@@ -249,7 +249,7 @@ class HermesLite:
     self.write_versa5(0x63,0x00) ## Disable clock2 output
 
   def enable_cl2_61p44(self):
-    """Enable CL2 output at 61.44MH"""
+    """Enable CL2 output at 61.44MHz"""
     self.write_versa5(0x62,0x3b) ## Clock2 CMOS1 output, 3.3V
     self.write_versa5(0x2c,0x00) ## Disable aux output on clock 1
     self.write_versa5(0x31,0x81) ## Use divider for clock2
@@ -267,6 +267,50 @@ class HermesLite:
     self.write_versa5(0x33,0x00) ## [21:14]
     self.write_versa5(0x34,0x00) ## [13:6]
     self.write_versa5(0x35,0x00) ## [5:0] and disable ss
+    self.write_versa5(0x63,0x01) ## Enable clock2
+
+  def enable_cl1_10mhz(self):
+    """Use 10MHz CL1 as input to PLL1 and then to AD9866"""
+    # Multiplying 10MHz by 288 will give us the desired 2880.0MHz VCO.
+    # We then need to use the output divider (18.75 * 2) to get us down
+    # to the required 76.8 MHz.
+
+    self.write_versa5(0x10,0xc0) ## Enable xtal and clock
+    self.write_versa5(0x13,0x03) ## Switch to clock
+    self.write_versa5(0x10,0x40) ## Enable clock input only, won't lock to master
+
+    # Output Divider 1
+    self.write_versa5(0x2d,0x01) ## Change top divider to 0x012
+    self.write_versa5(0x2e,0x20)
+    self.write_versa5(0x22,0x03) ## Change fractional divider to 0x3000000
+    self.write_versa5(0x23,0x00)
+    self.write_versa5(0x24,0x00)
+    self.write_versa5(0x25,0x00)
+
+    # PLL multiplier
+    self.write_versa5(0x19,0x00) ## Change fractional multiplier to 0x000000
+    self.write_versa5(0x1A,0x00)
+    self.write_versa5(0x1B,0x00)
+    self.write_versa5(0x18,0x00) ## Change top multiplier to 0x120. LSB first to prevent VCO > 2900MHz
+    self.write_versa5(0x17,0x12)
+  
+  # Following Clk1 config to use 10MHz input, now config Clk2 for 10Mhz output.  
+    #def enable_cl2_10mhz(self):
+    """Enable CL2 output at 10MHz"""
+    # Multiplying 10MHz by 288 will give us the desired 2880.0MHz VCO.
+    # We then need to use the output divider (288 / 2 ==> 144, or 0x90) 
+    # to get us down to the required 10.000 MHz.
+    self.write_versa5(0x62,0x3b) ## Clock2 CMOS1 output, 3.3V
+    self.write_versa5(0x2c,0x00) ## Disable aux output on clock 1
+    self.write_versa5(0x31,0x81) ## Use divider for clock2
+    self.write_versa5(0x3d,0x09) ## Change top divider to 0x090
+    self.write_versa5(0x3e,0x00)
+    
+    # PLL multiplier
+    self.write_versa5(0x32,0x00) ## Change fractional divider to 0x0000000
+    self.write_versa5(0x33,0x00)
+    self.write_versa5(0x34,0x00)
+    self.write_versa5(0x35,0x00)
     self.write_versa5(0x63,0x01) ## Enable clock2
 
   def enable_cl1_direct(self):
@@ -542,4 +586,6 @@ class HermesLite:
 
 if __name__ == "__main__":
   hl = discover_first()
-
+  print("Configuring Clk1 and Clk2 for 10Mhz")
+  hl.enable_cl1_10mhz()
+  print("Configuration of clocks completed")
