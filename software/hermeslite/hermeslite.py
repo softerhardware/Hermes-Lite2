@@ -269,7 +269,7 @@ class HermesLite:
     self.write_versa5(0x35,0x00) ## [5:0] and disable ss
     self.write_versa5(0x63,0x01) ## Enable clock2
 
-  def enable_cl1_10mhz(self):
+  def enable_cl1_cl2_10mhz(self):
     """Use 10MHz CL1 as input to PLL1 and then to AD9866"""
     # Multiplying 10MHz by 288 will give us the desired 2880.0MHz VCO.
     # We then need to use the output divider (18.75 * 2) to get us down
@@ -587,5 +587,5 @@ class HermesLite:
 if __name__ == "__main__":
   hl = discover_first()
   print("Configuring Clk1 and Clk2 for 10Mhz")
-  hl.enable_cl1_10mhz()
+  hl.enable_cl1_cl2_10mhz()
   print("Configuration of clocks completed")
