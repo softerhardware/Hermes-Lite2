@@ -927,6 +927,9 @@ logic        accumdelay_decr           ;
 logic        accumdelay_notzero        ;
 logic [ 6:0] tx_buffer_latency  = 7'h14; // Default to 20ms
 logic [ 4:0] ptt_hang_time      = 5'h0c; // Default to 12ms
+logic        ptt_hang_saturated;
+
+assign ptt_hang_saturated = &ptt_hang_time;
 
 localparam MAX_CWLEVEL = 19'h4d800; //(16'h4d80 << 4);
 localparam MIN_CWLEVEL = 19'h0;
@@ -996,7 +999,7 @@ always @* begin
       accumdelay_decr = ~fir_tready;
       tx_tready       = accumdelay_notzero | fir_tready;
 
-      if (ext_keydown | cwx_keydown | cwx_keyup | ptt) tx_state_next = PRETX;
+      if (ext_keydown | cwx_keydown | cwx_keyup | (ds_cmd_ptt & ptt)) tx_state_next = PRETX;
     end
 
     PRETX : begin
@@ -1017,6 +1020,9 @@ always @* begin
     PTTTX : begin
       if (ext_keydown) begin
         tx_state_next = CWTX;
+      end else if (ptt_hang_saturated & ~ds_cmd_ptt) begin
+        // Immediate exit from transmit, don't empty the buffer
+        tx_state_next = NOTX;
       end else if (ptt) begin
         tx_qmsectimer_next = {2'b00, ptt_hang_time, 2'b00};
         if (fir_tready) begin
@@ -1028,7 +1034,7 @@ always @* begin
           if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 9'h01;
         end else begin
           // Exit only if software has sent ds_cmd_ptt or watchdog has expired
-          if (~ds_cmd_ptt) tx_state_next = NOTX;
+          if (~ptt_hang_saturated) tx_state_next = NOTX;
         end
       end
     end
@@ -1102,6 +1108,11 @@ always @* begin
 //    end
 //  end
 //end
+
+    default: begin
+      tx_state_next = NOTX;
+    end
+
 
   endcase
 end

@@ -58,7 +58,7 @@ logic [11:0] timer_next, timer = DELAY_TIME;
 logic [ 2:0] state_next, state = IDLE;
 
 logic enable = 1'b0;
-logic reset  = 1'b0;
+logic bypass = 1'b0;
 
 always @(posedge clk) begin
   if (cmd_rqst & (cmd_addr == 6'h09)) begin
@@ -66,7 +66,7 @@ always @(posedge clk) begin
     // PA on and not disable TR in low power mode
     // PA off and disable TR in low power mode
     enable <= cmd_data[20] ;
-    reset  <= cmd_data[21] ;
+    bypass <= cmd_data[17] ;
   end
 end
 
@@ -96,7 +96,7 @@ always @* begin
       txinhibit = 1'b1;
       if (timer == 12'd0) begin
         state_next = TRY;
-        if (reset) timer_next = RESET_TIME;
+        if (bypass) timer_next = RESET_TIME;
         else timer_next = TRY_TIME;
       end
     end

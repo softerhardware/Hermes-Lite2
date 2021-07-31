@@ -56,6 +56,7 @@ module network (
   output        network_state_fixedip,
   output [1:0]  network_speed,
   output reg    phy_connected,
+  output        is_ksz9021,
 
   // phy
   output [3:0]  PHY_TX,
@@ -295,9 +296,9 @@ generate
     phy_cfg phy_cfg_inst(
       .clock(clock_2_5MHz),
       .init_request(state == ST_PHY_INIT),
-      .allow_1Gbit(1'b1),
       .speed(phy_speed),
       .duplex(phy_duplex),
+      .is_ksz9021(is_ksz9021),
       .mdio_pin(PHY_MDIO),
       .mdc_pin(PHY_MDC)
     );

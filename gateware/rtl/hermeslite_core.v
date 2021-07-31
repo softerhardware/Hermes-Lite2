@@ -139,8 +139,8 @@ parameter       BYPASS_VERSA = 0;
 
 localparam      TUSERWIDTH = (AK4951 == 1) ? 16 : 2;
 
-localparam      VERSION_MAJOR = (BOARD==2) ? 8'd52 : 8'd73;
-localparam      VERSION_MINOR = 8'd0;
+localparam      VERSION_MAJOR = (BOARD==2) ? 8'd53 : 8'd73;
+localparam      VERSION_MINOR = 8'd2;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
@@ -154,7 +154,7 @@ logic           ds_cmd_cnt;
 logic           ds_cmd_is_alt;
 logic   [1:0]   ds_cmd_mask;
 logic           ds_cmd_resprqst;
-logic           ds_cmd_ptt;
+logic           ds_cmd_ptt, ds_cmd_ptt_ad9866sync;
 
 logic           tx_on, tx_on_iosync;
 logic           cw_on, cw_on_iosync;
@@ -244,6 +244,7 @@ logic [ 7:0]    udp_rx_data;
 logic           network_state_dhcp, network_state_fixedip;
 logic [ 1:0]    network_speed;
 logic           phy_connected;
+logic           is_ksz9021;
 
 logic [47:0]    local_mac;
 
@@ -467,6 +468,7 @@ network network_inst(
   .network_state_fixedip(network_state_fixedip),
   .network_speed(network_speed),
   .phy_connected(phy_connected),
+  .is_ksz9021(is_ksz9021),
 
   .PHY_TX(phy_tx),
   .PHY_TX_EN(phy_tx_en),
@@ -777,6 +779,13 @@ sync_one sync_qmsec_pulse_ad9866 (
   .sig_out(qmsec_pulse_ad9866sync)
 );
 
+// Psuedostatic
+sync sync_ds_cmd_ptt_ad9866 (
+  .clock(clk_ad9866),
+  .sig_in(ds_cmd_ptt),
+  .sig_out(ds_cmd_ptt_ad9866sync)
+);
+
 sync sync_run_ad9866 (
   .clock(clk_ad9866),
   .sig_in(run),
@@ -851,7 +860,7 @@ radio_i
   .ls_valid(ls_valid),
   .ls_done(ls_done),
 
-  .ds_cmd_ptt(ds_cmd_ptt), // Not working about async here since psuedo static
+  .ds_cmd_ptt(ds_cmd_ptt_ad9866sync),
   .run(run_ad9866sync),
   .qmsec_pulse(qmsec_pulse_ad9866sync),
   .ext_keydown(cw_keydown_ad9866sync),
@@ -974,6 +983,7 @@ control #(
   .have_dhcp_ip       (~network_state_dhcp        ),
   .have_fixed_ip      (~network_state_fixedip     ),
   .network_speed      (network_speed              ),
+  .is_ksz9021         (is_ksz9021                 ),
   .ad9866up           (ad9866up                   ),
   
   .rxclip             (rxclip_iosync              ),

@@ -9,6 +9,7 @@ module control (
   input                      have_dhcp_ip       ,
   input                      have_fixed_ip      ,
   input               [ 1:0] network_speed      ,
+  input                      is_ksz9021         ,
   input                      ad9866up           ,
   input                      rxclip             ,
   input                      rxgoodlvl          ,
@@ -338,7 +339,7 @@ end
 
 // Solid when connected to software
 // Blinking to indicate good ethernet clock
-assign io_led_run = (slave_link_running | run) ? 1'b0 : ~(ethup & led_count[8]);
+assign io_led_run = (slave_link_running | run) ? 1'b0 : ~(ethup & (is_ksz9021 ? led_count[7] : led_count[8]));
 
 // Blinking indicates fixed ip, solid indicates dhcp
 assign io_led_tx = (slave_link_running | run) ? ~int_tx_on : ~((have_fixed_ip & led_count[8]) | have_dhcp_ip);

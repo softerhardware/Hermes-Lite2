@@ -108,6 +108,7 @@ module hermeslite (
     .AK4951       (0                                    ),
     .FAST_LNA     (1                                    ),
     .EXTENDED_RESP(1                                    ),
+    .EXTENDED_DEBUG_RESP(1                              ),
     .BYPASS_VERSA (1                                    )
   ) hermeslite_core_i (
     .pwr_clk3p3                (pwr_clk3p3           ),

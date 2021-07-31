@@ -129,7 +129,7 @@ always @(posedge clk) begin
     state         <= START;
     run           <= 1'b0;
     wide_spectrum <= 1'b0;
-	ds_cmd_ptt    <= 1'b0;
+    ds_cmd_ptt    <= 1'b0;
   end else if (~eth_valid) begin
     state <= START;
     ds_cmd_ptt    <= ds_cmd_ptt_next;
