@@ -13,6 +13,8 @@ This is a testing release for these changes:
 
 * Update the ATU functionality to match the protocol wiki page. Now the ATU can be put into bypass mode. Quisk implements this newer protocol
 
+* Extended response for hermeslite.py use enabled on 10RX cicrx gateware.
+
 
 See the [gateware](https://github.com/softerhardware/Hermes-Lite2/wiki/Updating-Gateware) wiki page for more details on how to update the gateware. Most people will use the file root and suffix in bold below, hl2b5up_main.rbf, for programming over ethernet.
 

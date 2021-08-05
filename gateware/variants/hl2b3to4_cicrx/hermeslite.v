@@ -106,7 +106,7 @@ module hermeslite (
     .ASMII   (1                                    ),
     .HL2LINK (0                                    ),
     .FAST_LNA(1                                    ),
-    .EXTENDED_RESP(0                               )
+    .EXTENDED_RESP(1                               )
   ) hermeslite_core_i (
     .pwr_clk3p3                (pwr_clk3p3           ),
     .pwr_clk1p2                (pwr_clk1p2           ),
