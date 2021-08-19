@@ -1,9 +1,9 @@
 Hermes-Lite 2.x Gateware
 ========================
 
-## 20210730_73p2 Testing Release
+## 20210730_73p2 Release
 
-This is a testing release for these changes:
+This is a release for these changes:
 
 * Both KSZ9021 and KSZ9031 ethernet phys are support at 1Gbps and 100Mbps. LED D2 blinks twice as fast or about 3 times a second if a KSZ9021 is detected.
 
