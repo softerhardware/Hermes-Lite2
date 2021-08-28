@@ -97,11 +97,11 @@ logic [11:0]  	rev_pwr;
 logic [11:0]  	bias_current;
 logic [11:0]  	temperature;
 
-assign int_tx_on = (tx_on | ext_ptt ) & run & temp_enabletx;
+assign int_tx_on = (tx_on | ext_ptt ) & run;
 assign pa_inttr = int_tx_on & (pa_enable | ~tr_disable);
 assign pa_exttr = int_tx_on;
-assign pwr_envpa = int_tx_on & pa_enable;
-assign pwr_envbias = int_tx_on & pa_enable;
+assign pwr_envpa = int_tx_on & pa_enable & temp_enabletx;
+assign pwr_envbias = int_tx_on & pa_enable & temp_enabletx;
 
 
 logic [19:0]  adccount = 20'h0000;
