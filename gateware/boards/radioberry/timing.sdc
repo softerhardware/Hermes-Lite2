@@ -2,10 +2,10 @@ set_time_format -unit ns -decimal_places 3
 
 create_clock -name pi_spi_sck -period 15.625MHz [get_ports pi_spi_sck] 
 create_clock -name pi_rx_clk -period 4.800MHz [get_ports pi_rx_clk] 
-create_clock -name pi_tx_clk -period 4.800MHz [get_ports pi_tx_clk] 
 
-create_clock -name {radioberry_core:radioberry_core_i|ddr_mux:ddr_mux_rx_inst|rd_req} -period 0.200MHz [get_registers {radioberry_core:radioberry_core_i|ddr_mux:ddr_mux_rx_inst|rd_req}]
 create_clock -name {radioberry_core:radioberry_core_i|spi_slave:spi_slave_inst|done} -period 0.400MHz [get_registers {radioberry_core:radioberry_core_i|spi_slave:spi_slave_inst|done}]
+create_clock -name {radioberry_core:radioberry_core_i|down[1]} -period 0.400MHz [get_registers {radioberry_core:radioberry_core_i|down[1]}]
+create_clock -name {radioberry_core:radioberry_core_i|state.TX_DATA} -period 0.400MHz [get_registers {radioberry_core:radioberry_core_i|state.TX_DATA}]
 
 create_clock -name rffe_ad9866_clk76p8 -period 76.800MHz [get_ports rffe_ad9866_clk76p8]
 
@@ -28,10 +28,10 @@ derive_pll_clocks
 derive_clock_uncertainty
 
 set_clock_groups -asynchronous \
-						-group {	radioberry_core:radioberry_core_i|ddr_mux:ddr_mux_rx_inst|rd_req} \
 						-group {	radioberry_core:radioberry_core_i|spi_slave:spi_slave_inst|done} \
+						-group {	radioberry_core:radioberry_core_i|down[1]} \
+						-group {	radioberry_core:radioberry_core_i|state.TX_DATA} \
 						-group {	pi_rx_clk } \
-						-group {	pi_tx_clk } \
 						-group {	pi_spi_sck } \
 						-group { \
 									clock_153p6_mhz rffe_ad9866_clk76p8 clock_76p8MHz clock_10_mhz clock_48khz \
@@ -39,7 +39,6 @@ set_clock_groups -asynchronous \
 				
 # CLOCK						
 set_false_path -from [get_ports {pi_rx_clk}]	
-set_false_path -from [get_ports {pi_tx_clk}]
 set_false_path -from [get_ports {pi_spi_sck}]	
 
 set_multicycle_path -from [get_clocks {clock_10_mhz}] -to [get_clocks {clock_48khz}] -setup -start 2
@@ -54,12 +53,9 @@ set_multicycle_path -from [get_clocks {clock_76p8MHz}] -to [get_clocks {clock_10
 # IO
 set_false_path -from [get_ports {pi_spi_mosi}]
 set_false_path -to [get_ports {pi_spi_miso}]
-set_false_path -from [get_ports {pi_spi_ce}]
+set_false_path -from [get_ports {pi_spi_ce[*]}]
 set_false_path -to [get_ports {pi_rx_samples}]
-set_false_path -to [get_ports {pi_rx_last}]
 set_false_path -to [get_ports {pi_rx_data[*]}]
-set_false_path -to [get_ports {pi_tx_samples}]
-set_false_path -from [get_ports {pi_tx_data[*]}]
 set_false_path -from [get_ports {io_phone_*}]
 set_false_path -to [get_ports {io_pa_exttr}]
 set_false_path -to [get_ports {io_pa_inttr}]

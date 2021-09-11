@@ -1,38 +1,35 @@
 set_location_assignment PIN_53 -to rffe_ad9866_clk76p8
 
-#SPI
-set_location_assignment PIN_51 -to pi_spi_ce
+#SPI (Commands and TX via SPI)
+
+set_location_assignment PIN_50 -to pi_spi_ce[1]
+set_location_assignment PIN_51 -to pi_spi_ce[0]
 set_location_assignment PIN_59 -to pi_spi_miso
 set_location_assignment PIN_60 -to pi_spi_mosi
 set_location_assignment PIN_58 -to pi_spi_sck
+
 
 #RX
 #//BCM25
 set_location_assignment PIN_31 -to pi_rx_samples	
 #//BCM6
-set_location_assignment PIN_54 -to pi_rx_clk		
+set_location_assignment PIN_54 -to pi_rx_clk
+#//BCM23
+set_location_assignment PIN_39 -to pi_rx_data[7]
+#//BCM20
+set_location_assignment PIN_43 -to pi_rx_data[6]
+#//BCM19
+set_location_assignment PIN_44 -to pi_rx_data[5]
+#//BCM18
+set_location_assignment PIN_33 -to pi_rx_data[4]		
 #//BCM16
 set_location_assignment PIN_46 -to pi_rx_data[3]	
-#//BCM19
-set_location_assignment PIN_44 -to pi_rx_data[2]	
-#//BCM20
-set_location_assignment PIN_43 -to pi_rx_data[1]	
-#//BCM21
-set_location_assignment PIN_42 -to pi_rx_data[0]			
-
-#TX
-#//BCM4
-set_location_assignment PIN_55 -to pi_tx_clk		
-#//BCM17
-set_location_assignment PIN_113 -to pi_tx_data[3]	
-#//BCM5
-set_location_assignment PIN_32 -to pi_tx_data[2]	
-#//BCM18
-set_location_assignment PIN_33 -to pi_tx_data[1]	
+#//BCM13
+set_location_assignment PIN_13 -to pi_rx_data[2]	
 #//BCM12
-set_location_assignment PIN_49 -to pi_tx_data[0]
-#//BCM7
-set_location_assignment PIN_50 -to pi_tx_samples
+set_location_assignment PIN_49 -to pi_rx_data[1]	
+#//BCM5
+set_location_assignment PIN_32 -to pi_rx_data[0]		
 
 
 #Radioberry IO
@@ -46,10 +43,10 @@ set_location_assignment PIN_121 -to io_phone_ring
 #CW 
 set_location_assignment PIN_141 -to io_cwl
 set_location_assignment PIN_142 -to io_cwr
-#//BCM13
-set_location_assignment PIN_13  -to pi_cwl
-#//BCM23
-set_location_assignment PIN_39  -to pi_cwr
+#//BCM17
+set_location_assignment PIN_113  -to pi_cwl
+#//BCM21
+set_location_assignment PIN_42  -to pi_cwr
 
 
 #RF-Frontend
@@ -81,9 +78,6 @@ set_location_assignment PIN_76 -to rffe_ad9866_txsync
 set_instance_assignment -name FAST_INPUT_REGISTER ON 	-to pi_rx_clk
 set_instance_assignment -name FAST_INPUT_REGISTER ON 	-to pi_rx_data[*]
 
-set_instance_assignment -name FAST_INPUT_REGISTER ON 	-to pi_tx_clk
-set_instance_assignment -name FAST_OUTPUT_REGISTER ON 	-to pi_tx_data[*]
-
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON 	-to rffe_ad9866_tx[*]
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON 	-to rffe_ad9866_txsync
 set_instance_assignment -name FAST_INPUT_REGISTER ON 	-to rffe_ad9866_rx[*]
@@ -96,6 +90,7 @@ set_instance_assignment -name FAST_OUTPUT_REGISTER ON 	-to rffe_ad9866_txquiet_n
 
 set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to *
 
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_phone_ring
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_phone_tip
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_pa_exttr
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_pa_inttr

@@ -51,7 +51,7 @@ set_global_assignment -name TOP_LEVEL_ENTITY radioberry
 set_global_assignment -name SDC_FILE ../../boards/radioberry/timing.sdc
 
 
-set_global_assignment -name LAST_QUARTUS_VERSION "20.1.0 Lite Edition"
+set_global_assignment -name LAST_QUARTUS_VERSION "20.1.1 Lite Edition"
 
 set_global_assignment -name FAMILY "Cyclone 10 LP"
 set_global_assignment -name DEVICE_FILTER_PACKAGE "ANY QFP"

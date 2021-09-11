@@ -19,7 +19,7 @@ module radioberry_core(
 	input           rffe_ad9866_clk76p8,
 	output          rffe_ad9866_mode,
 	
-	//Radio Control
+	//Radio Control & TX IQ data
 	input 			pi_spi_sck, 
 	input 			pi_spi_mosi, 
 	output 			pi_spi_miso, 
@@ -28,12 +28,7 @@ module radioberry_core(
 	//RX IQ data
 	input 	 		pi_rx_clk,
 	output 			pi_rx_samples,
-	output [3:0] 	pi_rx_data,
-	
-	//TX IQ data
-	input wire 		pi_tx_clk,
-	input [3:0] 	pi_tx_data,
-	output 			pi_tx_samples,
+	output [7:0] 	pi_rx_data,
  
 	// Radioberry IO
 	input           io_phone_tip,
@@ -66,7 +61,7 @@ parameter       DSIQ_FIFO_DEPTH = 16384;
 
 parameter 		FPGA_TYPE = 2'b10; //CL016 = 2'b01 ; CL025 = 2'b10
 localparam      VERSION_MAJOR = 8'd73;
-localparam      VERSION_MINOR = 8'd0;
+localparam      VERSION_MINOR = 8'd2;
 
 
 logic   [5:0]   cmd_addr;
@@ -163,12 +158,27 @@ end
 //------------------------------------------------------------------------------
 assign pi_rx_samples = (usiq_tlength > 11'd256) ? 1'b1: 1'b0;
 
-logic last;
-logic rx_rd_req;
-logic rd_req;
-ddr_mux ddr_mux_rx_inst(.clk(pi_rx_clk), .reset(~usiq_tvalid), .rd_req(rx_rd_req), .in_data(usiq_tdata), .out_data(pi_rx_data));
+logic last, rx_rd_req, rd_req;
 
-sync_one sync_one_inst(.clock(clk_internal), .sig_in(rx_rd_req ^ usiq_tvalid), .sig_out(rd_req));
+logic [3:0]		hptr	= 4'h01;
+logic [3:0]		lptr	= 4'h01;
+logic [2:0]		up		= 3'h00;
+logic [2:0]		down	= 3'h00;
+logic [23:0] 	tdata;
+
+sync_one sync_one_inst(.clock(clk_ad9866), .sig_in(rx_rd_req ^ usiq_tvalid), .sig_out(rd_req));
+
+logic [4:0] hindex [3] = '{ 5'd23, 5'd7, 5'd15};
+logic [4:0] lindex [3] = '{ 5'd15, 5'd23, 5'd7};
+
+assign pi_rx_data = (pi_rx_clk == 1) ?  tdata[hindex[hptr[3:2]] -: 8] : tdata[lindex[lptr[3:2]] -: 8];
+always @ (posedge pi_rx_clk) if (usiq_tvalid) hptr <= (|hptr) ?  hptr << 1 :  4; else hptr <= 1;
+always @ (negedge pi_rx_clk) if (usiq_tvalid) lptr <= (|lptr) ?  lptr << 1 :  4; else lptr <= 1;
+
+assign rx_rd_req = ( (up[2] & down[1] ) | (!up & !down ))? 0: 1;
+always @ (posedge rx_rd_req) tdata <= usiq_tdata;
+always @ (posedge pi_rx_clk) if (usiq_tvalid) up   <= (|up)   ? up   << 1: 2; else up   <= 0;
+always @ (negedge pi_rx_clk) if (usiq_tvalid) down <= (|down) ? down << 1: 2; else down <= 0;
 
 usiq_fifo usiq_fifo_i (
   .wr_clk(clk_ad9866),
@@ -179,7 +189,7 @@ usiq_fifo usiq_fifo_i (
   .wr_tuser(rx_tuser),
   .wr_aclr(reset_channels_ad9866sync | reset_ad9866sync),
 
-  .rd_clk(clk_internal), 
+  .rd_clk(clk_ad9866), 
   .rd_tdata(usiq_tdata), 
   .rd_tvalid(usiq_tvalid),
   .rd_tready(rd_req),  
@@ -188,24 +198,105 @@ usiq_fifo usiq_fifo_i (
   .rd_tlength(usiq_tlength)
 );
 
+
+generate
+
+if (NT != 0) begin
 //------------------------------------------------------------------------------
 //                           Radioberry TX Stream Handler
 //------------------------------------------------------------------------------
-logic [3:0] tx_data_msb;
 
-always @ (posedge pi_tx_clk) tx_data_msb <= pi_tx_data;
+// spi rpi linux dev 1 (0 based)
+// decided to send IQ sample in one call. (4 bytes; 16 bit signed per I/Q sample)
+// used for transmitting data ; always 48K sampling rate!
+// return indicator next iq sample allowed; the driver add a wait if not allowed to overflow the FIFO!
 
-tx_iq_fifo #(.depth(DSIQ_FIFO_DEPTH)) tx_iq_fifo_i(
-	.wr_clk(~pi_tx_clk),
-	.wr_tdata({1'b0, tx_data_msb, pi_tx_data}),
-	.wr_tvalid(!reset),
-	.wr_allowed(pi_tx_samples),
+logic [31:0] spi_tx_iq;
+logic [31:0] tx_iq;
+logic [7:0] tx_part_iq;
+logic spi_tx_done;
+logic tx_cnt, tx_cnt_next = 0;
+logic tlast = 0;
+
+always @ (posedge spi_tx_done) tx_cnt <= ~tx_cnt_next;
+
+always @* begin
+	tx_cnt_next = tx_cnt;
+	tx_iq = spi_tx_iq;
+end
+		
+spi_slave #(.WIDTH(32)) spi_slave_tx_inst(.rstb(!reset),.ten(1'b1),.tdata({31'b0, 1'b1}),.mlb(1'b1),.ss(pi_spi_ce[1]),.sck(pi_spi_sck),.sdin(pi_spi_mosi), .sdout(pi_spi_miso),.done(spi_tx_done),.rdata(spi_tx_iq));
+
+sync_one sync_one_tx_inst(.clock(clk_internal), .sig_in(pi_spi_ce[1]), .sig_out(tx_req));
+
+localparam START       		= 2'h0,
+           TX_DATA        	= 2'h1;
+		   
+logic [ 1:0] state	= START;
+logic [ 1:0] state_next;
+logic [ 2:0] byte_no = 3'h00;
+logic [ 2:0] byte_no_next;
+logic txvalid = 0;
+logic [11:0]  rd_tlength;
+
+always @ (posedge clk_internal) begin
+	state <= state_next;	
+	byte_no <= byte_no_next;
+end
+
+always @* begin
+
+	state_next = state;
+	byte_no_next = byte_no;
+	txvalid = 0;
+	tlast = 0;
 	
-	.rd_clk(clk_ad9866),
-	.rd_tdata(dsiq_tdata),
-	.rd_tvalid(dsiq_tvalid),
-	.rd_tready(dsiq_tready)
+    case (state)
+		START: begin
+			byte_no_next = 3'h3;
+			if ((cmd_ptt | cwx_enabled) & tx_req) state_next = TX_DATA;
+		end
+		
+		TX_DATA: begin
+			txvalid = 1;
+			byte_no_next = byte_no - 3'd1;
+			case (byte_no[2:0])
+				3'h3: tx_part_iq = tx_iq[31:24];  // I1 – Bits 15-8 of I sample
+				3'h2: tx_part_iq = tx_iq[23:16];  // I0 – Bits  7-0 of I sample
+				3'h1: tx_part_iq = tx_iq[15:8];   // Q1 - Bits 15-8 of Q sample
+				3'h0: begin
+					  tlast = 1;
+					  tx_part_iq = tx_iq[7:0];    // Q0 - Bits  7-0 of Q sample
+					  state_next = START;
+				end	
+				default: tx_part_iq = 8'h42;
+			endcase
+		end
+		
+		default: state_next = START;
+
+	endcase // state
+end
+
+dsiq_fifo #(.depth(DSIQ_FIFO_DEPTH)) dsiq_fifo_i (
+  .wr_clk(clk_internal),
+  .wr_tdata({1'b0, tx_part_iq}),
+  .wr_tvalid(txvalid),
+  .wr_tready(),
+  .wr_tlast(tlast),
+
+  .rd_clk(clk_ad9866),
+  .rd_tdata(dsiq_tdata),
+  .rd_tvalid(dsiq_tvalid),
+  .rd_tready(dsiq_tready)
 );
+
+end else begin
+  assign dsiq_tdata = 36'b0;
+  assign dsiq_tvalid = 1'b0;
+end
+
+endgenerate
 
 //------------------------------------------------------------------------------
 //                           Radioberry Clock Handler
@@ -316,6 +407,7 @@ radio_i
   .rst_all(1'b0),
   .rst_nco(1'b0),
 
+  .ds_cmd_ptt(cmd_ptt),
   .run(run_ad9866sync),
   .qmsec_pulse(qmsec_pulse_ad9866sync),
   .ext_keydown(cw_keydown_ad9866sync),

@@ -25,22 +25,18 @@ module radioberry (
 	input 			pi_spi_sck, 
 	input 			pi_spi_mosi, 
 	output 			pi_spi_miso, 
-	input 		 	pi_spi_ce,
+	input [1:0]	 	pi_spi_ce,
 	
 	//RX IQ data
 	input wire 		pi_rx_clk,
 	output wire 	pi_rx_samples,
-	output [3:0] 	pi_rx_data,
-	
-	//TX IQ data
-	input wire 		pi_tx_clk,
-	input [3:0]  	pi_tx_data,  
-	output 			pi_tx_samples,
- 
+	output [7:0] 	pi_rx_data,
+	 
 	// Radioberry IO
 	input           io_phone_tip,
 	input           io_phone_ring,
-	output 			io_ptt_out,
+	output 			io_pa_exttr,
+	output       	io_pa_inttr,
 	
 	// Local CW using pihpsdr
 	input 			io_cwl,
@@ -78,12 +74,10 @@ module radioberry (
 	.pi_rx_clk					(pi_rx_clk),
 	.pi_rx_samples				(pi_rx_samples),
 	.pi_rx_data					(pi_rx_data),
-	.pi_tx_clk					(pi_tx_clk),
-	.pi_tx_data					(pi_tx_data),
-	.pi_tx_samples				(pi_tx_samples),
 	.io_phone_tip				(io_phone_tip),
 	.io_phone_ring				(io_phone_ring),
-	.io_ptt_out					(io_ptt_out),
+	.io_pa_exttr				(io_pa_exttr),
+	.io_pa_inttr				(io_pa_inttr),
 	.io_cwl						(io_cwl),
 	.io_cwr						(io_cwr),
 	.pi_cwl						(pi_cwl),

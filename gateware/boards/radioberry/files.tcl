@@ -1,12 +1,10 @@
 
 set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/radioberry_core.v
 set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/ad9866ctrl.v
-set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/ddr_mux.v
 set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/spi_slave.v
 set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/reset_handler.v
 set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/ad9866pll.v
 set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/control.v
-set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/tx_iq_fifo.v
 
 set_global_assignment -name VERILOG_FILE ../../rtl/fifos.v
 set_global_assignment -name VERILOG_FILE ../../rtl/ad9866.v
