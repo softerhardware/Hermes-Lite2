@@ -15,90 +15,72 @@
 //  along with this program; if not, write to the Free Software
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
-// (C) Takashi Komatsumoto, JI1UDD 2020
+//  (C) Takashi Komatsumoto, JI1UDD 2020, 2021
 
 `timescale 1 ns/100 ps
 
 module cw_sidetone (
-  input          clk,               // 76.3MHz
-  input          rst,               //
-
-  input          sidetone_req,      // sideton request
-  input          next_data_req,     // next sideton data request
-
-  input  [11:0]  ToneFreq,          // for sidetone audio frequency
-  input  [ 7:0]  audiovolume,       // for sidetone audio volume
-
-  output [15:0]  sidetone           // to audio codec
+  input                clk,          // 76.8MHz
+  input                tone_enb,     // sidetone enable
+  input         [11:0] tonefreq,     // sidetone audio frequency ; 200 to 2250
+  input         [ 6:0] profile,      // sidetone profile (7bit) ; 0 to 4dh
+  input         [ 7:0] audiovolume,  // sidetone audio volume ; 0 to 127
+  output signed [15:0] sidetone      // to audio codec
 ) ;
 
-//localparam ToneFreq = 12'd600 ;   // 600Hz
-//localparam audiovolume = 8'd255 ; // Max
+  parameter TONE1HZ = 17'd75000;     // 76.8M/1024
 
-  wire rstb = ~rst ;
+  reg   [9:0] period;
+  reg  [20:0] acc;
+  reg  [11:0] freq;
+  reg   [3:0] cnt = 4'b0;
+  wire [12:0] sub = {1'b0,acc[20:9]} - freq;
+  always @(posedge clk)
+    if ( cnt==4'd10 ) begin
+      cnt <= 4'd0;
+      acc <= {4'b0,TONE1HZ};
+      freq <= tonefreq;
+      period <= acc[9:0];
+    end else begin
+      cnt <= cnt + 1'b1;
+      acc <= sub[12]? {acc[19:0], 1'b0} : {sub[10:0], acc[8:0], 1'b1}; 
+    end
 
-  // Tone on/off control at zero-cross
-
-  wire zerocross ;
-  reg  toneon ;
-  always @(posedge clk or negedge rstb)
-    if (!rstb)
-      toneon <= 1'b0 ;
-    else if(sidetone_req)
-      toneon <= 1'b1 ;
-    else if (zerocross)
-      toneon <= 1'b0 ;
-
-  // Generate sin wave data
-
-  wire [17:0] tonefreq = (ToneFreq << 6) ;
-  wire [17:0] DeltaPhase ;
-  div18_9 frq2phase(
-    .clock(clk),
-    .denom(9'd375),           //  9bit
-    .numer(tonefreq),         // 18bit
-    .quotient(DeltaPhase),    // 18bit
-    .remain());               //  9bit
-
-  reg [12:0] sinptr ;
-  always @(posedge clk or negedge rstb )
-    if (!rstb)
-      sinptr <= 13'b0 ;
-    else if (!toneon)
-      sinptr <= 13'b0 ;
-    else if (next_data_req)
-      sinptr <= sinptr + DeltaPhase[9:0] ;
-
-  // Lookup sine table
-
-  wire [7:0] sintbl ;
-  sin8k8r sintbl8k(
-    .aclr(rst),
-    .address(sinptr),        // 13bit address
-    .clock(clk),             // clock
-    .q(sintbl));             // 8bit output
-
-  // detect zero coross
-
-  reg lastsign ;
-  assign zerocross = ( lastsign != sintbl[7] ) ;
-  always @(posedge clk or negedge rstb )
-    if (!rstb)
-      lastsign <= 1'b0 ;
+  reg [9:0] scaler;
+  wire update = ( scaler == (period - 1'b1) );
+  always @ (posedge clk)
+    if (update)
+      scaler <= 10'b0;
     else
-      lastsign <= sintbl[7] ;
+      scaler <= scaler + 1'b1;
 
-  // Volume control
+  reg [9:0] tblptr;
+  always @(posedge clk)
+    if (!tone_enb)
+      tblptr <= 10'b0;
+    else if (update)
+      tblptr <= tblptr + 1'b1;
 
-  wire [16:0] sinxmag ;
-  mult8_9 audiovolumectrl (   // signed mult
-    .aclr(rst||~toneon),        // async reset
-    .clock(clk),                // clock
-    .dataa(sintbl),             // signed 8bit input
-    .datab({1'b0,audiovolume}), // signed 9bit input
-    .result(sinxmag)            // 17bit output
+  wire signed [8:0] sintbl;
+  sin1k9r sintbl1k(
+    .clock(clk),
+    .address(tblptr),                // 10bit address
+    .q(sintbl)                       // signed 9bit data (-256 to 255)
   );
 
-assign sidetone = sinxmag[16]? sinxmag[16:1]+sinxmag[0] : sinxmag[16:1] ;
+  wire signed [15:0] sin_profile;
+  mult_s9_s8_s16 mult_p (            // signed mult
+    .clock(clk),
+    .dataa(sintbl),                  // signed  9bit input
+    .datab({1'b0,profile}),          // signed  8bit input
+    .result(sin_profile)             // signed 16bit output
+  );
+
+  mult_s16_s8_s16 mult16_v (         // signed mult
+    .clock(clk),
+    .dataa(sin_profile),             // signed 16bit input
+    .datab(audiovolume),             // signed  8bit input
+    .result(sidetone)                // signed 16bit output
+  );
 
 endmodule

@@ -159,6 +159,7 @@ logic           ds_cmd_ptt, ds_cmd_ptt_ad9866sync;
 logic           tx_on, tx_on_iosync;
 logic           cw_on, cw_on_iosync;
 logic           cw_keydown, cw_keydown_ad9866sync;
+logic   [18:0]  cw_profile;
 
 logic   [7:0]   dseth_tdata;
 
@@ -867,7 +868,8 @@ radio_i
 
   .tx_on(tx_on),
   .cw_on(cw_on),
-
+  .cw_profile(cw_profile),
+  
   // Transmit
   .tx_tdata({dsiq_tdata[7:0],dsiq_tdata[16:9],dsiq_tdata[25:18],dsiq_tdata[34:27]}),
   .tx_tlast(1'b1),
@@ -1279,8 +1281,8 @@ if (AK4951 == 1) begin
     .au_rdata(au_rdata),                   // audio L rx data (16bit)
     .au_rvalid(),                          // audio rx data valid
 
-    .sidetone_sel(cw_on),                  // select sideton as audio output ; ad9866sync
-    .sidetone_req(cw_keydown_ad9866sync),  // sideton on/off
+    .sidetone_sel(cw_on),                  // select sidetone as audio output ; ad9866sync
+    .profile(cw_profile[18:12]),           // sidetone profile (7bit)
 
     .cmd_addr(cmd_addr),                   // Command slave interface
     .cmd_data(cmd_data),

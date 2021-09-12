@@ -15,7 +15,7 @@
 //  along with this program; if not, write to the Free Software
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
-// (C) Takashi Komatsumoto, JI1UDD 2020
+// (C) Takashi Komatsumoto, JI1UDD 2020, 2021
 
 `timescale 1 ns/100 ps
 
@@ -29,8 +29,8 @@ module localaudio (
   output [15:0]  au_rdata,        // audio L rx data (16bit)
   output         au_rvalid,       // audio rx data valid
 
-  input          sidetone_sel,    // select sideton as audio output
-  input          sidetone_req,    // sideton on/off
+  input          sidetone_sel,    // select sidetone as audio output
+  input   [6:0]  profile,         // sidetone profile (7bit)
 
   input   [5:0]  cmd_addr,        // Command slave interface
   input  [31:0]  cmd_data,
@@ -43,8 +43,7 @@ module localaudio (
   input          i2s_miso
 ) ;
 
-//localparam sidetone_freq = 12'd600 ; // 600Hz
-//localparam sidetone_vol  = 8'd255 ;  // Max
+  parameter CLK_FREQ_KHZ = 17'd76300;    // 76300kHz
 
   wire [15:0] sidetone ;
   wire [31:0] audio_tx_data ;
@@ -74,14 +73,12 @@ module localaudio (
   // ----------------------
   cw_sidetone cw_sidetone_i (
     .clk(clk),                    // 76.3MHz
-    .rst(rst),
-    .sidetone_req(sidetone_req),  // sideton on/off
-    .next_data_req(au_tready),    // next sideton data request
-    .ToneFreq(sidetone_freq),     // sidetone audio frequency
+    .tone_enb(sidetone_sel),      // sidetone enable
+    .tonefreq(sidetone_freq),     // sidetone audio frequency
+    .profile(profile),            // sidetone profile
     .audiovolume(sidetone_vol),   // sidetone audio volume
     .sidetone(sidetone)           // to audio codec
   ) ;
-
 
   // -----------------------
   //  audio output selector

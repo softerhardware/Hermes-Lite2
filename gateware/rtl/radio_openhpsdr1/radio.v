@@ -23,6 +23,7 @@ module radio (
 
   tx_on,
   cw_on,
+  cw_profile,
 
   // Transmit
   tx_tdata,
@@ -115,6 +116,7 @@ input         qmsec_pulse            ;
 input         ext_keydown            ;
 output        tx_on                  ;
 output        cw_on                  ;
+output [18:0] cw_profile             ;
 input         clk_envelope           ;
 output        tx_envelope_pwm_out    ;
 output        tx_envelope_pwm_out_inv;
@@ -907,6 +909,8 @@ logic cwx_keydown;
 logic cwx_keyup;
 logic ptt;
 logic fir_tready;
+
+assign cw_profile = tx_cwlevel;
 
 localparam
   NOTX      = 3'b000,
