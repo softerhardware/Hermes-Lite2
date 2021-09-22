@@ -96,7 +96,8 @@ localparam [7:0]
   STATE_AK4951S4     = {3'b100,5'b10000},
   STATE_AK4951S5     = {3'b100,5'b10001},
   STATE_AK4951S6     = {3'b100,5'b01010},
-  STATE_AK4951S7     = {3'b100,5'b00110};
+  STATE_AK4951S7     = {3'b100,5'b00110},
+  STATE_AK4951S8     = {3'b100,5'b00111};
 
 localparam [7:0]
   STATE_IDLE         = {3'b000,5'b00000};
@@ -451,7 +452,7 @@ always @* begin
     end
 
     STATE_AK4951S3: begin
-      icmd_reg_val = {8'h00, 8'hc5};
+      icmd_reg_val = {8'h0d, 8'h91}; // IVL 0dB
       if (ready) begin
           icmd_rqst = 1'b1;
           state_next = STATE_AK4951S4;
@@ -459,7 +460,7 @@ always @* begin
     end
 
     STATE_AK4951S4: begin
-      icmd_reg_val = {8'h01, 8'hb6};
+      icmd_reg_val = {8'h00, 8'hc5};
       if (ready) begin
           icmd_rqst = 1'b1;
           state_next = STATE_AK4951S5;
@@ -467,8 +468,7 @@ always @* begin
     end
 
     STATE_AK4951S5: begin
-//    icmd_reg_val = {8'h04, 8'h47}; // monoral
-      icmd_reg_val = {8'h04, 8'h44}; // stereo
+      icmd_reg_val = {8'h01, 8'hb6};
       if (ready) begin
           icmd_rqst = 1'b1;
           state_next = STATE_AK4951S6;
@@ -476,7 +476,8 @@ always @* begin
     end
 
     STATE_AK4951S6: begin
-      icmd_reg_val = {8'h03, 8'h00};
+//    icmd_reg_val = {8'h04, 8'h47}; // monoral
+      icmd_reg_val = {8'h04, 8'h44}; // stereo
       if (ready) begin
           icmd_rqst = 1'b1;
           state_next = STATE_AK4951S7;
@@ -484,6 +485,14 @@ always @* begin
     end
 
     STATE_AK4951S7: begin
+      icmd_reg_val = {8'h03, 8'h00};
+      if (ready) begin
+          icmd_rqst = 1'b1;
+          state_next = STATE_AK4951S8;
+      end
+    end
+
+    STATE_AK4951S8: begin
       icmd_reg_val = {8'h02, 8'hae};
       if (ready) begin
           icmd_rqst = 1'b1;

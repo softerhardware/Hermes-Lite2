@@ -218,7 +218,7 @@ always @* begin
               ak4951_spon_next = cmd_data[11]; // reuse Dither
               cmd_next = 'h12;
               data0_next = 'h02;
-              data1_next = 8'h2a | (ak4951_micboost_reg? 8'h40: 8'h04) | (cmd_data[11]? 8'h80 : 8'h00);
+              data1_next = 8'h2e | (cmd_data[11]? 8'h80 : 8'h00);
               en_i2c2_next = 1'b0;
               state_next = STATE_FCMDADDR;
             end else begin
@@ -236,8 +236,8 @@ always @* begin
             if (~busy) begin
               ak4951_micboost_next = cmd_data[16];
               cmd_next = 'h12;
-              data0_next = 'h02;
-              data1_next = 8'h2a | (cmd_data[16]? 8'h40: 8'h04) | (ak4951_spon_reg? 8'h80 : 8'h00);
+              data0_next = 'h0d;
+              data1_next = cmd_data[16]? 8'hc7: 8'h91; // 20.25dB : 0dB
               en_i2c2_next = 1'b0;
               state_next = STATE_FCMDADDR;
             end else begin
