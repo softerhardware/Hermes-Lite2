@@ -158,27 +158,26 @@ end
 //------------------------------------------------------------------------------
 assign pi_rx_samples = (usiq_tlength > 11'd256) ? 1'b1: 1'b0;
 
-logic last, rx_rd_req, rd_req;
-
-logic [3:0]		hptr	= 4'h01;
-logic [3:0]		lptr	= 4'h01;
-logic [2:0]		up		= 3'h00;
-logic [2:0]		down	= 3'h00;
-logic [23:0] 	tdata;
-
-sync_one sync_one_inst(.clock(clk_ad9866), .sig_in(rx_rd_req ^ usiq_tvalid), .sig_out(rd_req));
+logic  last, rx_rd_req = 0, rd_req;
+logic [23:0] tdata, idata, qdata;
+logic [3:0]	 hptr	= 4'h01, lptr	= 4'h01;
+logic [2:0]	 up		= 3'h00, down	= 3'h00;
 
 logic [4:0] hindex [3] = '{ 5'd23, 5'd7, 5'd15};
 logic [4:0] lindex [3] = '{ 5'd15, 5'd23, 5'd7};
 
 assign pi_rx_data = (pi_rx_clk == 1) ?  tdata[hindex[hptr[3:2]] -: 8] : tdata[lindex[lptr[3:2]] -: 8];
-always @ (posedge pi_rx_clk) if (usiq_tvalid) hptr <= (|hptr) ?  hptr << 1 :  4; else hptr <= 1;
-always @ (negedge pi_rx_clk) if (usiq_tvalid) lptr <= (|lptr) ?  lptr << 1 :  4; else lptr <= 1;
+always @ (posedge pi_rx_clk) hptr <= (|hptr) ?  hptr << 1 :  4; 
+always @ (negedge pi_rx_clk) lptr <= (|lptr) ?  lptr << 1 :  4;
 
-assign rx_rd_req = ( (up[2] & down[1] ) | (!up & !down ))? 0: 1;
-always @ (posedge rx_rd_req) tdata <= usiq_tdata;
-always @ (posedge pi_rx_clk) if (usiq_tvalid) up   <= (|up)   ? up   << 1: 2; else up   <= 0;
-always @ (negedge pi_rx_clk) if (usiq_tvalid) down <= (|down) ? down << 1: 2; else down <= 0;
+assign tdata =  (up[1] & !down ) ? qdata : (up[2] & down[2] ) ? idata : tdata;
+always @ (posedge pi_rx_clk) if ((up[1] & down[1])) idata <= usiq_tdata;
+always @ (negedge pi_rx_clk) if ((up[2] & down[1])) qdata <= usiq_tdata;
+
+sync_one sync_one_inst(.clock(clk_ad9866), .sig_in(rx_rd_req), .sig_out(rd_req));
+assign rx_rd_req = ( (up[1] & !down) | (up[2] & down[1]) )? 1: 0;
+always @ (posedge pi_rx_clk)  up  <= (|up)    ? up   << 1: 2;
+always @ (negedge pi_rx_clk)  down <= (|down) ? down << 1: 2;
 
 usiq_fifo usiq_fifo_i (
   .wr_clk(clk_ad9866),
@@ -197,7 +196,6 @@ usiq_fifo usiq_fifo_i (
   .rd_tuser(usiq_tuser),
   .rd_tlength(usiq_tlength)
 );
-
 
 generate
 
