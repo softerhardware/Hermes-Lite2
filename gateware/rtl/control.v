@@ -793,10 +793,11 @@ generate
 
     2: begin: CW_OPENHPSDR
 
+      logic cw_ptt;
       if (AK4951 == 1) begin
         logic clean_ptt_in ;
         debounce de_ptt(.clean_pb(clean_ptt_in), .pb(~io_ptt_in), .clk(clk), .msec_pulse(msec_pulse));
-        assign ext_ptt = clean_ptt_in;
+        assign ext_ptt = clean_ptt_in | cw_ptt;
       end else begin
         assign ext_ptt = 1'b0;
       end
@@ -809,6 +810,7 @@ generate
         .cmd_rqst          (cmd_rqst  ),
         .dot_key           (ext_cwkey ),
         .dash_key          (clean_ring),
+        .cw_ptt            (cw_ptt    ),
         .cw_keydown        (cw_keydown)
       );
     end
