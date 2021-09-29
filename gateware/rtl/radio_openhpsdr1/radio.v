@@ -1003,7 +1003,12 @@ always @* begin
       accumdelay_decr = ~fir_tready;
       tx_tready       = accumdelay_notzero | fir_tready;
 
-      if (ext_keydown | cwx_keydown | cwx_keyup | (ds_cmd_ptt & ptt)) tx_state_next = PRETX;
+      if (ext_keydown) begin
+        tx_qmsectimer_next = 9'h0;
+        tx_state_next = PRETX;
+      end else if (cwx_keydown | cwx_keyup | (ds_cmd_ptt & ptt)) begin
+        tx_state_next = PRETX;
+		end
     end
 
     PRETX : begin
@@ -1049,7 +1054,7 @@ always @* begin
       if (ext_keydown | cwx_keydown) begin
         // Shape CW on
         if (tx_cwlevel != MAX_CWLEVEL) tx_cwlevel_next = tx_cwlevel + 19'h01;
-        tx_qmsectimer_next = {tx_buffer_latency, 2'b00};
+        tx_qmsectimer_next = ext_keydown? 9'h0 : {tx_buffer_latency, 2'b00};
       end else begin
         // Extend CW on to match tx_buffer_latency if ext key
         if (tx_qmsectimer != 9'h00) begin
@@ -1065,7 +1070,11 @@ always @* begin
 
     CWHANG : begin
       cw_on = 1'b1;
-      if (ext_keydown | cwx_keydown) begin
+      if (ext_keydown) begin
+        tx_qmsectimer_next = 9'h0;
+        tx_cwlevel_next    = 19'h0;
+        tx_state_next      = CWTX;
+      end else if (cwx_keydown) begin
         // delay ext CW by tx_buffer_latency
         if (tx_qmsectimer != 9'h00) begin
           if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 9'h01;
