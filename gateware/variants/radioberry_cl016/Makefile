@@ -1,8 +1,8 @@
 ## Quartus tools quartus_sh and quartus_cpf must be in your path
 
-all: build/radioberry.sof
+all: build/radioberry.rbf
 
-build/radioberry.sof:
+build/radioberry.rbf:
 	quartus_sh --flow compile radioberry -c radioberry
 
 clean:

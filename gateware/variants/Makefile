@@ -9,8 +9,19 @@ all:
 	$(MAKE) -C hl2b5up_15ce
 	$(MAKE) -C hl2b5up_ak4951v3
 	$(MAKE) -C radioberry_cl025
+	$(MAKE) -C radioberry_cl025_4000
 	$(MAKE) -C radioberry_cl016
+	$(MAKE) -C radioberry_cl016_4000
+	$(MAKE) -C radioberry_juice_cl025
+	
+radioberry:
+	$(MAKE) -C radioberry_cl025
+	$(MAKE) -C radioberry_cl025_4000
+	$(MAKE) -C radioberry_cl016
+	$(MAKE) -C radioberry_cl016_4000
 
+radioberry-juice:
+	$(MAKE) -C radioberry_juice_cl025
 
 clean:
 	$(MAKE) -C hl2b2_main clean
