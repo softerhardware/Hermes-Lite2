@@ -88,21 +88,25 @@ Boston, MA  02110-1301, USA.
 	
 	2014 May 8 	- First release
 	2021 Sep 26 - Impremented CW PTT delay and CW Hang time here for HermesLite2   Takashi Komatsumoto, JI1UDD
-
+	2021 Oct 3  - Added selectable Mode-B dot memory inhibit period.
+				  dot_delay and dash_delay were supplied outside the module.       Takashi Komatsumoto  JI1UDD
 
 */
 
 module iambic (
 				input clock,					
-				input [5:0] cw_speed,			// 1 to 60 WPM
+//				input [5:0] cw_speed,			// 1 to 60 WPM
+				input [15:0] dot_delay,
+				input [17:0] dash_delay,
 				input [1:0] iambic_mode,		// 00 = straight/bug, 01 = Mode A, 10 = Mode B
-				input [7:0] weight, 				// 33 to 66, nominal is 50
+//				input [7:0] weight, 				// 33 to 66, nominal is 50
 				input letter_space,				// 0 = off, 1 = on
 				input dot_key,						// dot paddle input, active high
 				input dash_key,					// dash paddle input, active high
 				input paddle_swap,				// swap if set
 				input [7:0] cw_ptt_delay,		// CW PTT delay(ms)
 				input [9:0] cw_hang_time,		// CW Hang time(ms)
+				input [2:0] mode_b_mem_timing,// inhibit period of paddle operation ( 0 to 7 )
 				output reg cw_ptt,				// CW PTT
 				output reg keyer_out				// keyer output, active high
 				);
@@ -131,19 +135,21 @@ localparam  DELAYDOT 	= clogb2(1200 * clock_speed);  	          // worse case nu
 localparam  DELAYDASH 	= clogb2(1200 * clock_speed * 3 * 66/50); // worse case number of bits needed for dash delay counter	
 
 				
-reg dot_memory = 0;
-reg dash_memory = 0;	
-reg [4:0] key_state = 0;	
+reg dot_memory = 1'b0;
+reg dash_memory = 1'b0;	
+reg [4:0] key_state = 5'b0;	
 
 reg  [DELAYDASH-1:0] delay;
-wire [DELAYDOT-1:0]  dot_delay;
-wire [DELAYDASH-1:0] dash_delay;
+//wire [DELAYDOT-1:0]  dot_delay;
+//wire [DELAYDASH-1:0] dash_delay;
+wire [DELAYDASH-1:0] dot_mem_inhibit;
 
-
-assign  dot_delay  = (1200 * clock_speed)/cw_speed;	
-assign  dash_delay = (dot_delay * 3 * weight)/50; 	// will be 3 * dot length at standard weight
+//assign  dot_delay  = (1200 * clock_speed)/cw_speed; // speed 6bit	
+//assign  dash_delay = (dot_delay * 3 * weight)/50; 	// will be 3 * dot length at standard weight
 wire  [DELAYDASH-1:0] cw_ptt_delay_ms = cw_ptt_delay * clock_speed;
 wire  [DELAYDASH-1:0] cw_hang_time_ms = cw_hang_time * clock_speed;
+assign  dot_mem_inhibit  = (dot_delay >> 2) * mode_b_mem_timing ;
+
 
 // swap paddles if set
 wire dot, dash;
@@ -196,7 +202,7 @@ SENDMDASH:
 			key_state <= MDASHDELAY;
 		end
 		
-		if (dot)									// set dot memory  
+		if (dot && (delay >= dot_mem_inhibit) )		// set dot memory
 			dot_memory <= 1'b1;
 	end
 	
@@ -287,7 +293,7 @@ SENDDOT:
 		if (!dot & !dash)
 				dash_memory <= 0;
 	end	
-	else if (dash)							// set dash memory
+	else if (dash)								// set dash memory
 		dash_memory <= 1'b1;
    end
 		
@@ -308,7 +314,7 @@ SENDDASH:
 		if (!dot & !dash)
 				dot_memory <= 0;
 	end
-	else if (dot)								// set dot memory  
+	else if (dot && (delay >= dot_mem_inhibit) )	// set dot memory
 		dot_memory <= 1'b1;
 	end
 
