@@ -1,6 +1,6 @@
 
 `timescale 1us/1ns
-
+/* verilator lint_off WIDTH */
 module mixtx1 (
   clk,
   rst,
@@ -19,6 +19,9 @@ input  signed [17:0]  q_sig;
 output signed [12:0]  i_result;
 output signed [12:0]  q_result;
 
+parameter CALCTYPE = 3;
+parameter ARCH = "cyclone4";
+
 logic         [18:0]  sin, ssin;
 logic         [18:0]  cos, scos;
 
@@ -29,7 +32,7 @@ logic  signed [35:0]  ia_data_d, ib_data_d;
 logic  signed [19:0]  i_data_d;
 logic  signed [12:0]  i_rounded, q_rounded;
 
-nco1 #(.CALCTYPE(3)) nco1_i (
+nco1 #(.CALCTYPE(CALCTYPE), .ARCH(ARCH)) nco1_i (
   .clk(clk),
   .rst(rst),
   .phi(phi),
@@ -78,6 +81,6 @@ assign i_result = i_rounded;
 assign q_result = q_rounded;
 
 
-endmodule 
-
+endmodule
+/* verilator lint_on WIDTH */
 
