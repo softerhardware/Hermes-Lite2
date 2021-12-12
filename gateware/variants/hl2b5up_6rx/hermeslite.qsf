@@ -36,6 +36,7 @@
 #
 # -------------------------------------------------------------------------- #
 
+set_global_assignment -name SEED 24398
 set_global_assignment -name VERILOG_MACRO "BETA5=1"
 set_global_assignment -name VERILOG_MACRO "USE_ALTSYNCRAM=1"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY build

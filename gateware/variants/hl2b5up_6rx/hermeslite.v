@@ -100,11 +100,11 @@ module hermeslite (
     .NT      (0                                    ),
     .UART    (0                                    ),
     .ATU     (0                                    ),
-    .FAN     (1                                    ),
+    .FAN     (0                                    ),
     .PSSYNC  (1                                    ),
     .CW      (0                                    ),
     .ASMII   (1                                    ),
-    .HL2LINK (1                                    ),
+    .HL2LINK (0                                    ),
     .AK4951  (0                                    ),
     .FAST_LNA(1                                    ),
     .EXTENDED_RESP(1                               )

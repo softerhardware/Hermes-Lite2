@@ -97,7 +97,7 @@ localparam RATE96  =  RATE48  >> 1;
 localparam RATE192 =  RATE96  >> 1;
 localparam RATE384 =  RATE192 >> 1;
 
-localparam CALCTYPE = (NR > 6) ? 0 : 3;
+localparam CALCTYPE = (NR > 5) ? 0 : 3;
 
 input         clk                    ;
 input         clk_2x                 ;
