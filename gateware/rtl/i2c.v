@@ -608,6 +608,9 @@ assign sda_i = en_i2c2 ? sda2_i : sda1_i;
 assign scl1_o = scl_o;
 assign scl2_o = scl_o;
 
+assign sda1_o = sda_o;
+assign sda2_o = sda_o;
+
 assign scl1_t = en_i2c2 ? 1'b1 : scl_t;
 assign scl2_t = en_i2c2 ? scl_t : 1'b1;
 
