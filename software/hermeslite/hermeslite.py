@@ -600,6 +600,14 @@ class HermesLite:
     except urllib.error.HTTPError:
       print("ERROR: Bad URL {}.".format(u))
 
+  def reboot(self):
+    """Force reset of HL2 if not in run mode, or when exiting run mode"""
+    addr = 0x3a
+    cmd = bytes([0x00,0x00,0x00,0x01])
+    res = self._send(bytes([0xef,0xfe,0x05,0x7f,addr<<1])+cmd+bytes([0x0]*51),attempts=1)
+    return res
+
+
 if __name__ == "__main__":
   hl = discover_first()
   ##hl = HermesLite( ("10.10.0.180",1025) ) # Connect to specific IP
