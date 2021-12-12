@@ -4,3 +4,4 @@ set_location_assignment CLKCTRL_G19 -to hermeslite_core_i|ethtxext_clkmux_i|auto
 set_location_assignment CLKCTRL_G15 -to hermeslite_core_i|ethtxint_clkmux_i|auto_generated|clkctrl1
 #set_location_assignment LCCOMB_X1_Y16_N4 -to altclkctrl:ethtxint_clkmux_i|altclkctrl_kct:auto_generated|outclk
 set_location_assignment LCCOMB_X28_Y1_N28 -to hermeslite_core:hermeslite_core_i|clock_ethrxint
+set_location_assignment DSP_X13_Y14_N0 -to hermeslite_core:hermeslite_core_i|radio:radio_i|receiver_nco:receiver_0|firX8R8:fir2|fir256:DH|lpm_mult:Mult0|mult_c6t:auto_generated|mac_mult1
