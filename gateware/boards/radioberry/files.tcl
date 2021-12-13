@@ -33,6 +33,7 @@ set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/firram36I_20
 set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/square.v
 set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/sqroot.v
 
+set_global_assignment -name VERILOG_FILE ../../rtl/primitives/intel/multipliers.v
 set_global_assignment -name VERILOG_FILE ../../rtl/nco/coarserom.v
 set_global_assignment -name VERILOG_FILE ../../rtl/nco/finerom.v
 set_global_assignment -name VERILOG_FILE ../../rtl/nco/sincos.v

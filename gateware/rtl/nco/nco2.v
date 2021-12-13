@@ -25,7 +25,6 @@ logic [31:0]      angle0 = 32'h00;
 logic [31:0]      angle1 = 32'h00;
 
 parameter         CALCTYPE = 0;
-parameter         ARCH = "cyclone4";
 
 always @(posedge clk_2x) begin
   if (state) begin
@@ -37,7 +36,7 @@ always @(posedge clk_2x) begin
   end
 end
 
-sincos #(.CALCTYPE(CALCTYPE), .ARCH(ARCH)) sincos_i (
+sincos #(.CALCTYPE(CALCTYPE)) sincos_i (
   .clk(clk_2x),
   .angle(angle1[31:12]),
   .cos(cos),

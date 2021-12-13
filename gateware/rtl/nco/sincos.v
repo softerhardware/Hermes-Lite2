@@ -9,7 +9,6 @@ module sincos (
 );
 
 parameter CALCTYPE = 0;
-parameter ARCH = "cyclone4";
 
 input        clk  ;
 input [19:0] angle;
@@ -71,9 +70,8 @@ end
 logic  [9:0]   scsf, ccsf;
 logic  [35:0]   scsf_ff, ccsf_ff;
 
-logic  unsigned [17:0]  sin_opa, sin_opb, cos_opa, cos_opb;
-// Use reg below to help generic multiplier inference
-reg [35:0]  sin_mult_res, cos_mult_res;
+logic unsigned [17:0]  sin_opa, sin_opb, cos_opa, cos_opb;
+logic unsigned [35:0]  sin_mult_res, cos_mult_res;
 
 
 generate
@@ -187,139 +185,21 @@ generate
 
 endgenerate
 
-`ifndef SIMULATION
-generate if (ARCH == "cyclone4") begin: CYCLONE4
+// FIXME: Efinix does not have unsigned multiplier
+umult_ABOpiped sinmult (
+  .clk(clk),
+  .a(sin_opa),
+  .b(sin_opb),
+  .o(sin_mult_res)
+);
 
-  lpm_mult #(
-    .lpm_hint          ("DEDICATED_MULTIPLIER_CIRCUITRY=YES,MAXIMIZE_SPEED=5"),
-    .lpm_pipeline      (2                                                    ),
-    .lpm_representation("UNSIGNED"                                           ),
-    .lpm_type          ("LPM_MULT"                                           ),
-    .lpm_widtha        (18                                                   ),
-    .lpm_widthb        (18                                                   ),
-    .lpm_widthp        (36                                                   )
-  ) sinmult (
-    .clock (clk         ),
-    .dataa (sin_opa     ),
-    .datab (sin_opb     ),
-    .result(sin_mult_res),
-    .aclr  (1'b0        ),
-    .clken (1'b1        ),
-    .sclr  (1'b0        ),
-    .sum   (1'b0        )
-  );
+umult_ABOpiped cosmult (
+  .clk(clk),
+  .a(cos_opa),
+  .b(cos_opb),
+  .o(cos_mult_res)
+);
 
-
-  lpm_mult #(
-    .lpm_hint          ("DEDICATED_MULTIPLIER_CIRCUITRY=YES,MAXIMIZE_SPEED=5"),
-    .lpm_pipeline      (2                                                    ),
-    .lpm_representation("UNSIGNED"                                           ),
-    .lpm_type          ("LPM_MULT"                                           ),
-    .lpm_widtha        (18                                                   ),
-    .lpm_widthb        (18                                                   ),
-    .lpm_widthp        (36                                                   )
-  ) cosmult (
-    .clock (clk         ),
-    .dataa (cos_opa     ),
-    .datab (cos_opb     ),
-    .result(cos_mult_res),
-    .aclr  (1'b0        ),
-    .clken (1'b1        ),
-    .sclr  (1'b0        ),
-    .sum   (1'b0        )
-  );
-
-end else if (ARCH == "trion") begin: TRION
-
-  EFX_MULT #(
-    .WIDTH        (18  ),
-    .A_REG        (1   ),
-    .B_REG        (1   ),
-    .O_REG        (1   ),
-    .CLK_POLARITY (1'b1),
-    .CEA_POLARITY (1'b1),
-    .RSTA_POLARITY(1'b0),
-    .RSTA_SYNC    (1'b0),
-    .RSTA_VALUE   (1'b0),
-    .CEB_POLARITY (1'b1),
-    .RSTB_POLARITY(1'b0),
-    .RSTB_SYNC    (1'b0),
-    .RSTB_VALUE   (1'b0),
-    .CEO_POLARITY (1'b1),
-    .RSTO_POLARITY(1'b0),
-    .RSTO_SYNC    (1'b0),
-    .RSTO_VALUE   (1'b0)
-  ) sinmult (
-    .CLK (clk         ),
-    .CEA (1'b1        ),
-    .RSTA(1'b1        ),
-    .CEB (1'b1        ),
-    .RSTB(1'b1        ),
-    .CEO (1'b1        ),
-    .RSTO(1'b1        ),
-    .A   (sin_opa     ),
-    .B   (sin_opb     ),
-    .O   (sin_mult_res)
-  );
-
-  EFX_MULT #(
-    .WIDTH        (18  ),
-    .A_REG        (1   ),
-    .B_REG        (1   ),
-    .O_REG        (1   ),
-    .CLK_POLARITY (1'b1),
-    .CEA_POLARITY (1'b1),
-    .RSTA_POLARITY(1'b0),
-    .RSTA_SYNC    (1'b0),
-    .RSTA_VALUE   (1'b0),
-    .CEB_POLARITY (1'b1),
-    .RSTB_POLARITY(1'b0),
-    .RSTB_SYNC    (1'b0),
-    .RSTB_VALUE   (1'b0),
-    .CEO_POLARITY (1'b1),
-    .RSTO_POLARITY(1'b0),
-    .RSTO_SYNC    (1'b0),
-    .RSTO_VALUE   (1'b0)
-  ) cosmult (
-    .CLK (clk         ),
-    .CEA (1'b1        ),
-    .RSTA(1'b1        ),
-    .CEB (1'b1        ),
-    .RSTB(1'b1        ),
-    .CEO (1'b1        ),
-    .RSTO(1'b1        ),
-    .A   (cos_opa     ),
-    .B   (cos_opb     ),
-    .O   (cos_mult_res)
-  );
-
-end else begin: GENERIC
-
-`endif // Simulation
-
-  // Use reg, wire and format below for multiplier inference
-  reg  [17:0] isin_opa, isin_opb, icos_opa, icos_opb;
-  wire [35:0] isin_mult_res, icos_mult_res;
-
-  assign isin_mult_res = isin_opa * isin_opb;
-  always @(posedge clk) begin
-    isin_opa     <= sin_opa;
-    isin_opb     <= sin_opb;
-    sin_mult_res <= isin_mult_res;
-  end
-
-  assign icos_mult_res = icos_opa * icos_opb;
-  always @(posedge clk) begin
-    icos_opa     <= cos_opa;
-    icos_opb     <= cos_opb;
-    cos_mult_res <= icos_mult_res;
-  end
-
-
-`ifndef SIMULATION
-end
-endgenerate
-`endif
 
 
 // Pipestate3

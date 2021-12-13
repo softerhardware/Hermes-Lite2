@@ -20,7 +20,6 @@ output signed [12:0]  i_result;
 output signed [12:0]  q_result;
 
 parameter CALCTYPE = 3;
-parameter ARCH = "cyclone4";
 
 logic         [18:0]  sin, ssin;
 logic         [18:0]  cos, scos;
@@ -32,7 +31,7 @@ logic  signed [35:0]  ia_data_d, ib_data_d;
 logic  signed [19:0]  i_data_d;
 logic  signed [12:0]  i_rounded, q_rounded;
 
-nco1 #(.CALCTYPE(CALCTYPE), .ARCH(ARCH)) nco1_i (
+nco1 #(.CALCTYPE(CALCTYPE)) nco1_i (
   .clk(clk),
   .rst(rst),
   .phi(phi),
