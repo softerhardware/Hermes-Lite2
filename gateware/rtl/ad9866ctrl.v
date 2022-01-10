@@ -76,7 +76,7 @@ localparam
 logic [1:0]       cmd_state = CMD_IDLE;
 logic [1:0]       cmd_state_next;
 logic [3:0]       tx_gain = 4'hf;
-logic [3:0]       tx_gain_next 4'hf;
+logic [3:0]       tx_gain_next = 4'hf;
 logic [6:0]       rx_gain = 7'b1000000;
 logic [6:0]       rx_gain_next = 7'b1000000;
 

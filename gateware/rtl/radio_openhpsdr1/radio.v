@@ -1087,7 +1087,7 @@ always @* begin
       end else begin
         if (tx_cwlevel != 19'h0) begin
           if (qmsec_pulse) tx_cwlevel_next = tx_cwlevel - 19'h01;
-        end else (~ext_ptt) begin // ext_ptt can cause hang with CW keyer
+        end else if (~ext_ptt) begin // ext_ptt can cause hang with CW keyer
           tx_state_next = NOTX;
         end
       end
