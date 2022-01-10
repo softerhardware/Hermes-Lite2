@@ -20,6 +20,7 @@ module radio (
   run,
   qmsec_pulse,
   ext_keydown,
+  ext_ptt,
 
   tx_on,
   cw_on,
@@ -114,6 +115,7 @@ input         ds_cmd_ptt             ;
 input         run                    ;
 input         qmsec_pulse            ;
 input         ext_keydown            ;
+input         ext_ptt                ;
 output        tx_on                  ;
 output        cw_on                  ;
 output [18:0] cw_profile             ;
@@ -1003,25 +1005,24 @@ always @* begin
       accumdelay_decr = ~fir_tready;
       tx_tready       = accumdelay_notzero | fir_tready;
 
-      if (ext_keydown) begin
-        tx_qmsectimer_next = 9'h0;
-        tx_state_next = PRETX;
-      end else if (cwx_keydown | cwx_keyup | (ds_cmd_ptt & ptt)) begin
-        tx_state_next = PRETX;
-		end
+      if (ext_keydown | ext_ptt | cwx_keydown | cwx_keyup | (ds_cmd_ptt & ptt)) tx_state_next = PRETX;
     end
 
     PRETX : begin
       tx_twait        = 1'b1;
       tx_tready       = 1'b0; //Stall data to fill FIFO unless in CWX mode
       accumdelay_incr = fir_tready; // Count samples accumulated
-      if (tx_qmsectimer != 9'h00) begin
+      if (ext_keydown & ext_ptt) begin
+        tx_qmsectimer_next = 9'h0;
+        tx_state_next = CWTX; // PTT is managing timing of CW key, may need to exit early
+      end else if (tx_qmsectimer != 9'h00) begin
         if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 9'h01;
-        if (~(ext_keydown | cwx_keydown | cwx_keyup | ptt)) tx_state_next = NOTX;
+        if (~(ext_keydown | ext_ptt | cwx_keydown | cwx_keyup | ptt)) tx_state_next = NOTX;
       end else begin
         if (ext_keydown) tx_state_next = CWTX;
         else if (ptt) tx_state_next = PTTTX;
         else if (cwx_keydown | cwx_keyup) tx_state_next = CWTX;
+        else if (ext_ptt) tx_state_next = PRETX; // Wait as external keyer may have long time before ext_keydown
         else tx_state_next = NOTX;
       end
     end
@@ -1054,7 +1055,7 @@ always @* begin
       if (ext_keydown | cwx_keydown) begin
         // Shape CW on
         if (tx_cwlevel != MAX_CWLEVEL) tx_cwlevel_next = tx_cwlevel + 19'h01;
-        tx_qmsectimer_next = ext_keydown? 9'h0 : {tx_buffer_latency, 2'b00};
+        tx_qmsectimer_next = (ext_keydown & ext_ptt) ? 9'h0 : {tx_buffer_latency, 2'b00};
       end else begin
         // Extend CW on to match tx_buffer_latency if ext key
         if (tx_qmsectimer != 9'h00) begin
@@ -1062,7 +1063,7 @@ always @* begin
         end else if (tx_cwlevel != 19'h00) tx_cwlevel_next = tx_cwlevel - 19'h01;
         else if (~cwx_keyup) begin
           tx_qmsectimer_next = {tx_buffer_latency, 2'b00};
-          tx_cwlevel_next    = {7'b0000000, cw_hang_time, 2'b00};
+          tx_cwlevel_next    = ext_ptt ? 19'h0000 : {7'b0000000, cw_hang_time, 2'b00};
           tx_state_next      = CWHANG;
         end
       end
@@ -1070,11 +1071,11 @@ always @* begin
 
     CWHANG : begin
       cw_on = 1'b1;
-      if (ext_keydown) begin
+      if (ext_keydown & ext_ptt) begin
         tx_qmsectimer_next = 9'h0;
         tx_cwlevel_next    = 19'h0;
         tx_state_next      = CWTX;
-      end else if (cwx_keydown) begin
+      end else if (ext_keydown | cwx_keydown) begin
         // delay ext CW by tx_buffer_latency
         if (tx_qmsectimer != 9'h00) begin
           if (qmsec_pulse) tx_qmsectimer_next = tx_qmsectimer - 9'h01;
@@ -1086,7 +1087,7 @@ always @* begin
       end else begin
         if (tx_cwlevel != 19'h0) begin
           if (qmsec_pulse) tx_cwlevel_next = tx_cwlevel - 19'h01;
-        end else begin
+        end else (~ext_ptt) begin // ext_ptt can cause hang with CW keyer
           tx_state_next = NOTX;
         end
       end

@@ -159,6 +159,7 @@ logic           ds_cmd_ptt, ds_cmd_ptt_ad9866sync;
 logic           tx_on, tx_on_iosync;
 logic           cw_on, cw_on_iosync;
 logic           cw_keydown, cw_keydown_ad9866sync;
+logic           ext_ptt, ext_ptt_ad9866sync;
 logic   [18:0]  cw_profile;
 
 logic   [7:0]   dseth_tdata;
@@ -801,6 +802,13 @@ sync sync_keydown_ad9866 (
 );
 
 // CDC okay as clock is >2x faster than sig_in domain
+sync sync_ptt_ad9866 (
+  .clock(clk_ad9866),
+  .sig_in(ext_ptt),
+  .sig_out(ext_ptt_ad9866sync)
+);
+
+// CDC okay as clock is >2x faster than sig_in domain
 sync sync_atutxinhibit_ad9866 (
   .clock(clk_ad9866),
   .sig_in(atu_txinhibit),
@@ -865,6 +873,7 @@ radio_i
   .run(run_ad9866sync),
   .qmsec_pulse(qmsec_pulse_ad9866sync),
   .ext_keydown(cw_keydown_ad9866sync),
+  .ext_ptt(ext_ptt_ad9866sync),
 
   .tx_on(tx_on),
   .cw_on(cw_on),
@@ -1007,6 +1016,7 @@ control #(
   .tx_on              (tx_on_iosync               ),
   .cw_on              (cw_on_iosync               ),
   .cw_keydown         (cw_keydown                 ),
+  .ext_pttout         (ext_ptt                    ),
   
   
   .msec_pulse         (msec_pulse                 ),
@@ -1096,11 +1106,11 @@ control #(
   .revpwr             (revpwr                     ),
   .bias               (bias                       ),
   .control_dsiq_status(control_dsiq_status        ),
-
+  
   .hl2link_rst_req    (hl2link_rst_req            ),
   .hl2link_rst_ack    (hl2link_rst_ack            ),
   
-  .debug              (16'h0000) //(debug                      )
+  .debug              (16'h0000                   )  //(debug                      )
 );
 
 

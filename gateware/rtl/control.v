@@ -27,6 +27,7 @@ module control (
   input                      tx_on              ,
   input                      cw_on              ,
   output                     cw_keydown         ,
+  output                     ext_pttout         ,
   output logic               msec_pulse           = 1'b0,
   output logic               qmsec_pulse          = 1'b0,
   input                      resp_rqst          ,
@@ -775,6 +776,9 @@ assign io_cw_keydown = cw_keydown;
 debounce de_txinhibit(.clean_pb(ext_txinhibit), .pb(~io_tx_inhibit), .clk(clk), .msec_pulse(msec_pulse));
 
 debounce de_phone_ring(.clean_pb(clean_ring), .pb(~io_phone_ring), .clk(clk), .msec_pulse(msec_pulse));
+
+
+assign ext_pttout = ext_ptt;
 
 generate
   case (CW)
