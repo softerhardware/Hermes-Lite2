@@ -77,7 +77,7 @@ def decode(r):
     receivers,board_id,wideband_type,response_data,ext_cw_key,ptt_resp,pa_exttr,pa_inttr,tx_on,cw_on,
     adc_clip_cnt,temperature,fwd_pwr,rev_pwr,bias,txfifo_recovery,txfifo_msbs,r[0x25:])
 
-def discover_by_port(ifaddr=None, port=1025):
+def discover_by_port(ifaddr=None, port=1025, verbose=2):
   """Discover available HL2s on one interface/NIC for one UDP port."""
   sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
   sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -92,7 +92,8 @@ def discover_by_port(ifaddr=None, port=1025):
     if ready[0]:
       data, address = sock.recvfrom(60)
       if ifaddr and ifaddr == address[0]: continue
-      print("Discover response from %s:%d" %(address[0], address[1]))
+      if verbose >= 2: 
+        print("Discover response from %s:%d" %(address[0], address[1]))
       r = decode(data)
       if r: responses.append((address,r))
     else:
@@ -100,15 +101,16 @@ def discover_by_port(ifaddr=None, port=1025):
       break
   return responses
 
-def discover(ifaddr=None):
+def discover(ifaddr=None, verbose=2):
   """Discover available HL2s on one interface/NIC and return their responses."""
-  responses = discover_by_port(ifaddr, 1025)
+  responses = discover_by_port(ifaddr, 1025, verbose)
   if responses != []: return responses
   ## Try port 1024 if no responses so gateware update can at least work
-  print("Trying port 1024. Only gateware update will work on units without port 1025 enabled.")
-  return discover_by_port(ifaddr, 1024)
+  if verbose >= 2: 
+    print("Trying port 1024. Only gateware update will work on units without port 1025 enabled.")
+  return discover_by_port(ifaddr, 1024, verbose)
 
-def discover_all():
+def discover_all(verbose=2):
   """Discover all HL2s on all interfaces and return list of their responses."""
   # Use AF_INET because HL2 only supports IPv4 and not IPv6 
   PROTO = netifaces.AF_INET   
@@ -126,18 +128,21 @@ def discover_all():
   # Do discovery on all remaining interfaces that have IP addresses
   responses = []
   for ifa in iface_addrs: 
-    print("\nPerforming discovery: interface %s, IP %s" % (ifa[1],ifa[0]))
-    d = discover(ifaddr=ifa[0])
+    if verbose >= 2: 
+      print("\nPerforming discovery: interface %s, IP %s" % (ifa[1],ifa[0]))
+    d = discover(ifaddr=ifa[0],verbose=verbose)
     if d != []:
       for r in d:
-        print('Discovered radio: IP %s MAC %s GW %s #RX %d' % 
-          (r[0][0],r[1].mac,r[1].gateware,r[1].receivers))
+        if verbose >= 1: 
+          print('Discovered radio: IP %s MAC %s GW %s #RX %d' % 
+            (r[0][0],r[1].mac,r[1].gateware,r[1].receivers))
         responses.append(r)
   return responses
 
-def discover_first():
+def discover_first(verbose=2):
   """Discover all HL2s on all interfaces and return the first HL2 found."""
-  responses = discover_all()
+  """Verbose can be >=2 (all output), 1 (only on discovery), or 0 (no output)"""
+  responses = discover_all(verbose)
   if responses != []:
     return HermesLite(responses[0][0])
   else:
@@ -184,13 +189,14 @@ class HermesLite:
     else:
       return None
 
-  def command(self,addr,cmd,sleep=0.2):
+  def command(self,addr,cmd,sleep=0.2,timeout=2.0,attempts=3):
     """Send command at address to HL2, cmd may be bytes or number.
       Returns a response."""
     if isinstance(cmd,int):
       cmd = struct.pack('!L',cmd)
     ## send to both units for now
-    res = self._send(bytes([0xef,0xfe,0x05,0x7f,addr<<1])+cmd+bytes([0x0]*51))
+    res = self._send(bytes([0xef,0xfe,0x05,0x7f,addr<<1])+cmd+bytes([0x0]*51),\
+      timeout=timeout,attempts=attempts)
     if res:
       self.wrcache[addr] = cmd
     time.sleep(sleep)
