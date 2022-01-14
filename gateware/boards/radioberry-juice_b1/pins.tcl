@@ -3,19 +3,19 @@ set_location_assignment PIN_53 -to rffe_ad9866_clk76p8
 #FTDI 	
 set_location_assignment PIN_55 -to  ftd_clk_60		
 set_location_assignment PIN_44 -to  ftd_data[0]	
-set_location_assignment PIN_49 -to  ftd_data[1]	
-set_location_assignment PIN_32 -to  ftd_data[2]	
-set_location_assignment PIN_43 -to  ftd_data[3]	
-set_location_assignment PIN_46 -to  ftd_data[4]	
-set_location_assignment PIN_50 -to  ftd_data[5]	
+set_location_assignment PIN_32 -to  ftd_data[1]	
+set_location_assignment PIN_33 -to  ftd_data[2]	
+set_location_assignment PIN_113 -to ftd_data[3]	
+set_location_assignment PIN_60 -to  ftd_data[4]	
+set_location_assignment PIN_59 -to  ftd_data[5]	
 set_location_assignment PIN_58 -to  ftd_data[6]	
-set_location_assignment PIN_51 -to  ftd_data[7]	
-set_location_assignment PIN_60 -to  read_rx_fifo_ftd_n	
-set_location_assignment PIN_39 -to  write_tx_fifo_ftd_n
-set_location_assignment PIN_31 -to  ftd_tx_fifo_full	
-set_location_assignment PIN_59 -to  ftd_rx_fifo_empty			
-set_location_assignment PIN_113 -to send_immediately_ftd_n	
-set_location_assignment PIN_33 -to  output_enable_ftd_n	
+set_location_assignment PIN_50 -to  ftd_data[7]	
+set_location_assignment PIN_46 -to  read_rx_fifo_ftd_n	
+set_location_assignment PIN_49 -to  write_tx_fifo_ftd_n
+set_location_assignment PIN_43 -to  ftd_tx_fifo_full	
+set_location_assignment PIN_42 -to  ftd_rx_fifo_empty			
+set_location_assignment PIN_31 -to  send_immediately_ftd_n	
+set_location_assignment PIN_39 -to  output_enable_ftd_n	
 
 
 #Radioberry IO

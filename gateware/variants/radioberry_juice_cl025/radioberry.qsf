@@ -51,8 +51,7 @@ set_global_assignment -name SDC_FILE "../../boards/radioberry-juice/timing.sdc"
 
 set_global_assignment -name LAST_QUARTUS_VERSION "20.1.1 Lite Edition"
 
-set_location_assignment PIN_115 -to io_scl
-set_location_assignment PIN_119 -to io_sda
+
 set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS ON
 set_global_assignment -name SMART_RECOMPILE ON
 set_global_assignment -name FLOW_ENABLE_IO_ASSIGNMENT_ANALYSIS ON
