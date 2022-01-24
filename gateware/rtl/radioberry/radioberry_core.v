@@ -61,7 +61,7 @@ parameter       DSIQ_FIFO_DEPTH = 16384;
 
 parameter 		FPGA_TYPE = 2'b10; //CL016 = 2'b01 ; CL025 = 2'b10
 localparam      VERSION_MAJOR = 8'd73;
-localparam      VERSION_MINOR = 8'd2;
+localparam      VERSION_MINOR = 8'd3;
 
 
 logic   [5:0]   cmd_addr;
@@ -131,7 +131,15 @@ reset_handler reset_handler_inst(.clock(clk_internal), .reset(reset));
 //------------------------------------------------------------------------------
 wire [47:0] spi0_recv;
 
-spi_slave spi_slave_inst(.rstb(!reset),.ten(1'b1),.tdata({resp, 22'h0, FPGA_TYPE, VERSION_MAJOR, VERSION_MINOR}),.mlb(1'b1),.ss(pi_spi_ce[0]),.sck(pi_spi_sck),.sdin(pi_spi_mosi), .sdout(pi_spi_miso),.done(pi_spi_done),.rdata(spi0_recv));
+logic [1:0] fpgatype;
+generate
+	if (FPGA_TYPE == 2'b01) assign fpgatype = 2'b01; else assign fpgatype = 2'b10;
+endgenerate
+
+logic [47:0] ret_info;
+assign ret_info = {resp, 8'b0 , 8'b0, 6'b0, fpgatype, VERSION_MAJOR, VERSION_MINOR};
+
+spi_slave #(.WIDTH(48)) spi_slave_inst(.rstb(!reset),.ten(1'b1),.tdata(ret_info),.mlb(1'b1),.ss(pi_spi_ce[0]),.sck(pi_spi_sck),.sdin(pi_spi_mosi), .sdout(pi_spi_miso),.done(pi_spi_done),.rdata(spi0_recv));
 
 always @ (posedge pi_spi_done) 	cmd_cnt <= ~cmd_cnt_next; 
 		
@@ -167,17 +175,17 @@ logic [4:0] hindex [3] = '{ 5'd23, 5'd7, 5'd15};
 logic [4:0] lindex [3] = '{ 5'd15, 5'd23, 5'd7};
 
 assign pi_rx_data = (pi_rx_clk == 1) ?  tdata[hindex[hptr[3:2]] -: 8] : tdata[lindex[lptr[3:2]] -: 8];
-always @ (posedge pi_rx_clk) hptr <= (|hptr) ?  hptr << 1 :  4; 
-always @ (negedge pi_rx_clk) lptr <= (|lptr) ?  lptr << 1 :  4;
+always @ (posedge pi_rx_clk) if (!reset) begin hptr <= (|hptr) ?  hptr << 1 :  4; end
+always @ (negedge pi_rx_clk) if (!reset) begin lptr <= (|lptr) ?  lptr << 1 :  4; end
 
 assign tdata =  (up[1] & !down ) ? qdata : (up[2] & down[2] ) ? idata : tdata;
-always @ (posedge pi_rx_clk) if ((up[1] & down[1])) idata <= usiq_tdata;
-always @ (negedge pi_rx_clk) if ((up[2] & down[1])) qdata <= usiq_tdata;
+always @ (posedge pi_rx_clk) if (!reset) begin if ((up[1] & down[1])) idata <= usiq_tdata; end
+always @ (negedge pi_rx_clk) if (!reset) begin if ((up[2] & down[1])) qdata <= usiq_tdata; end
 
 sync_one sync_one_inst(.clock(clk_ad9866), .sig_in(rx_rd_req), .sig_out(rd_req));
 assign rx_rd_req = ( (up[1] & !down) | (up[2] & down[1]) )? 1: 0;
-always @ (posedge pi_rx_clk)  up  <= (|up)    ? up   << 1: 2;
-always @ (negedge pi_rx_clk)  down <= (|down) ? down << 1: 2;
+always @ (posedge pi_rx_clk)  if (!reset) begin up  <= (|up)    ? up   << 1: 2; end
+always @ (negedge pi_rx_clk)  if (!reset) begin down <= (|down) ? down << 1: 2; end
 
 usiq_fifo usiq_fifo_i (
   .wr_clk(clk_ad9866),

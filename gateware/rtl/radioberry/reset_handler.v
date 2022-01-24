@@ -17,7 +17,7 @@ reg [23:0] reset_counter;
 
 always @(posedge clock)
 begin
-		if (reset_counter > 24'h0F0000)
+		if (reset_counter > 24'hFFFFF0)
 			reset <= 1'b0;	
 	   else begin
 			reset <= 1'b1;	
