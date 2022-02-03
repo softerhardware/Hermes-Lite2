@@ -44,6 +44,7 @@ set_global_assignment -name PROJECT_OUTPUT_DIRECTORY build
 source ../../boards/radioberry-juice/general.tcl
 source ../../boards/radioberry-juice/pins.tcl
 source ../../boards/radioberry-juice/files.tcl
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver_nco.v
 
 set_global_assignment -name VERILOG_FILE ./radioberry.v
 set_global_assignment -name TOP_LEVEL_ENTITY radioberry
@@ -59,4 +60,5 @@ set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
