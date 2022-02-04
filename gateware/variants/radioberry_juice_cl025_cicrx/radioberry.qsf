@@ -43,7 +43,8 @@ set_global_assignment -name VERILOG_MACRO "USE_ALTSYNCRAM=1"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY build
 source ../../boards/radioberry-juice/general.tcl
 source ../../boards/radioberry-juice/pins.tcl
-source ./files.tcl
+source ../../boards/radioberry-juice/files.tcl
+set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver_ciconly.v
 
 set_global_assignment -name VERILOG_FILE ./radioberry.v
 set_global_assignment -name TOP_LEVEL_ENTITY radioberry
