@@ -387,7 +387,7 @@ void HL2Run(void)
 		hermes_enable_power_amp = 1;
 		hermes_spot_level = 0.0;
 		next_state = SET_BIAS + 2;
-		bias0 = bias1 = 70;
+		bias0 = bias1 = 55;
 		Bias0code(0);
 		hermes_run_state = WAIT_STATE;
 		break;
@@ -399,7 +399,7 @@ void HL2Run(void)
 	case SET_BIAS + 3:		// Increase bias 0 until power amp current is 0.1 amps
 		next_state = SET_BIAS + 3;
 		hermes_key_down = 1;
-		if (hermes_pa_current > 0.10) {
+		if (hermes_pa_current > 0.103) {
 			hermes_run_state = SET_BIAS + 4;
 			hermes_key_down = 0;
 		}
