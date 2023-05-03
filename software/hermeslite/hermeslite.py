@@ -1,6 +1,10 @@
 import socket, select, struct, collections, time, os
 import shutil, tempfile, urllib.request, netifaces
 
+# Send commands to the Hermes Lite 2 on port 1025.
+# Original author Steve Haynal, KF7O.
+# Changed April 2023 by N2ADR to add support for the IO board.
+
 ## The one response type received from the HL2
 Response = collections.namedtuple('Response',
 'type \
@@ -612,6 +616,62 @@ class HermesLite:
     cmd = bytes([0x00,0x00,0x00,0x01])
     res = self._send(bytes([0xef,0xfe,0x05,0x7f,addr<<1])+cmd+bytes([0x0]*51),attempts=1)
     return res
+
+  def write_ioboard(self,addr,data):
+    """Write to N2ADR IO board Pico via i2c."""
+    time.sleep(0.002)
+    data = data & 0x0ff
+    addr = addr & 0x0ff
+    cmd = bytes([0x06,0x1d,addr,data])
+    res = self.command(0x3d,cmd)
+    #print ("0x%08X" % res.response_data)
+    if res and res.response_data & 0xFFFFFF == 0x1d << 16 | addr << 8 | data:
+      return "Set address %d to %d" % (addr, data)
+    return "Failure at address %d in write_ioboard()" % addr
+
+  def read_ioboard(self,addr,fullresponse=False):
+    """Read from N2ADR IO board Pico via i2c."""
+    time.sleep(0.002)
+    addr = addr & 0xff
+    cmd = bytes([0x07,0x1d,addr,0x00])
+    res = self.command(0x3d,cmd)
+    #print ("0x%08X" % res.response_data)
+    if fullresponse:
+      return res
+    elif res:
+      r = res.response_data
+      return (r >> 24 & 0xFF, r >> 16 & 0xFF, r >> 8 & 0xFF, r & 0xFF)
+
+  def read_ioboard_rom(self,fullresponse=False):
+    """Read from N2ADR IO board ROM via i2c."""
+    time.sleep(0.002)
+    addr = 0x00
+    cmd = bytes([0x07,0x41,addr,0x00])
+    res = self.command(0x3d,cmd)
+    #print ("0x%08X" % res.response_data)
+    if fullresponse:
+      return res
+    elif res:
+      return res.response_data & 0xff
+
+  def set_ioboard_freq(self, hertz):
+    """Send the frequency in hertz to the IO board"""
+    ret = self.write_ioboard(0, hertz >> 32 & 0xFF)
+    if ret[0:8] == "Failure ":
+      return ret
+    ret = self.write_ioboard(1, hertz >> 24 & 0xFF)
+    if ret[0:8] == "Failure ":
+      return ret
+    ret = self.write_ioboard(2, hertz >> 16 & 0xFF)
+    if ret[0:8] == "Failure ":
+      return ret
+    ret = self.write_ioboard(3, hertz >>  8 & 0xFF)
+    if ret[0:8] == "Failure ":
+      return ret
+    ret = self.write_ioboard(13, hertz & 0xFF)
+    if ret[0:8] == "Failure ":
+      return ret
+    return hertz
 
 
 if __name__ == "__main__":
