@@ -668,7 +668,7 @@ class HermesLite:
     ret = self.write_ioboard(3, hertz >>  8 & 0xFF)
     if ret[0:8] == "Failure ":
       return ret
-    ret = self.write_ioboard(13, hertz & 0xFF)
+    ret = self.write_ioboard(4, hertz & 0xFF)
     if ret[0:8] == "Failure ":
       return ret
     return hertz
