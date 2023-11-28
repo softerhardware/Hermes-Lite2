@@ -13,6 +13,14 @@ all:
 	$(MAKE) -C radioberry_cl016
 	$(MAKE) -C radioberry_cl016_4000
 	$(MAKE) -C radioberry_juice_cl025
+
+release:
+	$(MAKE) -C hl2b2_main
+	$(MAKE) -C hl2b3to4_main
+	$(MAKE) -C hl2b3to4_cicrx
+	$(MAKE) -C hl2b5up_main
+	$(MAKE) -C hl2b5up_6rx
+	$(MAKE) -C hl2b5up_cicrx
 	
 radioberry:
 	$(MAKE) -C radioberry_cl025
@@ -48,4 +56,4 @@ realclean:
 	$(MAKE) -C radioberry_cl016 realclean
 
 
-.PHONY: all clean realclean
+.PHONY: all clean realclean radioberry radioberry-juice release
