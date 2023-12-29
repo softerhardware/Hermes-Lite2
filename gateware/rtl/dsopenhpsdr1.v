@@ -357,7 +357,7 @@ always @(*) begin
       dsethiq_tuser  = cwx_saved[0];
       dsethiq_tvalid = ds_cmd_ptt | cwx_pushiq;
       state_next = PUSHQ1;
-      cwx_saved_next = {eth_data[3],eth_data[0]};
+      cwx_saved_next = cwx_enable ? {eth_data[3],eth_data[0]} : 2'b00;
     end
 
     PUSHQ1: begin
