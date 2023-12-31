@@ -140,7 +140,7 @@ parameter       BYPASS_VERSA = 0;
 localparam      TUSERWIDTH = (AK4951 == 1) ? 16 : 2;
 
 localparam      VERSION_MAJOR = (BOARD==2) ? 8'd54 : 8'd74;
-localparam      VERSION_MINOR = 8'd1;
+localparam      VERSION_MINOR = 8'd2;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
