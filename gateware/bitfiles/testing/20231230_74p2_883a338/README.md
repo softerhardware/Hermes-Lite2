@@ -19,7 +19,8 @@ See the [gateware](https://github.com/softerhardware/Hermes-Lite2/wiki/Updating-
 * variants/hl2b2_main - Main gateware for Hermes-Lite 2.0 beta2. Includes all programming file types.
 * variants/hl2b5_cicrx - 10RX only gateware for Hermes-Lite 2.0 build5 and later. This only supports 192kHz receivers. This uses only CIC filters and consequently only about 70kHz of the spectrum is usable. This is for multiband skimming.
 * variants/hl2b3to4_cicrx - 10RX only gateware for Hermes-Lite 2.0 beta3 or beta4. This only supports 192kHz receivers. This uses only CIC filters and consequently only about 70kHz of the spectrum is usable. This is for multiband skimming.
-* variants/hl2b5up_ak4951v3 - AK4951V3 companion board gateware for Hermes-Lite 2. build5 and later. This only support 3 receivers due to the increase in TX buffer size to support longer latencies.
+* variants/hl2b5up_ak4951v3 - AK4951V3 companion board gateware for Hermes-Lite 2. build5 and later. ATU is not supported.
+* variants/hl2b5up_ak4951v4 - AK4951V4 companion board gateware for Hermes-Lite 2. build5 and later. ATU is supported. Do not use AK4951V4 gateware with AK4951V3 companion board.
 
 
 ### File Types
