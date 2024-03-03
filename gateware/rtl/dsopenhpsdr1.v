@@ -109,6 +109,18 @@ logic        discover_cnt_next;
 logic watchdog_disable = 1'b0;
 logic runstop_watchdog_valid = 1'b0;
 
+logic audio_included = 1'b1;
+logic audio_included_next;
+
+logic relax_sequencing = 1'b1;
+logic relax_sequencing_next;
+
+logic enable_fifo_push = 1'b1;
+logic enable_fifo_push_next;
+
+logic seqno = 4'hf;
+logic seqno_next;
+
 // State
 always @(posedge clk) begin
   pushcnt         <= pushcnt_next;
@@ -124,6 +136,10 @@ always @(posedge clk) begin
   cwx_pushiq      <= cwx_pushiq_next;
   cwx_saved       <= cwx_saved_next;
   ds_pkt_cnt      <= ds_pkt_cnt_next;
+
+  relax_sequencing <= relax_sequencing_next;
+  enable_fifo_push <= enable_fifo_push_next;
+  seqno            <= seqno_next;
 
   if ((eth_unreachable) | &watchdog_cnt) begin
     state         <= START;
@@ -182,7 +198,12 @@ always @(*) begin
   case (state)
     START: begin
       //framecnt_next = 1'b0;
-      if ((eth_data == 8'hef) & (eth_port[15:1] == 512)) state_next = PREAMBLE;
+      if ((eth_data[7:4] == 4'he) & (eth_port[15:1] == 512)) begin
+        audio_included_next   = eth_data[0];
+        relax_sequencing_next = eth_data[1];
+        state_next = PREAMBLE;
+      end
+
     end
 
     PREAMBLE: begin
@@ -264,14 +285,20 @@ always @(*) begin
     end
 
     SEQNO1: begin
-      state_next = SEQNO0;
-    end
-
-    SEQNO0: begin
       // Decrement watchdog on begin of data packet
       watchdog_clr = 1'b1;
       // Count packets received
       ds_pkt_cnt_next = ~ds_pkt_cnt;
+      state_next = SEQNO0;
+    end
+
+    SEQNO0: begin
+      if (((eth_data[3:0] - seqno) > 4'h0) & ((eth_data[3:0] - seqno) < 4'h8)) begin
+        seqno_next = eth_data[3:0];
+        enable_fifo_push_next = 1'b1;
+      end else begin
+        enable_fifo_push_next = relax_sequencing;
+      end
       state_next = SYNC2;
     end
 
@@ -321,53 +348,56 @@ always @(*) begin
       if (eth_port[0]) begin
         state_next = START;
       end else begin
-        state_next = PUSHL1;
+        if (audio_included)
+          state_next = PUSHL1;
+        else
+          state_next = PUSHI1;
       end
     end
 
     PUSHL1: begin
-      dsethlr_tvalid = 1'b1;
+      dsethlr_tvalid = enable_fifo_push;
       state_next = PUSHL0;
     end
 
     PUSHL0: begin
-      dsethlr_tvalid = 1'b1;
+      dsethlr_tvalid = enable_fifo_push;
       state_next = PUSHR1;
     end
 
     PUSHR1: begin
-      dsethlr_tvalid = 1'b1;
+      dsethlr_tvalid = enable_fifo_push;
       state_next = PUSHR0;
     end
 
     PUSHR0: begin
-      dsethlr_tvalid = 1'b1;
+      dsethlr_tvalid = enable_fifo_push;
       dsethlr_tlast  = 1'b1;
-      pushcnt_next = pushcnt + 6'h01;
       state_next = PUSHI1;
     end
 
     PUSHI1: begin
       dsethiq_tuser  = ds_cmd_ptt;
-      dsethiq_tvalid = ds_cmd_ptt | cwx_pushiq;
+      dsethiq_tvalid = enable_fifo_push & (ds_cmd_ptt | cwx_pushiq);
+      pushcnt_next = pushcnt + 6'h01;
       state_next = PUSHI0;
     end
 
     PUSHI0: begin
       dsethiq_tuser  = cwx_saved[0];
-      dsethiq_tvalid = ds_cmd_ptt | cwx_pushiq;
+      dsethiq_tvalid = enable_fifo_push & (ds_cmd_ptt | cwx_pushiq);
       state_next = PUSHQ1;
       cwx_saved_next = cwx_enable ? {eth_data[3],eth_data[0]} : 2'b00;
     end
 
     PUSHQ1: begin
       dsethiq_tuser = cwx_saved[1];
-      dsethiq_tvalid = ds_cmd_ptt | cwx_pushiq;
+      dsethiq_tvalid = enable_fifo_push & (ds_cmd_ptt | cwx_pushiq);
       state_next = PUSHQ0;
     end
 
     PUSHQ0: begin
-      dsethiq_tvalid = ds_cmd_ptt | cwx_pushiq;
+      dsethiq_tvalid = enable_fifo_push & (ds_cmd_ptt | cwx_pushiq);
       dsethiq_tlast  = 1'b1;
       cwx_pushiq_next = (~ds_cmd_ptt & cwx_enable) & (|cwx_saved | msec_cnt_not_zero);
       if (&pushcnt[5:0]) begin
@@ -375,7 +405,12 @@ always @(*) begin
           //framecnt_next = 1'b1;
           state_next = SYNC2;
         end
-      end else state_next = PUSHL1;
+      end else begin
+        if (audio_included)
+          state_next = PUSHL1;
+        else
+          state_next = PUSHI1;
+      end
     end
 
     default: begin
