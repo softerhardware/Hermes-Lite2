@@ -5,6 +5,16 @@ This is a Python module to allow alternate command and control of a Hermes-Lite 
 
 # Installation
 
+## Dependency on "netifaces" module
+
+The Hermes-Lite Python Module depends on the "netifaces" Python module so it can find devices on all local network interfaces.  Unfortunately this module became officially unsupported shortly after the dependency was introduced, yet various forks and down-stream projects still provide support.  As of 2024 here are some ways to install it that have been recently tested:
+
+1. Debian-based Linux: Issue the command "sudo apt install python3-netifaces" in a Terminal window
+2. Windows with Python 3.8 or older installed: Issue the command "pip install netifaces" in a Command window
+3. Windows with Python 3.6 or newer installed: Issue the command "pip install netifaces-plus" in a Command window
+
+Other systems should work using their native package managers and/or by using "pip".  The key point is that if you use "pip" and it does not provide a binary version of "netifaces" and you can't/don't want "pip" to try to build it from source you should try asking "pip" to install "netifaces-plus" instead, or search for it using your platform's native package manager.
+
 ## Standard Python3
 
  1. Install python3 with "sudo apt install python3" on Linux, see [here](https://www.python.org/) for other platforms.
@@ -12,6 +22,10 @@ This is a Python module to allow alternate command and control of a Hermes-Lite 
  3. Start interactive python3 with "python3 -i hermeslite.py"
 
 This will discover any Hermes-Lite 2.0 on your network and create a hl object for the first unit found.
+
+## Example using Windows 7 and Python 3.8
+
+[The "Address Management Python" page on our wiki](https://github.com/softerhardware/Hermes-Lite2/wiki/Address-Management-Python) provides an example of using the Hermes-Lite Python Module that some may find to be helpful.  Even though it was written in 2021 the general methods in use today are similar.
 
 ## Jupyter Notebook
 
