@@ -1,0 +1,74 @@
+
+.. image:: /images/hlbanner.jpg
+
+Hermes-Lite
+===========
+
+The Hermes-Lite is a low-cost direct down/up conversion software defined amateur radio HF transceiver based on a `broadband modem chip <http://www.analog.com/en/broadband-products/broadband-codecs/ad9866/products/product.html>`_ and the `Hermes SDR project <http://openhpsdr.org/wiki/index.php?title=HERMES>`_. It is entirely open source and open hardware, including the tools used for design and fabrication files. Over 100 Hermes-Lite 2.0 units have been successfully built.
+
+Hermes-Lite 2.x
+---------------
+
+Current development is focused on the next major version, which combines the FPGA, gigabit ethernet and AD9866 on a single board. Several versions of the Hermes-Lite 2 have been `released <https://github.com/softerhardware/Hermes-Lite2/wiki/Releases>`_.   
+
+ * `Group Buy <https://github.com/softerhardware/Hermes-Lite2/wiki/Group-Buy>`_ wiki page for latest purchasing information
+ * `Google Groups <https://groups.google.com/forum/#!forum/hermes-lite>`_ for discussion
+ * `Wiki <https://github.com/softerhardware/Hermes-Lite2/wiki>`_ for community documentation
+  * `Community Projects List <https://github.com/softerhardware/Hermes-Lite2/wiki/Community-Projects>`_
+ * `GitHub <https://github.com/softerhardware/Hermes-Lite2>`_ for all open source hardware, software and firmware
+ * `Releases <https://github.com/softerhardware/Hermes-Lite2/wiki/Releases>`_ for the latest release and purchase information
+ * `Schematic <https://github.com/softerhardware/Hermes-Lite2/raw/master/hardware/hl/hermeslite.pdf>`_ 
+ * `BOM <https://github.com/softerhardware/Hermes-Lite2/raw/master/hardware/hl/bom/bom.standard.pdf>`_
+ * `Tests and Measurements <https://github.com/softerhardware/Hermes-Lite2/wiki/Performance-Tests>`_
+ * `YouTube Channel <https://www.youtube.com/channel/UCFSpFFTQ5ifCZ_hXDOxkVsg>`_
+ * `GitHub Issues <https://github.com/softerhardware/Hermes-Lite2/issues>`_ to track all bugs, feature requests and planning
+
+
+Hermes-Lite 1.x
+---------------
+
+Approximately 100 Hermes-Lite 1.x units have been built by experimenters around the world since 2014. This version requires a companion BeMicro SDK,CV or CVA9 FPGA card which has become difficult to find. See pictures of Hermes-Lite 1.x builds in our `gallery <https://github.com/softerhardware/Hermes-Lite/wiki/Gallery-of-Hermes-Lite-Builds>`_. 
+
+ * `Google Groups <https://groups.google.com/forum/#!forum/hermes-lite>`_ for discussion
+ * `Wiki <https://github.com/softerhardware/Hermes-Lite/wiki>`_ for documentation
+  * `Community Projects List <https://github.com/softerhardware/Hermes-Lite/wiki/Community-Projects>`_
+ * `Tindie <https://www.tindie.com/products/SofterHardware/hermes-lite-sdr-amateur-radio-printed-circuit-board-set-pcb/>`_ to purchase bare board sets and kits
+ * `GitHub <https://github.com/softerhardware/Hermes-Lite>`_ for all open source hardware, software and firmware
+ * `Build Gallery <https://github.com/softerhardware/Hermes-Lite/wiki/Gallery-of-Hermes-Lite-Builds>`_ to see Hermes-Lite 1.x builds 
+ * Hermes-Lite 1.x Files
+  * `Schematic <https://github.com/softerhardware/Hermes-Lite/raw/master/pcb/hermeslite.pdf>`_
+  * `BOM <https://github.com/softerhardware/Hermes-Lite/raw/master/pcb/bom.xls>`_
+  * `PCB <https://www.oshpark.com/profiles/SofterHardware>`_
+ * Basic RF Front End
+  * `Schematic <https://github.com/softerhardware/Hermes-Lite/raw/master/frontend/basic/frontend.pdf>`_
+  * `BOM <https://github.com/softerhardware/Hermes-Lite/raw/master/frontend/basic/bom.xls>`_
+  * `PCB <https://www.oshpark.com/profiles/SofterHardware>`_
+ * Version 1.42 Front End (Recommended)
+  * `Schematic <https://github.com/softerhardware/Hermes-Lite/raw/master/frontend/v1.42/frontend.pdf>`_
+  * `BOM <https://github.com/softerhardware/Hermes-Lite/raw/master/frontend/v1.42/frontend.csv>`_
+  * `PCB <https://github.com/softerhardware/Hermes-Lite/raw/master/frontend/v1.42/gerber/HermesLiteV142.zip>`_
+ * `GitHub Issues <https://github.com/softerhardware/Hermes-Lite/issues>`_ to track all bugs, feature requests and planning
+
+
+Support Hermes-Lite Open Source Hardware
+----------------------------------------
+
+.. raw:: html
+
+  <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+  <input type="hidden" name="cmd" value="_s-xclick">
+  <input type="hidden" name="hosted_button_id" value="NWWTUMQ2HS9ML">
+  <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+  <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+  </form>
+
+
+.. toctree::
+    :maxdepth: 2
+
+
+.. Indices and Tables
+.. ==================
+
+.. * :ref:`genindex`
+.. * :ref:`search`
