@@ -29,6 +29,8 @@ output [7:0]  rd_status;
 
 parameter     depth   = 8192;
 
+parameter int WR_READY_MARGIN = 8;
+
 // Write and read limite at 8 ms,
 localparam    wrbits  = (depth == 16384) ? 14 : 13;
 // Start to allow push again when 1/4 full (10ms) to accomodate software
@@ -49,6 +51,10 @@ logic [(rdbits-1):0]  rd_tlength;
 
 logic   [6:0] rd_count = 7'h00;
 logic         recovery_flag, recovery_flag_d1;
+
+
+localparam int WR_READY_THRESHOLD_INT = depth - WR_READY_MARGIN;
+localparam logic [wrbits-1:0] WR_READY_THRESHOLD = WR_READY_THRESHOLD_INT[wrbits-1:0];
 
 // If FIFO fills, drop write data
 // again until only half full
@@ -93,7 +99,7 @@ dcfifo_mixed_widths #(
   .eccstatus ()
 );
 
-assign wr_tready = ~wr_treadyn & allow_push;
+assign wr_tready = allow_push & (wr_tlength <= WR_READY_THRESHOLD);
 assign rd_tvalid = ~rd_tvalidn;
 
 always @ (posedge rd_clk) begin

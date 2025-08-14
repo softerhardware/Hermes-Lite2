@@ -205,13 +205,16 @@ if (NT != 0) begin
 //------------------------------------------------------------------------------
 logic tlast = 0;
 logic txvalid = 0;
+logic wr_tready = 0;
 logic [7:0] tx_part_iq;
-
-
+ 
+assign pi_tx_ready = wr_tready; 
+ 
 tx_pi_pio tx_pi_pio_i(
     .clk(pi_tx_clk),
-	.ds_stream(pi_tx_data),  
-    .ds_stream_valid(pi_tx_ready ),                    
+	.rst(reset), 
+	.ds_stream(pi_tx_data),   
+	.tx_tready(wr_tready),
     .tx_part_iq(tx_part_iq),   
     .txvalid(txvalid),
 	.txlast(tlast)
@@ -221,7 +224,7 @@ dsiq_fifo #(.depth(DSIQ_FIFO_DEPTH)) dsiq_fifo_i (
   .wr_clk(pi_tx_clk),
   .wr_tdata({1'b0, tx_part_iq}),
   .wr_tvalid(txvalid),
-  .wr_tready(),
+  .wr_tready(wr_tready),
   .wr_tlast(tlast),
 
   .rd_clk(clk_ad9866),

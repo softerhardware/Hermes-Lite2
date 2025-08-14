@@ -121,7 +121,7 @@ set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_cwl
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to io_cwr
 source ../../boards/radioberry-pio/files.tcl
 set_global_assignment -name VERILOG_FILE "../../rtl/radioberry/pi-pio/tx_pi_pio.v"
-set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/radioberry_core.v
+set_global_assignment -name VERILOG_FILE "../../rtl/radioberry/pi-pio/radioberry_core.v"
 set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/ad9866ctrl.v
 set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/spi_slave.v
 set_global_assignment -name VERILOG_FILE ../../rtl/radioberry/reset_handler.v
@@ -196,7 +196,7 @@ set_global_assignment -name VERILOG_FILE ../../rtl/radio_openhpsdr1/receiver_nco
 
 set_global_assignment -name VERILOG_FILE ./radioberry.v
 set_global_assignment -name TOP_LEVEL_ENTITY radioberry
-set_global_assignment -name SDC_FILE ../../boards/radioberry-pio/timing.sdc
+set_global_assignment -name SDC_FILE "../../boards/radioberry-pio/timing.sdc"
 
 
 set_global_assignment -name LAST_QUARTUS_VERSION "23.1std.1 Lite Edition"

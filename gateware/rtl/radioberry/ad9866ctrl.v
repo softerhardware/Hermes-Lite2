@@ -98,8 +98,8 @@ initial begin
   initarray[13] = {1'b1,8'h03}; // Address 0x0d, RX twos complement
   initarray[14] = {1'b0,8'h01}; // Address 0x0e, Enable/Disable IAMP
   initarray[15] = {1'b0,8'h00}; // Address 0x0f,
-  initarray[16] = {1'b1,8'h84}; // Address 0x10, Select TX gain
-  initarray[17] = {1'b1,8'h00}; // Address 0x11, Select TX gain
+  initarray[16] = {1'b0,8'h84}; // Address 0x10, Select TX gain
+  initarray[17] = {1'b0,8'h00}; // Address 0x11, Select TX gain
   initarray[18] = {1'b1,8'h00}; // Address 0x12,
   initarray[19] = {1'b0,8'h00}; // Address 0x13
 end
