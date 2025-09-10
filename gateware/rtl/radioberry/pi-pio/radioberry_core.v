@@ -206,15 +206,18 @@ if (NT != 0) begin
 logic tlast = 0;
 logic txvalid = 0;
 logic wr_tready = 0;
+logic wr_tready_d = 0;
 logic [7:0] tx_part_iq;
- 
-assign pi_tx_ready = wr_tready; 
+  
+always @(posedge pi_tx_clk) wr_tready_d <= (wr_tready & ~reset); 
+
+assign pi_tx_ready = wr_tready_d;
  
 tx_pi_pio tx_pi_pio_i(
     .clk(pi_tx_clk),
 	.rst(reset), 
 	.ds_stream(pi_tx_data),   
-	.tx_tready(wr_tready),
+	.tx_tready(wr_tready_d),
     .tx_part_iq(tx_part_iq),   
     .txvalid(txvalid),
 	.txlast(tlast)
