@@ -249,6 +249,7 @@ logic           phy_connected;
 logic           is_ksz9021;
 
 logic [47:0]    local_mac;
+logic           disc_run_enable;
 
 logic           cmd_rqst_ad9866;
 logic [11:0]    rx_data;
@@ -453,6 +454,7 @@ network network_inst(
   .udp_tx_data(udp_tx_data),
   .udp_tx_enable(udp_tx_enable),
   .run(run_sync),
+  .disc_run_enable(disc_run_enable),
   .port_id(8'h00),
 
   .rx_clock(clock_ethrxint),
@@ -673,6 +675,7 @@ usopenhpsdr1 #(
 
   .discover_port(discover_port),
   .discover_rqst(discover_rqst_usopenhpsdr1),
+  .disc_run_enable(disc_run_enable),
 
   .udp_tx_enable(udp_tx_enable),
   .udp_tx_request(udp_tx_request),

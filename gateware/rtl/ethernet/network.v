@@ -32,6 +32,7 @@ module network (
 
   // upstream
   input         tx_clock,
+  input         disc_run_enable,
   input  [1:0]  udp_tx_request,
   input [15:0]  udp_tx_length,
   input [7:0]   udp_tx_data,
@@ -386,10 +387,11 @@ wire [15:0] ip_tx_length = tx_is_icmp? icmp_length : udp_length;
 
 //reg [31:0] destination_ip;
 //always @(posedge tx_clock) destination_ip <=
-wire [31:0] destination_ip = tx_is_icmp ? icmp_destination_ip :
+wire [31:0] destination_ip = disc_run_enable ? disc_destination_ip :
+ (tx_is_icmp ? icmp_destination_ip :
   (tx_is_dhcp ? dhcp_destination_ip :
     (tx_is_udp1 ? udp_destination_ip_sync :
-      run_destination_ip));
+      run_destination_ip)));
 
 //ip_send out
 wire [7:0] ip_tx_data;
@@ -401,7 +403,8 @@ wire [ 7:0] mac_tx_data_in  = tx_is_arp? arp_tx_data : ip_tx_data;
 
 //reg  [47:0] destination_mac                                      ;
 //always @(posedge tx_clock) destination_mac <= 
-wire [47:0] destination_mac = tx_is_arp  ? arp_destination_mac  :
+wire [47:0] destination_mac = disc_run_enable ? disc_destination_mac :
+ tx_is_arp  ? arp_destination_mac  :
   tx_is_icmp ? icmp_destination_mac :
     tx_is_dhcp ? dhcp_destination_mac :
       tx_is_udp1 ? udp_destination_mac_sync : run_destination_mac;
@@ -430,9 +433,10 @@ wire [15:0]local_port                = tx_is_dhcp ? 16'd68                : {15'
 
 //reg [15:0] dhcp_udp_destination_port;
 //always @(posedge tx_clock) dhcp_udp_destination_port <= 
-wire [15:0] dhcp_udp_destination_port = tx_is_dhcp ? dhcp_destination_port :
+wire [15:0] dhcp_udp_destination_port = disc_run_enable ? disc_destination_port :
+ (tx_is_dhcp ? dhcp_destination_port :
   (tx_is_udp1 ? udp_destination_port_sync :
-    run_destination_port);
+    run_destination_port));
 
 wire dhcp_rx_active;
 wire mac_rx_active;
@@ -674,6 +678,10 @@ reg  [15:0] udp_destination_port_sync ;
 reg  [47:0] udp_destination_mac_sync  ;
 reg  [31:0] udp_destination_ip_sync   ;
 wire        udp_destination_valid_sync;
+reg  [47:0] disc_destination_mac;
+reg  [31:0] disc_destination_ip;
+reg  [15:0] disc_destination_port;
+reg         disc_reply_sync;
 
 //cdc_sync #(48) cdc_sync_inst1 (.siga(remote_mac), .rstb(1'b0), .clkb(tx_clock), .sigb(remote_mac_sync));
 //cdc_sync #(32) cdc_sync_inst2 (.siga(remote_ip), .rstb(1'b0), .clkb(tx_clock), .sigb(remote_ip_sync));
@@ -683,6 +691,12 @@ sync_pulse remote_mac_sync_i    (.clock(tx_clock), .sig_in(remote_mac_valid),   
 sync_pulse udp_destination_sync (.clock(tx_clock), .sig_in(udp_destination_valid), .sig_out(udp_destination_valid_sync));
 
 always @(posedge tx_clock) begin
+  if (disc_run_enable) begin
+    disc_destination_ip <= udp_destination_ip;
+    disc_destination_mac <= udp_destination_mac;
+    disc_destination_port <= udp_destination_port;
+  end
+
   if (udp_destination_valid_sync) begin
     // Alternate port 1025 info
     if (to_port[0]) begin

@@ -20,6 +20,7 @@ module usopenhpsdr1 (
   input        [          23:0] us_tdata            ,
   input                         us_tlast            ,
   output                        us_tready           ,
+  output                        disc_run_enable     ,
   input                         us_tvalid           ,
   input        [TUSERWIDTH-1:0] us_tuser            ,
   input        [          10:0] us_tlength          ,
@@ -233,6 +234,7 @@ always @* begin
 
       end else if (discover_state[1] | usethasmi_erase_done | usethasmi_send_more) begin
         udp_tx_length_next = 'h3c;
+        if (discover_state[1]) disc_run_enable = 1'b1;
         state_next = DISCOVER1;
 
       end else if ((us_tlength > 11'd333) & us_tvalid & have_ip & run) begin // wait until there is enough data in fifo
@@ -245,6 +247,7 @@ always @* begin
         udp_tx_length_next = 'd1032;
         if (wide_spectrum) state_next = WIDE1;
       end
+      else disc_run_enable = 1'b0;
     end
 
     DISCOVER1: begin
