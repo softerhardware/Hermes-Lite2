@@ -122,6 +122,9 @@ parameter       CW = 0; // CW Support
 //   when using the TX envelope PWM reduce the number of receivers (NR) above by 1
 parameter       LRDATA = 0;
 
+//VNA disable for envelope PWM (LRDATA = 2)
+parameter       VNA = 1; 	
+
 // Use ASMII for EEPROM configuration
 parameter       ASMII = 0;
 
@@ -852,7 +855,8 @@ radio #(
   .NT(NT),
   .LRDATA(LRDATA),
   .CLK_FREQ(CLK_FREQ),
-  .HL2LINK(HL2LINK)
+  .HL2LINK(HL2LINK),
+  .VNA(VNA)
 )
 radio_i
 (
