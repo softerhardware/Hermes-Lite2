@@ -22,8 +22,13 @@
 
 
 
-// Simple Clock Domain Crossing module that double buffers data
-// also simulation version to model CDC issues - in progress
+// Simple Clock Domain Crossing module that double buffers data.
+//
+// NOTE: currently uninstantiated in all builds; it is kept as a reference
+// CDC primitive for future work (see Refactor-Plan R4).  The previous
+// SIMULATION model attempted a randomized-delay metastability injector but
+// its DLY register never toggled, leaving that logic inert; it has been
+// replaced by the plain behavioral model below.
 
 `timescale 1 ns/100 ps
 
@@ -33,18 +38,14 @@ module cdc_sync #(parameter SIZE=1)
    output reg  [SIZE-1:0] sigb);
 
 `ifdef SIMULATION
-wire [SIZE-1:0] y1;
-reg  [SIZE-1:0] q1a, q1b;
-reg  [SIZE-1:0] DLY = 1'b0;
-
-assign y1 = (~DLY & q1a) | (DLY & q1b);
+reg [SIZE-1:0] q1;
 
 always @(posedge clkb)
 begin
   if (rstb)
-    {sigb,q1b,q1a} <= '0;
+    {sigb,q1} <= '0;
   else
-    {sigb,q1b,q1a} <= {y1,q1a,siga};
+    {sigb,q1} <= {q1,siga};
 end
 `else // synthesis
 reg [SIZE-1:0] q1;

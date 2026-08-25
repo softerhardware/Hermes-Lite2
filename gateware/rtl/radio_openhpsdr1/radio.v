@@ -3,8 +3,6 @@ module radio (
   clk,
   clk_2x,
   
-  rst_channels,
-
   rst_all,
   rst_nco,
 
@@ -78,31 +76,17 @@ parameter         DEBUGRX = 0;
 
 parameter         HL2LINK = 0;
 
-// B57 = 2^57.   M2 = B57/OSC
-// 61440000
-//localparam M2 = 32'd2345624805;
-// 61440000-400
-//localparam M2 = 32'd2345640077;
-localparam M2 = (CLK_FREQ == 61440000) ? 32'd2345640077 : (CLK_FREQ == 79872000) ? 32'd1804326773 : (CLK_FREQ == 76800000) ? 32'd1876499845 : 32'd1954687338;
+// M2/CICRATE/GBITS/RRRR/RATE48..384 derived from CLK_FREQ in one place.
+// See clk_config.vh for the supported clocks and calibration offsets.
+`include "clk_config.vh"
 
 // M3 = 2^24 to round as version 2.7
 localparam M3 = 32'd16777216;
-
-localparam CICRATE = (CLK_FREQ == 61440000) ? 6'd10 : (CLK_FREQ == 79872000) ? 6'd13 : (CLK_FREQ == 76800000) ? 6'd05 : 6'd08;
-localparam GBITS = (CLK_FREQ == 61440000) ? 30 : (CLK_FREQ == 79872000) ? 31 : (CLK_FREQ == 76800000) ? 31 : 31;
-localparam RRRR = (CLK_FREQ == 61440000) ? 160 : (CLK_FREQ == 79872000) ? 208 : (CLK_FREQ == 76800000) ? 200 : 192;
-
-// Decimation rates
-localparam RATE48  = (CLK_FREQ == 61440000) ? 6'd16 : (CLK_FREQ == 79872000) ? 6'd16 : (CLK_FREQ == 76800000) ? 6'd40 : 6'd24;
-localparam RATE96  =  RATE48  >> 1;
-localparam RATE192 =  RATE96  >> 1;
-localparam RATE384 =  RATE192 >> 1;
 
 localparam CALCTYPE = (NR > 5) ? 0 : 3;
 
 input         clk                    ;
 input         clk_2x                 ;
-input         rst_channels           ;
 input         rst_all                ;
 input         rst_nco                ;
 input         link_running           ;
@@ -432,8 +416,6 @@ end
 logic [31:0]  tx0_phase;    // For VNAscan, starts at tx_phase0 and increments for vna_count points; else tx_phase0.
 logic [ 1:0]  tx0_phase_zero; // True when tx0_phase should be reset to zero
 
-//generate if (VNA == 1) begin: VNA1
-
 // VNA scanning code added by Jim Ahlstrom, N2ADR, May 2018.
 // The firmware can scan frequencies for the VNA if vna_count > 0. The vna then controls the Rx and Tx frequencies.
 // The starting frequency is tx_phase0, the increment is rx_phase[0], and there are vna_count points.
@@ -720,7 +702,7 @@ logic [2:0]   rxus_state = RXUS_WAIT1;
 logic [2:0]   rxus_state_next;
 
 always @(posedge clk) begin
-  if (rst_all || rst_channels) begin
+  if (rst_all) begin
     rxus_state <= RXUS_WAIT1;
     chan <= 4'h0;
   end else begin
@@ -920,8 +902,6 @@ localparam
   PRETX     = 3'b001,
   CWTX      = 3'b101,
   CWHANG    = 3'b100;
-//  CWXTX     = 3'b010,
-//  CWXHANG   = 3'b011;
 
 logic [ 2:0] tx_state           = NOTX ;
 logic [ 2:0] tx_state_next             ;
@@ -1093,36 +1073,6 @@ always @* begin
       end
     end
 
-
-
-//CWXTX: begin
-//  cw_on = 1'b1;
-//  tx_cw_key = 1'b1;
-//  if (cwx) begin
-//    // Shape CW on
-//    if (tx_cwlevel != MAX_CWLEVEL) tx_cwlevel_next = tx_cwlevel + 19'h01;
-//  end else begin
-//    if (tx_cwlevel != 19'h00) tx_cwlevel_next = tx_cwlevel - 19'h01;
-//    else begin
-//      tx_cwlevel_next = {7'b0000000, cw_hang_time, 2'b00};
-//      tx_state_next = CWXHANG;
-//    end
-//  end
-//end
-
-//CWXHANG: begin
-//  cw_on = 1'b1;
-//  if (cwx) begin
-//    tx_state_next = CWXTX;
-//  end else begin
-//    if (tx_cwlevel != 19'h0) begin
-//      if (qmsec_pulse) tx_cwlevel_next = tx_cwlevel - 19'h01;
-//    end else begin
-//      tx_state_next = NOTX;
-//    end
-//  end
-//end
-
     default: begin
       tx_state_next = NOTX;
     end
@@ -1170,15 +1120,8 @@ cpl_cordic #(.OUT_WIDTH(16)) cordic_inst (
 
 
 //gain of 4
-assign txsum = (tx_cordic_i_out  >>> 2); // + {15'h0000, tx_cordic_i_out[1]};
+assign txsum = (tx_cordic_i_out  >>> 2);
 assign txsumq = (tx_cordic_q_out  >>> 2);
-
-
-// LFSR for dither
-//reg [15:0] lfsr = 16'h0001;
-//always @ (negedge clk or negedge extreset)
-//    if (~extreset) lfsr <= 16'h0001;
-//    else lfsr <= {lfsr[0],lfsr[15],lfsr[14] ^ lfsr[0], lfsr[13] ^ lfsr[0], lfsr[12], lfsr[11] ^ lfsr[0], lfsr[10:1]};
 
 
 case (LRDATA)
@@ -1188,7 +1131,7 @@ case (LRDATA)
     assign tx_envelope_pwm_out_inv = 1'b0;
 
    always @ (posedge clk)
-      tx_data_dac <= txsum[11:0]; // + {10'h0,lfsr[2:1]};
+      tx_data_dac <= txsum[11:0];
   end
   1: begin: PD1 // TX predistortion
     // apply amplitude & phase linearity correction
@@ -1286,7 +1229,7 @@ case (LRDATA)
   2: begin: EER1 // TX envelope PWM generation for ET/EER
     //   cannot be used with TX predistortion as it uses the same audio lrdata
     always @ (posedge clk)
-      tx_data_dac <= txsum[11:0]; // + {10'h0,lfsr[2:1]};
+      tx_data_dac <= txsum[11:0];
 
     reg signed [15:0]tx_EER_fir_i;
     reg signed [15:0]tx_EER_fir_q;
@@ -1431,16 +1374,13 @@ end
 
 end else begin
 
-//logic [11:0] rx_data_adc_pipe;
 
   // Pipeline for adc fanout
 always @ (posedge clk) begin
-  //rx_data_adc_pipe <= rx_data_adc;
-  adcpipe[0] <= rx_data_adc; //_pipe;
-  adcpipe[1] <= rx_data_adc; //_pipe;
-  adcpipe[2] <= rx_data_adc; //_pipe;
-  adcpipe[3] <= rx_data_adc; //_pipe;
-  //adcpipe[4] <= rx_data_adc_pipe;
+  adcpipe[0] <= rx_data_adc;
+  adcpipe[1] <= rx_data_adc;
+  adcpipe[2] <= rx_data_adc;
+  adcpipe[3] <= rx_data_adc;
   adcpipe[4] <= rx_data_adc;
 end
 
