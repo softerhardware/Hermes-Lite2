@@ -281,6 +281,8 @@ always @* begin
         6'h2b: discover_data_next = static_ip[7:0];
         6'h2a: discover_data_next = alt_mac[15:8];
         6'h29: discover_data_next = alt_mac[7:0];
+        // QUASI_STATIC_CDC: master_link_running is link-role status from the
+        // ad9866 domain, quasi-static
         6'h28: discover_data_next = master_link_running ? {NR[6:0],1'b0} : NR;
         6'h27: discover_data_next = {BANDSCOPE_BITS, BOARD[5:0]};
         6'h26: discover_data_next = VERSION_MINOR;
@@ -517,6 +519,9 @@ generate if (EXTENDED_DEBUG_RESP==1) begin
   end
 
   always @(posedge clk) begin
+    // QUASI_STATIC_CDC: ds_cmd_ptt is a PTT level from the rx domain and
+    // ds_wait is a FIFO wait flag from the ad9866 domain; both are status
+    // only, reported in the discovery packet.
     cmd_ptt <= ds_cmd_ptt;
     tx_wait <= ds_wait;
     if (ds_pkt) pkt_cnt <= pkt_cnt + 8'h01;

@@ -74,6 +74,33 @@ reg [31:0] destination_ip  = 32'hFFFFFFFF    ;
 assign dhcp_destination_mac = destination_mac;
 assign dhcp_destination_ip  = destination_ip;
 
+//--------------------------------------------------------------------
+//                rx -> tx request/acknowledge toggle handshake
+//--------------------------------------------------------------------
+// The receive side flips rx_send_toggle to request a DHCPREQUEST
+// transmission; the transmit side flips tx_ack_toggle once the request
+// has been accepted into DHCPSEND.  Both sides act only on synchronizer
+// qualified toggle edges.  (Previously the raw multi-bit tx-domain state
+// register was sampled directly by the receive side to decide when to
+// clear the request.)
+reg  rx_send_toggle   = 1'b0;
+reg  send_outstanding = 1'b0; // rx side: request issued, ack not yet seen
+reg  tx_ack_toggle    = 1'b0;
+reg  ack_pending      = 1'b0; // tx side: accepted request awaiting ack
+
+wire send_request_sync;
+reg  send_request_d   = 1'b0;
+reg  request_pending  = 1'b0; // holds a request until the FSM is back in idle
+wire send_request     = send_request_sync ^ send_request_d; // one-cycle event per request
+
+sync #(.DEPTH(2)) sync_inst1 (.clock(tx_clock), .sig_in(rx_send_toggle), .sig_out(send_request_sync));
+
+wire tx_ack_sync;
+reg  tx_ack_d         = 1'b0;
+wire tx_ack_seen      = tx_ack_sync ^ tx_ack_d;
+
+sync #(.DEPTH(2)) sync_inst_ack (.clock(rx_clock), .sig_in(tx_ack_toggle), .sig_out(tx_ack_sync));
+
 // reset is synchronized to tx_clock by the parent module.  Synchronize it
 // into the rx clock domain so the receive state machine, the is_renewal flag
 // and the unicast destination addresses can be cleared when the parent module
@@ -98,6 +125,15 @@ assign xid3 = xid_sum[7:0];
 
 always @ (posedge tx_clock)
   begin
+    // Dispatch acknowledgement for a request accepted into DHCPSEND, and
+    // track the synced request toggle for edge detection.
+    send_request_d <= send_request_sync;
+    if (send_request) request_pending <= 1'b1;
+    if (ack_pending) begin
+      tx_ack_toggle <= ~tx_ack_toggle;
+      ack_pending   <= 1'b0;
+    end
+
     case (state)
       TX_IDLE:
         begin
@@ -116,7 +152,10 @@ always @ (posedge tx_clock)
             else
               state <= DHCPDISCOVER;
           end
-          else if (send_request) state <= DHCPREQUEST;
+          else if (request_pending) begin
+            request_pending <= 1'b0;
+            state <= DHCPREQUEST;
+          end
         end
 
       DHCPDISCOVER:
@@ -130,6 +169,7 @@ always @ (posedge tx_clock)
           if (udp_tx_enable) begin
             tx_data <= 8'h01;          // tx_data needs to be available before udp_tx_active
             send_discovery <= 1'b1;      // hence this is byte_no 0
+            ack_pending <= 1'b1;
             state <= DHCPSEND;
           end
         end
@@ -140,6 +180,7 @@ always @ (posedge tx_clock)
           dhcp_tx_request <= 1'b1;
           if (udp_tx_enable) begin      // tx_data needs to be available before udp_tx_active
             tx_data <= 8'h01;          // hence this is byte_no 0
+            ack_pending <= 1'b1;
             state <= DHCPSEND;
           end
         end
@@ -150,6 +191,7 @@ always @ (posedge tx_clock)
           dhcp_tx_request <= 1'b1;
           if (udp_tx_enable) begin      // tx_data needs to be available before udp_tx_active
             tx_data <= 8'h01;          // hence this is byte_no 0
+            ack_pending <= 1'b1;
             state <= DHCPSEND;
           end
         end
@@ -218,8 +260,7 @@ assign dhcp_destination_port = 16'd67;
 //--------------------------------------------------------------------
 //                Transfer data from rx to tx clock domains
 //--------------------------------------------------------------------
-wire send_request;
-sync sync_inst1 (.clock(tx_clock), .sig_in(rx_send_request), .sig_out(send_request));
+// The request/ack handshake declarations live at the top of the module.
 
 
 
@@ -228,14 +269,11 @@ sync sync_inst1 (.clock(tx_clock), .sig_in(rx_send_request), .sig_out(send_reque
 //---------------------------------------------------------------
 reg [ 8:0] rx_state       ;
 reg [ 8:0] rx_byte_no     ;
-reg        rx_send_request; // in rx_clock domain
 reg [47:0] target_mac     ;
 reg [47:0] temp_target_mac;
 reg [15:0] option         ; // holds DHCP options
 reg [ 7:0] skip           ; // number of DHCP option bytes to skip
 reg [31:0] temp_ip_accept ;
-
-
 
 always @ (posedge rx_clock)
   begin
@@ -252,7 +290,9 @@ always @ (posedge rx_clock)
       destination_ip  <= 32'hFFFFFFFF;
     end
     else begin
-    if (state == DHCPSEND) rx_send_request <= 1'b0;   // Only clear send request when tx has seen it
+
+    tx_ack_d <= tx_ack_sync;
+    if (tx_ack_seen) send_outstanding <= 1'b0;   // transmit side has taken the request
 
     if (dhcp_rx_active && rx_enable)
       case (rx_state)
@@ -375,7 +415,10 @@ always @ (posedge rx_clock)
                   skip <= option[7:0];              // potentially skip these number of bytes
                   if (option == 16'h3501) begin // dhcp type since can be in any order
                     if(rx_data == 8'h02) begin          // if 0x02 then an offer so request it
-                      rx_send_request <= 1'b1;
+                      if (!send_outstanding) begin
+                        rx_send_toggle   <= ~rx_send_toggle;
+                        send_outstanding <= 1'b1;
+                      end
                       rx_state <= RX_DONE;            // wait until end of data then re-start
                     end
                     else if (rx_data == 8'h05) begin      // a DHCP ACK so read the options

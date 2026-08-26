@@ -122,10 +122,17 @@ Notes on the build:
 ## 3. Clocking and Reset Architecture
 
 The design is explicitly multi-clock. There are two PLLs and several derived clocks;
-nearly every inter-block connection crosses a domain and uses one of three mechanisms:
-`sync`/`sync_pulse`/`sync_one` synchronizers (`rtl/sync.v`), quasi-static buses
-(command/data words that are guaranteed stable long before their strobe arrives), or
-Altera `dcfifo`/`dcfifo_mixed_widths` async FIFOs (`rtl/fifos.v`, `rtl/fifos` usage).
+nearly every inter-block connection crosses a domain and uses one of these
+mechanisms:
+
+* The CDC toolkit in `rtl/sync.v`: `sync` (level), `sync_pulse` (edge→pulse),
+  `sync_one` (rise→pulse), `sync_qualifier` (multi-bit bus captured under a
+  synced valid toggle) and `sync_handshake` (four-phase pulse transfer).
+* Quasi-static buses — command/data words that are guaranteed stable long
+  before their strobe arrives, or slow telemetry/status. Every remaining raw
+  crossing carries a `// QUASI_STATIC_CDC:` annotation for grep-ability.
+* Altera `dcfifo`/`dcfifo_mixed_widths` async FIFOs through the shared
+  `stream_fifo` shell (`rtl/fifos.v`).
 
 ### 3.1 Clock Tree
 

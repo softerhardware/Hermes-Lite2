@@ -12,7 +12,7 @@ independently shippable and verifiable against the existing MyHDL benches in
 | R1 | Generate-based receiver array | −~500 lines in `radio.v`, kills copy-paste channel bugs | None (netlist-equivalent) |
 | R2 | Unified command/response bus | One address map & ack contract instead of 7 ad-hoc copies | None |
 | R3 | Common async-FIFO/AXI-Stream wrapper library — **DONE** (shared `stream_fifo` shell in `fifos.v`; `usiq_fifo` Bug 5 fixed; `icmp_fifo` migrated; no build-list changes needed) | Fixes Bug 5 class, removes 6 divergent wrappers | Slightly fewer M9K status bits |
-| R4 | CDC toolkit consolidation | Makes every crossing explicit; fixes Bug 3 class | None (preserve attributes kept) |
+| R4 | CDC toolkit consolidation — **DONE** (`sync.v`: guards + `sync_qualifier` + proper `sync_handshake`; DHCP toggle handshake; `remote_ip` capture fix; CW keyer qualified capture; `QUASI_STATIC_CDC` annotations) | Makes every crossing explicit; fixes Bug 3 class | None (preserve attributes kept) |
 | R5 | Build/variant hygiene + single source of clock constants — **DONE** (commit "R5 build hygiene") | Faster compiles, honest file list, no `CLK_FREQ` ternary chains | None (dead code pruned) |
 
 Implementation note for R3: to avoid touching a dozen board/variant file

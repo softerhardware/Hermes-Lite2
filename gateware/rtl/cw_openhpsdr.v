@@ -23,9 +23,17 @@ logic [7:0] cw_ptt_delay ; // key-down delay 0-255 ms
 logic [9:0] cw_hang_time ; // break-in delay
 logic [2:0] mode_b_mem_timing = 3'b0 ; // dot memory inhibit period 0-7, re-use EER PWM min
 
+// Toggles in clk whenever any keyer parameter bus changes, so the clk_slow
+// domain can capture all buses atomically via sync_qualifier below.  For
+// speed/weight changes a second toggle fires once the delay recompute has
+// completed (see divider block).
+reg cfg_toggle = 1'b0;
 
 always @(posedge clk) begin
   if (cmd_rqst) begin
+    if ((cmd_addr == 6'h0f) | (cmd_addr == 6'h10) | (cmd_addr == 6'h11))
+      cfg_toggle <= ~cfg_toggle;
+
     if (cmd_addr == 6'h0b) begin
       keyer_reverse <= cmd_data[22];
       keyer_speed <= cmd_data[13:8];
@@ -71,21 +79,63 @@ always @(posedge clk) begin
   end
 end
 
+// Toggle once when a speed/weight recompute completes (divider parks at
+// cnt==49 with dot/dash finalized) so the clk_slow captures settle values.
+reg parked = 1'b1;  // divider idle/parked tracker
+
+always @(posedge clk) begin
+  if (cmd_rqst & (cmd_addr == 6'h0b))
+    parked <= 1'b0;
+  else if (~parked & (cnt == 6'd49)) begin
+    parked     <= 1'b1;
+    cfg_toggle <= ~cfg_toggle;
+  end
+end
+
+
+// Qualified copies of the parameter buses in the clk_slow domain: captured
+// atomically when cfg_toggle arrives through the synchronizers, eliminating
+// torn multi-bit samples while the operator changes keyer settings.
+wire [15:0] dot_delay_slow       ;
+wire [17:0] dash_delay_slow      ;
+wire [ 1:0] iambic_mode_slow     ;
+wire        letter_space_slow    ;
+wire        paddle_swap_slow     ;
+wire [ 7:0] cw_ptt_delay_slow    ;
+wire [ 9:0] cw_hang_time_slow    ;
+wire [ 2:0] mode_b_mem_timing_slow;
+
+sync_qualifier #(.WIDTH(16)) qual_dot_delay
+  (.clock(clk_slow), .data_in(dot_delay),        .data_valid(cfg_toggle), .data_valid_sync(), .data_out(dot_delay_slow));
+sync_qualifier #(.WIDTH(18)) qual_dash_delay
+  (.clock(clk_slow), .data_in(dash_delay),       .data_valid(cfg_toggle), .data_valid_sync(), .data_out(dash_delay_slow));
+sync_qualifier #(.WIDTH(2))  qual_iambic_mode
+  (.clock(clk_slow), .data_in(keyer_mode),       .data_valid(cfg_toggle), .data_valid_sync(), .data_out(iambic_mode_slow));
+sync_qualifier #(.WIDTH(1))  qual_letter_space
+  (.clock(clk_slow), .data_in(keyer_spacing),    .data_valid(cfg_toggle), .data_valid_sync(), .data_out(letter_space_slow));
+sync_qualifier #(.WIDTH(1))  qual_paddle_swap
+  (.clock(clk_slow), .data_in(keyer_reverse),    .data_valid(cfg_toggle), .data_valid_sync(), .data_out(paddle_swap_slow));
+sync_qualifier #(.WIDTH(8))  qual_cw_ptt_delay
+  (.clock(clk_slow), .data_in(cw_ptt_delay),     .data_valid(cfg_toggle), .data_valid_sync(), .data_out(cw_ptt_delay_slow));
+sync_qualifier #(.WIDTH(10)) qual_cw_hang_time
+  (.clock(clk_slow), .data_in(cw_hang_time),     .data_valid(cfg_toggle), .data_valid_sync(), .data_out(cw_hang_time_slow));
+sync_qualifier #(.WIDTH(3))  qual_mode_b_timing
+  (.clock(clk_slow), .data_in(mode_b_mem_timing),.data_valid(cfg_toggle), .data_valid_sync(), .data_out(mode_b_mem_timing_slow));
 
 iambic #(48) iambic_i (
   .clock       (clk_slow     ),
 //.cw_speed    (keyer_speed  ),
-  .dot_delay   (dot_delay    ),
-  .dash_delay  (dash_delay   ),
-  .iambic_mode (keyer_mode   ),
+  .dot_delay   (dot_delay_slow    ),
+  .dash_delay  (dash_delay_slow   ),
+  .iambic_mode (iambic_mode_slow  ),
 //.weight      (keyer_weight ),
-  .letter_space(keyer_spacing),
+  .letter_space(letter_space_slow ),
   .dot_key     (dot_key      ),
   .dash_key    (dash_key     ),
-  .paddle_swap (keyer_reverse),
-  .cw_ptt_delay(cw_ptt_delay ),
-  .cw_hang_time(cw_hang_time ),
-  .mode_b_mem_timing(mode_b_mem_timing),
+  .paddle_swap (paddle_swap_slow  ),
+  .cw_ptt_delay(cw_ptt_delay_slow ),
+  .cw_hang_time(cw_hang_time_slow ),
+  .mode_b_mem_timing(mode_b_mem_timing_slow),
   .cw_ptt      (keyer_cw_ptt ),
   .keyer_out   (keyer_out    )
 );

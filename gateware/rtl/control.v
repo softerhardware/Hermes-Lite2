@@ -894,7 +894,9 @@ always @* begin
   endcase
 end
 
-// There are CDCs here, but we assume the data is stable ahead of time and not critical
+// QUASI_STATIC_CDC: resp_data/resp_control/telemetry cross to the ethtxint
+// domain here; they are registered in this slow domain and stable well
+// before the response packet builder samples them.
 assign resp_data           = alt_resp_cmd_data;
 assign resp_control        = {ext_cwkey, ptt_resp, pa_exttr, pa_inttr, tx_on, cw_on, clip_cnt};
 assign temp                = temperature;

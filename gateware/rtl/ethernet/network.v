@@ -74,6 +74,8 @@ wire udp_tx_active;
 wire eeprom_ready;
 wire [1:0] phy_speed;
 wire phy_duplex;
+// QUASI_STATIC_CDC: set by the rx_clock DHCP parser, polled by this slow
+// 2.5 MHz state machine seconds later
 wire dhcp_success;
 wire icmp_rx_enable;
 wire phy_connected_int = phy_duplex && (phy_speed[1] != phy_speed[0]);
@@ -541,6 +543,8 @@ mac_recv mac_recv_inst (
   .remote_mac_valid(remote_mac_valid),
   .clock           (rx_clock        ),
   .data            (rx_data         ),
+  // QUASI_STATIC_CDC: local_mac is built in the slow clk_ctrl domain and
+  // treated as static here
   .local_mac       (local_mac       ),
   .broadcast       (broadcast       )
 );
@@ -732,7 +736,9 @@ always @(posedge tx_clock) begin
     remote_mac_sync <= remote_mac;
   end
 
-  if (remote_ip_valid) begin
+  // Capture only on the synced valid pulse; the bus is registered in the
+  // rx domain and stable while remote_ip_valid is high.
+  if (remote_ip_valid_sync) begin
     remote_ip_sync <= remote_ip;
   end
 
@@ -784,6 +790,8 @@ mac_send mac_send_inst (
   .data_out       (mac_tx_data    ),
   .active         (mac_tx_active  ),
   .clock          (tx_clock       ),
+  // QUASI_STATIC_CDC: local_mac is built in the slow clk_ctrl domain and
+  // treated as static here
   .local_mac      (local_mac      ),
   .reset          (tx_reset       )
 );

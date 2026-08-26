@@ -350,6 +350,8 @@ ethpll ethpll_inst (
     .locked (ethpll_locked)
 );
 
+// QUASI_STATIC_CDC: link speed only changes at (re)connection while the
+// datapath is quiescent, so this select may be treated as static once set
 always @(posedge clk_ctrl)
   speed_1gb_clksel <= speed_1gb;
 
@@ -441,7 +443,18 @@ ad9866pll ad9866pll_inst (
 /////////////////////////////////////////////////////
 // Network
 
-assign local_mac = eeprom_config[6] ? {MAC[47:16],alt_mac} : {MAC[47:2],~io_alternate_mac,MAC[0]};
+// Sample the MAC-select jumper rather than using the raw asynchronous pin
+logic alternate_mac_sync;
+sync #(.DEPTH(2)) sync_alternate_mac (
+  .clock   (clk_ctrl),
+  .sig_in  (io_alternate_mac),
+  .sig_out (alternate_mac_sync)
+);
+
+// QUASI_STATIC_CDC: the MAC words below are built from EEPROM configuration
+// and jumper state; they change rarely and are treated as static by every
+// consumer domain (ethernet rx/tx, protocol layer).
+assign local_mac = eeprom_config[6] ? {MAC[47:16],alt_mac} : {MAC[47:2],~alternate_mac_sync,MAC[0]};
 
 network network_inst(
 
@@ -498,6 +511,11 @@ sync_one sync_msec_pulse_eth (
   .sig_in(msec_pulse),
   .sig_out(msec_pulse_ethsync)
 );
+
+// QUASI_STATIC_CDC: command words (cmd_addr/cmd_data/cmd_is_alt/
+// cmd_resprqst) are registered in clock_ethrxint long before each cmd_cnt
+// pulse crosses via sync_pulse into the other domains; commands are spaced
+// milliseconds apart so data is always settled when the pulse lands.
 
 sync_pulse sync_pulse_dsopenhpsdr1 (
   .clock(clock_ethrxint),
@@ -668,6 +686,7 @@ usopenhpsdr1 #(
   .have_ip(~(network_state_dhcp & network_state_fixedip)), // network_state is on sync 2.5 MHz domain
   .run(run_sync),
   .wide_spectrum(wide_spectrum_sync),
+  // QUASI_STATIC_CDC: idhermeslite is a board strap pin
   .idhermeslite(io_id_hermeslite),
   .mac(local_mac),
 
@@ -700,6 +719,10 @@ usopenhpsdr1 #(
   .stall_req(stall_req_sync),
   .stall_ack(stall_ack),
 
+  // QUASI_STATIC_CDC: the inputs below are produced in the slow clk_ctrl
+  // domain (EEPROM config, slow ADC telemetry, response registers, status)
+  // and change infrequently; they are only sampled during packet and
+  // discovery construction in this ethtxint domain.
   .static_ip(static_ip),
   .alt_mac(alt_mac),
   .eeprom_config(eeprom_config),
@@ -998,11 +1021,14 @@ control #(
   .ad9866up           (ad9866up                   ),
   
   .rxclip             (rxclip_iosync              ),
-  .rxgoodlvl          (rxgoodlvl_iosync           ),
+  .rxgoodlvl          (rxgoodlvl_iosync              ),
   .rxclrstatus        (rxclrstatus                ),
   .run                (run_iosync                 ),
+  // QUASI_STATIC_CDC: link role status from the clk_ad9866 domain,
+  // changes rarely and is used for an LED only
   .slave_link_running (link_running & ~link_master),
   
+  // QUASI_STATIC_CDC: occupancy status bits from the clk_ad9866 domain
   .dsiq_status        (dsiq_status                ),
   .dsiq_sample        (dsiq_sample                ),
   
@@ -1138,6 +1164,10 @@ generate case (ASMII)
     logic           asmi_rdreq;
     logic           asmi_reconfig;
 
+    // QUASI_STATIC_CDC: asmi_cnt and the erase/send_more handshake signals
+    // cross between clock_ethrxint, clk_ctrl and clock_ethtxint only while
+    // firmware is being programmed; transfers are seconds apart.
+
     asmi_fifo asmi_fifo_i (
       .wrclk (clock_ethrxint),
       .wrreq(dsethasmi_tvalid),
@@ -1207,6 +1237,9 @@ if (HL2LINK == 1) begin
     .sig_out(stall_req_sync)
   );
 
+  // QUASI_STATIC_CDC: hl2link_rst_req/ack are level handshakes between the
+  // clk_ctrl and clk_ad9866 domains; each level is held until acknowledged.
+  // phy_connected is link status from the ethernet domain, quasi-static.
   hl2link_app hl2link_app_i (
     .clk            (clk_ad9866        ),
     .phy_connected  (phy_connected     ),

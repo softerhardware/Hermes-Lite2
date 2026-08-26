@@ -88,6 +88,14 @@ small, localized changes; FCS checking is the highest-value one.
 
 ## Bug 3 — CDC defects in the ARP/DHCP control path
 
+> **Status: fixed** by the R4 CDC-toolkit refactor (see
+> [Refactor Plan](Refactor-Plan) §R4): the DHCP request path now uses a
+> toggle request/acknowledge handshake, `network.v` captures the remote IP
+> under its synced valid pulse, the broken `sync_handshake` primitive was
+> reimplemented as a proper four-phase handshake, and the CW keyer
+> parameters are captured atomically via `sync_qualifier`. Kept below as a
+> record of the original review finding.
+
 Two concrete violations, plus one latent one in the shared primitive itself:
 
 **a) DHCP send-request clear samples multi-bit state directly across domains**
