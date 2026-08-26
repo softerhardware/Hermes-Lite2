@@ -189,7 +189,7 @@ logic [33:0] debug;
 logic [5:0]  synced_receivers   = 6'h00;
 
 
-genvar c;
+genvar c, p;
 
 localparam
   CMD_IDLE    = 2'b00,
@@ -458,231 +458,89 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
 
 
   // One receiver minimum
-  mix2 #(.CALCTYPE(CALCTYPE)) mix2_0 (
-    .clk(clk),
-    .clk_2x(clk_2x),
-    .rst(rst_nco | &tx0_phase_zero),
-    .phi0(rx0_phase),
-    .phi1(rx_phase[2]),
-    .adc(adcpipe[0]),
-    .mixdata0_i(mixdata_i[0]),
-    .mixdata0_q(mixdata_q[0]),
-    .mixdata1_i(mixdata_i[2]),
-    .mixdata1_q(mixdata_q[2])
-  );
+  //
+  // The generation below reproduces the original hand-unrolled connectivity
+  // exactly.  Asymmetries to note:
+  //
+  //   * NCO/mixer hardware is shared two channels per instance (one sincos
+  //     pair time-multiplexed at clk_2x).  Pairing follows the historical
+  //     layout: pair 0 serves channels {0,2} and pair 1 serves {1,3} - not
+  //     adjacent pairs - because channel 1 doubles as the PureSignal
+  //     predistortion feedback tap whose mixer input switches to the DAC
+  //     output without disturbing the main receivers on pair 0.  Pairs from
+  //     index 2 upward serve adjacent channels {2p, 2p+1}.
+  //   * Pair 0 uses the VNA-substituted phase rx0_phase for channel 0 and
+  //     its reset includes the VNA scanner zero term (&tx0_phase_zero).
+  //   * receiver_nco REGISTER_OUTPUT is set (HL2LINK) only for channels
+  //     >= 3; channels 0..2 are never registered.
+  //   * Channel 0 feeds the VNA scanner mux and the radio debug bus.
+  //
+  // Mixer pair count reproduces the original gates exactly: pair 1 is built
+  // already at NR=2 (channel 1 carries the PureSignal feedback), then pairs
+  // follow ceil(NR/2) from NR=5 upward.
+  localparam NUM_MIXPAIRS = (NR < 2) ? 1 :
+                            (NR < 5) ? 2 :
+                            (NR + 1) / 2;
+
+  generate
+
+    for (p = 0; p < NUM_MIXPAIRS; p = p + 1) begin : MIXPAIR
+      wire [11:0] pair_adc = (p == 1) ? ((tx_on & pure_signal) ? tx_data_dac : adcpipe[p]) :
+                                        adcpipe[p];
+      wire        pair_rst = (p == 0) ? (rst_nco | &tx0_phase_zero) : rst_nco;
+
+      mix2 #(.CALCTYPE(CALCTYPE)) mixer (
+        .clk(clk),
+        .clk_2x(clk_2x),
+        .rst(pair_rst),
+        .phi0((p == 0) ? rx0_phase : rx_phase[((p < 2) ? p : 2 * p)]),
+        .phi1(rx_phase[((p < 2) ? (p + 2) : (2 * p + 1))]),
+        .adc(pair_adc),
+        .mixdata0_i(mixdata_i[(p < 2) ? p : 2 * p]),
+        .mixdata0_q(mixdata_q[(p < 2) ? p : 2 * p]),
+        .mixdata1_i(mixdata_i[(p < 2) ? (p + 2) : (2 * p + 1)]),
+        .mixdata1_q(mixdata_q[(p < 2) ? (p + 2) : (2 * p + 1)])
+      );
+    end
+
+    for (c = 0; c < NR; c = c + 1) begin : RXCHAIN
+      if (c == 0) begin : CH0
+        // Channel 0: output muxed with the VNA scanner, debug bus tap
+        receiver_nco #(.CICRATE(CICRATE)) receiver (
+          .rst_all(rst_all),
+          .clock(clk),
+          .clock_2x(clk_2x),
+          .rate(rate),
+          .mixdata_I(mixdata_i[0]),
+          .mixdata_Q(mixdata_q[0]),
+          .out_strobe(rx0_strobe),
+          .out_data_I(rx0_out_I),
+          .out_data_Q(rx0_out_Q),
+          .debug(debug)
+        );
+      end else begin : CHN
+        receiver_nco #(
+          .CICRATE       (CICRATE),
+          .REGISTER_OUTPUT((c >= 3) ? HL2LINK : 0)
+        ) receiver (
+          .rst_all(rst_all),
+          .clock(clk),
+          .clock_2x(clk_2x),
+          .rate(rate),
+          .mixdata_I(mixdata_i[c]),
+          .mixdata_Q(mixdata_q[c]),
+          .out_strobe(rx_data_rdy[c]),
+          .out_data_I(rx_data_i[c]),
+          .out_data_Q(rx_data_q[c])
+        );
+      end
+    end
+
+  endgenerate
+
+  // Channel 0 mixer output also feeds the VNA scanner
   assign cordic_data_I = mixdata_i[0];
   assign cordic_data_Q = mixdata_q[0];
-
-  receiver_nco #(.CICRATE(CICRATE)) receiver_0 (
-    .rst_all(rst_all),
-    .clock(clk),
-    .clock_2x(clk_2x),
-    .rate(rate),
-    .mixdata_I(mixdata_i[0]),
-    .mixdata_Q(mixdata_q[0]),
-    .out_strobe(rx0_strobe),
-    .out_data_I(rx0_out_I),
-    .out_data_Q(rx0_out_Q),
-    .debug(debug)
-  );
-
-
-generate
-
-if (NR >= 2) begin: MIX1_3
-  // Always build second mixer for second receiver for PureSignal support
-  mix2 #(.CALCTYPE(CALCTYPE)) mix2_2 (
-    .clk(clk),
-    .clk_2x(clk_2x),
-    .rst(rst_nco),
-    .phi0(rx_phase[1]),
-    .phi1(rx_phase[3]),
-    .adc((tx_on & pure_signal) ? tx_data_dac : adcpipe[1]),
-    .mixdata0_i(mixdata_i[1]),
-    .mixdata0_q(mixdata_q[1]),
-    .mixdata1_i(mixdata_i[3]),
-    .mixdata1_q(mixdata_q[3])
-  );
-end
-
-if (NR >= 2) begin: RECEIVER1
-  receiver_nco #(.CICRATE(CICRATE)) receiver_1 (
-    .rst_all(rst_all),
-    .clock(clk),
-    .clock_2x(clk_2x),
-    .rate(rate),
-    .mixdata_I(mixdata_i[1]),
-    .mixdata_Q(mixdata_q[1]),
-    .out_strobe(rx_data_rdy[1]),
-    .out_data_I(rx_data_i[1]),
-    .out_data_Q(rx_data_q[1])
-  );
-end
-
-if (NR >= 3) begin: RECEIVER2
-  receiver_nco #(.CICRATE(CICRATE)) receiver_2 (
-    .rst_all(rst_all),
-    .clock(clk),
-    .clock_2x(clk_2x),
-    .rate(rate),
-    .mixdata_I(mixdata_i[2]),
-    .mixdata_Q(mixdata_q[2]),
-    .out_strobe(rx_data_rdy[2]),
-    .out_data_I(rx_data_i[2]),
-    .out_data_Q(rx_data_q[2])
-  );
-end
-
-if (NR >= 4) begin: RECEIVER3
-  receiver_nco #(.CICRATE(CICRATE), .REGISTER_OUTPUT(HL2LINK)) receiver_3 (
-    .rst_all(rst_all),
-    .clock(clk),
-    .clock_2x(clk_2x),
-    .rate(rate),
-    .mixdata_I(mixdata_i[3]),
-    .mixdata_Q(mixdata_q[3]),
-    .out_strobe(rx_data_rdy[3]),
-    .out_data_I(rx_data_i[3]),
-    .out_data_Q(rx_data_q[3])
-  );
-end
-
-if (NR >= 5) begin: MIX4_5
-  // Build double mixer
-  mix2 #(.CALCTYPE(CALCTYPE)) mix2_4 (
-    .clk(clk),
-    .clk_2x(clk_2x),
-    .rst(rst_nco),
-    .phi0(rx_phase[4]),
-    .phi1(rx_phase[5]),
-    .adc(adcpipe[2]),
-    .mixdata0_i(mixdata_i[4]),
-    .mixdata0_q(mixdata_q[4]),
-    .mixdata1_i(mixdata_i[5]),
-    .mixdata1_q(mixdata_q[5])
-  );
-end
-
-if (NR >= 5) begin: RECEIVER4
-  receiver_nco #(.CICRATE(CICRATE), .REGISTER_OUTPUT(HL2LINK)) receiver_4 (
-    .rst_all(rst_all),
-    .clock(clk),
-    .clock_2x(clk_2x),
-    .rate(rate),
-    .mixdata_I(mixdata_i[4]),
-    .mixdata_Q(mixdata_q[4]),
-    .out_strobe(rx_data_rdy[4]),
-    .out_data_I(rx_data_i[4]),
-    .out_data_Q(rx_data_q[4])
-  );
-end
-
-if (NR >= 6) begin: RECEIVER5
-  receiver_nco #(.CICRATE(CICRATE), .REGISTER_OUTPUT(HL2LINK)) receiver_5 (
-    .rst_all(rst_all),
-    .clock(clk),
-    .clock_2x(clk_2x),
-    .rate(rate),
-    .mixdata_I(mixdata_i[5]),
-    .mixdata_Q(mixdata_q[5]),
-    .out_strobe(rx_data_rdy[5]),
-    .out_data_I(rx_data_i[5]),
-    .out_data_Q(rx_data_q[5])
-  );
-end
-
-
-if (NR >= 7) begin: MIX6_7
-  // Build double mixer
-  mix2 #(.CALCTYPE(CALCTYPE)) mix2_6 (
-    .clk(clk),
-    .clk_2x(clk_2x),
-    .rst(rst_nco),
-    .phi0(rx_phase[6]),
-    .phi1(rx_phase[7]),
-    .adc(adcpipe[3]),
-    .mixdata0_i(mixdata_i[6]),
-    .mixdata0_q(mixdata_q[6]),
-    .mixdata1_i(mixdata_i[7]),
-    .mixdata1_q(mixdata_q[7])
-  );
-end
-
-if (NR >= 7) begin: RECEIVER6
-  receiver_nco #(.CICRATE(CICRATE), .REGISTER_OUTPUT(HL2LINK)) receiver_6 (
-    .rst_all(rst_all),
-    .clock(clk),
-    .clock_2x(clk_2x),
-    .rate(rate),
-    .mixdata_I(mixdata_i[6]),
-    .mixdata_Q(mixdata_q[6]),
-    .out_strobe(rx_data_rdy[6]),
-    .out_data_I(rx_data_i[6]),
-    .out_data_Q(rx_data_q[6])
-  );
-end
-
-if (NR >= 8) begin: RECEIVER7
-  receiver_nco #(.CICRATE(CICRATE), .REGISTER_OUTPUT(HL2LINK)) receiver_7 (
-    .rst_all(rst_all),
-    .clock(clk),
-    .clock_2x(clk_2x),
-    .rate(rate),
-    .mixdata_I(mixdata_i[7]),
-    .mixdata_Q(mixdata_q[7]),
-    .out_strobe(rx_data_rdy[7]),
-    .out_data_I(rx_data_i[7]),
-    .out_data_Q(rx_data_q[7])
-  );
-end
-
-
-if (NR >= 9) begin: MIX8_9
-  // Build double mixer
-  mix2 #(.CALCTYPE(CALCTYPE)) mix2_8 (
-    .clk(clk),
-    .clk_2x(clk_2x),
-    .rst(rst_nco),
-    .phi0(rx_phase[8]),
-    .phi1(rx_phase[9]),
-    .adc(adcpipe[4]),
-    .mixdata0_i(mixdata_i[8]),
-    .mixdata0_q(mixdata_q[8]),
-    .mixdata1_i(mixdata_i[9]),
-    .mixdata1_q(mixdata_q[9])
-  );
-end
-
-if (NR >= 9) begin: RECEIVER8
-  receiver_nco #(.CICRATE(CICRATE), .REGISTER_OUTPUT(HL2LINK)) receiver_8 (
-    .rst_all(rst_all),
-    .clock(clk),
-    .clock_2x(clk_2x),
-    .rate(rate),
-    .mixdata_I(mixdata_i[8]),
-    .mixdata_Q(mixdata_q[8]),
-    .out_strobe(rx_data_rdy[8]),
-    .out_data_I(rx_data_i[8]),
-    .out_data_Q(rx_data_q[8])
-  );
-end
-
-if (NR >= 10) begin: RECEIVER9
-  receiver_nco #(.CICRATE(CICRATE), .REGISTER_OUTPUT(HL2LINK)) receiver_9 (
-    .rst_all(rst_all),
-    .clock(clk),
-    .clock_2x(clk_2x),
-    .rate(rate),
-    .mixdata_I(mixdata_i[9]),
-    .mixdata_Q(mixdata_q[9]),
-    .out_strobe(rx_data_rdy[9]),
-    .out_data_I(rx_data_i[9]),
-    .out_data_Q(rx_data_q[9])
-  );
-end
-
-
-endgenerate
 
 
 

@@ -348,6 +348,12 @@ flowchart LR
   clock; sine/cosine from coarse 256×36 ROM quarter-folded + fine correction
   (CALCTYPE=3 → LE-multiplier fine terms rather than another ROM — a deliberate
   M9K-for-LE trade on this small device).
+* **Channel generation**: mixers and receivers are produced by two `generate`
+  loops in `radio.v` (`MIXPAIR`/`RXCHAIN`) that preserve the historical
+  connectivity: mixer pair 0 serves channels {0,2} (VNA-substituted phase,
+  VNA-zero reset term), pair 1 serves {1,3} with the PureSignal DAC-input mux,
+  later pairs serve adjacent channels; only channels ≥3 register their outputs
+  (`REGISTER_OUTPUT=HL2LINK`).
 * **Frequency setup**: the PC sends a 32-bit frequency; `radio.v` computes
   `phase_inc = f·2^57/76.8e6` (multiply constant `M2`) and distributes phases to
   channel accumulators through a 3-cycle `CMD_FREQ*` pipeline. In non-duplex
