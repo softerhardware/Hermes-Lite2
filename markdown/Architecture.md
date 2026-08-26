@@ -4,7 +4,7 @@ This document describes the high-level architecture of the Hermes-Lite 2 FPGA ga
 focused on the `hl2b5up_main` build variant (HL2 board revision 5 and later, main
 configuration). All file references are relative to `gateware/`.
 
-*Companion pages: [Critical Bugs](Critical-Bugs) · [Refactor Plan](Refactor-Plan)*
+*Companion pages: [Critical Bugs](Critical-Bugs) · [Refactor Plan](Refactor-Plan) · [Wideband Streaming Plan](Wideband-Streaming-Plan)*
 
 ---
 
