@@ -35,6 +35,8 @@ module exttuner (
   output logic        txinhibit
 );
 
+`include "cmd_bus.vh"
+
 
 localparam
   IDLE    = 3'b000,
@@ -61,7 +63,7 @@ logic enable = 1'b0;
 logic bypass = 1'b0;
 
 always @(posedge clk) begin
-  if (cmd_rqst & (cmd_addr == 6'h09)) begin
+  if (cmd_rqst & (cmd_addr == CMDA_VNA_TXGAIN)) begin
     // enable tune if
     // PA on and not disable TR in low power mode
     // PA off and disable TR in low power mode

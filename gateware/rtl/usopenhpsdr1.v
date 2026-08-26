@@ -62,6 +62,8 @@ parameter           EXTENDED_DEBUG_RESP = 1;
 
 localparam          TUSERWIDTH = (AK4951 == 1) ? 16 : 2;
 
+`include "cmd_bus.vh"
+
 localparam START        = 4'h0,
            WIDE1        = 4'h1,
            WIDE2        = 4'h2,
@@ -132,12 +134,12 @@ endgenerate
 always @(posedge clk) begin
   if (cmd_rqst) begin
     case (cmd_addr)
-      6'h00: begin
+      CMDA_GENERAL: begin
         // Shift no of receivers by speed
         set_bs_cnt <= ((cmd_data[7:3] + 1'b1) << cmd_data[25:24]);
       end
 
-      6'h09: begin
+      CMDA_VNA_TXGAIN: begin
         vna <= cmd_data[23];
       end
     endcase
@@ -503,15 +505,15 @@ generate if (EXTENDED_DEBUG_RESP==1) begin
 
   always @(posedge clk) begin
     if (cmd_rqst) begin
-      if (cmd_addr == 6'h00) begin
+      if (cmd_addr == CMDA_GENERAL) begin
         sample_rate <= cmd_data[25:24];
         receivers <= cmd_data[6:3];
-      end else if (cmd_addr == 6'h10) begin
+      end else if (cmd_addr == CMDA_CWHANG) begin
         cw_hang_time <= {cmd_data[31:24], cmd_data[17:16]};
-      end else if (cmd_addr == 6'h17) begin
+      end else if (cmd_addr == CMDA_LATENCY) begin
         tx_buffer_latency <= cmd_data[6:0];
         ptt_hang_time <= cmd_data[12:8];
-      end else if ((cmd_addr == 6'h39) & (cmd_data[27])) begin
+      end else if ((cmd_addr == CMDA_DEBUG) & (cmd_data[27])) begin
         if (cmd_data[26:24] == 3'h3) force_discover_en <= 1'b1;
         else if (cmd_data[26:24] == 3'h2) force_discover_en <= 1'b0;
       end

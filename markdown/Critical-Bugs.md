@@ -135,6 +135,11 @@ repair `sync_handshake`.
 
 ## Bug 4 — Command/read-back subsystem returns wrong data and can wedge permanently
 
+> **Status: partially addressed** by the R2 command-bus refactor: the misleading
+> read-mux FIXMEs are replaced by an explicit responder table (`cmd_bus.vh`)
+> stating that only I2C returns read data today. Behaviour is unchanged —
+> implementing AD9866 SPI readback remains open as a feature, not a refactor.
+
 Three defects in the mechanism every host register access depends on:
 
 **a) AD9866 register reads return I²C data.** In `control.v`'s response FSM:

@@ -90,6 +90,8 @@ output            cmd_ack;
 
 parameter         FAST_LNA = 0;
 
+`include "cmd_bus.vh"
+
 
 // TX Path
 logic   [11:0]    tx_data_d1;
@@ -130,11 +132,11 @@ generate if (FAST_LNA == 1) begin: FAST_LNA
   always @(posedge clk) begin
     if (cmd_rqst) begin
       case (cmd_addr)
-          6'h0a: begin
+          CMDA_RXGAIN_PURESIG: begin
             rx_gain <= cmd_data[6] ? cmd_data[5:0] : (cmd_data[5] ? ~cmd_data[5:0] : {1'b1,cmd_data[4:0]});
           end
 
-          6'h0e: begin
+          CMDA_LNA_TXGAIN: begin
             tx_gain <= cmd_data[14] ? cmd_data[13:8] : (cmd_data[13] ? ~cmd_data[13:8] : {1'b1,cmd_data[12:8]});
             en_tx_gain <= cmd_data[15];
           end

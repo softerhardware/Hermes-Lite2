@@ -79,6 +79,7 @@ parameter         HL2LINK = 0;
 // M2/CICRATE/GBITS/RRRR/RATE48..384 derived from CLK_FREQ in one place.
 // See clk_config.vh for the supported clocks and calibration offsets.
 `include "clk_config.vh"
+`include "cmd_bus.vh"
 
 // M3 = 2^24 to round as version 2.7
 localparam M3 = 32'd16777216;
@@ -235,41 +236,41 @@ always @* begin
       if (cmd_rqst) begin
         case (cmd_addr)
           // Frequency changes
-          6'h01:    cmd_state_next    = CMD_FREQ1;
-          6'h02:    cmd_state_next    = CMD_FREQ1;
-          6'h03:    cmd_state_next    = CMD_FREQ1;
-          6'h04:    cmd_state_next    = CMD_FREQ1;
-          6'h05:    cmd_state_next    = CMD_FREQ1;
-          6'h06:    cmd_state_next    = CMD_FREQ1;
-          6'h07:    cmd_state_next    = CMD_FREQ1;
-          6'h08:    cmd_state_next    = CMD_FREQ1;
-          6'h12:    cmd_state_next    = CMD_FREQ1;
-          6'h13:    cmd_state_next    = CMD_FREQ1;
-          6'h14:    cmd_state_next    = CMD_FREQ1;
-          6'h15:    cmd_state_next    = CMD_FREQ1;
-          6'h16:    cmd_state_next    = CMD_FREQ1;
+          CMDA_TXFREQ:     cmd_state_next    = CMD_FREQ1;
+          CMDA_RXFREQ0:    cmd_state_next    = CMD_FREQ1;
+          CMDA_RXFREQ1:    cmd_state_next    = CMD_FREQ1;
+          CMDA_RXFREQ2:    cmd_state_next    = CMD_FREQ1;
+          CMDA_RXFREQ3:    cmd_state_next    = CMD_FREQ1;
+          CMDA_RXFREQ4:    cmd_state_next    = CMD_FREQ1;
+          CMDA_RXFREQ5:    cmd_state_next    = CMD_FREQ1;
+          CMDA_RXFREQ6:    cmd_state_next    = CMD_FREQ1;
+          CMDA_RXFREQ7:    cmd_state_next    = CMD_FREQ1;
+          CMDA_RXFREQ8:    cmd_state_next    = CMD_FREQ1;
+          CMDA_RXFREQ9:    cmd_state_next    = CMD_FREQ1;
+          CMDA_RXFREQ10:   cmd_state_next    = CMD_FREQ1;
+          CMDA_RXFREQ11:   cmd_state_next    = CMD_FREQ1;
 
           // Control with no acknowledge
-          6'h00: begin
+          CMDA_GENERAL: begin
             rx_rate_next              = cmd_data[25:24];
             pa_mode_next              = cmd_data[16];
             last_chan_next            = cmd_data[6:3];
             duplex_next               = cmd_data[2];
           end
 
-          6'h09: begin
+          CMDA_VNA_TXGAIN: begin
             vna_next         = cmd_data[23];
             vna_count_next   = cmd_data[15:0];
           end
-          6'h0a:    pure_signal_next  = cmd_data[22];
+          CMDA_RXGAIN_PURESIG: pure_signal_next  = cmd_data[22];
 
-          6'h11: begin
+          CMDA_PWM_LIMITS: begin
             // TX envelope PWM min and max
             PWM_min_next = {cmd_data[31:24], cmd_data[17:16]};
             PWM_max_next = {cmd_data[15:8], cmd_data[1:0]};
           end
 
-          6'h2b: begin
+          CMDA_PREDISTORT: begin
             //predistortion control sub index
             if(cmd_data[31:24]==8'h00) begin
               tx_predistort_next      = cmd_data[17:16];
@@ -787,12 +788,12 @@ assign accumdelay_notzero = |accumdelay;
 
 always @(posedge clk) begin
   if (cmd_rqst) begin
-    if (cmd_addr == 6'h10) begin
+    if (cmd_addr == CMDA_CWHANG) begin
       cw_hang_time <= {cmd_data[31:24], cmd_data[17:16]};
-    end else if (cmd_addr == 6'h17) begin
+    end else if (cmd_addr == CMDA_LATENCY) begin
       tx_buffer_latency <= cmd_data[6:0];
       ptt_hang_time <= cmd_data[12:8];
-    end else if (cmd_addr == 6'h39 & cmd_data[23]) begin
+    end else if (cmd_addr == CMDA_DEBUG & cmd_data[23]) begin
       synced_receivers <= cmd_data[21:16];
     end
   end
@@ -1169,7 +1170,7 @@ logic signed [15:0] debugreg3;
 logic [1:0] debugsel;
 
 always @ (posedge clk) begin
-  if (cmd_rqst & cmd_addr == 6'h39) begin
+  if (cmd_rqst & cmd_addr == CMDA_DEBUG) begin
     debugreg0 <= 0;
     debugreg1 <= 0;
     debugreg2 <= 0;

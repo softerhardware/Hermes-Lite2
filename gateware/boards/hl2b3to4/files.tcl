@@ -87,6 +87,7 @@ set_global_assignment -name VERILOG_FILE ../../rtl/ethernet/ddio_out.v
 set_global_assignment -name VERILOG_FILE ../../rtl/ethernet/ddio_in.v
 set_global_assignment -name VERILOG_FILE ../../rtl/ethernet/icmp_fifo.v
 
+set_global_assignment -name VERILOG_FILE ../../rtl/cmd_slave.v
 set_global_assignment -name VERILOG_FILE ../../rtl/dsopenhpsdr1.v
 set_global_assignment -name VERILOG_FILE ../../rtl/usopenhpsdr1.v
 

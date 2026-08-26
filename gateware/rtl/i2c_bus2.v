@@ -44,6 +44,7 @@ input         sda_i;
 output        sda_o;
 output        sda_t;
 
+`include "cmd_bus.vh"
 logic [6:0]   cmd_address;
 logic         cmd_start;
 logic         cmd_read;
@@ -179,13 +180,13 @@ always @* begin
       cmd_ack_next = 1'b1;
       ready = ~busy;
       if (cmd_rqst) begin
-        if (((cmd_addr == 6'h3d) | (cmd_addr == 6'h3c)) & (cmd_data[31:25] == 7'h03)) begin
+        if (((cmd_addr == CMDA_I2C2) | (cmd_addr == CMDA_I2C1)) & (cmd_data[31:25] == 7'h03)) begin
           // Must send
           if (~busy) begin
             cmd_next = cmd_data[22:16];
             data0_next  = cmd_data[15:8];
             data1_next = cmd_data[7:0];
-            en_i2c2_next = (cmd_addr == 6'h3d);
+            en_i2c2_next = (cmd_addr == CMDA_I2C2);
             state_next = cmd_data[24] ? STATE_READ_CMDADDR : STATE_CMDADDR;
           end else begin
             cmd_ack_next = 1'b0; // Missed
@@ -193,7 +194,7 @@ always @* begin
         end
 
         // Filter select update
-        if (cmd_addr == 6'h00) begin
+        if (cmd_addr == CMDA_GENERAL) begin
           if ((cmd_data[23:17] != filter_select_reg) | (cmd_data[13] != rx_antenna_reg)) begin
             // Must send
             if (~busy) begin
@@ -230,7 +231,7 @@ always @* begin
 
 `ifdef AK4951
         // AK4951 mic boost setting update
-        if (cmd_addr == 6'h09) begin
+        if (cmd_addr == CMDA_VNA_TXGAIN) begin
           if (cmd_data[16] != ak4951_micboost_reg) begin
             // Must send
             if (~busy) begin

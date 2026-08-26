@@ -32,6 +32,8 @@ module hl2link_app (
   output              link_error
 );
 
+`include "cmd_bus.vh"
+
 logic        send_tvalid;
 logic        cmd_send_tvalid;
 logic [37:0] send_tdata ;
@@ -73,11 +75,11 @@ assign ls_done = send_tdone;
 always @(posedge clk) begin
 
   // Only allow master selection from ethernet
-  if (ds_cmd_rqst & ds_cmd_addr == 6'h39 & (ds_cmd_data[11:8] == 4'b1001)) begin
+  if (ds_cmd_rqst & ds_cmd_addr == CMDA_DEBUG & (ds_cmd_data[11:8] == 4'b1001)) begin
     master_sel <= 1'b1;
   end
 
-  if (cmd_rqst & cmd_addr == 6'h39) begin
+  if (cmd_rqst & cmd_addr == CMDA_DEBUG) begin
     if (cmd_data[7]) begin
       case (cmd_data[4])
         1'h0 : rst_all <= 1'b1;

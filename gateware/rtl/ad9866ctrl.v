@@ -49,6 +49,8 @@ output logic      cmd_ack = 1'b0;
 parameter         FAST_LNA = 0;
 parameter         BYPASS_VERSA = 0;
 
+`include "cmd_bus.vh"
+
 
 // SPI
 logic   [15:0]    datain;
@@ -131,7 +133,7 @@ always @* begin
         // Accept possible write
         case (cmd_addr)
           // Hermes TX Gain Setting
-          6'h09: begin
+          CMDA_VNA_TXGAIN: begin
             if (tx_gain != cmd_data[31:28]) begin
               // Must update
               if (rffe_ad9866_sen_n) begin
@@ -144,7 +146,7 @@ always @* begin
           end
 
           // Hermes RX Gain Setting
-          6'h0a: begin
+          CMDA_RXGAIN_PURESIG: begin
             // Rely on synthesis to prune
             if (FAST_LNA != 1) begin
               if (rx_gain != cmd_data[6:0]) begin
@@ -162,7 +164,7 @@ always @* begin
           end
 
           // Generic AD9866 write
-          6'h3b: begin
+          CMDA_AD9866_WRITE: begin
             if (cmd_data[31:24] == 8'h06) begin
               // Must write
               if (rffe_ad9866_sen_n) cmd_state_next = CMD_WRITE;

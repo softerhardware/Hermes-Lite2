@@ -1,6 +1,7 @@
 ## Protocol layer and board control
 
 # OpenHPSDR protocol packer/parser
+set_global_assignment -name VERILOG_FILE ../../rtl/cmd_slave.v
 set_global_assignment -name VERILOG_FILE ../../rtl/dsopenhpsdr1.v
 set_global_assignment -name VERILOG_FILE ../../rtl/usopenhpsdr1.v
 

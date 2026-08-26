@@ -12,6 +12,7 @@ module cw_openhpsdr (
   output              cw_keydown
 );
 
+`include "cmd_bus.vh"
 logic       keyer_reverse; // reverse CW keyes if set
 logic [5:0] keyer_speed  ; // CW keyer speed 0-60 WPM
 logic [1:0] keyer_mode   ; // 00 = straight/external/bug, 01 = Mode A, 10 = Mode B
@@ -31,20 +32,20 @@ reg cfg_toggle = 1'b0;
 
 always @(posedge clk) begin
   if (cmd_rqst) begin
-    if ((cmd_addr == 6'h0f) | (cmd_addr == 6'h10) | (cmd_addr == 6'h11))
+    if ((cmd_addr == CMDA_KEYERAUX) | (cmd_addr == CMDA_CWHANG) | (cmd_addr == CMDA_PWM_LIMITS))
       cfg_toggle <= ~cfg_toggle;
 
-    if (cmd_addr == 6'h0b) begin
+    if (cmd_addr == CMDA_KEYER_SPEED) begin
       keyer_reverse <= cmd_data[22];
       keyer_speed <= cmd_data[13:8];
       keyer_mode <= cmd_data[15:14];
       keyer_weight <= cmd_data[6:0];
       keyer_spacing <= cmd_data[7];
-    end else if (cmd_addr == 6'h0f) begin
+    end else if (cmd_addr == CMDA_KEYERAUX) begin
       cw_ptt_delay <= cmd_data[15:8];
-    end else if (cmd_addr == 6'h10) begin
+    end else if (cmd_addr == CMDA_CWHANG) begin
       cw_hang_time <= {cmd_data[31:24], cmd_data[17:16]};
-    end else if (cmd_addr == 6'h11) begin
+    end else if (cmd_addr == CMDA_PWM_LIMITS) begin
       mode_b_mem_timing <= {~cmd_data[24], cmd_data[17:16]}; // 3'b100(100d) -> 3'b000
     end
   end
@@ -60,7 +61,7 @@ wire [6:0] sub = acc[29:23] - {1'b0, div};
 
 always @(posedge clk) begin
   if (cmd_rqst) begin
-    if (cmd_addr == 6'h0b) begin
+    if (cmd_addr == CMDA_KEYER_SPEED) begin
       cnt <= 6'd0;
       acc <= {14'b0, 16'd57600};    // 16'd57600: 1200 * clock speed 48
     end
@@ -84,7 +85,7 @@ end
 reg parked = 1'b1;  // divider idle/parked tracker
 
 always @(posedge clk) begin
-  if (cmd_rqst & (cmd_addr == 6'h0b))
+  if (cmd_rqst & (cmd_addr == CMDA_KEYER_SPEED))
     parked <= 1'b0;
   else if (~parked & (cnt == 6'd49)) begin
     parked     <= 1'b1;

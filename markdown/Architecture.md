@@ -301,28 +301,31 @@ A single broadcast bus connects every command slave. It is a **pulse + stable-da
 protocol: the source registers `cmd_addr/cmd_data` in `clock_ethrxint`, a
 `sync_pulse` carries the `cnt` toggle to each destination domain, and each slave
 samples the data several cycles later (safe because commands arrive milliseconds
-apart):
+apart). The authoritative address map, crossing contract and responder table live
+in `rtl/cmd_bus.vh`, included by every consumer; simple single-address slaves can
+use the `cmd_slave` capture helper from `rtl/cmd_slave.v` (see `dsopenhpsdr1`),
+while multi-cycle slaves (radio frequency pipeline, AD9866 SPI sequencer, I2C
+engine) keep their own FSMs and reuse only the address symbols:
 
 ```mermaid
 flowchart LR
-    DST["ds_cmd from dsopenhpsdr1\n(or hl2link_app)"] --> BUS["cmd_addr[5:0]\ncmd_data[31:0]\ncmd_rqst pulse per domain"]
+    DST["ds_cmd from dsopenhpsdr1\n(or hl2link_app)"] --> BUS["cmd_addr[5:0]\ncmd_data[31:0]\ncmd_rqst pulse per domain\nmap: rtl/cmd_bus.vh"]
     BUS --> R["radio.v\nfreq/rate/CW/VNA regs"]
     BUS --> A["ad9866.v\nfast-LNA gains"]
     BUS --> AC["ad9866ctrl\nAD9866 SPI writes"]
     BUS --> C["control.v\nvna/pa/tr, resets, fan..."]
-    BUS --> I["i2c_bus2\nEEPROM/Alex filter"]
+    BUS --> I["i2c_bus2\nEEPROM/Alex filter/I2C access"]
     BUS --> U["usopenhpsdr1\nbs_cnt, vna, debug regs"]
     R -. "no ack" .-> BUS
-    AC & I -. "cmd_ack" .-> RESPF["control.v resp FSM\nRESP_START→ACK→READ→WAIT"]
+    AC & I -. "cmd_ack" .-> RESPF["control.v resp arbiter\nonly CMDA_I2C1/I2C2 returns read data"]
     RESPF --> IRESP["iresp[39:0] slots\nrotating status + cmd replies"]
     IRESP --> US2["usopenhpsdr1 embeds in\nSYNC_RESP bytes of every frame"]
 ```
 
-Address map highlights: `0x00` rate/receivers/duplex, `0x01–0x08`,`0x12–0x16` RX
-frequencies, `0x01` also TX frequency, `0x09` VNA/PA/TR flags, `0x0a` RX gain /
-PureSignal, `0x10` CW hang, `0x11` PWM min/max, `0x17` latency/PTT hang, `0x2b`
-predistortion, `0x39` debug/synced receivers/watchdog control, `0x3a` reboot,
-`0x3b` generic AD9866 SPI write.
+The full address map — including multi-owner addresses such as `CMDA_VNA_TXGAIN`
+(0x09: VNA flags in radio/control/usopenhpsdr1, AD9866 TX gain in ad9866ctrl) —
+is documented and defined once in `rtl/cmd_bus.vh`; all consumers reference its
+symbols rather than raw hex constants.
 
 ---
 

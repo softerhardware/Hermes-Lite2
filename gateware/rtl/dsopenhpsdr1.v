@@ -73,6 +73,8 @@ localparam START        = 'h00,
            PUSHQ1       = 'h1e,
            PUSHQ0       = 'h1f;
 
+`include "cmd_bus.vh"
+
 
 logic [5:0] state        = START;
 logic [5:0] state_next          ;
@@ -387,15 +389,40 @@ end
 
 assign dseth_tdata = eth_data;
 
-// Only enable CWX when keyer is internal
+// Only enable CWX when keyer is internal.  Command decodes use the shared
+// cmd_slave capture helper (see cmd_bus.vh); parameters apply one clk after
+// the request pulse, which is immaterial for these quasi-static settings.
+logic        cwx_hit;
+logic [31:0] cwx_word;
+logic        dbg_hit;
+logic [31:0] dbg_word;
+
+cmd_slave #(.ADDR(CMDA_KEYERAUX)) cwx_cmd_i (
+  .clk      (clk      ),
+  .cmd_addr (cmd_addr ),
+  .cmd_data (cmd_data ),
+  .cmd_rqst (cmd_rqst ),
+  .hit      (cwx_hit  ),
+  .data     (cwx_word )
+);
+
+cmd_slave #(.ADDR(CMDA_DEBUG)) dbg_cmd_i (
+  .clk      (clk      ),
+  .cmd_addr (cmd_addr ),
+  .cmd_data (cmd_data ),
+  .cmd_rqst (cmd_rqst ),
+  .hit      (dbg_hit  ),
+  .data     (dbg_word )
+);
+
 always @(posedge clk) begin
-  if (cmd_rqst) begin
-    if (cmd_addr == 6'h0f) begin
-      cwx_enable <= cmd_data[24];
-    end else if ((cmd_addr == 6'h39) & (cmd_data[27])) begin
-      if (cmd_data[26:24] == 3'h1) watchdog_disable <= 1'b1;
-      else if (cmd_data[26:24] == 3'h0) watchdog_disable <= 1'b0;      
-    end
+  if (cwx_hit) begin
+    cwx_enable <= cwx_word[24];
+  end
+
+  if (dbg_hit & dbg_word[27]) begin
+    if (dbg_word[26:24] == 3'h1) watchdog_disable <= 1'b1;
+    else if (dbg_word[26:24] == 3'h0) watchdog_disable <= 1'b0;
   end else if (runstop_watchdog_valid) begin
     watchdog_disable <= eth_data[7]; // Bit 7 can be used to disable watchdog
   end

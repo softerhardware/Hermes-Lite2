@@ -14,6 +14,8 @@ module cw_basic (
   output        cw_keydown
 );
 
+`include "cmd_bus.vh"
+
 localparam
   IDLE = 2'b00,
   PREKEY = 2'b01,
@@ -29,7 +31,7 @@ logic [9:0]   cw_hang_counter_next, cw_hang_counter;
 
 always @(posedge clk) begin
   if (cmd_rqst) begin
-    if (cmd_addr == 6'h10) begin
+    if (cmd_addr == CMDA_CWHANG) begin
       cw_hang_time <= {cmd_data[31:24], cmd_data[17:16]};
     end
   end

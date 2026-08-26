@@ -109,6 +109,8 @@ parameter     AK4951 = 0;
 parameter     EXTENDED_RESP = 0;
 parameter     BYPASS_VERSA = 0;
 
+`include "cmd_bus.vh"
+
 
 logic         vna = 1'b0;                    // Selects vna mode when set.
 logic         pa_enable = 1'b0;
@@ -208,12 +210,12 @@ assign ad9866_rst = ~resetsaturate | ~ad9866up;
 
 always @(posedge clk) begin
   if (cmd_rqst) begin
-    if (cmd_addr == 6'h09) begin
+    if (cmd_addr == CMDA_VNA_TXGAIN) begin
       vna          <= cmd_data[23];      // 1 = enable vna mode
       pa_enable    <= cmd_data[19];
       tr_disable   <= cmd_data[18];
     end
-    else if (cmd_addr == 6'h3a) begin
+    else if (cmd_addr == CMDA_REBOOT) begin
       hl2_reset_state <= cmd_data[0];
     end
   end
@@ -414,19 +416,19 @@ always @* begin
       resp_state_next = RESP_READ;
       if (~(cmd_ack_i2c & cmd_ack_ad9866)) begin
         // Error response if subsystem was not ready
-        resp_cmd_addr_next = 6'h3f;
+        resp_cmd_addr_next = CMDA_RESP_ERROR;
         resp_state_next = RESP_WAIT;
       end
     end
 
     RESP_READ: begin
-      // If there is a read, the ack will be low here until the read is ready
+      // If there is a read, the ack will be low here until the read is ready.
+      // Responder table (cmd_bus.vh): only the I2C subsystem returns read
+      // data, via the generic CMDA_I2C1/CMDA_I2C2 accesses.  AD9866 SPI
+      // readback is not implemented, so responses to other addresses carry
+      // whatever the I2C engine last captured rather than register data.
       if (~(cmd_ack_i2c & cmd_ack_ad9866)) begin
-        if (~cmd_ack_i2c) begin
-          resp_cmd_data_next = cmd_resp_data_i2c;
-        end else if (~cmd_ack_ad9866) begin
-          resp_cmd_data_next = cmd_resp_data_i2c; // FIXME: suppor read cmd_resp_data_ad9866
-        end
+        resp_cmd_data_next = cmd_resp_data_i2c;
       end else begin
         resp_state_next = RESP_WAIT;
       end
@@ -504,7 +506,7 @@ generate case (PSSYNC)
     //logic [ 2:0]  pwrphase = 3'b100;
 
     always @(posedge clk)
-      if (cmd_rqst & (cmd_addr == 6'h00))
+      if (cmd_rqst & (cmd_addr == CMDA_GENERAL))
         disable_syncfreq <= cmd_data[12];
 
     // sync clock
@@ -580,7 +582,7 @@ generate case (FAN)
     logic [1:0] tdnvote_next, tdnvote;
 	 
 	 always @(posedge clk)
-      if (cmd_rqst & (cmd_addr == 6'h00))
+      if (cmd_rqst & (cmd_addr == CMDA_GENERAL))
         band_volts_enabled <= cmd_data[11];
 
     // Fan state machine
@@ -681,7 +683,7 @@ generate case (FAN)
     logic [31:0] freq = 32'h00000000;
    
     always @(posedge clk) begin
-   	if (cmd_rqst & (cmd_addr == 6'h01)) begin
+   	if (cmd_rqst & (cmd_addr == CMDA_TXFREQ)) begin
    	  freq <= cmd_data;
    	  end
     end
@@ -728,7 +730,7 @@ generate
       logic [31:0]  tx_freq = 32'h00000000;
       logic uart_txd;
       always @(posedge clk) begin
-        if (cmd_rqst & (cmd_addr == 6'h01)) begin
+        if (cmd_rqst & (cmd_addr == CMDA_TXFREQ)) begin
           tx_freq <= cmd_data;
         end
       end
@@ -869,12 +871,14 @@ always @* begin
     end
 
     ALT_RESP_READ: begin
-      // If there is a read, the ack will be low here until the read is ready
+      // If there is a read, the ack will be low here until the read is ready.
+      // Responder table (cmd_bus.vh): only the I2C subsystem returns read
+      // data; AD9866 SPI readback is not implemented.
       if (~(cmd_ack_i2c & cmd_ack_ad9866)) begin
         if (~cmd_ack_i2c) begin
           alt_resp_cmd_data_next = cmd_resp_data_i2c;
-        end else if (~cmd_ack_ad9866) begin
-          alt_resp_cmd_data_next = cmd_resp_data_i2c; // FIXME: suppor read cmd_resp_data_ad9866
+        end else begin
+          alt_resp_cmd_data_next = cmd_resp_data_i2c;
         end
       end else begin
         alt_resp_state_next = ALT_RESP_RQST;
