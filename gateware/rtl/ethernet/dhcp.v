@@ -33,6 +33,7 @@ module dhcp (
   output reg [31:0] server_ip            , // IP address of DHCP server
   //tx in
   input             reset                ,
+  input rx_reset,
   input             tx_clock             ,
   input             udp_tx_enable        ,
   input             tx_enable            ,
@@ -67,6 +68,7 @@ reg [8:0] byte_no                 ;
 reg       tx_request              ;
 reg       send_discovery          ;
 reg       is_renewal     = 1'b0   ; // Are we renewing the lease?
+wire send_request;
 reg [8:0] state          = TX_IDLE;
 
 reg [47:0] destination_mac = 48'hFFFFFFFFFFFF;
@@ -90,7 +92,17 @@ assign xid3 = xid_sum[7:0];
 
 always @ (posedge tx_clock)
   begin
-    case (state)
+        if (reset) begin
+      state <= TX_IDLE;
+      byte_no <= 9'd1;
+      dhcp_tx_request <= 1'b0;
+      send_discovery <= 1'b0;
+      xid_done <= 1'b0;
+      xid_sum <= 16'd0;
+      length <= 16'd0;
+      tx_data <= 8'd0;
+      have_previous_lease <= 1'b0;
+    end else case (state)
       TX_IDLE:
         begin
           if ( ! xid_done)
@@ -210,7 +222,8 @@ assign dhcp_destination_port = 16'd67;
 //--------------------------------------------------------------------
 //                Transfer data from rx to tx clock domains
 //--------------------------------------------------------------------
-wire send_request;
+
+reg rx_send_request; // in rx_clock domain
 sync sync_inst1 (.clock(tx_clock), .sig_in(rx_send_request), .sig_out(send_request));
 
 
@@ -220,7 +233,7 @@ sync sync_inst1 (.clock(tx_clock), .sig_in(rx_send_request), .sig_out(send_reque
 //---------------------------------------------------------------
 reg [ 8:0] rx_state       ;
 reg [ 8:0] rx_byte_no     ;
-reg        rx_send_request; // in rx_clock domain
+
 reg [47:0] target_mac     ;
 reg [47:0] temp_target_mac;
 reg [15:0] option         ; // holds DHCP options
@@ -231,6 +244,24 @@ reg [31:0] temp_ip_accept ;
 
 always @ (posedge rx_clock)
   begin
+    if (rx_reset) begin
+      rx_state <= RX_IDLE;
+      rx_byte_no <= 9'd0;
+      rx_send_request <= 1'b0;
+      dhcp_success <= 1'b0;
+      dhcp_failed <= 1'b0;
+      is_renewal <= 1'b0;
+      ip_accept <= 32'd0;
+      lease <= 32'd0;
+      server_ip <= 32'd0;
+      destination_mac <= 48'hFFFFFFFFFFFF;
+      destination_ip <= 32'hFFFFFFFF;
+      option <= 16'd0;
+      skip <= 8'd0;
+      temp_ip_accept <= 32'd0;
+      target_mac <= 48'd0;
+      temp_target_mac <= 48'd0;
+    end else begin
     if (state == DHCPSEND) rx_send_request <= 1'b0;   // Only clear send request when tx has seen it
 
     if (dhcp_rx_active && rx_enable)
@@ -432,6 +463,8 @@ always @ (posedge rx_clock)
     end
     rx_state <= RX_IDLE;
   end
+    end // !rx_reset
 end
 
 endmodule
+

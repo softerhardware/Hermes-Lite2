@@ -69,12 +69,37 @@ module network (
 );
 
 parameter SIM = 0;
+reg  [15:0] udp_destination_port_sync ;
+reg  [47:0] udp_destination_mac_sync  ;
+reg  [31:0] udp_destination_ip_sync   ;
+// STAGE2_ICARUS_FORWARD_DECL_FIX: declaration order only; simulation copy.
+reg reg_network_state_dhcp = 1'b1;           // this is used in network.v to hold code in reset when high
+reg reg_network_state_fixedip = 1'b1;
+wire mac_rx_active;
+reg         dhcp_enable          ;
+wire dhcp_success;
+wire        dhcp_tx_request      ;
+wire [15:0] dhcp_tx_length       ;
+wire [ 7:0] dhcp_tx_data         ;
+wire [31:0] dhcp_destination_ip  ;
+wire [47:0] dhcp_destination_mac ;
+wire [15:0] dhcp_destination_port;
+wire [31:0] ip_accept            ; // DHCP provided IP address
+wire [31:0] lease                ; // time in seconds that DHCP supplied IP address is valid
+wire [47:0] remote_mac           ;
+wire        remote_mac_valid     ;
+wire [31:0] remote_ip            ;
+wire        remote_ip_valid      ;
+reg  [47:0] remote_mac_sync           ;
+reg  [31:0] remote_ip_sync            ;
+wire to_ip_is_me; // formerly implicit net
+
 
 wire udp_tx_active;
 wire eeprom_ready;
 wire [1:0] phy_speed;
 wire phy_duplex;
-wire dhcp_success;
+
 wire icmp_rx_enable;
 wire phy_connected_int = phy_duplex && (phy_speed[1] != phy_speed[0]);
 
@@ -109,8 +134,8 @@ localparam
 // Set Tx_reset (no sdr send) if network_state is True
 assign network_state_dhcp = reg_network_state_dhcp;   // network_state is low when we have an IP address
 assign network_state_fixedip = reg_network_state_fixedip;
-reg reg_network_state_dhcp = 1'b1;           // this is used in network.v to hold code in reset when high
-reg reg_network_state_fixedip = 1'b1;
+
+
 reg [3:0] state = ST_START;
 reg [21:0] dhcp_timer;
 reg dhcp_tx_enable;
@@ -207,6 +232,9 @@ always @(negedge clock_2_5MHz)
             local_ip <= static_ip;
           end else begin
             local_ip <= apipa_ip;
+            // APIPA_AUTO_DHCP_RETRY: count seconds until fresh DHCP attempt.
+            // dhcp_timer has just been reloaded to one second above.
+            dhcp_renew_timer <= 18'd15;
           end
           state <= ST_RUNNING;
         end
@@ -227,6 +255,22 @@ always @(negedge clock_2_5MHz)
     ST_RUNNING: begin
       dhcp_enable <= 1'b0;          // disable dhcp receive
       reg_network_state_fixedip <= 1'b0;    // let network.v know we have a valid IP address
+      // APIPA_AUTO_DHCP_RETRY: only in DHCP-with-APIPA mode (config bit 7=0).
+      // Both static modes (bit 7=1) retain their original ST_RUNNING behavior.
+      if (!eeprom_config[7]) begin
+        if (dhcp_timer == 0) begin
+          dhcp_timer <= 22'd2_500_000;
+          if (dhcp_renew_timer == 0) begin
+            // Reuse established supervisor reset/reconnect path. This resets
+            // DHCP RX/TX transaction state in patched dhcp.v, without a PHY flap.
+            state <= ST_PHY_CONNECT;
+            reg_network_state_dhcp <= 1'b1;
+            reg_network_state_fixedip <= 1'b1;
+          end else
+            dhcp_renew_timer <= dhcp_renew_timer - 18'd1;
+        end else
+          dhcp_timer <= dhcp_timer - 22'd1;
+      end
     end
 
     // NOTE: reg_network_state is not set here so we can send DHCP packets whilst waiting for DHCP renewal.
@@ -435,7 +479,7 @@ wire [15:0] dhcp_udp_destination_port = tx_is_dhcp ? dhcp_destination_port :
     run_destination_port);
 
 wire dhcp_rx_active;
-wire mac_rx_active;
+
 
 
 always @(posedge tx_clock)
@@ -608,22 +652,22 @@ generate
   end
 endgenerate
 
-wire        dhcp_tx_request      ;
-reg         dhcp_enable          ;
-wire [ 7:0] dhcp_tx_data         ;
-wire [15:0] dhcp_tx_length       ;
-wire [47:0] dhcp_destination_mac ;
-wire [31:0] dhcp_destination_ip  ;
-wire [15:0] dhcp_destination_port;
-wire [31:0] ip_accept            ; // DHCP provided IP address
-wire [31:0] lease                ; // time in seconds that DHCP supplied IP address is valid
+
+
+
+
+
+
+
+
+
 wire [31:0] server_ip            ; // IP address of the DHCP that provided the IP address
 wire        erase                ;
 wire        EPCS_FIFO_enable     ;
-wire [47:0] remote_mac           ;
-wire        remote_mac_valid     ;
-wire [31:0] remote_ip            ;
-wire        remote_ip_valid      ;
+
+
+
+
 
 dhcp dhcp_inst (
   //rx in
@@ -637,6 +681,7 @@ dhcp dhcp_inst (
 
   //tx in
   .reset                (tx_reset             ),
+  .rx_reset(rx_reset),
   .tx_clock             (tx_clock             ),
   .udp_tx_enable        (udp_tx_enable        ),
   .tx_enable            (dhcp_tx_enable       ),
@@ -666,13 +711,13 @@ dhcp dhcp_inst (
 //-----------------------------------------------------------------------------
 //                                rx to tx clock domain transfers
 //-----------------------------------------------------------------------------
-reg  [47:0] remote_mac_sync           ;
+
 wire        remote_mac_valid_sync     ;
-reg  [31:0] remote_ip_sync            ;
+
 wire        remote_ip_valid_sync      ;
-reg  [15:0] udp_destination_port_sync ;
-reg  [47:0] udp_destination_mac_sync  ;
-reg  [31:0] udp_destination_ip_sync   ;
+
+
+
 wire        udp_destination_valid_sync;
 
 //cdc_sync #(48) cdc_sync_inst1 (.siga(remote_mac), .rstb(1'b0), .clkb(tx_clock), .sigb(remote_mac_sync));
