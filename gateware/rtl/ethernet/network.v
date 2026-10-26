@@ -113,6 +113,11 @@ reg reg_network_state_dhcp = 1'b1;           // this is used in network.v to hol
 reg reg_network_state_fixedip = 1'b1;
 reg [3:0] state = ST_START;
 reg [21:0] dhcp_timer;
+// Hold the current IP through brief link interruptions instead of dropping to
+// APIPA.  dhcp_timer and dhcp_seconds_timer are reused to time the
+// interruption: the link-down branch below and the state machine case are
+// mutually exclusive, so these timers are not used by DHCP while counting.
+localparam LINK_HOLD_SECONDS = 4'd5;  // link down time before the IP is abandoned (max 15 s)
 reg dhcp_tx_enable;
 reg [17:0] dhcp_renew_timer;  // holds number of seconds before DHCP IP address must be renewed
 reg [3:0] dhcp_seconds_timer;   // number of seconds since the DHCP request started
@@ -126,11 +131,29 @@ sync sync_inst2(.clock(tx_clock), .sig_in(state <= ST_PHY_SETTLE), .sig_out(tx_r
 
 
 always @(negedge clock_2_5MHz)
-  //if connection lost, wait until reconnects
+  //if connection lost, wait until it reconnects.
+  //A brief disconnection must not abandon a valid IP address and fall back to
+  //APIPA: hold the current state (the state machine case below is not
+  //executed, so it pauses) while the link has been down for less than
+  //LINK_HOLD_SECONDS.  dhcp_timer is reused as the one-second prescaler and
+  //dhcp_seconds_timer counts the seconds of down time; this is safe because
+  //this branch and the state machine case are mutually exclusive, and any
+  //partial countdown only shifts the timer phase.  If the link stays down
+  //longer, reset the network stack and return to ST_PHY_CONNECT so a fresh
+  //DHCP attempt starts when the cable reconnects (APIPA is then only reached
+  //if that new attempt times out).
   if ((state > ST_PHY_CONNECT) && !phy_connected_int) begin
-    reg_network_state_dhcp <= 1'b1;
-    reg_network_state_fixedip <= 1'b1;
-    state <= ST_PHY_CONNECT;
+    if (dhcp_seconds_timer >= LINK_HOLD_SECONDS) begin
+      reg_network_state_dhcp <= 1'b1;
+      reg_network_state_fixedip <= 1'b1;
+      state <= ST_PHY_CONNECT;
+    end
+    else if (dhcp_timer == 0) begin
+      dhcp_seconds_timer <= dhcp_seconds_timer + 4'd1;
+      dhcp_timer <= 22'd2_500_000;    // reset dhcp timer to one second
+    end
+    else
+      dhcp_timer <= dhcp_timer - 22'd1;
   end
 
   else
@@ -227,12 +250,20 @@ always @(negedge clock_2_5MHz)
     ST_RUNNING: begin
       dhcp_enable <= 1'b0;          // disable dhcp receive
       reg_network_state_fixedip <= 1'b0;    // let network.v know we have a valid IP address
+      dhcp_seconds_timer <= 4'd0;   // park the reused link-hold counter at zero.
+                                    // This state is only entered with the link
+                                    // up, so the link-down branch always starts
+                                    // counting from zero even after the ST_DHCP
+                                    // timeout left seconds at 14 (APIPA/static).
     end
 
     // NOTE: reg_network_state is not set here so we can send DHCP packets whilst waiting for DHCP renewal.
 
     ST_DHCP_RENEW_WAIT: begin // Wait until the DHCP lease expires
       dhcp_enable <= 1'b0;        // disable dhcp receive
+      dhcp_seconds_timer <= 4'd0; // park the reused link-hold counter at zero so
+                                  // each disconnection is timed on its own.
+                                  // Not read by the lease countdown below.
 
       if (dhcp_timer == 0) begin // another second has elapsed
         dhcp_renew_timer <= dhcp_renew_timer - 18'h01;

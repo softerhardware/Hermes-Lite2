@@ -74,6 +74,14 @@ reg [31:0] destination_ip  = 32'hFFFFFFFF    ;
 assign dhcp_destination_mac = destination_mac;
 assign dhcp_destination_ip  = destination_ip;
 
+// reset is synchronized to tx_clock by the parent module.  Synchronize it
+// into the rx clock domain so the receive state machine, the is_renewal flag
+// and the unicast destination addresses can be cleared when the parent module
+// restarts the DHCP process after a long disconnection.  reset is a slow
+// level (held for a full second), so two-flop synchronization is safe.
+wire reset_rx;
+sync sync_inst0 (.clock(rx_clock), .sig_in(reset), .sig_out(reset_rx));
+
 reg         have_previous_lease;
 
 reg  [15:0] xid_sum     ; // random-ish number, constant after the first DHCP Discover
@@ -231,6 +239,19 @@ reg [31:0] temp_ip_accept ;
 
 always @ (posedge rx_clock)
   begin
+    if (reset_rx) begin
+      // DHCP process restarted by parent module (eg. after a long
+      // disconnection): start from scratch so a fresh broadcast Discover is
+      // sent instead of an unicast renewal to an old, possibly stale server.
+      rx_state        <= RX_IDLE;
+      rx_send_request <= 1'b0;
+      is_renewal      <= 1'b0;
+      dhcp_success    <= 1'b0;
+      dhcp_failed     <= 1'b0;
+      destination_mac <= 48'hFFFFFFFFFFFF;
+      destination_ip  <= 32'hFFFFFFFF;
+    end
+    else begin
     if (state == DHCPSEND) rx_send_request <= 1'b0;   // Only clear send request when tx has seen it
 
     if (dhcp_rx_active && rx_enable)
@@ -425,13 +446,14 @@ always @ (posedge rx_clock)
     default: rx_state <= RX_IDLE;
   endcase
 
-  else begin // !(dhcp_rx_active && rx_enable)
-    if (!rx_enable) begin
-      dhcp_success <= 1'b0;
-      dhcp_failed <= 1'b0;
+      else begin // !(dhcp_rx_active && rx_enable)
+        if (!rx_enable) begin
+          dhcp_success <= 1'b0;
+          dhcp_failed <= 1'b0;
+        end
+        rx_state <= RX_IDLE;
+      end
     end
-    rx_state <= RX_IDLE;
   end
-end
 
 endmodule
