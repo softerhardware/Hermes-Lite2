@@ -83,10 +83,10 @@ class Test(object):
 
         srcs = []
 
-        srcs.append("../rtl/cordic.v")
-        srcs.append("../rtl/cic.v")
-        srcs.append("../rtl/cic_comb.v")
-        srcs.append("../rtl/cic_integrator.v")
+        srcs.append("../rtl/radio_openhpsdr1/cordic.v")
+        srcs.append("../rtl/radio_openhpsdr1/cic.v")
+        srcs.append("../rtl/radio_openhpsdr1/cic_comb.v")
+        srcs.append("../rtl/radio_openhpsdr1/cic_integrator.v")
 
         srcs.append("%s.v" % self.testbench)
 
@@ -194,10 +194,11 @@ class Test(object):
     def test_bench(self):
         sim = Simulation(self.bench())
         sim.run()
-        s = spectrum.Spectrum(self.res,self.dt*self.cic_decimation,window=signal.flattop)
-        ##peaks = s.findPeaks(order=4,clipdb=90)
-        ##s.printPeaks(peaks)
-        s.plot()
+        s = spectrum.Spectrum(self.res,self.dt*self.cic_decimation,window=signal.windows.flattop)
+        png = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                       'rx1_spectrum.png')
+        s.savepng(png, "rx1 CIC Output Spectrum")
+   
 
 
 if __name__ == '__main__':
