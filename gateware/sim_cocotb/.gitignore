@@ -1,0 +1,16 @@
+# cocotb/Verilator build and run artifacts
+sim_build/
+dump.vcd
+results.xml
+__pycache__/
+
+# per-testbench logs written by the top-level Makefile
+test-logs/
+
+# ROM images copied into run dirs by the Makefile %.txt rule
+sincos_coarse.txt
+sin_fine.txt
+coefL4*.txt
+
+# spectrum plots rendered by the tests
+*_spectrum.png
