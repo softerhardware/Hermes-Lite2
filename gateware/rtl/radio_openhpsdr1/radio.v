@@ -454,6 +454,8 @@ assign rx_data_i[0] = VNA_SCAN_FPGA ? vna_out_I : rx0_out_I;
 assign rx_data_q[0] = VNA_SCAN_FPGA ? vna_out_Q : rx0_out_Q;
 
 // This module is a replacement for receiver zero when the FPGA scans in VNA mode.
+generate
+if (VNA >= 1) begin: VNA1
 vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output for VNA_SCAN_FPGA
     //control
     .clk(clk),
@@ -473,7 +475,8 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
     .rx0_phase(rx0_phase),
     .vna_count(vna_count)
     );
-
+end
+endgenerate
 
   // One receiver minimum
   mix2 #(.CALCTYPE(CALCTYPE)) mix2_0 (
