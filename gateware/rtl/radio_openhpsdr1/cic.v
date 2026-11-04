@@ -81,7 +81,7 @@ wire signed [ACC_WIDTH-1:0] integrator_data [0:STAGES];
 wire signed [ACC_WIDTH-1:0] comb_data [0:STAGES];
 
 
-assign integrator_data[0] = in_data;
+assign integrator_data[0] = {{(ACC_WIDTH-IN_WIDTH){1'b0}},in_data};
 assign comb_data[0] = integrator_data[STAGES];
 
 
