@@ -4,7 +4,7 @@ This document describes the high-level architecture of the Hermes-Lite 2 FPGA ga
 focused on the `hl2b5up_main` build variant (HL2 board revision 5 and later, main
 configuration). All file references are relative to `gateware/`.
 
-*Companion pages: [Critical Bugs](Critical-Bugs) · [Refactor Plan](Refactor-Plan) · [Wideband Streaming Plan](Wideband-Streaming-Plan)*
+This document is AI generated and has not been verified to be 100% accurate. It is still a very useful overview of the HL2 architecture.
 
 ---
 
@@ -14,7 +14,7 @@ The Hermes-Lite 2 is a direct-sampling amateur radio SDR transceiver built aroun
 
 | Component | Device | Role |
 |---|---|---|
-| Intel/Altera Cyclone IV `EP4CE22E22C8` | 22,320 LEs, 60 M9K, 52 × 18×18 multipliers | The entire digital radio |
+| Intel/Altera Cyclone IV `EP4CE22E22C8` | 22,320 LEs, 66 M9K, 66 × 18×18 multipliers | The entire digital radio |
 | AD9866 | ADC/DAC combo, 76.8 MHz | 12-bit RX ADC and TX DAC with fast LNA gain control |
 | Ethernet PHY (KSZ9021/9031 class) | RGMII, 1 Gb/s or 100 Mb/s | All host I/O |
 
@@ -112,7 +112,7 @@ Notes on the build:
 * `boards/hl2b5up/files.tcl` lists every compiled source. It contains duplicate
   entries and pulls in files never instantiated for this variant (the QS1R receiver
   set, `receiver.v`, `receiver_4000.v`, …); Quartus elaborates them but prunes
-  unused modules. See [Refactor-Plan](Refactor-Plan) §R5.
+  unused modules.
 * Simulation lives in `gateware/sim/` as MyHDL co-simulation testbenches
   (`test_rx2.py`, `test_nco1.py`, `test_mix1.py`, `test_cordic.py`, …) run under
   Icarus Verilog.
@@ -459,11 +459,4 @@ The EP4CE22 is small, and the design makes consistent trade-offs to fit:
 * Multipliers go exclusively through `primitives/*/multipliers.v` wrappers so
   Quartus maps them to dedicated 18×18 blocks with uniform 2-stage pipelining.
 
-## 10. Known Weak Spots
 
-Cross-cutting weaknesses found during review — broken debouncer, absent RX frame
-integrity checking, several CDC defects, command-path read-back errors, and a
-shorted FIFO occupancy bus — are documented with evidence and fixes in
-[Critical Bugs](Critical-Bugs). Structural clean-up opportunities (receiver
-generate-loop unification, command-bus consolidation, FIFO wrapper library, CDC
-toolkit, dead-code pruning) are laid out in [Refactor Plan](Refactor-Plan).
