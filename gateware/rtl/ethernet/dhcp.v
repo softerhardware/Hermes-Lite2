@@ -282,7 +282,9 @@ always @ (posedge rx_clock)
       // disconnection): start from scratch so a fresh broadcast Discover is
       // sent instead of an unicast renewal to an old, possibly stale server.
       rx_state        <= RX_IDLE;
-      rx_send_request <= 1'b0;
+      // abandon a request whose ack has not come back yet; rx_send_toggle
+      // keeps its value on purpose so the tx side sees no false edge
+      send_outstanding<= 1'b0;
       is_renewal      <= 1'b0;
       dhcp_success    <= 1'b0;
       dhcp_failed     <= 1'b0;

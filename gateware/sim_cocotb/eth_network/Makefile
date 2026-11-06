@@ -13,6 +13,8 @@ VERILOG_SOURCES += $(TOPDIR)/ethernet/dhcp.v
 VERILOG_SOURCES += $(TOPDIR)/ethernet/arp.v
 VERILOG_SOURCES += $(TOPDIR)/ethernet/icmp.v
 VERILOG_SOURCES += $(TOPDIR)/ethernet/icmp_fifo.v
+# icmp_fifo is a wrapper over the shared stream_fifo shell
+VERILOG_SOURCES += $(TOPDIR)/fifos.v
 VERILOG_SOURCES += $(TOPDIR)/ethernet/ip_recv.v
 VERILOG_SOURCES += $(TOPDIR)/ethernet/ip_send.v
 VERILOG_SOURCES += $(TOPDIR)/ethernet/udp_recv.v

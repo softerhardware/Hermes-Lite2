@@ -5,6 +5,7 @@ GPI_IMPL := vpi
 VERILOG_SOURCES += $(PWD)/../../rtl/sync.v
 VERILOG_SOURCES += $(PWD)/../../rtl/ethernet/icmp.v
 VERILOG_SOURCES += $(PWD)/../../rtl/ethernet/icmp_fifo.v
+VERILOG_SOURCES += $(PWD)/../../rtl/fifos.v
 # Altera megafunction simulation library (models altddio_*, dcfifo, ...)
 VERILOG_SOURCES += /home/shaynal/altera_lite/25.1std/quartus/eda/sim_lib/altera_mf.v
 

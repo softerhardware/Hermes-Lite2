@@ -36,7 +36,7 @@ module stream_fifo #(
   parameter WIDTHU_R          = 10,      // bits of rd_count
   parameter SHOWAHEAD         = "ON",
   parameter ADD_USEDW_MSB     = "OFF",   // dcfifo (same-width) branch only
-  parameter WRSYNC_ACLR_SYNCH = "OFF",
+  parameter WRITE_ACLR_SYNCH  = "OFF",   // dcfifo (same-width) branch only
   parameter USE_EAB           = "ON",
   parameter LPM_HINT          = "UNUSED",
   parameter DEVICE_FAMILY     = "Cyclone IV E"
@@ -74,7 +74,7 @@ module stream_fifo #(
       .underflow_checking     ("ON"),
       .use_eab                (USE_EAB),
       .wrsync_delaypipe       (4),
-      .wrsync_aclr_synch      (WRSYNC_ACLR_SYNCH)
+      .write_aclr_synch       (WRITE_ACLR_SYNCH)
     ) dcfifo_i (
       .wrclk   (wr_clk),
       .wrreq   (wr_req),
@@ -358,7 +358,7 @@ stream_fifo #(
   .WIDTHU_W          (11),
   .WIDTHU_R          (11),
   .ADD_USEDW_MSB     ("ON"),
-  .WRSYNC_ACLR_SYNCH ("ON")
+  .WRITE_ACLR_SYNCH  ("ON")
 ) stream_fifo_i (
   .wr_clk   (wr_clk),
   .wr_req   (wr_tvalid),
