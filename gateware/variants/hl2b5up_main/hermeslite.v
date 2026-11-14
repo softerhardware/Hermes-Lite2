@@ -93,6 +93,8 @@ module hermeslite (
 
 
   hermeslite_core #(
+    .VERSION_MAJOR_OVR (75                               ),
+    .VERSION_MINOR_OVR (0                                ),
     .BOARD        (5                                    ),
     .IP           ({8'd0,8'd0,8'd0,8'd0}                ),
     .MAC          ({8'h00,8'h1c,8'hc0,8'ha2,8'h13,8'hdd}),
