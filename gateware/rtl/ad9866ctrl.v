@@ -116,7 +116,6 @@ logic [1:0]       cmd_state_next;
 logic [3:0]       tx_gain = 4'hf;
 logic [3:0]       tx_gain_next = 4'hf;
 logic [6:0]       rx_gain = 7'b1000000;
-logic [6:0]       rx_gain_next = 7'b1000000;
 
 logic [12:0]      icmd_data = 12'h000;
 
@@ -124,14 +123,12 @@ logic [12:0]      icmd_data = 12'h000;
 always @(posedge clk) begin
   cmd_state <= cmd_state_next;
   tx_gain <= tx_gain_next;
-  //rx_gain <= rx_gain_next;
   cmd_ack <= cmd_ack_next;
 end
 
 always @* begin
   cmd_state_next = cmd_state;
   tx_gain_next = tx_gain;
-  //rx_gain_next = rx_gain;
   cmd_ack_next = cmd_ack;
   istart = 1'b0;
 
@@ -164,7 +161,6 @@ always @* begin
               if (rx_gain != cmd_data[6:0]) begin
                 // Must update
                 if (rffe_ad9866_sen_n) begin
-                  rx_gain_next = cmd_data[6:0];
                   cmd_state_next = CMD_RXGAIN;
                 end else begin
                   cmd_ack_next = 1'b0;
