@@ -29,7 +29,8 @@ module dsopenhpsdr1 (
   //output              dsethlr_tuser,
   output              dsethasmi_tvalid   ,
   output              dsethasmi_tlast    ,
-  output logic [13:0] asmi_cnt             = 14'h000,
+  output logic [11:0] asmi_cnt             = 12'h000,
+  output logic [ 1:0] asmi_addr_slot       = 2'd0,
   output              dsethasmi_erase    ,
   input               dsethasmi_erase_ack,
   output logic        ds_pkt_cnt         ,
@@ -96,7 +97,8 @@ logic        ds_cmd_rqst                  ;
 logic        ds_pkt_cnt_next              ;
 logic        watchdog_clr                 ;
 logic [11:0] watchdog_cnt         = 12'h00;
-logic [13:0] asmi_cnt_next                ;
+logic [11:0] asmi_cnt_next                ;
+logic [ 1:0] asmi_addr_slot_next          ;
 logic [ 8:0] msec_cnt                     ;
 logic        msec_cnt_not_zero            ;
 logic        cwx_pushiq           = 1'b0  ;
@@ -123,6 +125,7 @@ always @(posedge clk) begin
   discover_port   <= discover_port_next;
   discover_cnt    <= discover_cnt_next;
   asmi_cnt        <= asmi_cnt_next;
+  asmi_addr_slot  <= asmi_addr_slot_next;
   cwx_pushiq      <= cwx_pushiq_next;
   cwx_saved       <= cwx_saved_next;
   ds_pkt_cnt      <= ds_pkt_cnt_next;
@@ -159,6 +162,7 @@ always @(*) begin
   ds_cmd_is_alt_next = ds_cmd_is_alt;
   ds_cmd_mask_next = ds_cmd_mask;
   asmi_cnt_next = asmi_cnt;
+  asmi_addr_slot_next = asmi_addr_slot;
   cwx_pushiq_next = cwx_pushiq;
   cwx_saved_next = cwx_saved;
   ds_pkt_cnt_next = ds_pkt_cnt;
@@ -212,8 +216,17 @@ always @(*) begin
 
     ASMI_DECODE: begin
       pushcnt_next = 8'h00;
-      if (eth_data == 8'h01) state_next = ASMI_CNT3;
-      else if (eth_data == 8'h02) begin
+      // Gateware update packets carry the target user slot in bits [6:5].
+      // Slot N is programmed at flash address N<<19. Slot 0 holds the
+      // factory image and must never be erased or written, so slot 0 in the
+      // command maps to slot 2 (0x100000). This also preserves older clients
+      // that send no slot field at all.
+      if (|eth_data[6:5]) asmi_addr_slot_next = eth_data[6:5];
+      else                asmi_addr_slot_next = 2'd2;
+      if (eth_data[4:0] == 5'h01) begin
+        state_next = ASMI_CNT3;
+      end
+      else if (eth_data[4:0] == 5'h02) begin
         dsethasmi_erase = 1'b1;
         state_next = ASMI_ERASE;
       end
@@ -229,12 +242,12 @@ always @(*) begin
 
     ASMI_CNT1: begin
       state_next = ASMI_CNT0;
-      asmi_cnt_next = {eth_data[5:0],asmi_cnt[7:0]};
+      asmi_cnt_next = {eth_data[3:0],asmi_cnt[7:0]};
     end
 
     ASMI_CNT0: begin
       state_next = ASMI_PROGRAM;
-      asmi_cnt_next = {asmi_cnt[13:8],eth_data};
+      asmi_cnt_next = {asmi_cnt[11:8],eth_data};
     end
 
     ASMI_PROGRAM: begin

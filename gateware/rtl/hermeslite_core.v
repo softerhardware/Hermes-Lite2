@@ -137,10 +137,18 @@ parameter       DSIQ_FIFO_DEPTH = 16384;
 
 parameter       BYPASS_VERSA = 0;
 
+// Optional per-variant gateware version stamp. Defaults to 0 meaning "use
+// the standard version". Bench builds that live in several flash slots set
+// this so the host can tell at a glance which slot actually booted.
+parameter       VERSION_MAJOR_OVR = 0;
+parameter       VERSION_MINOR_OVR = 0;
+
 localparam      TUSERWIDTH = (AK4951 == 1) ? 16 : 2;
 
-localparam      VERSION_MAJOR = (BOARD==2) ? 8'd54 : 8'd74;
-localparam      VERSION_MINOR = 8'd3;
+localparam      VERSION_MAJOR = VERSION_MAJOR_OVR != 0 ? VERSION_MAJOR_OVR
+                              : (BOARD==2) ? 8'd54 : 8'd74;
+localparam      VERSION_MINOR = VERSION_MINOR_OVR != 0 ? VERSION_MINOR_OVR
+                              : 8'd4;
 
 logic   [5:0]   cmd_addr;
 logic   [31:0]  cmd_data;
@@ -289,7 +297,8 @@ logic           watchdog_up, watchdog_up_sync;
 
 logic           dsethasmi_erase, dsethasmi_erase_ack;
 logic           usethasmi_send_more, usethasmi_erase_done, usethasmi_ack;
-logic [13:0]    asmi_cnt = 14'h0000;
+logic [11:0]    asmi_cnt = 12'h0000;
+logic [ 1:0]    asmi_addr_slot = 2'd0;
 logic           dsethasmi_tvalid;
 
 logic  [31:0]   static_ip;
@@ -326,6 +335,10 @@ logic [11:0] fwdpwr                    ;
 logic [11:0] revpwr                    ;
 logic [11:0] bias                      ;
 logic [ 7:0] control_dsiq_status       ;
+
+// Boot-slot request from Versa register 0x80 (see i2c.v, remote_update.v).
+logic [ 2:0]   bootsel                   ;
+logic          bootsel_done              ;
 logic        ds_pkt_cnt                ;
 logic        ds_pkt_usopenhpsdr1       ;
 
@@ -559,6 +572,7 @@ dsopenhpsdr1 dsopenhpsdr1_i (
   .dsethasmi_tvalid(dsethasmi_tvalid),
   .dsethasmi_tlast(),
   .asmi_cnt(asmi_cnt),
+  .asmi_addr_slot(asmi_addr_slot),
   .dsethasmi_erase(dsethasmi_erase),
   .dsethasmi_erase_ack(dsethasmi_erase_ack),
 
@@ -1116,7 +1130,9 @@ control #(
   .pa_exttr           (pa_exttr                   ),
   
   .hl2_reset          (hl2_reset                  ),
-  
+  .bootsel            (bootsel                    ),
+  .bootsel_done       (bootsel_done               ),
+    
   .fan_pwm            (fan_pwm                    ),
   
   .ad9866_rst         (ad9866_rst                 ),
@@ -1192,6 +1208,7 @@ generate case (ASMII)
       .send_more(usethasmi_send_more),
       .send_more_ACK(usethasmi_ack),
       .num_blocks(asmi_cnt),
+      .asmi_addr_slot(asmi_addr_slot),
       .NCONFIG(asmi_reconfig)
     );
 
@@ -1199,7 +1216,9 @@ generate case (ASMII)
       .clk(clk_ctrl),
       .rst(~ethpll_locked),
       .reboot(asmi_reconfig | hl2_reset),
-      .factory( (~io_phone_tip & ~io_phone_ring) )
+      .factory( (~io_phone_tip & ~io_phone_ring) ),
+      .bootsel(bootsel),
+      .bootsel_done(bootsel_done)
     );
 
   end

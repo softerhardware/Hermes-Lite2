@@ -535,8 +535,18 @@ class HermesLite:
     self.write_eeprom(0x0c,b0)
     self.write_eeprom(0x0d,b1)
 
-  def update_gateware(self,filename,filename_checks=True):
-    """Program gateware with .rbf file"""
+  def update_gateware(self,filename,filename_checks=True,slot=0):
+    """Program gateware with .rbf file into user slot 1, 2 or 3. Slot N is
+    programmed at flash address N<<19. Slot 0 holds the factory image and can
+    never be written. The default of 0 selects the slot used by older software
+    (slot 2, flash address 0x100000).
+    To boot the newly programmed slot after the update reboots the board,
+    first stage the slot number in Versa5 register 0x80:
+    write_versa5(0x80, slot)."""
+    if slot not in (0,1,2,3):
+      print("ERROR: Gateware slot must be 0 (default), 1, 2 or 3.")
+      return
+    slot_field = (slot if slot != 0 else 2) << 5
     if filename_checks and filename.split(".")[1] != "rbf":
       print("ERROR: File {} must have .rbf extension.".format(filename))
       return
@@ -562,7 +572,7 @@ class HermesLite:
       ## Based on Quisk code by Jim N2ADR
       blocks = (size + 255) // 256
       print("Erase old program...")
-      resp = self._send(bytes([0xef,0xfe,0x03,0x02]+([0x00]*56)),port=1024,timeout=10.0,attempts=1)
+      resp = self._send(bytes([0xef,0xfe,0x03,slot_field | 0x02]+([0x00]*56)),port=1024,timeout=10.0,attempts=1)
       if resp == None:
         print("ERROR: No response from HL2 for erase.")
         return
@@ -570,7 +580,7 @@ class HermesLite:
         print("ERROR: Unexpected response type {} for erase".format(resp.type))
         return
       print("Programming.",end="",flush=True)
-      cmd = bytes([0xef,0xfe,0x03,0x01,(blocks>>24)&0xff,(blocks>>16)&0xff,(blocks>>8)&0xff,blocks&0xff])
+      cmd = bytes([0xef,0xfe,0x03,slot_field | 0x01,(blocks>>24)&0xff,(blocks>>16)&0xff,(blocks>>8)&0xff,blocks&0xff])
       for block in range(blocks):
         print(".",end="",flush=True)
         prog = fp.read(256)
@@ -588,9 +598,10 @@ class HermesLite:
     print("")
     print("SUCCESS: Wait for HL2 to restart.")
 
-  def update_gateware_github(self,version='',delete=True):
+  def update_gateware_github(self,version='',delete=True,slot=0):
     """Update the gateware given a version string. Version set to 'stable/20200529_71p3/hl2b5up_main/hl2b5up_main.rbf'
-    will update to that stable version."""
+    will update to that stable version. slot is the user gateware slot, see
+    update_gateware()."""
     urlroot = "https://github.com/softerhardware/Hermes-Lite2/raw/master/gateware/bitfiles/"
     if version == '':
       try:
@@ -606,12 +617,15 @@ class HermesLite:
         with tempfile.NamedTemporaryFile(delete=delete) as tmp_file:
             shutil.copyfileobj(response, tmp_file)
             print("Copied {0} to {1}".format(u,tmp_file.name))
-            self.update_gateware(tmp_file.name,filename_checks=False)
+            self.update_gateware(tmp_file.name,filename_checks=False,slot=slot)
     except urllib.error.HTTPError:
       print("ERROR: Bad URL {}.".format(u))
 
   def reboot(self):
-    """Force reset of HL2 if not in run mode, or when exiting run mode"""
+    """Force reset of HL2 if not in run mode, or when exiting run mode.
+    To boot a specific user gateware slot, first stage the slot number in
+    Versa5 register 0x80: write_versa5(0x80, slot). The factory image reads
+    that register when it boots and configures from the requested slot."""
     addr = 0x3a
     cmd = bytes([0x00,0x00,0x00,0x01])
     res = self._send(bytes([0xef,0xfe,0x05,0x7f,addr<<1])+cmd+bytes([0x0]*51),attempts=1)

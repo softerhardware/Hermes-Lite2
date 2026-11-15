@@ -6,6 +6,23 @@ module i2c (
     input  logic         init_start,
     input  logic         lost_clock,
 
+    // Boot-slot selector, read from Versa volatile register 0x80 during the
+    // Versa init sequence (STATE_CLINIT*). The Versa chip is a separate
+    // device whose volatile registers survive FPGA reconfiguration but
+    // reset to 0 on power loss, so the host stages a boot-slot request with
+    // the existing write_versa5(0x80, N) path before issuing a reboot.
+    // Encoding: bit [2] valid (set once the register has been read),
+    // bits [1:0] request code from the Versa byte, passed through
+    // unchanged: 0 -> slot 2, 1 -> slot 1, 2 -> stay in golden, 3 -> slot 3
+    // (decoded in remote_update.v). 3'b0XX means not yet read.
+    output logic [2:0]   bootsel,
+    // Handshake for the remote update core: high once the boot-slot read
+    // has completed. The factory image waits on this before choosing a
+    // boot slot, because its decision FSM otherwise runs far faster than
+    // the i2c init sequence. If the read never completes this stays low
+    // and the hardware watchdog in remote_update.v recovers.
+    output logic         bootsel_done,
+
     // Command slave interface
     input  logic [5:0]   cmd_addr,
     input  logic [31:0]  cmd_data,
@@ -78,6 +95,10 @@ localparam [7:0]
   STATE_CL1OFF4      = {3'b001,5'b11101},
   STATE_CL1OFF5      = {3'b001,5'b11110};
 
+// Boot-slot read states (Versa register 0x80, see remote_update.v).
+localparam logic [7:0] STATE_CLINITBS1 = {3'b000,5'b00001};
+localparam logic [7:0] STATE_CLINITBS2 = {3'b000,5'b00010};
+
 localparam [7:0]
   STATE_EEPROM0      = {3'b001,5'b11111}, // Keep address 6'h3c
   STATE_EEPROM1      = {3'b010,5'b00001},
@@ -116,13 +137,34 @@ logic [31:0]  static_ip_next;
 logic [15:0]  alt_mac_next;
 logic [7:0]   eeprom_config_next;
 
-
-
 always @(posedge clk) begin
   state <= state_next;
   static_ip <= static_ip_next;
   alt_mac <= alt_mac_next;
   eeprom_config <= eeprom_config_next;
+  // Clear any boot-slot request from a previous configuration cycle so a
+  // stale value can never select a slot before (or instead of) this
+  // cycle's Versa read.
+  if (rst) begin
+    bootsel       <= 3'b000;
+    bootsel_done  <= 1'b0;
+  end else begin
+  // Stage the boot-slot request read from Versa register 0x80. The Versa
+  // read data byte lands in cmd_resp_data[7:0] (same position the host
+  // read_versa5() reads). Bits [1:0] pass through unchanged: 0 -> slot 2
+  // (power-on default), 1 -> slot 1, 2 -> stay in the golden image, 3 ->
+  // slot 3. Bit [2] is the valid flag for the remote update core, set only
+  // when the register was actually read.
+  // If the read never completes (Versa does not answer) this state and the
+  // handshake below stall; the Cyclone IV hardware watchdog in
+  // remote_update.v then forces a reconfiguration and the watchdog error
+  // status keeps the next golden boot in the factory image. A failed Versa
+  // read is a board-level fault, so that fallback is deliberate.
+  if (state == STATE_CLINITBS2 & read_done) begin
+    bootsel       <= {1'b1, cmd_resp_data[1:0]};
+    bootsel_done  <= 1'b1;
+  end
+  end
 end
 
 always @* begin
@@ -157,6 +199,20 @@ always @* begin
     icmd_data_upper = cmd_data[31:16];
     icmd_rqst       = cmd_rqst;
   end
+  // The boot-slot read is a Versa READ command. The i2c_bus2 controller
+  // only accepts commands whose cmd_data[31:25] == 7'h03 and uses bit [24]
+  // to select read vs write (see its STATE_IDLE). Host software pre-shifts
+  // the opcode left by one for this reason: write_versa5() sends opcode
+  // 0x06 (0x0C >> 1, read bit clear), read_versa5() sends opcode 0x07
+  // (0x0E >> 1, read bit set). So the command word here is byte-identical
+  // to read_versa5(0x80); the {8'h07, 1'b1, 7'h6a} write form used elsewhere
+  // in the Versa sequence has the read bit clear and the stop flag set.
+  if (state == STATE_CLINITBS1 | state == STATE_CLINITBS2) begin
+    icmd_addr       = 6'h3c;
+    icmd_data_upper = {8'h07, 1'b1, 7'h6a};
+    icmd_rqst       = 1'b0; // CLINITBS1 issues its own request below
+  end
+
   icmd_reg_val = cmd_data[15:0];
 
 
@@ -241,13 +297,10 @@ always @* begin
       icmd_reg_val = {8'h60, 8'h3b}; // Enable output 1
       if (ready) begin
           icmd_rqst = 1'b1;
-`ifndef AK4951
           state_next = STATE_EEPROM0;
-`else
-          state_next = STATE_AK4951S0;
-`endif
       end
     end
+
 
     STATE_CL2ON0: begin
       icmd_reg_val = {8'h62, 8'h3b}; // Clock2 CMOS1 output and 3.3V
@@ -565,6 +618,31 @@ always @* begin
       icmd_reg_val = {8'h6c, 8'hxx};
       if (read_done) begin
         eeprom_config_next = cmd_resp_data[15:8];
+        state_next = STATE_CLINITBS1;
+      end
+    end
+
+    // Read back the boot-slot request byte staged by the previous app
+    // image with write_versa5(0x80, slot). Placed at the END of the init
+    // sequence: the Versa read transaction can fail to complete if the
+    // chip does not answer (the bus controller then stays busy), so it
+    // must not hold up the EEPROM reads that load the IP address. If this
+    // read stalls, the hardware watchdog in remote_update.v recovers.
+    STATE_CLINITBS1: begin
+      icmd_reg_val = {8'h80, 8'h00};
+      if (ready) begin
+          icmd_rqst = 1'b1;
+          state_next = STATE_CLINITBS2;
+      end
+    end
+
+    STATE_CLINITBS2: begin
+      // NOTE: do NOT issue a Versa write here to clear the request byte.
+      // A write issued immediately after this read transaction hangs the
+      // i2c bus (verified on hardware). The request stays sticky in the
+      // Versa until the host overwrites it or the board is power cycled
+      // (register 0x80 POR default is 0 = default slot).
+      if (read_done) begin
         state_next = STATE_IDLE;
       end
     end

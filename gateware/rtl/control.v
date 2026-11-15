@@ -95,7 +95,12 @@ module control (
   output              [11:0] fwdpwr             ,
   output              [11:0] revpwr             ,
   output              [11:0] bias               ,
-  output              [ 7:0] control_dsiq_status
+  output              [ 7:0] control_dsiq_status,
+
+  // Boot-slot request read from Versa register 0x80 during Versa init
+  // (see i2c.v), passed through to the remote_update core.
+  output              [ 2:0] bootsel,
+  output                     bootsel_done
 );
 
 parameter     VERSION_MAJOR = 8'h0;
@@ -257,7 +262,10 @@ i2c i2c_i (
   .scl2_t(scl2_t),
   .sda2_i(sda2_i),
   .sda2_o(sda2_o),
-  .sda2_t(sda2_t)
+  .sda2_t(sda2_t),
+
+  .bootsel(bootsel),
+  .bootsel_done(bootsel_done)
 );
 
 assign slow_adc_sample = run ? (resp_rqst & resp_cnt) : (~led_count[5] & led_count_next[5]);

@@ -30,7 +30,7 @@
 
 
 module asmi_interface (clock, busy, erase, erase_ACK, IF_Rx_used, rdreq, IF_PHY_data,
-					   erase_done, erase_done_ACK, send_more, send_more_ACK, num_blocks, NCONFIG);
+					   erase_done, erase_done_ACK, send_more, send_more_ACK, num_blocks, asmi_addr_slot, NCONFIG);
 
 input 	wire 	clock;
 input 	wire 	erase;
@@ -38,7 +38,8 @@ input 	wire 	[9:0] IF_Rx_used;
 input  	wire  	erase_done_ACK;
 input  	wire	send_more_ACK;
 input   wire	[7:0] IF_PHY_data;
-input   wire    [13:0] num_blocks;
+input   wire    [11:0] num_blocks;
+input   wire    [1:0] asmi_addr_slot;	// user gateware slot N, written at flash address N<<19
 
 output 	wire	busy;
 output 	reg 	rdreq;
@@ -54,7 +55,7 @@ reg 	write_enable;
 reg 	write;
 reg     shift_bytes;
 reg 	[3:0]state;
-reg 	[13:0]page; 		// counts number of 256 byte blocks we are writing
+reg 	[11:0]page; 		// counts number of 256 byte blocks we are writing
 reg 	[8:0]byte_count;	// holds number of bytes we have send to ASMI
 reg     [21:0]reset_delay = 22'h0;  // delays reset after last frame sent
 
@@ -75,7 +76,7 @@ case (state)
 		write <= 0;
 		erase_ACK <= 0;
 		erase_done <= 0;
-		address <= 24'h100000;			// set starting address to write to is top 1MB
+		address <= {3'b000,asmi_addr_slot,19'h00000};	// start address is user slot N at N<<19
 		//address <= 24'h0;
 		byte_count <= 0;
 		page <= 0;
@@ -89,6 +90,7 @@ case (state)
 
 // do a sector erase
 1:	begin
+		address[20:19] <= asmi_addr_slot; // This may be late during erase
 		erase_ACK <= 1'b1; 	   	// let the Rx know we have seen the command
 		write_enable <= 1'b1;
 		sector_erase <= 1'b1;
@@ -99,7 +101,7 @@ case (state)
 		write_enable <= 0;
 		sector_erase <= 0;
 		if (busy) state <= 2;
-		else if (address != 24'h1F0000) begin
+		else if (address != {3'b000,asmi_addr_slot,3'b111,16'h0000}) begin
 				address <= address + 24'h010000;
 				state <= 1;
 		end
