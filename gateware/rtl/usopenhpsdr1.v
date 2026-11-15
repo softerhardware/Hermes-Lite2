@@ -272,7 +272,7 @@ always @* begin
         6'h35: discover_data_next = mac[23:16];
         6'h34: discover_data_next = mac[15:8];
         6'h33: discover_data_next = mac[7:0];
-        6'h32: discover_data_next = VERSION_MAJOR;
+        6'h32: discover_data_next = VERSION_MAJOR[7:0];
         6'h31: discover_data_next = idhermeslite ? 8'h06 : 8'h01;
         // FIXME: Really needed for CW skimmer? Why so much?
         6'h30: discover_data_next = {eeprom_config[7:5],5'b0000};
@@ -285,9 +285,9 @@ always @* begin
         6'h29: discover_data_next = alt_mac[7:0];
         // QUASI_STATIC_CDC: master_link_running is link-role status from the
         // ad9866 domain, quasi-static
-        6'h28: discover_data_next = master_link_running ? {NR[6:0],1'b0} : NR;
+        6'h28: discover_data_next = master_link_running ? {NR[6:0],1'b0} : NR[7:0];
         6'h27: discover_data_next = {BANDSCOPE_BITS, BOARD[5:0]};
-        6'h26: discover_data_next = VERSION_MINOR;
+        6'h26: discover_data_next = VERSION_MINOR[7:0];
         // Additions mainly for port 1025 communication
         6'h24: discover_data_next = resp_data[31:24];
         6'h23: discover_data_next = resp_data[23:16];
@@ -344,7 +344,7 @@ always @* begin
         3'h1: wide_data_next = ep4_seq_no[15:8];
         3'h0: begin
           wide_data_next = ep4_seq_no[7:0];
-          ep4_seq_no_next = ep4_seq_no + 'h1;
+          ep4_seq_no_next = ep4_seq_no + 20'h1;
           state_next = WIDE3;
         end
         default: wide_data_next = 8'hxx;
@@ -389,7 +389,7 @@ always @* begin
         3'h1: udp_data_next = ep6_seq_no[15:8];
         3'h0: begin
           udp_data_next = ep6_seq_no[7:0];
-          ep6_seq_no_next = ep6_seq_no + 'h1;
+          ep6_seq_no_next = ep6_seq_no + 20'h1;
           bs_cnt_next = bs_cnt - 7'd1;
           state_next = SYNC_RESP;
         end

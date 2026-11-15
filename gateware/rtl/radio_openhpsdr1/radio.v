@@ -780,8 +780,8 @@ localparam MAX_CWLEVEL = 19'h4d800; //(16'h4d80 << 4);
 localparam MIN_CWLEVEL = 19'h0;
 
 always @(posedge clk) begin
-  if (accumdelay_incr) accumdelay <= accumdelay + 1;
-  else if (accumdelay_decr & accumdelay_notzero) accumdelay <= accumdelay -1;
+  if (accumdelay_incr) accumdelay <= accumdelay + 11'd1;
+  else if (accumdelay_decr & accumdelay_notzero) accumdelay <= accumdelay - 11'd1;
 end
 assign accumdelay_notzero = |accumdelay;
 

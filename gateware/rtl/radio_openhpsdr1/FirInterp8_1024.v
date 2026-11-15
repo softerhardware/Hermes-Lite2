@@ -137,6 +137,7 @@ module FirInterp8_1024(
 	reg  signed [35:0] Rmult, Imult;	// multiplier result
 	reg  [2:0] phase;						// count 0, 1, ..., 7
 	reg  [9:0] counter;					// count NTAPS/8 samples + latency
+	localparam [10:0] COUNTER_INIT_WIDE = NTAPS / 11'd8 + 11'd1;
 
 
 	initial
@@ -187,7 +188,7 @@ module FirInterp8_1024(
 					rstate <= rAddr;
 					raddr <= waddr;		// read address -> newest sample
 					caddr <= phase;		// start coefficient
-					counter <= NTAPS / 11'd8 + 1'd1;	// count samples and pipeline latency
+					counter <= COUNTER_INIT_WIDE[9:0];	// count samples and pipeline latency
 					Raccum <= 1'd0;
 					Iaccum <= 1'd0;
 					Rmult <= 1'd0;

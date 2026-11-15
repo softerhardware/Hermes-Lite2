@@ -130,7 +130,7 @@ logic         cmd_ack_i2c, cmd_ack_ad9866;
 logic [31:0]  cmd_resp_data_i2c;
 logic         ptt;
 
-logic [39:0]  iresp = {8'h00, 8'b00011110, 8'h00, 8'h00, VERSION_MAJOR};
+logic [39:0]  iresp = {8'h00, 8'b00011110, 8'h00, 8'h00, VERSION_MAJOR[7:0]};
 logic [ 1:0]  resp_addr = 2'b00;
 
 logic         cmd_resp_rqst;
@@ -479,7 +479,7 @@ always @(posedge clk) begin
       iresp <= {1'b1,resp_cmd_addr,ptt_resp, resp_cmd_data}; // Queue size is 1
     end else begin
       case( resp_addr)
-        2'b00: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 6'b000111, ~ext_txinhibit, (&clip_cnt), 8'h00, dsiq_status, VERSION_MAJOR};
+        2'b00: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 6'b000111, ~ext_txinhibit, (&clip_cnt), 8'h00, dsiq_status, VERSION_MAJOR[7:0]};
         2'b01: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 4'h0, temperature, 4'h0, fwd_pwr};
         2'b10: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 4'h0, rev_pwr, 4'h0, bias_current};
         2'b11: iresp <= {3'b000,resp_addr, ext_cwkey, 1'b0, ptt_resp, 16'h0, debug}; // Unused in HL
@@ -595,7 +595,7 @@ generate case (FAN)
 
     // Fan state machine
     always @ (posedge clk) begin
-      fan_cnt <= fan_cnt + 1;
+      fan_cnt <= fan_cnt + 16'd1;
       if (slow_adc_sample) begin
         fan_state <= fan_state_next;
         tupvote <= tupvote_next;
@@ -707,16 +707,16 @@ generate case (FAN)
  
     // Frequency checking
     always @* begin
-      if      (freq[25:16] >= FREQ_25MHZ) volt_mark = VOLT_10M;
-      else if (freq[25:16] >= FREQ_23MHZ) volt_mark = VOLT_12M;
-      else if (freq[25:16] >= FREQ_20MHZ) volt_mark = VOLT_15M;
-      else if (freq[25:16] >= FREQ_16MHZ) volt_mark = VOLT_17M;
-      else if (freq[25:16] >= FREQ_12MHZ) volt_mark = VOLT_20M;
-      else if (freq[25:16] >= FREQ_8MHZ) volt_mark = VOLT_30M;
-      else if (freq[25:16] >= FREQ_6MHZ) volt_mark = VOLT_40M;
-      else if (freq[25:16] >= FREQ_4MHZ) volt_mark = VOLT_60M;
-      else if (freq[25:16] >= FREQ_2MHZ) volt_mark = VOLT_80M;
-      else volt_mark = VOLT_160M;
+      if      (freq[25:16] >= FREQ_25MHZ) volt_mark = VOLT_10M[(DAC_BITS-1):0];
+      else if (freq[25:16] >= FREQ_23MHZ) volt_mark = VOLT_12M[(DAC_BITS-1):0];
+      else if (freq[25:16] >= FREQ_20MHZ) volt_mark = VOLT_15M[(DAC_BITS-1):0];
+      else if (freq[25:16] >= FREQ_16MHZ) volt_mark = VOLT_17M[(DAC_BITS-1):0];
+      else if (freq[25:16] >= FREQ_12MHZ) volt_mark = VOLT_20M[(DAC_BITS-1):0];
+      else if (freq[25:16] >= FREQ_8MHZ) volt_mark = VOLT_30M[(DAC_BITS-1):0];
+      else if (freq[25:16] >= FREQ_6MHZ) volt_mark = VOLT_40M[(DAC_BITS-1):0];
+      else if (freq[25:16] >= FREQ_4MHZ) volt_mark = VOLT_60M[(DAC_BITS-1):0];
+      else if (freq[25:16] >= FREQ_2MHZ) volt_mark = VOLT_80M[(DAC_BITS-1):0];
+      else volt_mark = VOLT_160M[(DAC_BITS-1):0];
       
       if (band_volts_enabled == 1)  
         fan_pwm = band_volts_output;

@@ -213,9 +213,9 @@ always @(negedge clock_2_5MHz)
         dhcp_seconds_timer <= 4'd0;
         reg_network_state_dhcp <= 1'b0;    // Let network code know we have a valid IP address so can run when needed.
         if (lease == 32'd0)
-          dhcp_renew_timer <= 43_200;  // use 43,200 seconds (12 hours) if no lease time set
+          dhcp_renew_timer <= 18'd43_200;  // use 43,200 seconds (12 hours) if no lease time set
         else
-          dhcp_renew_timer <= lease >> 1;  // set timer to half lease time.
+          dhcp_renew_timer <= lease[18:1];  // set timer to half lease time.
         //    dhcp_renew_timer <= (32'd10 * 2_500_000);     // **** test code - set DHCP renew to 10 seconds ****
         state <= ST_DHCP_RENEW_WAIT;
       end
@@ -291,9 +291,9 @@ always @(negedge clock_2_5MHz)
       dhcp_tx_enable <= 1'b0;
       if (dhcp_success) begin
         if (lease == 32'd0)
-          dhcp_renew_timer <= 43_200;  // use 43,200 seconds (12 hours) if no lease time set
+          dhcp_renew_timer <= 18'd43_200;  // use 43,200 seconds (12 hours) if no lease time set
         else
-          dhcp_renew_timer <= lease >> 1;  // set timer to half lease time.
+          dhcp_renew_timer <= lease[18:1];  // set timer to half lease time.
         //  dhcp_renew_timer <= (32'd10 * 2_500_000);     // **** test code - set DHCP renew to 10 seconds ****
         dhcp_timer <= 22'd2_500_000;    // reset dhcp timers for next Renewal
         state <= ST_DHCP_RENEW_WAIT;

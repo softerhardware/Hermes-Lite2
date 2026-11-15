@@ -460,7 +460,7 @@ assign msec_cnt_not_zero = |msec_cnt;
 always @(posedge clk) begin
   if (ds_cmd_ptt | ~cwx_enable) msec_cnt <= 9'd0;
   else if (|cwx_saved) msec_cnt <= 9'd500;
-  else if (msec_cnt_not_zero & msec_pulse) msec_cnt <= msec_cnt - 1;
+  else if (msec_cnt_not_zero & msec_pulse) msec_cnt <= msec_cnt - 9'd1;
 end
 
 endmodule

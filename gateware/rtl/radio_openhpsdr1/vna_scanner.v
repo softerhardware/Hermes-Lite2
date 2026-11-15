@@ -49,7 +49,8 @@ module vna_scanner (
 parameter CICRATE;
 parameter RATE48;   // The decimation for 48000 sps
 
-localparam DECIMATION = (RATE48 * CICRATE * 8) * 6; // The decimation; the number of clocks per output sample
+localparam [31:0] DECIMATION_WIDE = (RATE48 * CICRATE * 8) * 6; // The decimation; the number of clocks per output sample
+localparam [13:0] DECIMATION = DECIMATION_WIDE[13:0];
 
 localparam VNA_STARTUP        = 3'd0; // States in the state machine
 localparam VNA_PC_SCAN        = 3'd1;
@@ -182,7 +183,7 @@ always @* begin
       if (vna_decimation == 1'b0) begin
         vna_I_next          = 1'd0;
         vna_Q_next          = 1'd0;
-        vna_decimation_next = DECIMATION - 1;
+        vna_decimation_next = DECIMATION - 14'd1;
         data_counter_next   = 10'd1023;
         if (vna_counter == 0)
           vna_state_next = VNA_ZERO_DATA;

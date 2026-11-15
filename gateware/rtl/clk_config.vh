@@ -15,7 +15,8 @@
 
 // NCO phase increment constant: M2 = round(2^57 / CLK_FREQ).
 // freq[Hz] * M2 >> 25 is the 32-bit phase increment (see radio.v).
-localparam [31:0] M2_MATH = ((64'd144115188075855872 + CLK_FREQ/2) / CLK_FREQ);
+localparam [63:0] M2_MATH_WIDE = (64'd144115188075855872 + CLK_FREQ/2) / CLK_FREQ;
+localparam [31:0] M2_MATH = M2_MATH_WIDE[31:0];
 
 // Some oscillator frequencies carry measured calibration offsets that must
 // NOT be recomputed from the formula; they are preserved verbatim.  For
@@ -34,13 +35,15 @@ localparam [5:0] CICRATE =
     (CLK_FREQ == 32'd76800000) ? 6'd05 : 6'd08;
 
 // TX interpolator gain normalization count: RRRR = CLK_FREQ / 384000
-localparam [9:0] RRRR = CLK_FREQ / 32'd384000;
+localparam [31:0] RRRR_WIDE = CLK_FREQ / 32'd384000;
+localparam [9:0] RRRR = RRRR_WIDE[9:0];
 
 // TX interpolator growth normalization bits
 localparam GBITS = (CLK_FREQ == 32'd61440000) ? 30 : 31;
 
 // Decimation rates through cic(CICRATE) x varcic(rate) x fir(/8)
-localparam [5:0] RATE48  = CLK_FREQ / (CICRATE * 32'd384000); //  48 ksps
+localparam [31:0] RATE48_WIDE = CLK_FREQ / (CICRATE * 32'd384000);
+localparam [5:0] RATE48  = RATE48_WIDE[5:0];                    //  48 ksps
 localparam [5:0] RATE96  =  RATE48 >> 1;                      //  96 ksps
 localparam [5:0] RATE192 =  RATE96  >> 1;                     // 192 ksps
 localparam [5:0] RATE384 =  RATE192 >> 1;                     // 384 ksps

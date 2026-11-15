@@ -38,11 +38,12 @@ localparam BAUDRATE = 9600 ;     // bps
 // ---------------------
 reg        uart_tx_start = 1'b0 ;
 reg [8:0] uart_br_cnt   = 9'b0;
+localparam [31:0] UART_BR_DIV = (CLKFREQ / BAUDRATE) - 32'd1;
 wire       uart_shift = (uart_br_cnt==9'b0);
 
 always @ (posedge clk) 
   if (uart_tx_start | uart_shift)
-    uart_br_cnt <= (CLKFREQ / BAUDRATE) -1 ;
+    uart_br_cnt <= UART_BR_DIV[8:0];
   else
     uart_br_cnt <= uart_br_cnt - 1'b1 ;
 
