@@ -164,6 +164,8 @@ always @* begin
       if (sample) next_state = WRITE0;
     end
 
+    default: ; // keep defaults above for unused state encodings
+                 // (silences Warning 10270 "incomplete case statement")
   endcase
 end
 
