@@ -605,6 +605,10 @@ generate case (FAN)
 
     // FSM Combinational
     always @* begin
+      // Defaults (prevents latch inference on fan_output/temp_enabletx)
+      fan_output = 1'b0;
+      temp_enabletx = 1'b1;
+
       // Next State
       fan_state_next = fan_state;
 
@@ -613,8 +617,6 @@ generate case (FAN)
 
       if (band_volts_enabled == 0) begin 
         // Combo
-        fan_output = 1'b0;
-        temp_enabletx = 1'b1;
 
         case (fan_state)
           FAN_OFF: begin
