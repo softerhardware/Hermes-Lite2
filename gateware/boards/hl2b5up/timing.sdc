@@ -59,9 +59,11 @@ create_generated_clock -source {hermeslite_core_i|ad9866pll_inst|altpll_componen
 
 create_generated_clock -source {hermeslite_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -multiply_by 2 -duty_cycle 50.00 -name clock_153p6MHz {hermeslite_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|clk[1]}
 
-create_generated_clock -source {hermeslite_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -multiply_by 16 -divide_by 5 -duty_cycle 50.00 -name clock_245p76MHz {hermeslite_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|clk[2]}
-
-create_generated_clock -source {hermeslite_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|inclk[0]} -divide_by 1600 -duty_cycle 50.00 -name clock_48khz {hermeslite_core_i|ad9866pll_inst|altpll_component|auto_generated|pll1|clk[3]}
+# PLL outputs clk[2] (245.76 MHz envelope) and clk[3] (48 kHz) are not used
+# by variants using this SDC file (TXENVELOPE=0, AK4951=0), so they are
+# pruned by synthesis. Declaring generated clocks on pruned nodes causes
+# Critical Warning (332049) and Warning (332174). Variants that enable them
+# use timing_ak4951.sdc, which keeps these constraints.
 
 
 derive_clock_uncertainty
@@ -78,7 +80,7 @@ set_clock_groups -asynchronous -group { \
 		clock_ethrxintslow \
 		clock_ethrxintfast \
 	} -group { \
-		clock_153p6MHz rffe_ad9866_clk76p8 clock_76p8MHz clock_245p76MHz clock_48khz \
+		clock_153p6MHz rffe_ad9866_clk76p8 clock_76p8MHz \
 	}
 
 
@@ -266,7 +268,7 @@ set_false_path -to [get_ports {pa_*}]
 set_max_delay 30 -from [get_registers {
     *eeprom_config*
     *alt_mac*
-    *alternate_mac_sync*
+    *sync_alternate_mac*
 }]
 
 
