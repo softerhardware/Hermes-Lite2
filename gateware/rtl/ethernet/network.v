@@ -369,7 +369,8 @@ wire [31:0] to_ip;
 wire          rgmii_rx_active_pipe;
 wire [7:0]    rx_data_pipe;
 reg           rgmii_rx_active;
-reg [7:0]     rx_data;
+(*preserve*) reg [7:0]     rx_data;
+(*preserve*) reg [7:0]     rx_data_duplicate;
 
 //mac_recv in
 wire mac_rx_enable = rgmii_rx_active;
@@ -386,7 +387,7 @@ wire rx_is_icmp;
 wire udp_rx_enable = ip_rx_active && !rx_is_icmp;
 assign udp_tx_enable = tx_start && (tx_is_udp || tx_is_dhcp);
 //udp_recv out
-assign udp_rx_data = rx_data;
+assign udp_rx_data = rx_data_duplicate;
 
 //arp in
 wire arp_rx_enable = mac_rx_active && rx_is_arp;
@@ -516,6 +517,7 @@ wire        udp_destination_valid;
 
 always @(posedge rx_clock) begin
   rx_data <= rx_data_pipe;
+  rx_data_duplicate <= rx_data_pipe;
   rgmii_rx_active <= rgmii_rx_active_pipe;
 end
 
@@ -570,7 +572,7 @@ udp_recv udp_recv_inst (
   .clock                (rx_clock             ),
   .run                  (run                  ),
   .rx_enable            (udp_rx_enable        ),
-  .data                 (rx_data              ),
+  .data                 (rx_data_duplicate    ),
   .to_ip                (to_ip                ),
   .local_ip             (local_ip             ),
   .broadcast            (broadcast            ),
