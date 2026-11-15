@@ -52,7 +52,11 @@ end// always @(posedge clk)
 assign coarse_sinp[18] = coarse_sinp18;
 assign coarse_cosp[18] = coarse_cosp18;
 
+`ifdef USE_ALTSYNCRAM
+coarserom #(.init_file("sincos_coarse.mif")) coarserom_i (
+`else
 coarserom #(.init_file("sincos_coarse.txt")) coarserom_i (
+`endif
   .address(coarse_addr),
   .clock(clk),
   .q({coarse_sinp[17:0],coarse_cosp[17:0]})
