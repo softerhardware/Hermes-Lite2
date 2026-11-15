@@ -65,8 +65,44 @@ logic             cmd_ack_next;
 logic             istart;
 
 logic   [8:0]     initarrayv;
-// Tool problems if below is logic
-reg     [8:0]     initarray [19:0];
+
+// This is a read-only initialization table of compile-time constants. It is
+// implemented as a plain combinational lookup (case mux) rather than as a
+// memory array read by a variable index: an inferred ROM here would need a
+// MIF/initialization file to satisfy the memory-inference checks and its
+// write ports would be reported as undriven (Warning 10030). Only entries
+// 0..19 are ever accessed (reads are gated by dut1_pc[5:1] <= 6'h13); the
+// remaining entries are inert placeholders returning a no-op write.
+function [8:0] init_entry;
+  input [4:0] a;
+  begin
+    case (a)
+      5'd0:  init_entry = {1'b0,8'h80}; // Address 0x00, enable 4 wire SPI
+      5'd1:  init_entry = {1'b0,8'h00}; // Address 0x01,
+      5'd2:  init_entry = {1'b0,8'h00}; // Address 0x02,
+      5'd3:  init_entry = {1'b0,8'h00}; // Address 0x03,
+      // Address 0x04:
+      5'd4:  init_entry = (BYPASS_VERSA == 1) ? {1'b1,8'h36} : {1'b0,8'h00};
+      5'd5:  init_entry = {1'b0,8'h00}; // Address 0x05,
+      5'd6:  init_entry = {1'b1,8'h54}; // Address 0x06, Disable clkout2
+      5'd7:  init_entry = {1'b1,8'h30}; // Address 0x07, Initiate DC offset calibration and RX filter on, 21 to 20 to disable RX filter
+      5'd8:  init_entry = {1'b0,8'h4b}; // Address 0x08, RX filter f-3db at ~34 MHz after scaling
+      5'd9:  init_entry = {1'b0,8'h00}; // Address 0x09,
+      5'd10: init_entry = {1'b0,8'h00}; // Address 0x0a,
+      // Address 0x0b, Enable RxPGA update via Tx[5:0]
+      5'd11: init_entry = {1'b1,((FAST_LNA == 1) ? 8'h04 : 8'h00)};
+      5'd12: init_entry = {1'b1,8'h43}; // Address 0x0c, TX twos complement and interpolation factor
+      5'd13: init_entry = {1'b1,8'h03}; // Address 0x0d, RX twos complement
+      5'd14: init_entry = {1'b1,8'h81}; // Address 0x0e, Enable/Disable IAMP
+      5'd15: init_entry = {1'b0,8'h00}; // Address 0x0f,
+      5'd16: init_entry = {1'b1,8'h80}; // Address 0x10, Select TX gain
+      5'd17: init_entry = {1'b1,8'h00}; // Address 0x11, Select TX gain
+      5'd18: init_entry = {1'b1,8'h00}; // Address 0x12,
+      5'd19: init_entry = {1'b0,8'h00}; // Address 0x13,
+      default: init_entry = {1'b0,8'h00};
+    endcase
+  end
+endfunction
 
 localparam
   CMD_IDLE    = 2'b00,
@@ -83,30 +119,6 @@ logic [6:0]       rx_gain = 7'b1000000;
 logic [6:0]       rx_gain_next = 7'b1000000;
 
 logic [12:0]      icmd_data = 12'h000;
-
-initial begin
-  // First bit is 1'b1 for write enable to that address
-  initarray[0] = {1'b0,8'h80}; // Address 0x00, enable 4 wire SPI
-  initarray[1] = {1'b0,8'h00}; // Address 0x01,
-  initarray[2] = {1'b0,8'h00}; // Address 0x02,
-  initarray[3] = {1'b0,8'h00}; // Address 0x03,
-  initarray[4] = (BYPASS_VERSA == 1) ? {1'b1,8'h36} : {1'b0,8'h00}; // Address 0x04,
-  initarray[5] = {1'b0,8'h00}; // Address 0x05,
-  initarray[6] = {1'b1,8'h54}; // Address 0x06, Disable clkout2
-  initarray[7] = {1'b1,8'h30}; // Address 0x07, Initiate DC offset calibration and RX filter on, 21 to 20 to disable RX filter
-  initarray[8] = {1'b0,8'h4b}; // Address 0x08, RX filter f-3db at ~34 MHz after scaling
-  initarray[9] = {1'b0,8'h00}; // Address 0x09,
-  initarray[10] = {1'b0,8'h00}; // Address 0x0a,
-  initarray[11] = {1'b1,((FAST_LNA == 1) ? 8'h04 : 8'h00)}; // Address 0x0b, Enable RxPGA update via Tx[5:0]
-  initarray[12] = {1'b1,8'h43}; // Address 0x0c, TX twos complement and interpolation factor
-  initarray[13] = {1'b1,8'h03}; // Address 0x0d, RX twos complement
-  initarray[14] = {1'b1,8'h81}; // Address 0x0e, Enable/Disable IAMP
-  initarray[15] = {1'b0,8'h00}; // Address 0x0f,
-  initarray[16] = {1'b1,8'h80}; // Address 0x10, Select TX gain
-  initarray[17] = {1'b1,8'h00}; // Address 0x11, Select TX gain
-  initarray[18] = {1'b1,8'h00}; // Address 0x12,
-  initarray[19] = {1'b0,8'h00}; // Address 0x13,
-end
 
 // Command Slave State Machine
 always @(posedge clk) begin
@@ -225,7 +237,7 @@ always @(posedge clk) begin: AD9866_DUT1_FSM
 end
 
 always @* begin
-    initarrayv = initarray[dut1_pc[5:1]];
+    initarrayv = init_entry(dut1_pc[5:1]);
     datain = {3'b000,icmd_data};
     start = 1'b0;
     if (rffe_ad9866_sen_n) begin
