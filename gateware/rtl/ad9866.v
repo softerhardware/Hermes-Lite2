@@ -93,6 +93,12 @@ parameter         FAST_LNA = 0;
 `include "cmd_bus.vh"
 
 
+// The AD9866 command sequencer is implemented in ad9866ctrl.v, which is
+// instantiated by control.v rather than here, so this module has nothing to
+// drive cmd_ack. All users leave the port unconnected; tie it off to avoid
+// the "undriven output port" message during logic synthesis.
+assign cmd_ack = 1'b0;
+
 // TX Path
 logic   [11:0]    tx_data_d1;
 logic             tx_sync;
