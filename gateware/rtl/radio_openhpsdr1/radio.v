@@ -539,6 +539,17 @@ vna_scanner #(.CICRATE(CICRATE), .RATE48(RATE48)) rx_vna (  // use this output f
 
   endgenerate
 
+  // Tie off the unused RX channel array entries (NR..9) so that every entry
+  // has a driver. The output mux only selects channels 0..last_chan, so these
+  // values are don't-care and are pruned by synthesis.
+  generate
+    for (c = NR; c < 10; c = c + 1) begin : RXUNUSED
+      assign rx_data_rdy[c] = 1'b0;
+      assign rx_data_i[c]   = 24'h000000;
+      assign rx_data_q[c]   = 24'h000000;
+    end
+  endgenerate
+
   // Channel 0 mixer output also feeds the VNA scanner
   assign cordic_data_I = mixdata_i[0];
   assign cordic_data_Q = mixdata_q[0];
