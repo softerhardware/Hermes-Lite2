@@ -382,6 +382,7 @@ wire ip_rx_enable = mac_rx_active && !rx_is_arp;
 //ip_recv out
 wire ip_rx_active;
 wire rx_is_icmp;
+wire to_ip_is_me;
 
 //udp_recv in
 wire udp_rx_enable = ip_rx_active && !rx_is_icmp;
@@ -612,13 +613,11 @@ arp arp_inst (
 generate
   if (SIM==1) begin
 
+    // icmp is not instantiated in simulation; dst_unreachable has no driver.
+    // (tx_request, tx_active, tx_data, length, destination_mac and
+    // destination_ip were previously tied off here, but those nets are not
+    // driven or used in this branch, so the assigns were removed.)
     assign dst_unreachable = 1'b0;
-    assign tx_request = 1'b0;
-    assign tx_active = 1'b0;
-    assign tx_data = 8'h00;
-    assign length = 16'h0000;
-    assign destination_mac = 48'h00;
-    assign destination_ip = 32'h00;
 
   end else begin
 

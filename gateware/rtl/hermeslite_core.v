@@ -310,7 +310,7 @@ logic           hl2_reset;
 logic           qmsec_pulse, qmsec_pulse_ad9866sync;
 logic           msec_pulse, msec_pulse_ethsync;
 
-logic           atu_txinhibit, atu_txinhibit_ad9866ync;
+logic           atu_txinhibit, atu_txinhibit_ad9866sync;
 
 logic        stall_req, stall_req_sync;
 logic        stall_ack, stall_ack_ad9866;
