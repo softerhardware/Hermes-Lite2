@@ -252,6 +252,24 @@ set_false_path -from [get_ports {io_tp*}]
 set_false_path -to [get_ports {pa_*}]
 
 
+## Quasi-static MAC (local_mac)
+#
+# assign local_mac = eeprom_config[6] ? {MAC[47:16],alt_mac}
+#                                     : {MAC[47:2],~alternate_mac_sync,MAC[0]}
+#
+# local_mac is a quasi-static net built from the EEPROM configuration
+# word, the alternate MAC loaded from EEPROM, and the synchronized MAC
+# select jumper. These source registers change only at configuration
+# time, long before any packet uses the value, so relax all paths
+# originating from them to 30ns. Wildcards match the Quartus-renamed
+# copies of the registers (use_eeprom_config, retimed/merged variants).
+set_max_delay 30 -from [get_registers {
+    *eeprom_config*
+    *alt_mac*
+    *alternate_mac_sync*
+}]
+
+
 ## Multicycle in MAC
 
 set_multicycle_path -from [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|dhcp:dhcp_inst|length[*]}] -to [get_keepers {hermeslite_core:hermeslite_core_i|network:network_inst|ip_send:ip_send_inst|shift_reg[*]}] -setup -start 3
