@@ -256,7 +256,6 @@ reg sda_i_reg = 1'b1;
 reg scl_o_reg = 1'b1, scl_o_next;
 reg sda_o_reg = 1'b1, sda_o_next;
 
-reg last_scl_i_reg = 1'b1;
 reg last_sda_i_reg = 1'b1;
 
 reg busy_reg = 1'b0;
@@ -282,8 +281,9 @@ assign bus_active = bus_active_reg;
 assign bus_control = bus_control_reg;
 assign missed_ack = missed_ack_reg;
 
-wire scl_posedge = scl_i_reg & ~last_scl_i_reg;
-wire scl_negedge = ~scl_i_reg & last_scl_i_reg;
+// scl_posedge/scl_negedge are not used by the bus monitor (only SDA
+// transitions during SCL high, i.e. start/stop bits, are detected).
+// Removing them avoids Warning (10036) "assigned a value but never read".
 wire sda_posedge = sda_i_reg & ~last_sda_i_reg;
 wire sda_negedge = ~sda_i_reg & last_sda_i_reg;
 
@@ -888,7 +888,6 @@ always @(posedge clk) begin
 
     scl_i_reg <= scl_i;
     sda_i_reg <= sda_i;
-    last_scl_i_reg <= scl_i_reg;
     last_sda_i_reg <= sda_i_reg;
 end
 

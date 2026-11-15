@@ -991,7 +991,14 @@ cpl_cordic #(.OUT_WIDTH(16)) cordic_inst (
 
 //gain of 4
 assign txsum = (tx_cordic_i_out  >>> 2);
-assign txsumq = (tx_cordic_q_out  >>> 2);
+// txsumq is only read by the LRDATA==1 predistortion path and by
+// tx_predistort == 1 in the LRDATA==2 EER path. When this configuration
+// never reads it, leave it undriven so no "assigned a value but never
+// read" message is issued for an orphaned driver.
+// (This code is already inside a generate region, so no generate keyword.)
+if ((LRDATA == 1) | (LRDATA == 2)) begin : TXSUMQ_DRV
+  assign txsumq = (tx_cordic_q_out  >>> 2);
+end
 
 
 case (LRDATA)

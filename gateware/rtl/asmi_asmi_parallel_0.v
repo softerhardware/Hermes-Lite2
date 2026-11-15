@@ -129,7 +129,8 @@ module  asmi_asmi_parallel_0
 	reg	[7:0]	epcs_id_reg2;
 	reg	ill_erase_reg;
 	reg	ill_write_reg;
-	reg	illegal_write_prot_reg;
+	// Removed dead register illegal_write_prot_reg (vendor IP): assigned but
+	// never read anywhere in this generated file. Eliminates Warning (10036).
 	reg	max_cnt_reg;
 	reg	maxcnt_shift_reg;
 	reg	maxcnt_shift_reg2;
@@ -899,13 +900,6 @@ module  asmi_asmi_parallel_0
 	always @ ( posedge clkin_wire or  posedge reset)
 		if (reset == 1'b1) ill_write_reg <= 1'b0;
 		else  ill_write_reg <= illegal_write_b4out_wire;
-	// synopsys translate_off
-	initial
-		illegal_write_prot_reg = 0;
-	// synopsys translate_on
-	always @ ( posedge clkin_wire or  posedge reset)
-		if (reset == 1'b1) illegal_write_prot_reg <= 1'b0;
-		else  illegal_write_prot_reg <= do_write;
 	// synopsys translate_off
 	initial
 		max_cnt_reg = 0;
