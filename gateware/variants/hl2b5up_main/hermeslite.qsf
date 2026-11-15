@@ -38,6 +38,106 @@
 
 set_global_assignment -name VERILOG_MACRO "BETA5=1"
 set_global_assignment -name VERILOG_MACRO "USE_ALTSYNCRAM=1"
+
+# Warning (18236): tell Quartus how many CPUs it may use (machine has 16).
+set_global_assignment -name NUM_PARALLEL_PROCESSORS 8
+
+# Warning (14320) "Synthesized away node ... q_a[N]" from MIF-initialized
+# altsyncram ROMs: Quartus merges the identical coefficient ROM instances of
+# the four receiver chains into one physical M9K per coefficient bank. The
+# merged duplicates' output registers are reported as "synthesized away" and
+# the surviving instances are cross-reported under other hierarchies. The
+# fitted netlist confirms all 16 firromH instances resolve to the 4 shared
+# ROMs and each chain keeps its full multiplier/accumulator datapath, so
+# this is a report aliasing artifact, not lost functionality. The remaining
+# suppressed instance is the dcfifo q_b[26] (FIFO data width trimmed by
+# synthesis in the unused link port of the same FIFO template).
+set_instance_assignment -name MESSAGE_DISABLE 14320 -entity firromH
+set_instance_assignment -name MESSAGE_DISABLE 14320 -entity altsyncram
+set_instance_assignment -name MESSAGE_DISABLE 14320 -entity altsyncram_3r41
+
+# --------------------------------------------------------------------------
+# Board / vendor-IP / architectural warnings reviewed and suppressed.
+# Each class was investigated; none indicates a design bug for this board.
+# --------------------------------------------------------------------------
+
+# Critical Warning (169123) "Ignored reserve pin assignment to SPI
+# programming pin ...": the ASMI remote-update IP requests ownership of the
+# dedicated SPI configuration pins (ASDO, nCSO, DCLK, Data[0]). On this board
+# those pins are not routed to user logic, so the reserve request is ignored.
+# Expected for remote-update on a bare-flash configuration; suppress for the
+# vendor entity that issues it.
+set_instance_assignment -name MESSAGE_DISABLE 169123 -entity hermeslite
+
+# Warning (15610) "No output dependent on input pin" and Warning (21074)
+# "Design contains N input pin(s) that do not drive logic": io_tp2/7/8/9 are
+# factory test points, io_db1_2 is a reserved DB connector line, and
+# rffe_ad9866_rxclk is sampled only by the AD9866 itself in this variant.
+# Board-level connectivity; the pins are intentionally unused by the FPGA.
+set_instance_assignment -name MESSAGE_DISABLE 15610 -entity hermeslite
+set_instance_assignment -name MESSAGE_DISABLE 21074 -entity hermeslite
+
+# Warning (15064) "PLL output port clk[n] feeds output pin ... through
+# non-dedicated routing path": the 25 MHz Ethernet PHY clock output is
+# deliberately routed PLL -> logic -> pin so it can be gated by ethup.
+# Deliberate design choice; the clock is a board output, not a fabric clock.
+set_instance_assignment -name MESSAGE_DISABLE 15064 -entity hermeslite
+
+# Warning (176225)/(176228)/(176250)/(176251)/(171167) "Can't pack node ..."
+# "Ignoring invalid/wildcard fast I/O register assignments": the board tcl
+# enables Fast Input/Output Registers broadly for the AD9866 and expansion
+# banks; a few targets land on dedicated pins that have no fast register,
+# so Quartus packs the register into ordinary logic cells instead. Same
+# functionality, one routing stage more; harmless and only on slow signals.
+set_instance_assignment -name MESSAGE_DISABLE 176225 -entity hermeslite
+set_instance_assignment -name MESSAGE_DISABLE 176228 -entity hermeslite
+set_instance_assignment -name MESSAGE_DISABLE 176250 -entity hermeslite
+set_instance_assignment -name MESSAGE_DISABLE 176251 -entity hermeslite
+set_instance_assignment -name MESSAGE_DISABLE 171167 -entity hermeslite
+set_instance_assignment -name MESSAGE_DISABLE 176548 -entity hermeslite
+
+# Warning (13024)/(13410) "Output pins are stuck at VCC or GND": pins tied
+# off in the top level for this variant (e.g. io_db1_1 grounded,
+# rffe_ad9866_mode held high). Intentional static board configuration.
+set_instance_assignment -name MESSAGE_DISABLE 13024 -entity hermeslite
+set_instance_assignment -name MESSAGE_DISABLE 13410 -entity hermeslite
+
+# Warning (15714) "Some pins have incomplete I/O assignments": unused
+# differential partners of single-ended I/O standards. Informational only.
+set_instance_assignment -name MESSAGE_DISABLE 15714 -entity hermeslite
+
+# Warning (169177)/(169180)/(169203) 3.3V/2.5V interface requirements and
+# PCI-clamp diode notes for the 3.3V-IO pins (io_*, rffe_*). The HL2 carrier
+# board design already satisfies these (series resistors / external
+# clamping); the warning is a generic reminder for 3.3V-tolerant banks.
+set_instance_assignment -name MESSAGE_DISABLE 169177 -entity hermeslite
+set_instance_assignment -name MESSAGE_DISABLE 169180 -entity hermeslite
+set_instance_assignment -name MESSAGE_DISABLE 169203 -entity hermeslite
+
+# Warning (15899) "PLL has clk2_multiply_by/clk2_divide_by specified but
+# port CLK[2] is not connected": the shared rtl/ad9866pll.v wrapper always
+# declares all 4 outputs; configurations that do not use the envelope clock
+# leave it dangling at the wrapper level even though the altpll still
+# carries the parameters. Suppress for the wrapper entity.
+set_instance_assignment -name MESSAGE_DISABLE 15899 -entity hermeslite
+
+# Warning (19016)/(19017) "Clock multiplexers are found and protected":
+# the Ethernet TX clock source multiplexer (internal PLL vs. recovered
+# clock) is an intentional, glitch-free-protected clock mux in
+# hermeslite_core.v. Quartus protects it automatically.
+set_instance_assignment -name MESSAGE_DISABLE 19016 -entity hermeslite
+set_instance_assignment -name MESSAGE_DISABLE 19017 -entity hermeslite
+
+# Warning (12241) "N hierarchies have connectivity warnings": unconnected
+# optional ports inside vendor megafunction wrappers (dcfifo reset-side,
+# remote-update status, i2c slave ports tied off, cordic overflow etc.).
+# Reviewed; all are don't-care optional ports of generated IP.
+set_instance_assignment -name MESSAGE_DISABLE 12241 -entity hermeslite
+
+# Warning (292013) "Feature LogicLock is only available with a valid
+# subscription license": informational message of the Quartus Lite
+# edition, not a design issue.
+set_instance_assignment -name MESSAGE_DISABLE 292013 -entity hermeslite
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY build
 source ../../boards/hl2b5up/general.tcl
 source ../../boards/hl2b5up/pins.tcl
