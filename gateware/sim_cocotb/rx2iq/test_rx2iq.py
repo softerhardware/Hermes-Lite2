@@ -30,8 +30,8 @@ OUT_FREQ = SAMPLING_FREQ / (CIC_DECIMATION * VAR_DECIMATION)  # 768 kHz
 
 # Automated check limits
 CARRIER_BINS = 2      # tone peak must land within this many FFT bins
-SFDR_LIMIT_DB = -22   # any other spur above 200kHz (zero-extend skirt
-                      # lives lower; see rx1 notes)
+SFDR_LIMIT_DB = -22   # any other spur above 200kHz (cic.v now sign-
+                      # extends its input; see rx1 notes)
 
 
 @cocotb.test()
@@ -164,7 +164,7 @@ async def test_rx2iq(dut):
     assert dp == (dc_idx + int(round(wanted / s.bin2mhz))) % n, \
         "wanted tone not at %+.6f MHz" % wanted
 
-    # SFDR above the zero-extend image skirt: worst peak |f| > 200kHz
+    # SFDR above the baseband image skirt: worst peak |f| > 200kHz
     mask = np.ones(n, bool)
     keep = np.abs(np.arange(n) - dc_idx) * s.bin2mhz > 0.2
     mask &= keep

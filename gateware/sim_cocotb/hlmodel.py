@@ -463,9 +463,10 @@ class Cic:
         # loop): the returned (out_strobe, out_data) are the wire/register
         # values after the rising edge closing this cycle, exactly what the
         # testbench samples with `if decimA_avail:` at the falling edge.
-        # integrator_data[0] = { {(ACC_WIDTH-IN_WIDTH){1'b0}}, in_data },
-        # i.e. the IN_WIDTH-bit pattern is zero extended (per the RTL)
-        w0 = _mask(int(in_data), self.IW)
+        # integrator_data[0] = { {(ACC_WIDTH-IN_WIDTH){in_data[IN_WIDTH-1]}},
+        # in_data }, i.e. the IN_WIDTH-bit pattern is sign extended (per the
+        # RTL since the cic.v sign-extension fix, e4da2a9)
+        w0 = _s(int(in_data), self.IW)
         # strobe register update uses pre-edge sample_no
         if self.sample_no == self.D - 1:
             n_sample = 0

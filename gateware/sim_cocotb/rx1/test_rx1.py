@@ -97,12 +97,11 @@ async def test_rx1(dut):
 
     # Spectrum, like the original plot: real cic output at the 9.6MHz
     # output rate.  The cordic I channel holds the input sine split between
-    # SIG-RX = 20kHz (wanted) and SIG+RX = 20.02MHz.  Note cic.v zero
-    # extends its signed 18-bit input (concat in integrator_data[0]), so
-    # negative cordic samples wrap by +2^18: the original testbench plots
-    # show the resulting image skirt up to about -10 dBc.  That is the
-    # behaviour of the design under test, so the automated checks pin the
-    # tone/alias positions and relaxed levels.
+    # SIG-RX = 20kHz (wanted) and SIG+RX = 20.02MHz.  cic.v sign-extends
+    # its signed 18-bit input (concat in integrator_data[0], fixed in
+    # e4da2a9), so the old +2^18 wraparound image skirt is gone and the
+    # SIG+RX sideband folds down to 0.82MHz at noise level.  The automated
+    # checks pin the tone/alias positions and the suppressed alias level.
     s = spectrum.Spectrum(res, dt * CIC_DECIMATION, window=spectrum.flattop)
     png = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        'rx1_spectrum.png')
@@ -133,13 +132,12 @@ async def test_rx1(dut):
         "wanted tone not near %.1f Hz (found bin %d)" % (wanted, dp)
     assert ap == int(round(alias / binsz)), \
         "alias not near %.3f MHz (found bin %d)" % (alias / 1e6, ap)
-    assert -27.0 < alias_db - carrier_db < -20.0, \
-        "alias %.2f dBc outside expected %.1f..%.1f dBc window" % (
-            alias_db - carrier_db, -27.0, -20.0)
+    assert alias_db - carrier_db < -40.0, \
+        "alias %.2f dBc not suppressed below -40.0 dBc" % (
+            alias_db - carrier_db)
 
-    # Above the zero-extend image skirt (>3.7MHz) the spectrum must be
-    # free of large narrow spurs; this catches gross regressions while
-    # tolerating the known skirt.
+    # With the sign-extension fix the whole band is clean of large
+    # narrow spurs; this catches gross regressions.
     mask = np.ones(n, bool)
     mask[:int(3.7e6 / binsz)] = False
     spur_idx = np.flatnonzero(mask)[int(np.argmax(s.sa[mask]))]

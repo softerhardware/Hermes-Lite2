@@ -31,8 +31,8 @@ OUT_FREQ = SAMPLING_FREQ / (CIC_DECIMATION * VAR_DECIMATION)  # 768 kHz
 
 # Automated check limits
 CARRIER_BINS = 2      # tone peak must land within this many FFT bins
-SFDR_LIMIT_DB = -22   # any other spur above 200kHz (zero-extend skirt
-                      # lives lower; see rx1 notes)
+SFDR_LIMIT_DB = -22   # any other spur above 200kHz (cic.v now sign-
+                      # extends its input; see rx1 notes)
 
 
 @cocotb.test()
@@ -121,10 +121,9 @@ async def test_rx2(dut):
     assert maxdB == 0, "decimB_real does not match model (maxdiff %d)" % maxdB
 
     # Spectrum of decimB at the 768kHz output rate.  Same story as rx1:
-    # the cic zero-extends its signed input (see rx1 test notes), so the
-    # baseband shows a mirror image at RX+SIG-8*fs_out = 60kHz a few dB
-    # below the wanted tone; the varcic then lowpasses heavily, leaving
-    # the region above ~200kHz clean.
+    # cic.v sign-extends its signed input (fixed in e4da2a9), so the old
+    # mirror image at RX+SIG-8*fs_out = 60kHz is gone; the varcic lowpasses
+    # heavily, leaving the region above ~200kHz clean.
     s = spectrum.Spectrum(resB, dt * CIC_DECIMATION * VAR_DECIMATION,
                           window=spectrum.flattop)
     png = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -150,7 +149,7 @@ async def test_rx2(dut):
     assert abs(dp - int(round(wanted / binsz))) <= CARRIER_BINS, \
         "wanted tone not near %.1f Hz (found bin %d)" % (wanted, dp)
 
-    # SFDR above the zero-extend image region: worst peak >200kHz
+    # SFDR above the baseband image region: worst peak >200kHz
     mask = np.ones(n, bool)
     mask[:int(200e3 / binsz)] = False
     spur_idx = np.flatnonzero(mask)[int(np.argmax(s.sa[mask]))]
