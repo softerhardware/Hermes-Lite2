@@ -101,9 +101,16 @@ void HL2Run(void)
 	static double delay_time = 0;
 	static double rms_ref;
 
-	read_rx_udp10(63 * 2 * 50); //want_samples);
+	int received_samples = read_rx_udp10(63 * 2 * 50); //want_samples);
+	if (received_samples <= 0 && (hermes_run_state == WAIT_STATE ||
+		(hermes_run_state >= SET_BIAS && hermes_run_state <= SET_BIAS + 9))) {
+		hermes_key_down = 0;
+		hermes_run_state = ERROR_STATE;
+		snprintf(status120, sizeof(status120), "Error: Missing PA telemetry");
+		WriteStatus(status120);
+	}
 	want_samples = SHORT_TIME;
-	if (hw_command_state > 0 && hw_command_start - QuiskTimeSec() > COMMAND_TOTAL_SEC)		// timeout
+	if (hw_command_state > 0 && QuiskTimeSec() - hw_command_start > COMMAND_TOTAL_SEC)		// timeout
 		hw_command_state = -1;	// failure
 
 	switch (hermes_run_state) {
@@ -403,10 +410,10 @@ void HL2Run(void)
 			hermes_run_state = SET_BIAS + 4;
 			hermes_key_down = 0;
 		}
-		else if (bias0 >= 100 && hermes_pa_current < 0.010) {
+		else if (bias0 >= 100) {
 			hermes_key_down = 0;
 			hermes_run_state = ERROR_STATE;
-			snprintf(status120, 120, "Error: Bias0 code 100 but low bias current < 10 ma");
+			snprintf(status120, 120, "Error: Bias0 code limit reached without target current");
 			WriteStatus(status120);
 		}
 		else {
@@ -428,10 +435,10 @@ void HL2Run(void)
 			hermes_run_state = SET_BIAS + 6;
 			hermes_key_down = 0;
 		}
-		else if (bias1 >= 100 && hermes_pa_current < 0.010) {
+		else if (bias1 >= 100) {
 			hermes_key_down = 0;
 			hermes_run_state = ERROR_STATE;
-			snprintf(status120, 120, "Error: Bias1 code 100 but low bias current < 10 ma");
+			snprintf(status120, 120, "Error: Bias1 code limit reached without target current");
 			WriteStatus(status120);
 		}
 		else {
@@ -501,10 +508,7 @@ void HL2Run(void)
 		}
 		break;
 	case ERROR_STATE:	// There was an error; set bias to zero
-		if (do_all_tests)
-			WriteOutput("Set bias on the power output transistors FAILED");
-			CheckResult(output120, 1.0, 10.0, 0.1, NULL);
-			hermes_run_state = END_OF_TESTS;
+		hermes_key_down = 0;
 		if (hw_command_state <= 0) {
 			Bias0code(0);
 			hermes_run_state = ERROR_STATE + 1;
@@ -519,7 +523,13 @@ void HL2Run(void)
 	case ERROR_STATE + 2:
 		if (hw_command_state <= 0) {
 			hermes_enable_power_amp = 0;
-			hermes_run_state = STATE_IDLE;
+			if (do_all_tests) {
+				WriteOutput("Set bias on the power output transistors FAILED");
+				CheckResult("PA bias calibration", 1.0, 10.0, 0.1, NULL);
+				hermes_run_state = END_OF_TESTS;
+			} else {
+				hermes_run_state = STATE_IDLE;
+			}
 		}
 		break;
 
@@ -690,7 +700,7 @@ static int CheckResult(const char * msg, double result, double target, double to
 		if (verbose_output) std::cout << output + "\n";
 	}
 	tests_failed++;
-	
+	return 1;
 }
 
 void QuiskSleepMicrosec(int usec)
@@ -1045,7 +1055,7 @@ static void quisk_hermes_tx_send()
 			time_command = QuiskTimeSec();
 			hw_command_state++;
 		}
-		else if (hw_command_state > 1 && time_command - QuiskTimeSec() > COMMAND_INTERVAL_SEC) {
+		else if (hw_command_state > 1 && QuiskTimeSec() - time_command > COMMAND_INTERVAL_SEC) {
 			send_command = 1;		// no ACK received, transmit command again
 			time_command = QuiskTimeSec();
 			hw_command_state++;
@@ -1221,6 +1231,11 @@ static int read_rx_udp10(int want_samples)	// Read samples from UDP using the He
 		d = hermes_fwd_power;
 		hermes_fwd_power = hermes_rev_power;
 		hermes_rev_power = d;
+	}
+	if (hermes_count_temperature == 0 || hermes_count_current == 0) {
+		snprintf(status120, sizeof(status120), "Missing temperature or PA current telemetry");
+		WriteStatus(status120);
+		return 0;
 	}
 	if (nSamples > 0) {
 		samp_rms = sqrt(samp_rms / nSamples) / 2147483647.;

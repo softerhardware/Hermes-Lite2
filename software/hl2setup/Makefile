@@ -9,7 +9,7 @@ LINK = $(CXX)
 	$(CXX) $(CXXFLAGS) -c $<
 
 hl2setup: hl2setup.o hl2.o discover.o
-	$(LINK) -no-pie -o hl2setup hl2setup.o hl2.o discover.o $(LDSTATIC)
+	$(LINK) -o hl2setup hl2setup.o hl2.o discover.o $(LDSTATIC)
 
 win:
 	echo "Use visual c++ to make the project"

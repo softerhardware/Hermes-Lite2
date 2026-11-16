@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <ifaddrs.h>
+#include <net/if.h>
 #endif
 
 #include <string.h>
@@ -121,7 +122,8 @@ void send_discover(int rx_discover_socket)
 	if (getifaddrs(&ifap) == 0) {
 		p = ifap;
 		while(p) {
-			if ((p->ifa_addr) && p->ifa_addr->sa_family == AF_INET) {
+			if (p->ifa_addr && p->ifa_addr->sa_family == AF_INET &&
+				p->ifa_broadaddr && (p->ifa_flags & IFF_BROADCAST)) {
 				bcast_Addr.sin_addr = ((struct sockaddr_in *)(p->ifa_broadaddr))->sin_addr;
 				sendto(rx_discover_socket, (char *)data, 63, 0, (const struct sockaddr *)&bcast_Addr, sizeof(bcast_Addr));
 			}
