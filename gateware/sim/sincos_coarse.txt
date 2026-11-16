@@ -1,1 +1,0 @@
-../rtl/nco/sincos_coarse.txt
